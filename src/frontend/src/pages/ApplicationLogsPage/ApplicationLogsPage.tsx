@@ -1,29 +1,14 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
-  FaExclamationTriangle,
-  FaInfoCircle,
-  FaCheckCircle,
-  FaSearch,
-  FaCalendar,
-  FaChartBar,
-  FaChevronLeft,
-  FaChevronRight
+  FaExclamationTriangle, FaInfoCircle, FaCheckCircle,
+  FaSearch, FaCalendar, FaChartBar
 } from 'react-icons/fa';
 import { apiClient } from '../../shared/api/axiosConfig';
+import { useAuthStore } from '../../entities/User/model/store';
+import { AdvancedDataTable } from '../../shared/ui/AdvancedDataTable/AdvancedDataTable';
 import styles from './ApplicationLogsPage.module.css';
 
 // ─── Types ───────────────────────────────────────────────
-interface AuditLogItem {
-  id: string;
-  action: string;
-  userId?: string;
-  entityName?: string;
-  entityId?: string;
-  email?: string;
-  ipAddress?: string;
-  createdAt: string;
-}
-
 interface LogStats {
   total: number;
   errors: number;
@@ -32,18 +17,15 @@ interface LogStats {
   todayCount: number;
 }
 
-// ─── Constants ───────────────────────────────────────────
-const PAGE_SIZE = 15;
+// ─── Helpers ─────────────────────────────────────────────
+const getDefaultStart = () =>
+  new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+const getDefaultEnd = () => new Date().toISOString().split('T')[0];
 
 const toLocalDate = (iso: string) =>
   new Date(iso).toLocaleString('tr-TR', { dateStyle: 'short', timeStyle: 'medium' });
 
-const getDefaultStart = () =>
-  new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-
-const getDefaultEnd = () => new Date().toISOString().split('T')[0];
-
-// ─── Badge ───────────────────────────────────────────────
+// ─── Action Badge ─────────────────────────────────────────
 const ActionBadge = ({ action }: { action: string }) => {
   const up = action.toUpperCase();
   if (up.includes('FAILED') || up.includes('DELETE') || up.includes('ERROR'))
@@ -57,67 +39,76 @@ const ActionBadge = ({ action }: { action: string }) => {
   return <span className={`${styles.badge} ${styles.gray}`}><FaInfoCircle /> {action}</span>;
 };
 
-// ─── Page Component ───────────────────────────────────────
+// ─── Column Definitions ───────────────────────────────────
+const COLUMNS = [
+  {
+    key: 'action',
+    header: 'İŞLEM',
+    render: (val: string) => <ActionBadge action={val} />,
+    filterable: true,
+  },
+  {
+    key: 'email',
+    header: 'E-POSTA',
+    render: (val: string) => val || '-',
+    searchable: true,
+    sortable: true,
+  },
+  {
+    key: 'ipAddress',
+    header: 'IP ADRESİ',
+    render: (val: string) => <code style={{ fontSize: '0.8rem' }}>{val || '-'}</code>,
+  },
+  {
+    key: 'entityName',
+    header: 'VARLIK',
+    render: (val: string, row: any) => val ? `${val} #${String(row.entityId ?? '').slice(0, 8)}` : '-',
+  },
+  {
+    key: 'createdAt',
+    header: 'TARİH / SAAT',
+    render: (val: string) => toLocalDate(val),
+    sortable: true,
+  },
+];
+
+// ─── Page ─────────────────────────────────────────────────
 export const ApplicationLogsPage = () => {
-  const [logs, setLogs]       = useState<AuditLogItem[]>([]);
-  const [totalCount, setTotal] = useState(0);
-  const [loading, setLoading]  = useState(false);
-  const [page, setPage]        = useState(1);
-
   const [stats, setStats] = useState<LogStats>({ total: 0, errors: 0, warnings: 0, info: 0, todayCount: 0 });
-
-  const [filter, setFilter]     = useState('all');
+  const [filter, setFilter]   = useState('all');
   const [searchTerm, setSearch] = useState('');
   const [startDate, setStart]   = useState(getDefaultStart);
   const [endDate, setEnd]       = useState(getDefaultEnd);
 
-  // ── Fetch logs ──
-  const fetchLogs = useCallback(async () => {
-    setLoading(true);
-    try {
-      const params: Record<string, string | number> = {
-        page,
-        pageSize: PAGE_SIZE,
-        startDate,
-        endDate,
-      };
-      if (filter !== 'all')  params.action = filter;
-      if (searchTerm)        params.search  = searchTerm;
+  // Stable getAuthToken (never changes reference)
+  const getAuthToken = useCallback(async () =>
+    useAuthStore.getState().token,
+  []);
 
-      const res = await apiClient.get<{ totalCount: number; items: AuditLogItem[] }>(
-        '/admin/logs/audit',
-        { params }
-      );
-      setLogs(res.data.items ?? []);
-      setTotal(res.data.totalCount ?? 0);
-    } catch {
-      /* apiClient interceptor already shows toast for 500 */
-    } finally {
-      setLoading(false);
-    }
-  }, [page, filter, searchTerm, startDate, endDate]);
+  // Stable searchParams — only changes when actual values change
+  const searchParams = useMemo<Record<string, string>>(() => {
+    const p: Record<string, string> = { startDate, endDate };
+    if (filter !== 'all') p.action = filter;
+    if (searchTerm)        p.search  = searchTerm;
+    return p;
+  }, [filter, searchTerm, startDate, endDate]);
 
-  // ── Fetch stats ──
+  // Stats (own fetch, lightweight)
   const fetchStats = useCallback(async () => {
     try {
-      const res = await apiClient.get<LogStats>('/admin/logs/audit/stats', {
-        params: { startDate, endDate }
-      });
+      const res = await apiClient.get<LogStats>('/admin/logs/audit/stats', { params: { startDate, endDate } });
       setStats(res.data);
     } catch { /* silent */ }
   }, [startDate, endDate]);
 
-  useEffect(() => { fetchLogs(); }, [fetchLogs]);
   useEffect(() => { fetchStats(); }, [fetchStats]);
 
-  // Reset to page 1 when filters change (except page itself)
-  useEffect(() => { setPage(1); }, [filter, searchTerm, startDate, endDate]);
-
-  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
+  // Backend API base for AdvancedDataTable
+  const endpoint = `${apiClient.defaults.baseURL}/admin/logs/audit`;
 
   return (
     <div className={styles.container}>
-      {/* ─── Stats Cards ─── */}
+      {/* Stats */}
       <div className={styles.statsGrid}>
         <StatCard title="Toplam Log"  value={stats.total}      color="blue"   icon={<FaChartBar />} />
         <StatCard title="Hatalar"     value={stats.errors}     color="red"    icon={<FaExclamationTriangle />} />
@@ -126,13 +117,13 @@ export const ApplicationLogsPage = () => {
         <StatCard title="Bugün"       value={stats.todayCount} color="green"  icon={<FaCheckCircle />} />
       </div>
 
-      {/* ─── Filters ─── */}
+      {/* Filters */}
       <div className={styles.filtersCard}>
         <div className={styles.searchBox}>
           <FaSearch className={styles.searchIcon} />
           <input
             type="text"
-            placeholder="IP, kullanıcı veya işlem ara..."
+            placeholder="IP, e-posta veya işlem filtrele..."
             className={styles.searchInput}
             value={searchTerm}
             onChange={e => setSearch(e.target.value)}
@@ -159,79 +150,25 @@ export const ApplicationLogsPage = () => {
         </div>
       </div>
 
-      {/* ─── Table ─── */}
-      <div className={styles.tableCard}>
-        <div className={styles.tableWrapper}>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th>İŞLEM</th>
-                <th>E-POSTA</th>
-                <th>IP ADRESİ</th>
-                <th>TARİH / SAAT</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading && (
-                <tr>
-                  <td colSpan={4} className={styles.centerCell}>
-                    <span className={styles.spinner} /> Yükleniyor...
-                  </td>
-                </tr>
-              )}
-              {!loading && logs.length === 0 && (
-                <tr>
-                  <td colSpan={4} className={styles.centerCell}>Kayıt bulunamadı.</td>
-                </tr>
-              )}
-              {!loading && logs.map(row => (
-                <tr key={row.id}>
-                  <td><ActionBadge action={row.action} /></td>
-                  <td className={styles.mutedCell}>{row.email ?? row.userId ?? '-'}</td>
-                  <td className={styles.codeCell}>{row.ipAddress ?? '-'}</td>
-                  <td className={styles.mutedCell}>{toLocalDate(row.createdAt)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Pagination */}
-        <div className={styles.pagination}>
-          <span className={styles.paginationInfo}>
-            Toplam <strong>{totalCount}</strong> kayıt &nbsp;|&nbsp; Sayfa {page} / {totalPages}
-          </span>
-          <div className={styles.pageButtons}>
-            <button
-              className={styles.pageBtn}
-              disabled={page <= 1 || loading}
-              onClick={() => setPage(p => p - 1)}
-            >
-              <FaChevronLeft />
-            </button>
-            <button
-              className={styles.pageBtn}
-              disabled={page >= totalPages || loading}
-              onClick={() => setPage(p => p + 1)}
-            >
-              <FaChevronRight />
-            </button>
-          </div>
-        </div>
-      </div>
+      {/* Advanced Data Table */}
+      <AdvancedDataTable
+        endpoint={endpoint}
+        columns={COLUMNS}
+        pageSize={15}
+        searchParams={searchParams}
+        getAuthToken={getAuthToken}
+      />
     </div>
   );
 };
 
-// ─── Stat Card (local) ────────────────────────────────────
-const StatCard = ({
-  title, value, color, icon
-}: { title: string; value: number; color: string; icon: React.ReactNode }) => (
+// ─── Stat Card ────────────────────────────────────────────
+const StatCard = ({ title, value, color, icon }: { title: string; value: number; color: string; icon: React.ReactNode }) => (
   <div className={styles.statCard}>
     <div className={styles.statInfo}>
       <span className={styles.statTitle}>{title}</span>
-      <span className={`${styles.statValue} ${styles[color]}`}>{value}</span>
+      <span className={`${styles.statValue} ${styles[color as keyof typeof styles]}`}>{value}</span>
     </div>
-    <span className={`${styles.statIcon} ${styles[color]}`}>{icon}</span>
+    <span className={`${styles.statIcon} ${styles[color as keyof typeof styles]}`}>{icon}</span>
   </div>
 );

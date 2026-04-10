@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { FaSearch, FaFilter, FaChevronDown, FaChevronUp, FaEye, FaTimes } from 'react-icons/fa';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { FaSearch, FaFilter, FaChevronDown, FaChevronUp, FaEye, FaTimes, FaColumns } from 'react-icons/fa';
 import styles from './AdvancedDataTable.module.css';
 
 export interface Column<T = any> {
@@ -11,6 +11,7 @@ export interface Column<T = any> {
   searchable?: boolean;
   sortable?: boolean;
   width?: string;
+  hideable?: boolean; // default true
 }
 
 export interface AdvancedDataTableProps<T = any> {
@@ -39,7 +40,7 @@ export const AdvancedDataTable = <T extends Record<string, any>>({
   const [total, setTotal] = useState(0);
   const [selectedRow, setSelectedRow] = useState<T | null>(null);
   const [globalSearch, setGlobalSearch] = useState('');
-  const [debouncedGlobalSearch, setDebouncedGlobalSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [columnFilters, setColumnFilters] = useState<Record<string, string>>({});
   const [columnSearches, setColumnSearches] = useState<Record<string, string>>({});
   const [sortColumn, setSortColumn] = useState<string | null>(null);
@@ -47,198 +48,211 @@ export const AdvancedDataTable = <T extends Record<string, any>>({
   const [expandedFilters, setExpandedFilters] = useState<Record<string, boolean>>({});
   const [error, setError] = useState<string | null>(null);
 
-  // Debounce global search
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedGlobalSearch(globalSearch);
-      if (globalSearch !== debouncedGlobalSearch) {
-        setPage(1);
-      }
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [globalSearch, debouncedGlobalSearch]);
+  // ─── Column Visibility ───────────────────────────────────
+  const [colMenuOpen, setColMenuOpen] = useState(false);
+  const [visibleCols, setVisibleCols] = useState<Record<string, boolean>>(() => {
+    const init: Record<string, boolean> = {};
+    columns.forEach(c => { init[c.key] = true; });
+    return init;
+  });
+  const colMenuRef = useRef<HTMLDivElement>(null);
 
+  // Close column menu when clicking outside
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (colMenuRef.current && !colMenuRef.current.contains(e.target as Node)) {
+        setColMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  const toggleColVisibility = (key: string) => {
+    setVisibleCols(prev => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const activeColumns = useMemo(() =>
+    columns.filter(c => visibleCols[c.key] !== false),
+    [columns, visibleCols]
+  );
+
+  // ─── getAuthToken → stable ref (avoids dep-array churn) ─
+  const authRef = useRef(getAuthToken);
+  useEffect(() => { authRef.current = getAuthToken; }, [getAuthToken]);
+
+  // ─── Debounce global search ──────────────────────────────
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setDebouncedSearch(globalSearch);
+      if (globalSearch !== debouncedSearch) setPage(1);
+    }, 400);
+    return () => clearTimeout(t);
+  }, [globalSearch]);
+
+  // ─── Stable searchParams string (fixes infinite-loop) ───
+  const searchParamsStr = JSON.stringify(searchParams);
+
+  // ─── Fetch ───────────────────────────────────────────────
   const fetchData = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const token = getAuthToken ? await getAuthToken() : null;
-      
+      const token = authRef.current ? await authRef.current() : null;
       const params = new URLSearchParams({
         page: page.toString(),
         pageSize: currentPageSize.toString(),
-        ...searchParams
+        // spread stable searchParams from the string
+        ...JSON.parse(searchParamsStr)
       });
 
-      if (debouncedGlobalSearch) {
-        params.append('search', debouncedGlobalSearch);
-      }
+      if (debouncedSearch) params.append('search', debouncedSearch);
 
-      Object.entries(columnFilters).forEach(([key, value]) => {
-        if (value) {
-          params.append(key, value);
-        }
-      });
-
-      Object.entries(columnSearches).forEach(([key, value]) => {
-        if (value) {
-          params.append(`${key}_search`, value);
-        }
-      });
-
-      if (sortColumn) {
-        params.append('sortBy', sortColumn);
-        params.append('sortOrder', sortDirection);
-      }
+      Object.entries(columnFilters).forEach(([k, v]) => { if (v) params.append(k, v); });
+      Object.entries(columnSearches).forEach(([k, v]) => { if (v) params.append(`${k}_search`, v); });
+      if (sortColumn) { params.append('sortBy', sortColumn); params.append('sortOrder', sortDirection); }
 
       const headers: HeadersInit = { 'Content-Type': 'application/json' };
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
+      if (token) headers['Authorization'] = `Bearer ${token}`;
 
-      const url = `${endpoint}?${params.toString()}`;
-
-      const response = await fetch(url, {
-        method: 'GET',
-        headers,
-        credentials: 'include'
+      const res = await fetch(`${endpoint}?${params.toString()}`, {
+        method: 'GET', headers, credentials: 'include'
       });
 
-      if (!response.ok) {
-        throw new Error(`Failed to fetch data: ${response.status} ${response.statusText}`);
+      if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+
+      const result = await res.json();
+      let items: T[] = [];
+      let totalCount = 0;
+
+      if (Array.isArray(result)) {
+        items = result; totalCount = result.length;
+      } else if (result.items) {
+        items = result.items; totalCount = result.totalCount ?? result.total ?? items.length;
+      } else if (result.data) {
+        items = result.data; totalCount = result.total ?? items.length;
       }
 
-      const result = await response.json();
-      
-      let dataArray: T[] = [];
-      let totalCount = 0;
-      
-      if (Array.isArray(result)) {
-        dataArray = result;
-        totalCount = result.length;
-      } else if (result.items) {
-        dataArray = Array.isArray(result.items) ? result.items : [];
-        totalCount = result.total || dataArray.length;
-      } else if (result.data) {
-        dataArray = Array.isArray(result.data) ? result.data : [];
-        totalCount = result.total || dataArray.length;
-      }
-      
-      setData(dataArray);
+      setData(items);
       setTotal(totalCount);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Bilinmeyen bir hata oluştu';
-      setError(errorMessage);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Bilinmeyen hata';
+      setError(msg);
       setData([]);
       setTotal(0);
     } finally {
       setLoading(false);
     }
-  }, [endpoint, page, currentPageSize, debouncedGlobalSearch, columnFilters, columnSearches, sortColumn, sortDirection, searchParams, getAuthToken]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [endpoint, page, currentPageSize, debouncedSearch, columnFilters, columnSearches, sortColumn, sortDirection, searchParamsStr]);
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  useEffect(() => { fetchData(); }, [fetchData]);
 
-  const handleSort = (columnKey: string) => {
-    if (sortColumn === columnKey) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortColumn(columnKey);
-      setSortDirection('asc');
-    }
-    setPage(1);
-  };
-
-  const handleFilterChange = (columnKey: string, value: string) => {
-    setColumnFilters(prev => ({ ...prev, [columnKey]: value }));
-    setPage(1);
-  };
-
-  const handleSearchChange = (columnKey: string, value: string) => {
-    setColumnSearches(prev => ({ ...prev, [columnKey]: value }));
-    setPage(1);
-  };
-
-  const toggleFilter = (columnKey: string) => {
-    setExpandedFilters(prev => ({ ...prev, [columnKey]: !prev[columnKey] }));
-  };
+  // Reset to page 1 when searchParams change
+  useEffect(() => { setPage(1); }, [searchParamsStr]);
 
   const totalPages = useMemo(() => Math.max(1, Math.ceil(total / currentPageSize)), [total, currentPageSize]);
 
-  const getValue = useCallback((row: T, column: Column<T>) => {
-    if (column.accessor) {
-      return column.accessor(row);
-    }
-    return row[column.key];
-  }, []);
+  const getValue = useCallback((row: T, col: Column<T>) => col.accessor ? col.accessor(row) : row[col.key], []);
 
   return (
     <div className={styles.tableContainer}>
-      <div className={styles.searchBar}>
-        <FaSearch className={styles.searchIcon} />
-        <input
-          type="text"
-          className={styles.searchInput}
-          placeholder="Tüm tabloda global arama yapın..."
-          value={globalSearch}
-          onChange={(e) => setGlobalSearch(e.target.value)}
-        />
+      {/* ─── Toolbar ─── */}
+      <div className={styles.toolbar}>
+        {/* Global Search */}
+        <div className={styles.searchBox}>
+          <FaSearch className={styles.searchIcon} />
+          <input
+            type="text"
+            className={styles.searchInput}
+            placeholder="Tabloda genel arama..."
+            value={globalSearch}
+            onChange={e => setGlobalSearch(e.target.value)}
+          />
+        </div>
+
+        {/* Columns Toggle */}
+        <div className={styles.colMenuWrapper} ref={colMenuRef}>
+          <button
+            className={`${styles.toolbarBtn} ${colMenuOpen ? styles.active : ''}`}
+            onClick={() => setColMenuOpen(o => !o)}
+            title="Kolonları Göster/Gizle"
+          >
+            <FaColumns /> <span>Kolonlar</span>
+          </button>
+
+          {colMenuOpen && (
+            <div className={styles.colDropdown}>
+              <div className={styles.colDropdownHeader}>Kolon Görünürlüğü</div>
+              {columns.map(col => (
+                <label key={col.key} className={styles.colToggleRow}>
+                  <input
+                    type="checkbox"
+                    className={styles.colCheckbox}
+                    checked={visibleCols[col.key] !== false}
+                    onChange={() => toggleColVisibility(col.key)}
+                  />
+                  <span>{col.header}</span>
+                </label>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
+      {/* ─── Table ─── */}
       <div className={styles.tableWrapper}>
         <table className={styles.dataTable}>
           <thead>
             <tr>
-              {columns.map((column) => (
-                <th key={column.key} style={{ width: column.width }}>
+              {activeColumns.map(col => (
+                <th key={col.key} style={{ width: col.width }}>
                   <div className={styles.columnHeader}>
                     <div className={styles.thContent}>
-                      <span>{column.header}</span>
-                      {column.sortable && (
+                      <span>{col.header}</span>
+                      {col.sortable && (
                         <button
-                          onClick={() => handleSort(column.key)}
-                          className={`${styles.actionButton} ${sortColumn === column.key ? styles.activeAction : ''}`}
+                          className={`${styles.iconBtn} ${sortColumn === col.key ? styles.active : ''}`}
+                          onClick={() => {
+                            if (sortColumn === col.key) setSortDirection(d => d === 'asc' ? 'desc' : 'asc');
+                            else { setSortColumn(col.key); setSortDirection('asc'); }
+                            setPage(1);
+                          }}
                         >
-                          {sortColumn === column.key ? (
-                            sortDirection === 'asc' ? <FaChevronUp /> : <FaChevronDown />
-                          ) : (
-                            <FaChevronDown style={{ opacity: 0.3 }} />
-                          )}
+                          {sortColumn === col.key
+                            ? (sortDirection === 'asc' ? <FaChevronUp /> : <FaChevronDown />)
+                            : <FaChevronDown style={{ opacity: 0.3 }} />}
                         </button>
                       )}
-                      {(column.filterable || column.searchable) && (
+                      {(col.filterable || col.searchable) && (
                         <button
-                          onClick={() => toggleFilter(column.key)}
-                          className={`${styles.actionButton} ${expandedFilters[column.key] ? styles.activeAction : ''}`}
+                          className={`${styles.iconBtn} ${expandedFilters[col.key] ? styles.active : ''}`}
+                          onClick={() => setExpandedFilters(p => ({ ...p, [col.key]: !p[col.key] }))}
                         >
                           <FaFilter />
                         </button>
                       )}
                     </div>
 
-                    {(column.filterable || column.searchable) && expandedFilters[column.key] && (
-                      <div style={{ marginTop: '4px' }}>
-                        {column.filterable && (
+                    {(col.filterable || col.searchable) && expandedFilters[col.key] && (
+                      <div className={styles.filterArea}>
+                        {col.filterable && (
                           <input
                             type="text"
                             className={styles.filterInput}
-                            placeholder={`${column.header} filtrele...`}
-                            value={columnFilters[column.key] || ''}
-                            onChange={(e) => handleFilterChange(column.key, e.target.value)}
-                            onKeyPress={(e) => e.key === 'Enter' && fetchData()}
+                            placeholder={`${col.header} filtrele...`}
+                            value={columnFilters[col.key] || ''}
+                            onChange={e => { setColumnFilters(p => ({ ...p, [col.key]: e.target.value })); setPage(1); }}
                           />
                         )}
-                        {column.searchable && (
-                          <div className={styles.filterWrapper}>
-                            <FaSearch style={{ fontSize: '0.8rem', opacity: 0.5 }} />
+                        {col.searchable && (
+                          <div className={styles.filterInputWrapper}>
+                            <FaSearch style={{ opacity: 0.45, fontSize: '0.7rem' }} />
                             <input
                               type="text"
-                              placeholder={`${column.header} ara...`}
-                              value={columnSearches[column.key] || ''}
-                              onChange={(e) => handleSearchChange(column.key, e.target.value)}
-                              onKeyPress={(e) => e.key === 'Enter' && fetchData()}
+                              placeholder={`${col.header} ara...`}
+                              value={columnSearches[col.key] || ''}
+                              onChange={e => { setColumnSearches(p => ({ ...p, [col.key]: e.target.value })); setPage(1); }}
                             />
                           </div>
                         )}
@@ -247,65 +261,50 @@ export const AdvancedDataTable = <T extends Record<string, any>>({
                   </div>
                 </th>
               ))}
-              {detailModal && <th>İşlem</th>}
+              {detailModal && <th style={{ width: '80px' }}>İşlem</th>}
             </tr>
           </thead>
-          
+
           <tbody>
             {loading && (
-              <tr className={styles.loadingRow}>
-                <td colSpan={columns.length + (detailModal ? 1 : 0)}>
-                  <div className={styles.loadingContent}>
-                    <div className={styles.spinner}></div>
-                    <span>Veriler yükleniyor, lütfen bekleyin...</span>
-                  </div>
+              <tr className={styles.stateRow}>
+                <td colSpan={activeColumns.length + (detailModal ? 1 : 0)}>
+                  <span className={styles.spinner} /> Yükleniyor...
                 </td>
               </tr>
             )}
-            
             {!loading && error && (
-              <tr className={styles.errorRow}>
-                <td colSpan={columns.length + (detailModal ? 1 : 0)}>
-                  <div className={styles.errorContent}>
-                    <span>Opps! Bir hata oluştu: {error}</span>
-                    <button onClick={() => fetchData()} className={styles.retryButton}>
-                      Yeniden Dene
-                    </button>
-                  </div>
+              <tr className={styles.stateRow}>
+                <td colSpan={activeColumns.length + (detailModal ? 1 : 0)}>
+                  <span style={{ color: 'var(--color-danger)' }}>Hata: {error}</span>
+                  <button className={styles.retryBtn} onClick={fetchData}>Yeniden Dene</button>
                 </td>
               </tr>
             )}
-            
             {!loading && !error && data.length === 0 && (
-              <tr className={styles.emptyRow}>
-                <td colSpan={columns.length + (detailModal ? 1 : 0)}>
-                  Hiçbir kayıt bulunamadı.
-                </td>
+              <tr className={styles.stateRow}>
+                <td colSpan={activeColumns.length + (detailModal ? 1 : 0)}>Kayıt bulunamadı.</td>
               </tr>
             )}
-            
-            {!loading && data.map((row, index) => (
+            {!loading && data.map((row, idx) => (
               <tr
-                key={row.id || index}
-                className={onRowClick ? styles.clickableRow : ''}
-                onClick={() => onRowClick && onRowClick(row)}
+                key={row.id ?? idx}
+                className={onRowClick ? styles.clickable : ''}
+                onClick={() => onRowClick?.(row)}
               >
-                {columns.map((column) => {
-                  const value = getValue(row, column);
+                {activeColumns.map(col => {
+                  const val = getValue(row, col);
                   return (
-                    <td key={column.key}>
-                      {column.render ? column.render(value, row) : String(value || '-')}
+                    <td key={col.key}>
+                      {col.render ? col.render(val, row) : String(val ?? '-')}
                     </td>
                   );
                 })}
                 {detailModal && (
                   <td>
                     <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedRow(row);
-                      }}
-                      className={styles.detailButton}
+                      className={styles.detailBtn}
+                      onClick={e => { e.stopPropagation(); setSelectedRow(row); }}
                     >
                       <FaEye /> Detay
                     </button>
@@ -317,53 +316,30 @@ export const AdvancedDataTable = <T extends Record<string, any>>({
         </table>
       </div>
 
+      {/* ─── Pagination ─── */}
       <div className={styles.pagination}>
-        <div className={styles.totalCount}>
-          Toplam <strong>{total}</strong> kayıt
-        </div>
+        <span className={styles.paginationInfo}>Toplam <strong>{total}</strong> kayıt</span>
         <div className={styles.pageControls}>
-          <button
-            onClick={() => setPage(p => Math.max(1, p - 1))}
-            disabled={page === 1 || loading}
-            className={styles.pageButton}
-          >
-            Önceki
-          </button>
-          <span className={styles.pageInfo}>
-            {page} / {totalPages}
-          </span>
-          <button
-            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-            disabled={page >= totalPages || loading}
-            className={styles.pageButton}
-          >
-            Sonraki
-          </button>
+          <button className={styles.pageBtn} disabled={page <= 1 || loading} onClick={() => setPage(p => p - 1)}>Önceki</button>
+          <span className={styles.pageInfo}>{page} / {totalPages}</span>
+          <button className={styles.pageBtn} disabled={page >= totalPages || loading} onClick={() => setPage(p => p + 1)}>Sonraki</button>
         </div>
-        <div>
-          <select
-            className={styles.pageSizeSelect}
-            value={currentPageSize}
-            onChange={(e) => {
-              setCurrentPageSize(parseInt(e.target.value));
-              setPage(1);
-            }}
-          >
-            {[10, 20, 50, 100].map((s) => (
-              <option key={s} value={s}>{s} Satır / Sayfa</option>
-            ))}
-          </select>
-        </div>
+        <select
+          className={styles.pageSizeSelect}
+          value={currentPageSize}
+          onChange={e => { setCurrentPageSize(+e.target.value); setPage(1); }}
+        >
+          {[10, 20, 50, 100].map(s => <option key={s} value={s}>{s} / Sayfa</option>)}
+        </select>
       </div>
 
+      {/* ─── Detail Modal ─── */}
       {selectedRow && detailModal && (
-        <div className={styles.modalOverlay} onClick={() => setSelectedRow(null)}>
-          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+        <div className={styles.overlay} onClick={() => setSelectedRow(null)}>
+          <div className={styles.modal} onClick={e => e.stopPropagation()}>
             <div className={styles.modalHeader}>
-              <h3>Kayıt Detayları</h3>
-              <button onClick={() => setSelectedRow(null)} className={styles.closeButton}>
-                <FaTimes />
-              </button>
+              <h3>Kayıt Detayı</h3>
+              <button className={styles.closeBtn} onClick={() => setSelectedRow(null)}><FaTimes /></button>
             </div>
             <div className={styles.modalBody}>
               {detailModal(selectedRow, () => setSelectedRow(null))}

@@ -1,47 +1,135 @@
-/* AdvancedDataTable.module.css */
+/* AdvancedDataTable.module.css — Vanilla CSS, fully theme-aware */
+
 .tableContainer {
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-lg);
+  background: var(--surface-glass);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-md);
   overflow: hidden;
-  box-shadow: var(--shadow-md);
-  margin-bottom: 2rem;
   width: 100%;
 }
 
-.searchBar {
+/* ─── Toolbar ─── */
+.toolbar {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 1.25rem 1.5rem;
-  background: rgba(255, 255, 255, 0.02);
-  border-bottom: 1px solid var(--glass-border);
+  gap: 10px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border-glass);
+  background: var(--surface-glass-hover);
+}
+
+.searchBox {
+  position: relative;
+  flex: 1;
 }
 
 .searchIcon {
-  color: var(--text-secondary);
-  font-size: 1.1rem;
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  font-size: 0.75rem;
 }
 
 .searchInput {
-  flex: 1;
-  background: transparent;
-  border: none;
-  color: var(--text-primary);
+  width: 100%;
+  padding: 7px 10px 7px 30px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-sm);
+  color: var(--text-main);
+  font-size: 0.85rem;
   font-family: inherit;
-  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s;
 }
 
 .searchInput:focus {
-  outline: none;
+  border-color: var(--color-primary);
 }
 
 .searchInput::placeholder {
-  color: var(--text-secondary);
+  color: var(--text-muted);
 }
 
+/* ─── Toolbar Button (Columns toggle) ─── */
+.toolbarBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  font-family: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+
+.toolbarBtn:hover,
+.toolbarBtn.active {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+/* ─── Column Visibility Dropdown ─── */
+.colMenuWrapper {
+  position: relative;
+}
+
+.colDropdown {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  width: 200px;
+  background: var(--surface-glass);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-md);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  overflow: hidden;
+}
+
+.colDropdownHeader {
+  padding: 10px 14px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-glass);
+}
+
+.colToggleRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 14px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.colToggleRow:hover {
+  background: var(--surface-glass-hover);
+  color: var(--text-main);
+}
+
+.colCheckbox {
+  width: 14px;
+  height: 14px;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* ─── Table ─── */
 .tableWrapper {
   overflow-x: auto;
   width: 100%;
@@ -50,330 +138,299 @@
 .dataTable {
   width: 100%;
   border-collapse: collapse;
-  text-align: left;
+  font-size: 0.85rem;
+}
+
+.dataTable thead tr {
+  border-bottom: 1px solid var(--border-glass);
 }
 
 .dataTable th {
-  padding: 1rem 1.5rem;
-  background: rgba(0, 0, 0, 0.2);
-  color: var(--text-secondary);
-  font-weight: 500;
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 0.72rem;
+  font-weight: 700;
   text-transform: uppercase;
-  font-size: 0.75rem;
-  letter-spacing: 0.05em;
-  border-bottom: 1px solid var(--glass-border);
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
   white-space: nowrap;
-}
-
-.thContent {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  background: var(--surface-glass-hover);
 }
 
 .columnHeader {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 4px;
 }
 
-.dataTable td {
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid var(--glass-border);
-  color: var(--text-primary);
-  font-size: 0.9rem;
-  transition: all 0.2s ease;
+.thContent {
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
-.dataTable tr:last-child td {
+.iconBtn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 2px 3px;
+  border-radius: 3px;
+  font-size: 0.68rem;
+  transition: all 0.15s;
+}
+
+.iconBtn:hover,
+.iconBtn.active {
+  background: var(--surface-glass-hover);
+  color: var(--color-primary);
+}
+
+.filterArea {
+  margin-top: 4px;
+}
+
+.filterInput {
+  width: 100%;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-sm);
+  padding: 4px 8px;
+  color: var(--text-main);
+  font-size: 0.78rem;
+  font-family: inherit;
+  outline: none;
+}
+
+.filterInput:focus {
+  border-color: var(--color-primary);
+}
+
+.filterInputWrapper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-sm);
+  padding: 4px 8px;
+}
+
+.filterInputWrapper input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--text-main);
+  font-size: 0.78rem;
+  font-family: inherit;
+  outline: none;
+}
+
+/* ─── Body rows ─── */
+.dataTable tbody tr {
+  border-bottom: 1px solid var(--border-glass);
+  transition: background 0.12s;
+}
+
+.dataTable tbody tr:last-child {
   border-bottom: none;
 }
 
-.dataTable tbody tr {
-  transition: background 0.2s ease;
-}
-
 .dataTable tbody tr:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--surface-glass-hover);
 }
 
-.clickableRow {
+.dataTable td {
+  padding: 10px 14px;
+  color: var(--text-main);
+  vertical-align: middle;
+}
+
+.clickable {
   cursor: pointer;
 }
 
+/* ─── State rows (loading / error / empty) ─── */
+.stateRow td {
+  text-align: center;
+  padding: 32px 16px !important;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+}
+
+.spinner {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--border-glass);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.retryBtn {
+  margin-left: 12px;
+  padding: 4px 12px;
+  border: 1px solid var(--color-danger);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-danger);
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+
+.retryBtn:hover {
+  background: var(--color-danger);
+  color: #fff;
+}
+
+/* ─── Detail Button ─── */
+.detailBtn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: transparent;
+  border: 1px solid var(--color-primary);
+  color: var(--color-primary);
+  font-size: 0.78rem;
+  cursor: pointer;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  transition: all 0.15s;
+}
+
+.detailBtn:hover {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+/* ─── Pagination ─── */
 .pagination {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem 1.5rem;
-  background: rgba(0, 0, 0, 0.15);
-  border-top: 1px solid var(--glass-border);
+  padding: 10px 14px;
+  border-top: 1px solid var(--border-glass);
+  background: var(--surface-glass-hover);
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
-.totalCount {
-  color: var(--text-secondary);
-  font-size: 0.85rem;
+.paginationInfo {
+  font-size: 0.82rem;
+  color: var(--text-muted);
 }
 
 .pageControls {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 8px;
 }
 
 .pageInfo {
-  color: var(--text-primary);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
+  color: var(--text-main);
   font-weight: 500;
 }
 
-.pageButton {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid var(--glass-border);
-  color: var(--text-primary);
-  padding: 0.5rem 1rem;
+.pageBtn {
+  padding: 5px 12px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-glass);
   border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  font-family: inherit;
   cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 0.85rem;
+  transition: all 0.15s;
 }
 
-.pageButton:hover:not(:disabled) {
-  background: var(--primary);
-  border-color: var(--primary);
-  box-shadow: 0 0 10px var(--primary-glow);
+.pageBtn:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
 }
 
-.pageButton:disabled {
-  opacity: 0.4;
+.pageBtn:disabled {
+  opacity: 0.35;
   cursor: not-allowed;
-  background: transparent;
 }
 
 .pageSizeSelect {
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid var(--glass-border);
-  color: var(--text-primary);
-  padding: 0.5rem 0.75rem;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-glass);
   border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  padding: 5px 8px;
+  font-size: 0.82rem;
+  font-family: inherit;
   outline: none;
   cursor: pointer;
-  font-size: 0.85rem;
 }
 
-.pageSizeSelect option {
-  background: var(--background);
-  color: var(--text-primary);
-}
-
-.actionButton {
-  background: transparent;
-  border: none;
-  color: var(--text-secondary);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 4px;
-  border-radius: 4px;
-  transition: all 0.2s;
-  opacity: 0.7;
-}
-
-.actionButton:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: var(--text-primary);
-  opacity: 1;
-}
-
-.activeAction {
-  color: var(--primary);
-  opacity: 1;
-}
-
-.filterInput {
-  width: 100%;
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-sm);
-  padding: 6px 10px;
-  color: var(--text-primary);
-  font-size: 0.8rem;
-  outline: none;
-  transition: all 0.3s ease;
-}
-
-.filterInput:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 5px var(--primary-glow);
-}
-
-.filterWrapper {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-sm);
-  padding: 2px 10px;
-  transition: all 0.3s ease;
-}
-
-.filterWrapper:focus-within {
-  border-color: var(--primary);
-  box-shadow: 0 0 5px var(--primary-glow);
-}
-
-.filterWrapper input {
-  flex: 1;
-  background: transparent;
-  border: none;
-  color: var(--text-primary);
-  font-size: 0.8rem;
-  padding: 4px 0;
-  outline: none;
-}
-
-.loadingRow td {
-  text-align: center;
-  padding: 4rem 2rem !important;
-  color: var(--text-secondary);
-}
-
-.loadingContent {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-}
-
-.spinner {
-  width: 32px;
-  height: 32px;
-  border: 3px solid rgba(255, 255, 255, 0.1);
-  border-top-color: var(--primary);
-  border-radius: 50%;
-  animation: spin 1s cubic-bezier(0.5, 0, 0.5, 1) infinite;
-}
-
-.errorRow td {
-  text-align: center;
-  padding: 3rem 2rem !important;
-}
-
-.errorContent {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  color: #ff4a4a;
-}
-
-.retryButton {
-  background: rgba(255, 74, 74, 0.1);
-  border: 1px solid rgba(255, 74, 74, 0.3);
-  color: #ff4a4a;
-  padding: 0.5rem 1.5rem;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: all 0.3s;
-  font-weight: 500;
-}
-
-.retryButton:hover {
-  background: rgba(255, 74, 74, 0.2);
-  border-color: #ff4a4a;
-}
-
-.emptyRow td {
-  text-align: center;
-  padding: 4rem 2rem !important;
-  color: var(--text-secondary);
-  font-style: italic;
-}
-
-.detailButton {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: transparent;
-  border: none;
-  color: var(--primary);
-  font-size: 0.85rem;
-  cursor: pointer;
-  padding: 4px 8px;
-  border-radius: var(--radius-sm);
-  transition: all 0.2s;
-}
-
-.detailButton:hover {
-  background: rgba(var(--primary-rgb), 0.1);
-}
-
-.modalOverlay {
+/* ─── Modal ─── */
+.overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  padding: 2rem;
+  padding: 24px;
 }
 
-.modalContent {
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-lg);
+.modal {
+  background: var(--surface-glass);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-md);
   width: 100%;
-  max-width: 800px;
+  max-width: 760px;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.3);
 }
 
 .modalHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.5rem;
-  border-bottom: 1px solid var(--glass-border);
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border-glass);
 }
 
 .modalHeader h3 {
   margin: 0;
-  color: var(--text-primary);
-  font-size: 1.25rem;
+  font-size: 1rem;
+  color: var(--text-main);
 }
 
-.closeButton {
+.closeBtn {
   background: transparent;
   border: none;
-  color: var(--text-secondary);
-  font-size: 1.25rem;
+  color: var(--text-muted);
+  font-size: 1rem;
   cursor: pointer;
   padding: 4px;
-  border-radius: 4px;
-  transition: all 0.2s;
+  border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
-  justify-content: center;
+  transition: all 0.15s;
 }
 
-.closeButton:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: var(--text-primary);
+.closeBtn:hover {
+  color: var(--text-main);
+  background: var(--surface-glass-hover);
 }
 
 .modalBody {
-  padding: 1.5rem;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
+  padding: 18px;
 }
