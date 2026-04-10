@@ -53,7 +53,11 @@ export const LoginForm = () => {
 
   return (
     <div className={styles.container}>
-      <h1 className={`${styles.title} textGradient`}>Platforma Giriş</h1>
+      <div className={styles.header}>
+        <div className={styles.logoBox}>W</div>
+        <h2 className={styles.title}>Worklines Pro</h2>
+      </div>
+
       <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
         
         <div className={styles.inputGroup}>
