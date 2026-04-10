@@ -1,13 +1,13 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import {
   FaTachometerAlt, FaCog, FaTh,
   FaBars, FaTimes, FaChevronDown, FaChevronRight,
-  FaStar, FaListAlt, FaSearch,
-  FaAngleDoubleDown, FaAngleDoubleUp
+  FaStar, FaListAlt, FaSearch, FaEllipsisH
 } from 'react-icons/fa';
 import styles from './Sidebar.module.css';
 
+// ─── Sayfası olan menüler ─────────────────────────────
 const ALL_WORKSPACES = [
   {
     id: 'main',
@@ -26,7 +26,6 @@ const ALL_WORKSPACES = [
     ]
   }
 ];
-
 
 const STORAGE_KEYS = {
   COLLAPSED: 'wixi-sidebar-collapsed',
@@ -58,11 +57,27 @@ export const Sidebar = () => {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
+  // "..." dropdown state
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Dışarı tıklanınca kapat
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  // ─── Handlers ───────────────────────────────────────
   const handleCollapseToggle = () => {
     const next = !isCollapsed;
     setIsCollapsed(next);
     localStorage.setItem(STORAGE_KEYS.COLLAPSED, String(next));
-    if (next) { setSearchOpen(false); setSearchQuery(''); }
+    if (next) { setSearchOpen(false); setSearchQuery(''); setMenuOpen(false); }
   };
 
   const toggleCategory = (id: string) => {
@@ -82,11 +97,19 @@ export const Sidebar = () => {
     ALL_WORKSPACES.forEach(ws => { all[ws.id] = true; });
     setExpandedCategories(all);
     localStorage.setItem(STORAGE_KEYS.EXPANDED, JSON.stringify(all));
+    setMenuOpen(false);
   };
 
   const collapseAll = () => {
     setExpandedCategories({});
     localStorage.setItem(STORAGE_KEYS.EXPANDED, '{}');
+    setMenuOpen(false);
+  };
+
+  const clearFavorites = () => {
+    setFavorites([]);
+    localStorage.setItem(STORAGE_KEYS.FAVORITES, '[]');
+    setMenuOpen(false);
   };
 
   const toggleFavorite = (path: string) => {
@@ -98,10 +121,11 @@ export const Sidebar = () => {
   };
 
   const handleSearchToggle = () => {
-    if (searchOpen) { setSearchQuery(''); }
+    if (searchOpen) setSearchQuery('');
     setSearchOpen(o => !o);
   };
 
+  // Filtered workspaces by search
   const filteredWorkspaces = ALL_WORKSPACES.map(ws => ({
     ...ws,
     items: ws.items.filter(item =>
@@ -112,17 +136,22 @@ export const Sidebar = () => {
   const favoriteItems = ALL_WORKSPACES.flatMap(ws => ws.items)
     .filter(item => favorites.includes(item.path));
 
-  const renderMenuItem = (item: { path: string; icon: React.ReactNode; text: string }, indent = true) => (
+  // Are all expanded?
+  const allExpanded = ALL_WORKSPACES.every(ws => expandedCategories[ws.id]);
+
+  // ─── Render helpers ───────────────────────────────
+  const renderMenuItem = (item: { path: string; icon: React.ReactNode; text: string }, isTopLevel = false) => (
     <li key={item.path} className={styles.menuItemRow}>
       <NavLink
         to={item.path}
         className={({ isActive }) => isActive ? styles.active : ''}
         title={isCollapsed ? item.text : undefined}
-        style={!indent ? { paddingLeft: '14px' } : undefined}
+        style={isTopLevel ? { paddingLeft: '14px' } : undefined}
       >
         <span className={styles.menuIcon}>{item.icon}</span>
         <span className={styles.menuText}>{item.text}</span>
       </NavLink>
+      {/* Star button — JSX controlled, never shows in collapsed */}
       {!isCollapsed && (
         <button
           className={`${styles.favStarBtn} ${favorites.includes(item.path) ? styles.isFav : ''}`}
@@ -137,7 +166,7 @@ export const Sidebar = () => {
 
   return (
     <aside className={`${styles.sidebarContainer} ${isCollapsed ? styles.collapsed : ''}`}>
-      {/* ── Header ── */}
+      {/* ── Logo / Header ── */}
       <div className={styles.header}>
         {!isCollapsed && (
           <div className={styles.logoArea}>
@@ -154,36 +183,66 @@ export const Sidebar = () => {
       </div>
 
       <nav className={styles.navArea}>
-        {/* ── FAVORİLER ── */}
+        {/* ── FAVORİLER — sadece genişletilmiş modda etiket göster ── */}
         {favoriteItems.length > 0 && !searchQuery && (
           <div className={styles.favoritesSection}>
-            <div className={styles.sectionLabel}>
-              <FaStar className={styles.starIconGold} />
-              {!isCollapsed && <span className={styles.sectionTitleText}>FAVORİLER</span>}
-            </div>
+            {/* Etiket sadece genişletilmiş modda görünür */}
+            {!isCollapsed && (
+              <div className={styles.sectionLabel}>
+                <FaStar className={styles.starIconGold} />
+                <span className={styles.sectionTitleText}>FAVORİLER</span>
+              </div>
+            )}
             <ul className={styles.menuList}>
-              {favoriteItems.map(item => renderMenuItem(item, false))}
+              {favoriteItems.map(item => renderMenuItem(item, true))}
             </ul>
           </div>
         )}
 
-        {/* ── BÖLÜMLER header: arama ikon + tümünü aç/kapat ── */}
+        {/* ── BÖLÜMLER başlığı + 🔍 ve ... menüsü ── */}
         {!isCollapsed && (
           <>
             <div className={styles.sectionControls}>
               <span className={styles.sectionControlsTitle}>BÖLÜMLER</span>
-              <button className={styles.ctrlBtn} onClick={handleSearchToggle} title="Menüde Ara">
+
+              {/* Arama ikonu */}
+              <button
+                className={`${styles.ctrlBtn} ${searchOpen ? styles.ctrlBtnActive : ''}`}
+                onClick={handleSearchToggle}
+                title="Ara"
+              >
                 <FaSearch />
               </button>
-              <button className={styles.ctrlBtn} onClick={expandAll} title="Tümünü Aç">
-                <FaAngleDoubleDown />
-              </button>
-              <button className={styles.ctrlBtn} onClick={collapseAll} title="Tümünü Kapat">
-                <FaAngleDoubleUp />
-              </button>
+
+              {/* "..." dropdown trigger */}
+              <div className={styles.ctrlMenuWrapper} ref={menuRef}>
+                <button
+                  className={`${styles.ctrlBtn} ${menuOpen ? styles.ctrlBtnActive : ''}`}
+                  onClick={() => setMenuOpen(o => !o)}
+                  title="Seçenekler"
+                >
+                  <FaEllipsisH />
+                </button>
+
+                {menuOpen && (
+                  <div className={styles.ctrlDropdown}>
+                    <button className={styles.ctrlDropdownItem} onClick={allExpanded ? collapseAll : expandAll}>
+                      <FaChevronDown
+                        className={styles.ctrlDropdownIcon}
+                        style={{ transform: allExpanded ? 'rotate(180deg)' : 'none' }}
+                      />
+                      {allExpanded ? 'Tümünü Kapat' : 'Tümünü Aç'}
+                    </button>
+                    <button className={styles.ctrlDropdownItem} onClick={clearFavorites}>
+                      <FaStar className={`${styles.ctrlDropdownIcon} ${styles.starIconGold}`} />
+                      Favorileri Kaldır
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
 
-            {/* Inline arama satırı — sadece ikon tıklanınca açılır */}
+            {/* Inline arama */}
             {searchOpen && (
               <div className={styles.inlineSearch}>
                 <FaSearch className={styles.inlineSearchIcon} />
