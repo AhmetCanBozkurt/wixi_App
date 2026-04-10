@@ -229,8 +229,9 @@
 }
 
 .accordionTitle {
-  font-size: 0.82rem;
+  font-size: 0.85rem;
   font-weight: 600;
+  color: var(--sidebar-text);
   display: flex;
   align-items: center;
   gap: 10px;
@@ -280,17 +281,19 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 7px 10px;
+  /* indent sub-items relative to accordion header */
+  padding: 7px 10px 7px 36px;
   color: var(--sidebar-text);
   text-decoration: none;
-  font-size: 0.82rem;
+  font-size: 0.85rem;
+  font-weight: 400;
   transition: color 0.15s;
   border-radius: 6px;
 }
 
-/* Favorites: no extra indent */
+/* Favorites top-level: less indent */
 .favoritesSection .menuItemRow a {
-  padding-left: 10px;
+  padding-left: 14px;
 }
 
 /* Active box highlight */

@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import {
-  FaTachometerAlt, FaChartBar, FaUser, FaCog, FaGlobe, FaTh,
-  FaFolderOpen, FaAward, FaCommentAlt, FaHeadset, FaBars, FaTimes,
-  FaChevronDown, FaChevronRight, FaStar, FaListAlt, FaSearch,
+  FaTachometerAlt, FaCog, FaTh,
+  FaBars, FaTimes, FaChevronDown, FaChevronRight,
+  FaStar, FaListAlt, FaSearch,
   FaAngleDoubleDown, FaAngleDoubleUp
 } from 'react-icons/fa';
 import styles from './Sidebar.module.css';
@@ -15,7 +15,6 @@ const ALL_WORKSPACES = [
     icon: <FaTh />,
     items: [
       { path: '/', icon: <FaTachometerAlt />, text: 'Dashboard' },
-      { path: '/admin/reports', icon: <FaChartBar />, text: 'Raporlar' },
     ]
   },
   {
@@ -23,25 +22,11 @@ const ALL_WORKSPACES = [
     name: 'Sistem',
     icon: <FaCog />,
     items: [
-      { path: '/admin/roles', icon: <FaUser />, text: 'Kullanıcılar ve Roller' },
       { path: '/admin/application-logs', icon: <FaListAlt />, text: 'Uygulama Logları' },
-      { path: '/admin/settings', icon: <FaCog />, text: 'Ayarlar' },
-    ]
-  },
-  {
-    id: 'tekstil',
-    name: 'Tekstil Yönetimi',
-    icon: <FaGlobe />,
-    items: [
-      { path: '/admin/tekstil/stats', icon: <FaChartBar />, text: 'İstatistikler' },
-      { path: '/admin/tekstil/product-categories', icon: <FaFolderOpen />, text: 'Kategoriler' },
-      { path: '/admin/tekstil/products', icon: <FaTh />, text: 'Ürünler' },
-      { path: '/admin/tekstil/projects', icon: <FaAward />, text: 'Projeler' },
-      { path: '/admin/tekstil/contact-submissions', icon: <FaCommentAlt />, text: 'İletişim Formları' },
-      { path: '/admin/tekstil/contact-info', icon: <FaHeadset />, text: 'İletişim Bilgileri' },
     ]
   }
 ];
+
 
 const STORAGE_KEYS = {
   COLLAPSED: 'wixi-sidebar-collapsed',
