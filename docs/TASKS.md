@@ -15,18 +15,19 @@ Buradaki görevler otonom asistan (Antigravity) tarafından projenin fazlarına 
 - `[x]` **Backend:** `Program.cs` içerisindeki hardcoded bağımlılıkların temizlenmesi ve Login / Register API endpoint'lerinin (CQRS/MediatR mantığıyla) netleştirilmesi.
 - `[x]` **Frontend:** FSD (Feature-Sliced Design) klasör hiyerarşisinin `src/` altına oluşturulması (`app`, `pages`, `widgets`, `features`, `entities`, `shared`).
 - `[/]` **Frontend:** Base Axios config ve Vanilla CSS (Glassmorphism) temel framework'ünün `shared` katmanına yerleştirilmesi.
-- `[ ]` **Frontend:** `entities/User` altında global state (Zustand veya Context) tasarımının yapılması.
-- `[ ]` **Frontend:** `features/Auth` altında Login Form bileşeninin yazılması ve API'ye bağlanması.
-- `[ ]` **Frontend:** `pages/LoginPage` ve `pages/DashboardPage` router entegrasyonu, Auth Guard (korumalı route) ile test.
+- `[x]` **Frontend:** `entities/User` altında global state (Zustand veya Context) tasarımının yapılması.
+- `[x]` **Frontend:** `features/Auth` altında Login Form bileşeninin yazılması ve API'ye bağlanması.
+- `[x]` **Frontend:** `pages/LoginPage` ve `pages/DashboardPage` router entegrasyonu, Auth Guard (korumalı route) ile test.
 
 ---
 
-## 🔐 FAZ 2: Dinamik Menü ve Üst Düzey Rol Sistemi (RBAC)
-*Amacımız; admin panelinin sol barını ve ekran yetkilerini hard-coded olmaktan çıkarıp DB ve rollere göre dinamik getirmektir.*
+## 🔐 FAZ 2: Gelişmiş Loglama, Dinamik Menü ve UI Taşıma (Migration)
+*Amacımız; giriş/çıkış Audit loglarını (IP, Tarayıcı ile) sisteme kazandırmak ve eski projedeki Admin Layout (Sidebar) & DataTable bileşenlerini yepyeni Vanilla CSS kurallarıyla FSD mimarisine taşımaktır.*
 
+- `[ ]` **Backend:** `WixiAuditLog` tablosunun modellenerek Login/Logout (Auth) evrelerine eklenmesi (Müşteri detaylı loglama/IP vs.).
+- `[ ]` **Frontend:** Eski projedeki `AdvancedDataTable.tsx` yapısının alınarak `shared/ui` katmanında CQRS formatına uyumlu Premium Glassmorphism olarak refactor edilmesi.
+- `[ ]` **Frontend:** Eski projedeki `AdminLayout.tsx` yapısının (Sidebar ve Header) Tailwind'den temizlenerek `widgets/Sidebar` ve `widgets/Header` dizinlerinde Vanilla CSS modülleriyle canlandırılması.
 - `[ ]` **Backend:** `WIXI_MENUS` ve `WIXI_ROLE_MENU_PERMISSIONS` tablolarının tasarlanması.
-- `[ ]` **Backend:** Kullanıcının tokeninden rollerini okuyup ona gecerli menuleri JSON agacı olarak donen API endpoint'inin (MediatR query) yazılması.
-- `[ ]` **Frontend:** `widgets/AdminSidebar` bileşeninin tasarlanması. Menüyü API'den recursive (iç içe alt menüler) şekilde render etmesi.
 - `[ ]` **Frontend:** UI tarafında buton gizleme/gösterme mekanizması için `<HasPermission>` hook'u veya wrapper komponentinin yazılması.
 
 ---

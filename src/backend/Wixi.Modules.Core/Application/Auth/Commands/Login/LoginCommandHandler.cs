@@ -2,11 +2,13 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Wixi.Modules.Core.Application.Auth.Dto;
 using Wixi.Modules.Core.Domain.Entities;
+using Wixi.Modules.Core.Infrastructure.Data;
 using Wixi.Shared.Configuration;
 
 namespace Wixi.Modules.Core.Application.Auth.Commands.Login;
@@ -15,11 +17,19 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, AuthResult>
 {
     private readonly UserManager<WixiUser> _userManager;
     private readonly JwtOptions _jwtOptions;
+    private readonly WixiCoreDbContext _dbContext;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public LoginCommandHandler(UserManager<WixiUser> userManager, IOptions<JwtOptions> jwtOptions)
+    public LoginCommandHandler(
+        UserManager<WixiUser> userManager, 
+        IOptions<JwtOptions> jwtOptions,
+        WixiCoreDbContext dbContext,
+        IHttpContextAccessor httpContextAccessor)
     {
         _userManager = userManager;
         _jwtOptions = jwtOptions.Value;
+        _dbContext = dbContext;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     public async Task<AuthResult> Handle(LoginCommand request, CancellationToken cancellationToken)
@@ -28,6 +38,7 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, AuthResult>
         
         if (user == null || !await _userManager.CheckPasswordAsync(user, request.Password))
         {
+            await LogAuditAsync(user?.Id.ToString(), request.Email, "LOGIN_FAILED", "Kullanıcı adı veya şifre hatalı.");
             return new AuthResult { Success = false, ErrorMessage = "E-posta veya şifre hatalı." };
         }
 
@@ -58,10 +69,34 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, AuthResult>
 
         var token = tokenHandler.CreateToken(tokenDescriptor);
 
+        // Başarılı giriş logu
+        await LogAuditAsync(user.Id.ToString(), user.Email, "LOGIN_SUCCESS", "Kullanıcı başarıyla giriş yaptı.");
+
         return new AuthResult
         {
             Success = true,
             Token = tokenHandler.WriteToken(token)
         };
+    }
+
+    private async Task LogAuditAsync(string? userId, string? email, string action, string details)
+    {
+        var context = _httpContextAccessor.HttpContext;
+        var ipAddress = context?.Connection?.RemoteIpAddress?.ToString();
+        var userAgent = context?.Request?.Headers["User-Agent"].ToString();
+
+        var log = new WixiAuditLog
+        {
+            Action = action,
+            Details = details,
+            UserId = userId,
+            Email = email,
+            IpAddress = ipAddress,
+            UserAgent = userAgent,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        _dbContext.AuditLogs.Add(log);
+        await _dbContext.SaveChangesAsync();
     }
 }

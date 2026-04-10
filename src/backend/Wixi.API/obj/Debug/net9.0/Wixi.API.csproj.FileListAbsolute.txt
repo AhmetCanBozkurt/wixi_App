@@ -19,7 +19,6 @@ C:\PROJECTS\wixi_App\src\backend\Wixi.API\bin\Debug\net9.0\Azure.Core.dll
 C:\PROJECTS\wixi_App\src\backend\Wixi.API\bin\Debug\net9.0\Azure.Identity.dll
 C:\PROJECTS\wixi_App\src\backend\Wixi.API\bin\Debug\net9.0\Humanizer.dll
 C:\PROJECTS\wixi_App\src\backend\Wixi.API\bin\Debug\net9.0\Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll
-C:\PROJECTS\wixi_App\src\backend\Wixi.API\bin\Debug\net9.0\Microsoft.AspNetCore.OpenApi.dll
 C:\PROJECTS\wixi_App\src\backend\Wixi.API\bin\Debug\net9.0\Microsoft.Bcl.AsyncInterfaces.dll
 C:\PROJECTS\wixi_App\src\backend\Wixi.API\bin\Debug\net9.0\Microsoft.CodeAnalysis.dll
 C:\PROJECTS\wixi_App\src\backend\Wixi.API\bin\Debug\net9.0\Microsoft.CodeAnalysis.CSharp.dll
@@ -143,3 +142,8 @@ C:\PROJECTS\wixi_App\src\backend\Wixi.API\obj\Debug\net9.0\refint\Wixi.API.dll
 C:\PROJECTS\wixi_App\src\backend\Wixi.API\obj\Debug\net9.0\Wixi.API.pdb
 C:\PROJECTS\wixi_App\src\backend\Wixi.API\obj\Debug\net9.0\Wixi.API.genruntimeconfig.cache
 C:\PROJECTS\wixi_App\src\backend\Wixi.API\obj\Debug\net9.0\ref\Wixi.API.dll
+C:\PROJECTS\wixi_App\src\backend\Wixi.API\bin\Debug\net9.0\MediatR.dll
+C:\PROJECTS\wixi_App\src\backend\Wixi.API\bin\Debug\net9.0\MediatR.Contracts.dll
+C:\PROJECTS\wixi_App\src\backend\Wixi.API\bin\Debug\net9.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll
+C:\PROJECTS\wixi_App\src\backend\Wixi.API\bin\Debug\net9.0\Microsoft.Extensions.Logging.Abstractions.dll
+C:\PROJECTS\wixi_App\src\backend\Wixi.API\bin\Debug\net9.0\System.Diagnostics.DiagnosticSource.dll

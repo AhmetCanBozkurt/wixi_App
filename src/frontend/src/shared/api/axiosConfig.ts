@@ -2,7 +2,7 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 
 export const apiClient = axios.create({
-  baseURL: 'https://localhost:7081/api/v1', // Backend API adresi
+  baseURL: 'http://localhost:5181/api/v1', // Backend API adresi
   headers: {
     'Content-Type': 'application/json',
   },

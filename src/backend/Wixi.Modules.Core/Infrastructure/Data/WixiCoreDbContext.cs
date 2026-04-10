@@ -11,6 +11,8 @@ public class WixiCoreDbContext : IdentityDbContext<WixiUser, WixiRole, Guid>
     {
     }
 
+    public DbSet<WixiAuditLog> AuditLogs { get; set; }
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -49,6 +51,16 @@ public class WixiCoreDbContext : IdentityDbContext<WixiUser, WixiRole, Guid>
         builder.Entity<IdentityUserToken<Guid>>(b =>
         {
             b.ToTable("WIXI_USER_TOKENS");
+        });
+
+        // Audit Logs Mapping
+        builder.Entity<WixiAuditLog>(entity =>
+        {
+            entity.ToTable("WIXI_AUDIT_LOGS");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Action).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.IpAddress).HasMaxLength(50);
+            entity.Property(e => e.UserAgent).HasMaxLength(500);
         });
     }
 }

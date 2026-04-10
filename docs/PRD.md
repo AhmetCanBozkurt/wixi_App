@@ -6,14 +6,14 @@ Mevcut kod tabanımız aceleyle MVP (Minimum Viable Product) prensibi ile yazıl
 
 ## 2. Temel Mimari Kararları
 - **Backend:** `ASP.NET Core 8/9`, SQL Server, Entity Framework Core. Modüller arası iletişim In-Memory Bus/CQRS (MediatR) kullanılarak izole edilecek ve bir "Modular Monolith" iskeleti kullanılacaktır. Tüm tablolar standartlaşma amacıyla `WIXI_` önekiyle başlayacaktır.
-- **Frontend:** `React 19`, `Vite`, `Tailwind CSS`, `Shadcn UI`. Mimari dizayn olarak "Feature-Sliced Design (FSD)" yaklaşımı uygulanacak olup, bileşenlerin tamamen özelliklerine / iş mantıklarına göre katmanlandırıldığı modüler yapı hedeflenecektir.
+- **Frontend:** `React 19`, `Vite`, `Zustand`. Mimari dizayn olarak "Feature-Sliced Design (FSD)" yaklaşımı uygulanacaktır. Eski Tailwind CSS ve Shadcn UI bağımlılıkları tamamen terk edilerek **Premium Glassmorphism Vanilla CSS (.module.css)** tasarımları merkeze alınacaktır. Bileşenler iş mantıklarına göre yalıtılacaktır.
 - **İletişim/Entegrasyon:** Güvenli JWT/Refresh tabanlı session yönetimi ve API Versioning (Örn: /api/v1/...) uygulanacaktır.
 
 ## 3. Temel Sistem Modülleri (Core Features)
 Her yeni eklenmek istenen "Aplikasyon", bu çekirdek modüllerin sağladığı servisleri kullanarak çalışacaktır.
 1. **Güçlü Yetkilendirme (Auth & Session):** JWT, Cihaz oturum kontrolü, Katı parola politikaları.
 2. **Rol & Yetki Sistemi (Dynamic RBAC):** Yetkilerin ve sol menü (Sidebar) elemanlarının statik bir JSON dosyasından değil, Veritabanından yönetildiği dinamik altyapı.
-3. **Merkezi Loglama:** Hataların ve Audit loglarının bir merkezden veritabanına ve external sink'lere kaydı (Örn: Hangi id'li rol, nerede, kimi sildi).
+3. **Merkezi Loglama (Audit Logs):** Sisteme giriş çıkış logları (Login/Logout) detaylı IP Adresi, Tarayıcı Verisi (User-Agent) ile WIXI_AUDIT_LOGS tablosuna yazılacaktır. CQRS işlemleri esnasında loglama mediatR altyapısından da beslenecektir. Hatalar ise ayrı log tablolarında depolanacaktır.
 4. **Workspace / File / Notes Altyapısı:** Tüm modüllerin ortak kullanacağı yardımcı bileşenler.
 
 ## 4. Kullanıcı Personaları

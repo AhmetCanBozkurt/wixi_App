@@ -1,0 +1,52 @@
+.container {
+  min-height: 100vh;
+  background: var(--bg-primary);
+}
+.header {
+  padding: 20px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-glass);
+  background: var(--surface-glass);
+}
+.logoutBtn {
+  background: transparent;
+  border: 1px solid var(--color-danger);
+  color: var(--color-danger);
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.logoutBtn:hover {
+  background: var(--color-danger);
+  color: white;
+}
+.main {
+  padding: 40px;
+}
+.welcomeCard {
+  background: var(--surface-glass);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-md);
+  padding: 30px;
+  max-width: 600px;
+}
+.welcomeCard h2 {
+  margin-bottom: 10px;
+}
+.welcomeCard p {
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+.badge {
+  display: inline-block;
+  background: var(--color-success);
+  color: #fff;
+  font-size: 0.8rem;
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  font-weight: 600;
+}
