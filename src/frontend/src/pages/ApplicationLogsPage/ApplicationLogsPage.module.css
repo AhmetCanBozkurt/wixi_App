@@ -1,0 +1,207 @@
+.container {
+  padding: 24px;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+@media (min-width: 768px) {
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .statsGrid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+.statCard {
+  background: var(--surface-glass);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.statCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  border-color: var(--border-glass-hover);
+}
+
+.statInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.statTitle {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.statValue {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.statValue.blue { color: #3b82f6; }
+.statValue.red { color: #ef4444; }
+.statValue.yellow { color: #eab308; }
+.statValue.green { color: #22c55e; }
+
+.statIcon {
+  font-size: 2rem;
+  opacity: 0.8;
+}
+
+.statIcon.blue { color: #3b82f6; }
+.statIcon.red { color: #ef4444; }
+.statIcon.yellow { color: #eab308; }
+.statIcon.green { color: #22c55e; }
+
+.filtersCard {
+  background: var(--surface-glass);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-lg);
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+@media (min-width: 1024px) {
+  .filtersCard {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+.searchBox {
+  position: relative;
+  flex: 1;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+}
+
+.searchInput {
+  width: 100%;
+  padding: 10px 14px 10px 40px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-md);
+  color: var(--text-main);
+  outline: none;
+  font-size: 0.95rem;
+  transition: all 0.2s;
+}
+
+.searchInput:focus {
+  border-color: var(--color-primary);
+}
+
+.dateFilters {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dateIcon {
+  color: var(--text-muted);
+}
+
+.dateInput {
+  padding: 8px 12px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-md);
+  color: var(--text-main);
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.dateSep {
+  color: var(--text-muted);
+}
+
+.actionTags {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.tagBtn {
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  border: none;
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.tagBtn:hover {
+  background: var(--surface-glass-hover);
+  color: var(--text-main);
+}
+
+.tagBtn.active {
+  background: var(--color-primary);
+  color: white;
+}
+
+/* Badge Logic */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.badge.red {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+.badge.yellow {
+  background: rgba(234, 179, 8, 0.1);
+  color: #eab308;
+}
+.badge.green {
+  background: rgba(34, 197, 94, 0.1);
+  color: #22c55e;
+}
+.badge.blue {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+}
+.badge.gray {
+  background: rgba(107, 114, 128, 0.1);
+  color: #6b7280;
+}

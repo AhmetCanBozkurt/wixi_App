@@ -1,32 +1,62 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
 
-:root {
-  /* DARK OBSIDIAN BACKGROUND */
-  --bg-primary: #040814; 
+/* ============================
+   LIGHT MODE (DEFAULT)
+   ============================ */
+:root,
+[data-theme="light"] {
+  --bg-primary: #f1f5f9;
+  --bg-secondary: #e2e8f0;
+
+  --surface-glass: #ffffff;
+  --surface-glass-hover: #f8fafc;
+  --border-glass: #e2e8f0;
+  --border-glass-hover: #cbd5e1;
+
+  --color-primary: #4F46E5;
+  --color-primary-glow: rgba(79, 70, 229, 0.2);
+  --color-accent: #0891b2;
+  --color-success: #059669;
+  --color-danger: #dc2626;
+
+  --text-main: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 24px;
+  --radius-pill: 9999px;
+}
+
+/* ============================
+   DARK MODE
+   ============================ */
+[data-theme="dark"] {
+  --bg-primary: #040814;
   --bg-secondary: #0A0F1F;
-  
-  /* GLASSMORPHISM SURFACES */
+
   --surface-glass: rgba(255, 255, 255, 0.03);
   --surface-glass-hover: rgba(255, 255, 255, 0.08);
   --border-glass: rgba(255, 255, 255, 0.08);
-  
-  /* VIBRANT BRAND COLORS */
+  --border-glass-hover: rgba(255, 255, 255, 0.15);
+
   --color-primary: #4F46E5;
   --color-primary-glow: rgba(79, 70, 229, 0.4);
   --color-accent: #06B6D4;
   --color-success: #10B981;
   --color-danger: #EF4444;
 
-  /* TYPOGRAPHY */
   --text-main: #FFFFFF;
+  --text-secondary: #cbd5e1;
   --text-muted: #94A3B8;
 
-  /* SPACING & BORDER RADIUS */
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 24px;
   --radius-pill: 9999px;
 }
+
 
 * {
   box-sizing: border-box;

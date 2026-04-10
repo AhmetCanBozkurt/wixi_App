@@ -3,9 +3,11 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { toast } from 'react-hot-toast';
+import { FaEye, FaEyeSlash, FaLock } from 'react-icons/fa';
 import { apiClient } from '../../../shared/api/axiosConfig';
 import { useAuthStore } from '../../../entities/User/model/store';
 import styles from './LoginForm.module.css';
+import logoSrc from '../../../assets/Logolar/logo.png';
 
 const loginSchema = z.object({
   email: z.string().min(1, 'Email zorunludur').email('Lütfen geçerli bir e-posta adresi girin'),
@@ -16,6 +18,8 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 export const LoginForm = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const login = useAuthStore((state) => state.login);
 
   const { register, handleSubmit, formState: { errors } } = useForm<LoginFormData>({
@@ -29,12 +33,10 @@ export const LoginForm = () => {
       
       if (response.data?.token) {
         login(response.data.token);
-        // User rule strict instruction applied here: All successes and errors must be a toaster!
         toast.success("Oturumunuz güvenli bir şekilde açıldı!", {
             style: { background: 'var(--bg-secondary)', color: 'var(--text-main)', border: '1px solid var(--color-success)' }
         });
         
-        // Timeout to allow the toast to show and state to propagate before navigation
         setTimeout(() => {
             window.location.href = '/'; 
         }, 800);
@@ -45,50 +47,86 @@ export const LoginForm = () => {
             style: { background: 'var(--bg-secondary)', color: 'var(--text-main)', border: '1px solid var(--color-danger)' }
         });
       }
-      // Diğer sunucu hataları axiosConfig içerisindeki Interceptor tarafından toastlanacaktır.
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
-        <div className={styles.logoBox}>W</div>
-        <h2 className={styles.title}>Worklines Pro</h2>
+    <div className={styles.containerWrapper}>
+      <div className={styles.body}>
+        <div className={styles.header}>
+          <img src={logoSrc} alt="Wixisoftware Logo" className={styles.logoIcon} />
+          <h2 className={styles.title}>Wixisoftware</h2>
+        </div>
+
+        <div className={styles.subtitleBox}>
+          <h3 className={styles.subtitle}>Login</h3>
+          <p className={styles.desc}>Please enter your details to login.</p>
+        </div>
+
+        <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
+          
+          <div className={styles.inputGroup}>
+            <label className={styles.label}>Username</label>
+            <input 
+              type="email" 
+              className={styles.input} 
+              placeholder="Enter your username or email"
+              autoComplete="email"
+              {...register('email')}
+            />
+          </div>
+          {errors.email && <span className={styles.error}>{errors.email.message}</span>}
+
+          <div className={styles.inputGroup}>
+            <label className={styles.label}>Password</label>
+            <div className={styles.inputWrapper}>
+              <input 
+                type={showPassword ? "text" : "password"} 
+                className={styles.input} 
+                placeholder="Enter your password"
+                autoComplete="current-password"
+                {...register('password')}
+              />
+              <button 
+                type="button" 
+                className={styles.eyeButton}
+                onClick={() => setShowPassword(!showPassword)}
+                tabIndex={-1}
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </button>
+            </div>
+          </div>
+          {errors.password && <span className={styles.error}>{errors.password.message}</span>}
+
+          <div className={styles.optionsRow}>
+            <label className={styles.rememberMe}>
+              <input 
+                type="checkbox" 
+                className={styles.checkbox} 
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+              />
+              Remember Me
+            </label>
+            <a href="#" className={styles.forgotLink} onClick={(e) => e.preventDefault()}>
+              Forgot Password?
+            </a>
+          </div>
+
+          <button type="submit" className={styles.button} disabled={isLoading}>
+            {isLoading ? "Bağlanıyor..." : "Login"}
+          </button>
+
+        </form>
       </div>
 
-      <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
-        
-        <div className={styles.inputGroup}>
-          <label className={styles.label}>Kurumsal E-posta</label>
-          <input 
-            type="email" 
-            className={styles.input} 
-            placeholder="admin@wixi.com"
-            autoComplete="email"
-            {...register('email')}
-          />
-        </div>
-        {errors.email && <span className={styles.error}>{errors.email.message}</span>}
-
-        <div className={styles.inputGroup}>
-          <label className={styles.label}>Parola</label>
-          <input 
-            type="password" 
-            className={styles.input} 
-            placeholder="••••••••"
-            autoComplete="current-password"
-            {...register('password')}
-          />
-        </div>
-        {errors.password && <span className={styles.error}>{errors.password.message}</span>}
-
-        <button type="submit" className={styles.button} disabled={isLoading}>
-          {isLoading ? "Bağlanıyor..." : "Sisteme Gir"}
-        </button>
-
-      </form>
+      <div className={styles.footer}>
+        <FaLock style={{ fontSize: '0.8rem', opacity: 0.7 }} />
+        <span>© 2026 Wixisoftware. All rights reserved.</span>
+      </div>
     </div>
   );
 };

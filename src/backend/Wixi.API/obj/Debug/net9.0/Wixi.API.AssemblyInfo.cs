@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Wixi.API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0f7a95824569b3bf82946154281a50988a221c38")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5a185a6919e294d006d83d8a6639fee3f28f1700")]
 [assembly: System.Reflection.AssemblyProductAttribute("Wixi.API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Wixi.API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -11,7 +11,7 @@ Mevcut kod tabanımız aceleyle MVP (Minimum Viable Product) prensibi ile yazıl
 
 ## 3. Temel Sistem Modülleri (Core Features)
 Her yeni eklenmek istenen "Aplikasyon", bu çekirdek modüllerin sağladığı servisleri kullanarak çalışacaktır.
-1. **Güçlü Yetkilendirme (Auth & Session):** JWT, Cihaz oturum kontrolü, Katı parola politikaları.
+1. **Güçlü Yetkilendirme (Auth & Session):** JWT, Cihaz oturum kontrolü, Katı parola politikaları. "Beni Hatırla (Remember Me)" özelliği, güvenliği sağlamak amacıyla XSS korumalı HTTP-Only Secure Refresh Token çerezleri üzerinden (30 günlük) kurgulanacaktır.
 2. **Rol & Yetki Sistemi (Dynamic RBAC):** Yetkilerin ve sol menü (Sidebar) elemanlarının statik bir JSON dosyasından değil, Veritabanından yönetildiği dinamik altyapı.
 3. **Merkezi Loglama (Audit Logs):** Sisteme giriş çıkış logları (Login/Logout) detaylı IP Adresi, Tarayıcı Verisi (User-Agent) ile WIXI_AUDIT_LOGS tablosuna yazılacaktır. CQRS işlemleri esnasında loglama mediatR altyapısından da beslenecektir. Hatalar ise ayrı log tablolarında depolanacaktır.
 4. **Workspace / File / Notes Altyapısı:** Tüm modüllerin ortak kullanacağı yardımcı bileşenler.
