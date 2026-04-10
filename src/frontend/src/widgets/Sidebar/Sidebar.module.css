@@ -256,18 +256,18 @@
   margin: 0;
 }
 
-/* Each item row */
+/* Each item row — BOX highlight approach (no left border) */
 .menuItemRow {
   display: flex;
   align-items: center;
   position: relative;
-  border-left: 3px solid transparent;
-  transition: border-color 0.15s;
+  margin: 1px 8px;
+  border-radius: 6px;
+  transition: background 0.15s;
 }
 
 .menuItemRow:hover {
   background: var(--sidebar-hover-bg);
-  border-left-color: rgba(124,58,237,0.4);
 }
 
 .menuItemRow:hover .favStarBtn {
@@ -280,31 +280,27 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 7px 14px 7px 32px;
+  padding: 7px 10px;
   color: var(--sidebar-text);
   text-decoration: none;
   font-size: 0.82rem;
   transition: color 0.15s;
+  border-radius: 6px;
 }
 
-/* Favorites: top-level (no indent) */
+/* Favorites: no extra indent */
 .favoritesSection .menuItemRow a {
-  padding-left: 14px;
+  padding-left: 10px;
 }
 
-/* Active state */
+/* Active box highlight */
+.menuItemRow:has(a.active) {
+  background: var(--sidebar-active-bg);
+}
+
 .menuItemRow a.active {
   color: var(--sidebar-active-color) !important;
   font-weight: 600;
-}
-
-.menuItemRow a.active ~ .favStarBtn {
-  opacity: 1;
-}
-
-.menuItemRow:has(a.active) {
-  background: var(--sidebar-active-bg);
-  border-left-color: var(--sidebar-active-border);
 }
 
 /* ---- Favorite Star Button ---- */
@@ -360,6 +356,11 @@
 
 .collapsed .accordionTitle {
   justify-content: center;
+}
+
+/* Collapsed: remove side margins, center item */
+.collapsed .menuItemRow {
+  margin: 1px 4px;
 }
 
 .collapsed .menuItemRow a {
