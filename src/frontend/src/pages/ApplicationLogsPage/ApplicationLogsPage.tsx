@@ -1,16 +1,28 @@
-import { useState, useEffect } from 'react';
-import { 
-  FaExclamationTriangle, 
-  FaInfoCircle, 
+import { useState, useEffect, useCallback } from 'react';
+import {
+  FaExclamationTriangle,
+  FaInfoCircle,
   FaCheckCircle,
   FaSearch,
   FaCalendar,
-  FaChartBar
+  FaChartBar,
+  FaChevronLeft,
+  FaChevronRight
 } from 'react-icons/fa';
 import { apiClient } from '../../shared/api/axiosConfig';
-import { useAuthStore } from '../../entities/User/model/store';
-import { AdvancedDataTable } from '../../shared/ui/AdvancedDataTable/AdvancedDataTable';
 import styles from './ApplicationLogsPage.module.css';
+
+// ─── Types ───────────────────────────────────────────────
+interface AuditLogItem {
+  id: string;
+  action: string;
+  userId?: string;
+  entityName?: string;
+  entityId?: string;
+  email?: string;
+  ipAddress?: string;
+  createdAt: string;
+}
 
 interface LogStats {
   total: number;
@@ -20,131 +32,124 @@ interface LogStats {
   todayCount: number;
 }
 
+// ─── Constants ───────────────────────────────────────────
+const PAGE_SIZE = 15;
+
+const toLocalDate = (iso: string) =>
+  new Date(iso).toLocaleString('tr-TR', { dateStyle: 'short', timeStyle: 'medium' });
+
+const getDefaultStart = () =>
+  new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+const getDefaultEnd = () => new Date().toISOString().split('T')[0];
+
+// ─── Badge ───────────────────────────────────────────────
+const ActionBadge = ({ action }: { action: string }) => {
+  const up = action.toUpperCase();
+  if (up.includes('FAILED') || up.includes('DELETE') || up.includes('ERROR'))
+    return <span className={`${styles.badge} ${styles.red}`}><FaExclamationTriangle /> {action}</span>;
+  if (up.includes('WARNING') || up.includes('UPDATE'))
+    return <span className={`${styles.badge} ${styles.yellow}`}><FaExclamationTriangle /> {action}</span>;
+  if (up.includes('SUCCESS') || up.includes('CREATE'))
+    return <span className={`${styles.badge} ${styles.green}`}><FaCheckCircle /> {action}</span>;
+  if (up.includes('LOGIN') || up.includes('LOGOUT'))
+    return <span className={`${styles.badge} ${styles.blue}`}><FaInfoCircle /> {action}</span>;
+  return <span className={`${styles.badge} ${styles.gray}`}><FaInfoCircle /> {action}</span>;
+};
+
+// ─── Page Component ───────────────────────────────────────
 export const ApplicationLogsPage = () => {
-  const [stats, setStats] = useState<LogStats>({
-    total: 0, errors: 0, warnings: 0, info: 0, todayCount: 0
-  });
-  const [filter, setFilter] = useState<string>('all');
-  const [searchTerm, setSearchTerm] = useState('');
-  
-  // Date format: YYYY-MM-DD
-  const [dateFilter, setDateFilter] = useState({
-    startDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    endDate: new Date().toISOString().split('T')[0]
-  });
+  const [logs, setLogs]       = useState<AuditLogItem[]>([]);
+  const [totalCount, setTotal] = useState(0);
+  const [loading, setLoading]  = useState(false);
+  const [page, setPage]        = useState(1);
 
-  const loadStats = async () => {
+  const [stats, setStats] = useState<LogStats>({ total: 0, errors: 0, warnings: 0, info: 0, todayCount: 0 });
+
+  const [filter, setFilter]     = useState('all');
+  const [searchTerm, setSearch] = useState('');
+  const [startDate, setStart]   = useState(getDefaultStart);
+  const [endDate, setEnd]       = useState(getDefaultEnd);
+
+  // ── Fetch logs ──
+  const fetchLogs = useCallback(async () => {
+    setLoading(true);
     try {
-      const statsRes = await apiClient.get('/admin/logs/audit/stats', {
-        params: { startDate: dateFilter.startDate, endDate: dateFilter.endDate }
+      const params: Record<string, string | number> = {
+        page,
+        pageSize: PAGE_SIZE,
+        startDate,
+        endDate,
+      };
+      if (filter !== 'all')  params.action = filter;
+      if (searchTerm)        params.search  = searchTerm;
+
+      const res = await apiClient.get<{ totalCount: number; items: AuditLogItem[] }>(
+        '/admin/logs/audit',
+        { params }
+      );
+      setLogs(res.data.items ?? []);
+      setTotal(res.data.totalCount ?? 0);
+    } catch {
+      /* apiClient interceptor already shows toast for 500 */
+    } finally {
+      setLoading(false);
+    }
+  }, [page, filter, searchTerm, startDate, endDate]);
+
+  // ── Fetch stats ──
+  const fetchStats = useCallback(async () => {
+    try {
+      const res = await apiClient.get<LogStats>('/admin/logs/audit/stats', {
+        params: { startDate, endDate }
       });
-      if (statsRes.data) setStats(statsRes.data);
-    } catch (error) {
-      console.error('Log stats fetch error', error);
-    }
-  };
+      setStats(res.data);
+    } catch { /* silent */ }
+  }, [startDate, endDate]);
 
-  useEffect(() => {
-    loadStats();
-  }, [dateFilter]);
+  useEffect(() => { fetchLogs(); }, [fetchLogs]);
+  useEffect(() => { fetchStats(); }, [fetchStats]);
 
-  const getActionBadge = (action: string) => {
-    const actionUpper = action.toUpperCase();
-    if (actionUpper.includes('DELETE') || actionUpper.includes('FAILED')) {
-      return <span className={`${styles.badge} ${styles.red}`}><FaExclamationTriangle /> {action}</span>;
-    } 
-    if (actionUpper.includes('UPDATE') || actionUpper.includes('WARNING')) {
-      return <span className={`${styles.badge} ${styles.yellow}`}><FaExclamationTriangle /> {action}</span>;
-    } 
-    if (actionUpper.includes('CREATE') || actionUpper.includes('SUCCESS')) {
-      return <span className={`${styles.badge} ${styles.green}`}><FaCheckCircle /> {action}</span>;
-    } 
-    if (actionUpper.includes('LOGIN') || actionUpper.includes('LOGOUT')) {
-      return <span className={`${styles.badge} ${styles.blue}`}><FaInfoCircle /> {action}</span>;
-    }
-    return <span className={`${styles.badge} ${styles.gray}`}><FaInfoCircle /> {action}</span>;
-  };
+  // Reset to page 1 when filters change (except page itself)
+  useEffect(() => { setPage(1); }, [filter, searchTerm, startDate, endDate]);
 
-  // We let AdvancedDataTable handle the internal fetching. We just provide search and tags via searchParams.
-  // AdvancedDataTable supports global search and sorting inherently.
-
-  const columns = [
-    { key: 'action', header: 'İŞLEM', render: (val: string) => getActionBadge(val) },
-    { key: 'createdAt', header: 'TARİH/SAAT', render: (val: string) => new Date(val).toLocaleString('tr-TR') },
-    { key: 'entityName', header: 'VARLIK', render: (val: string, row: any) => val ? `${val} (${row.entityId || '-'})` : '-' },
-    { key: 'userId', header: 'KULLANICI ID', render: (val: string) => val || '-' },
-    { key: 'ipAddress', header: 'IP ADRESİ', render: (val: string) => val || '-' },
-  ];
+  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
 
   return (
     <div className={styles.container}>
-      {/* Stats Cards */}
+      {/* ─── Stats Cards ─── */}
       <div className={styles.statsGrid}>
-        <div className={styles.statCard}>
-          <div className={styles.statInfo}>
-            <span className={styles.statTitle}>Toplam Log</span>
-            <span className={`${styles.statValue} ${styles.blue}`}>{stats.total}</span>
-          </div>
-          <FaChartBar className={`${styles.statIcon} ${styles.blue}`} />
-        </div>
-        
-        <div className={styles.statCard}>
-          <div className={styles.statInfo}>
-            <span className={styles.statTitle}>Hatalar</span>
-            <span className={`${styles.statValue} ${styles.red}`}>{stats.errors}</span>
-          </div>
-          <FaExclamationTriangle className={`${styles.statIcon} ${styles.red}`} />
-        </div>
-
-        <div className={styles.statCard}>
-          <div className={styles.statInfo}>
-            <span className={styles.statTitle}>Uyarılar</span>
-            <span className={`${styles.statValue} ${styles.yellow}`}>{stats.warnings}</span>
-          </div>
-          <FaExclamationTriangle className={`${styles.statIcon} ${styles.yellow}`} />
-        </div>
-
-        <div className={styles.statCard}>
-          <div className={styles.statInfo}>
-            <span className={styles.statTitle}>Bilgi</span>
-            <span className={`${styles.statValue} ${styles.blue}`}>{stats.info}</span>
-          </div>
-          <FaInfoCircle className={`${styles.statIcon} ${styles.blue}`} />
-        </div>
-
-        <div className={styles.statCard}>
-          <div className={styles.statInfo}>
-            <span className={styles.statTitle}>Bugün</span>
-            <span className={`${styles.statValue} ${styles.green}`}>{stats.todayCount}</span>
-          </div>
-          <FaCheckCircle className={`${styles.statIcon} ${styles.green}`} />
-        </div>
+        <StatCard title="Toplam Log"  value={stats.total}      color="blue"   icon={<FaChartBar />} />
+        <StatCard title="Hatalar"     value={stats.errors}     color="red"    icon={<FaExclamationTriangle />} />
+        <StatCard title="Uyarılar"    value={stats.warnings}   color="yellow" icon={<FaExclamationTriangle />} />
+        <StatCard title="Bilgi"       value={stats.info}       color="blue"   icon={<FaInfoCircle />} />
+        <StatCard title="Bugün"       value={stats.todayCount} color="green"  icon={<FaCheckCircle />} />
       </div>
 
-      {/* Filters */}
+      {/* ─── Filters ─── */}
       <div className={styles.filtersCard}>
         <div className={styles.searchBox}>
           <FaSearch className={styles.searchIcon} />
-          <input 
-            type="text" 
-            placeholder="Log mesajı, IP veya kullanıcı ara..." 
+          <input
+            type="text"
+            placeholder="IP, kullanıcı veya işlem ara..."
             className={styles.searchInput}
             value={searchTerm}
-            onChange={e => setSearchTerm(e.target.value)}
+            onChange={e => setSearch(e.target.value)}
           />
         </div>
 
         <div className={styles.dateFilters}>
           <FaCalendar className={styles.dateIcon} />
-          <input type="date" className={styles.dateInput} value={dateFilter.startDate} onChange={e => setDateFilter({...dateFilter, startDate: e.target.value})} />
-          <span className={styles.dateSep}>-</span>
-          <input type="date" className={styles.dateInput} value={dateFilter.endDate} onChange={e => setDateFilter({...dateFilter, endDate: e.target.value})} />
+          <input type="date" className={styles.dateInput} value={startDate} onChange={e => setStart(e.target.value)} />
+          <span className={styles.dateSep}>—</span>
+          <input type="date" className={styles.dateInput} value={endDate}   onChange={e => setEnd(e.target.value)} />
         </div>
 
         <div className={styles.actionTags}>
-          {['all', 'Create', 'Update', 'Delete', 'Login'].map(act => (
-            <button 
-              key={act} 
+          {['all', 'LOGIN', 'SUCCESS', 'FAILED', 'ERROR'].map(act => (
+            <button
+              key={act}
               className={`${styles.tagBtn} ${filter === act ? styles.active : ''}`}
               onClick={() => setFilter(act)}
             >
@@ -154,21 +159,79 @@ export const ApplicationLogsPage = () => {
         </div>
       </div>
 
-      {/* Table */}
-      <AdvancedDataTable 
-        endpoint={`${apiClient.defaults.baseURL}/admin/logs/audit`}
-        searchParams={{
-            ...(filter !== 'all' ? { action: filter } : {}),
-            startDate: dateFilter.startDate,
-            endDate: dateFilter.endDate,
-            search: searchTerm
-        }}
-        columns={columns}
-        pageSize={15}
-        getAuthToken={async () => {
-             return useAuthStore.getState().token;
-        }}
-      />
+      {/* ─── Table ─── */}
+      <div className={styles.tableCard}>
+        <div className={styles.tableWrapper}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>İŞLEM</th>
+                <th>E-POSTA</th>
+                <th>IP ADRESİ</th>
+                <th>TARİH / SAAT</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading && (
+                <tr>
+                  <td colSpan={4} className={styles.centerCell}>
+                    <span className={styles.spinner} /> Yükleniyor...
+                  </td>
+                </tr>
+              )}
+              {!loading && logs.length === 0 && (
+                <tr>
+                  <td colSpan={4} className={styles.centerCell}>Kayıt bulunamadı.</td>
+                </tr>
+              )}
+              {!loading && logs.map(row => (
+                <tr key={row.id}>
+                  <td><ActionBadge action={row.action} /></td>
+                  <td className={styles.mutedCell}>{row.email ?? row.userId ?? '-'}</td>
+                  <td className={styles.codeCell}>{row.ipAddress ?? '-'}</td>
+                  <td className={styles.mutedCell}>{toLocalDate(row.createdAt)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Pagination */}
+        <div className={styles.pagination}>
+          <span className={styles.paginationInfo}>
+            Toplam <strong>{totalCount}</strong> kayıt &nbsp;|&nbsp; Sayfa {page} / {totalPages}
+          </span>
+          <div className={styles.pageButtons}>
+            <button
+              className={styles.pageBtn}
+              disabled={page <= 1 || loading}
+              onClick={() => setPage(p => p - 1)}
+            >
+              <FaChevronLeft />
+            </button>
+            <button
+              className={styles.pageBtn}
+              disabled={page >= totalPages || loading}
+              onClick={() => setPage(p => p + 1)}
+            >
+              <FaChevronRight />
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
+
+// ─── Stat Card (local) ────────────────────────────────────
+const StatCard = ({
+  title, value, color, icon
+}: { title: string; value: number; color: string; icon: React.ReactNode }) => (
+  <div className={styles.statCard}>
+    <div className={styles.statInfo}>
+      <span className={styles.statTitle}>{title}</span>
+      <span className={`${styles.statValue} ${styles[color]}`}>{value}</span>
+    </div>
+    <span className={`${styles.statIcon} ${styles[color]}`}>{icon}</span>
+  </div>
+);
