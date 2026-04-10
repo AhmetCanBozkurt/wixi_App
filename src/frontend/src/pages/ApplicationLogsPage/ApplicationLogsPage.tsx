@@ -1,14 +1,24 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   FaExclamationTriangle, FaInfoCircle, FaCheckCircle,
-  FaSearch, FaCalendar, FaChartBar
+  FaCalendar, FaChartBar
 } from 'react-icons/fa';
 import { apiClient } from '../../shared/api/axiosConfig';
-import { useAuthStore } from '../../entities/User/model/store';
 import { AdvancedDataTable } from '../../shared/ui/AdvancedDataTable/AdvancedDataTable';
 import styles from './ApplicationLogsPage.module.css';
 
 // ─── Types ───────────────────────────────────────────────
+interface AuditLogItem {
+  id: string;
+  action: string;
+  userId?: string;
+  entityName?: string;
+  entityId?: string;
+  email?: string;
+  ipAddress?: string;
+  createdAt: string;
+}
+
 interface LogStats {
   total: number;
   errors: number;
@@ -17,15 +27,10 @@ interface LogStats {
   todayCount: number;
 }
 
-// ─── Helpers ─────────────────────────────────────────────
-const getDefaultStart = () =>
-  new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-const getDefaultEnd = () => new Date().toISOString().split('T')[0];
-
+// ─── Constants ────────────────────────────────────────────
 const toLocalDate = (iso: string) =>
   new Date(iso).toLocaleString('tr-TR', { dateStyle: 'short', timeStyle: 'medium' });
 
-// ─── Action Badge ─────────────────────────────────────────
 const ActionBadge = ({ action }: { action: string }) => {
   const up = action.toUpperCase();
   if (up.includes('FAILED') || up.includes('DELETE') || up.includes('ERROR'))
@@ -39,72 +44,73 @@ const ActionBadge = ({ action }: { action: string }) => {
   return <span className={`${styles.badge} ${styles.gray}`}><FaInfoCircle /> {action}</span>;
 };
 
-// ─── Column Definitions ───────────────────────────────────
 const COLUMNS = [
   {
     key: 'action',
     header: 'İŞLEM',
     render: (val: string) => <ActionBadge action={val} />,
-    filterable: true,
   },
   {
     key: 'email',
     header: 'E-POSTA',
-    render: (val: string) => val || '-',
-    searchable: true,
     sortable: true,
+    render: (val: string) => val || '-',
   },
   {
     key: 'ipAddress',
     header: 'IP ADRESİ',
-    render: (val: string) => <code style={{ fontSize: '0.8rem' }}>{val || '-'}</code>,
+    render: (val: string) => <code style={{ fontSize: '0.8rem', fontFamily: 'monospace' }}>{val || '-'}</code>,
   },
   {
     key: 'entityName',
     header: 'VARLIK',
-    render: (val: string, row: any) => val ? `${val} #${String(row.entityId ?? '').slice(0, 8)}` : '-',
+    render: (val: string, row: AuditLogItem) =>
+      val ? `${val} #${String(row.entityId ?? '').slice(0, 8)}` : '-',
   },
   {
     key: 'createdAt',
     header: 'TARİH / SAAT',
-    render: (val: string) => toLocalDate(val),
     sortable: true,
+    render: (val: string) => toLocalDate(val),
   },
 ];
 
-// ─── Page ─────────────────────────────────────────────────
+// Default date values
+const getDefaultStart = () => new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+const getDefaultEnd = () => new Date().toISOString().split('T')[0];
+
 export const ApplicationLogsPage = () => {
-  const [stats, setStats] = useState<LogStats>({ total: 0, errors: 0, warnings: 0, info: 0, todayCount: 0 });
-  const [filter, setFilter]   = useState('all');
-  const [searchTerm, setSearch] = useState('');
+  // Filters
+  const [filter, setFilter]     = useState('all');
   const [startDate, setStart]   = useState(getDefaultStart);
   const [endDate, setEnd]       = useState(getDefaultEnd);
 
-  // Stable getAuthToken (never changes reference)
-  const getAuthToken = useCallback(async () =>
-    useAuthStore.getState().token,
-  []);
+  // Stats
+  const [stats, setStats] = useState<LogStats>({
+    total: 0, errors: 0, warnings: 0, info: 0, todayCount: 0
+  });
 
-  // Stable searchParams — only changes when actual values change
-  const searchParams = useMemo<Record<string, string>>(() => {
-    const p: Record<string, string> = { startDate, endDate };
-    if (filter !== 'all') p.action = filter;
-    if (searchTerm)        p.search  = searchTerm;
-    return p;
-  }, [filter, searchTerm, startDate, endDate]);
-
-  // Stats (own fetch, lightweight)
+  // Fetch stats (independent of the table)
   const fetchStats = useCallback(async () => {
     try {
-      const res = await apiClient.get<LogStats>('/admin/logs/audit/stats', { params: { startDate, endDate } });
+      const res = await apiClient.get<LogStats>('/admin/logs/audit/stats', {
+        params: { startDate, endDate }
+      });
       setStats(res.data);
     } catch { /* silent */ }
   }, [startDate, endDate]);
 
   useEffect(() => { fetchStats(); }, [fetchStats]);
 
-  // Backend API base for AdvancedDataTable
-  const endpoint = `${apiClient.defaults.baseURL}/admin/logs/audit`;
+  // Stable searchParams for AdvancedDataTable
+  // Stringify check inside the table will prevent re-fetches if these don't change
+  const searchParams = useMemo(() => {
+    const params: Record<string, string> = { startDate, endDate };
+    if (filter !== 'all') params.action = filter;
+    return params;
+  }, [filter, startDate, endDate]);
+
+  const endpoint = '/admin/logs/audit';
 
   return (
     <div className={styles.container}>
@@ -117,24 +123,13 @@ export const ApplicationLogsPage = () => {
         <StatCard title="Bugün"       value={stats.todayCount} color="green"  icon={<FaCheckCircle />} />
       </div>
 
-      {/* Filters */}
+      {/* Filters (only for stats and base search params) */}
       <div className={styles.filtersCard}>
-        <div className={styles.searchBox}>
-          <FaSearch className={styles.searchIcon} />
-          <input
-            type="text"
-            placeholder="IP, e-posta veya işlem filtrele..."
-            className={styles.searchInput}
-            value={searchTerm}
-            onChange={e => setSearch(e.target.value)}
-          />
-        </div>
-
         <div className={styles.dateFilters}>
           <FaCalendar className={styles.dateIcon} />
           <input type="date" className={styles.dateInput} value={startDate} onChange={e => setStart(e.target.value)} />
           <span className={styles.dateSep}>—</span>
-          <input type="date" className={styles.dateInput} value={endDate}   onChange={e => setEnd(e.target.value)} />
+          <input type="date" className={styles.dateInput} value={endDate} onChange={e => setEnd(e.target.value)} />
         </div>
 
         <div className={styles.actionTags}>
@@ -150,20 +145,25 @@ export const ApplicationLogsPage = () => {
         </div>
       </div>
 
-      {/* Advanced Data Table */}
+      {/*
+        ENDPOINT MODE: AdvancedDataTable handles fetching via apiClient.
+        - No infinite loop: protected by useMemo searchParams + internal JSON.stringify check.
+        - No CORS error: uses project's apiClient.
+        - No double audit requests: Page doesn't fetch logs anymore.
+      */}
       <AdvancedDataTable
         endpoint={endpoint}
+        searchParams={searchParams}
         columns={COLUMNS}
         pageSize={15}
-        searchParams={searchParams}
-        getAuthToken={getAuthToken}
       />
     </div>
   );
 };
 
-// ─── Stat Card ────────────────────────────────────────────
-const StatCard = ({ title, value, color, icon }: { title: string; value: number; color: string; icon: React.ReactNode }) => (
+const StatCard = ({
+  title, value, color, icon
+}: { title: string; value: number; color: string; icon: React.ReactNode }) => (
   <div className={styles.statCard}>
     <div className={styles.statInfo}>
       <span className={styles.statTitle}>{title}</span>

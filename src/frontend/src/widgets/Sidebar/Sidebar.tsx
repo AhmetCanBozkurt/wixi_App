@@ -6,6 +6,7 @@ import {
   FaStar, FaListAlt, FaSearch, FaEllipsisH
 } from 'react-icons/fa';
 import styles from './Sidebar.module.css';
+import logoImg from '../../assets/Logolar/logo.png';
 
 // ─── Sayfası olan menüler ─────────────────────────────
 const ALL_WORKSPACES = [
@@ -168,15 +169,15 @@ export const Sidebar = () => {
     <aside className={`${styles.sidebarContainer} ${isCollapsed ? styles.collapsed : ''}`}>
       {/* ── Logo / Header ── */}
       <div className={styles.header}>
-        {!isCollapsed && (
-          <div className={styles.logoArea}>
-            <div className={styles.logoIcon}>W</div>
+        <div className={styles.logoArea}>
+          <img src={logoImg} alt="Wixi Logo" className={styles.logoImage} />
+          {!isCollapsed && (
             <div className={styles.titleBox}>
               <h1>Wixisoftware</h1>
               <p>Admin Panel</p>
             </div>
-          </div>
-        )}
+          )}
+        </div>
         <button className={styles.toggleBtn} onClick={handleCollapseToggle} title="Menüyü Daralt/Genişlet">
           {isCollapsed ? <FaBars /> : <FaTimes />}
         </button>
