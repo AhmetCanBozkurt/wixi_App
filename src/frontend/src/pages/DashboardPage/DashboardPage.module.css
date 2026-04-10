@@ -1,7 +1,7 @@
 .container {
   display: flex;
   min-height: 100vh;
-  background: var(--bg-secondary);
+  background: #131525;
   overflow: hidden;
 }
 .contentWrapper {
@@ -9,6 +9,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  background: #131525;
 }
 .header {
   padding: 20px 40px;
@@ -32,7 +33,9 @@
   color: white;
 }
 .main {
-  padding: 40px;
+  padding: 24px 28px;
+  overflow-y: auto;
+  flex: 1;
 }
 .welcomeCard {
   background: var(--surface-glass);

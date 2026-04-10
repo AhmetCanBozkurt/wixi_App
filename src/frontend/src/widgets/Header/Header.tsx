@@ -7,43 +7,57 @@ export const Header = () => {
   const { user } = useAuthStore();
   const { theme, toggleTheme } = useTheme();
 
-  // Extract initials for the avatar (e.g. from Ahmet Can Bozkurt -> AB, or from email admin@... -> AD)
   const getInitials = () => {
     if (user?.email) {
+      const parts = user.email.split('@')[0].split(/[._-]/);
+      if (parts.length >= 2) {
+        return (parts[0][0] + parts[1][0]).toUpperCase();
+      }
       return user.email.substring(0, 2).toUpperCase();
     }
-    return 'U';
+    return 'WX';
   };
+
+  const displayName = user?.email?.split('@')[0] || 'Kullanıcı';
 
   return (
     <header className={styles.headerContainer}>
+      {/* Left: Breadcrumb */}
       <div className={styles.leftSection}>
-        {/* Placeholder for Breadcrumbs if needed */}
-        <h2 className={styles.title}>Dashboard</h2>
+        <nav className={styles.breadcrumb}>
+          <span className={styles.breadcrumbItem}>Dashboard</span>
+          <span className={styles.breadcrumbSep}>›</span>
+          <span className={styles.breadcrumbCurrent}>Admin Panel</span>
+        </nav>
       </div>
 
+      {/* Right: Actions */}
       <div className={styles.rightSection}>
-        <div className={styles.iconGroup}>
-          <button className={styles.iconBtn} title="Dili Değiştir">
-            <FaGlobe />
-          </button>
+        {/* Language */}
+        <button className={styles.iconBtn} title="Dil">
+          <FaGlobe />
+        </button>
 
-          <button 
-            className={styles.iconBtn} 
-            title={theme === 'dark' ? "Light Mod'a Geç" : "Dark Mod'a Geç"}
-            onClick={toggleTheme}
-          >
-            {theme === 'dark' ? <FaSun /> : <FaMoon />}
-          </button>
+        {/* Theme toggle - badge style like reference */}
+        <button
+          className={styles.themeBtn}
+          onClick={toggleTheme}
+          title={theme === 'dark' ? "Light Moda Geç" : "Dark Moda Geç"}
+        >
+          {theme === 'dark' ? <><FaSun /> Light</> : <><FaMoon /> Dark</>}
+        </button>
 
-          <button className={styles.iconBtn} title="Bildirimler">
-            <FaBell />
-          </button>
-        </div>
+        {/* Notifications */}
+        <button className={styles.iconBtn} title="Bildirimler">
+          <FaBell />
+        </button>
 
+        <div className={styles.divider} />
+
+        {/* User Profile - square avatar */}
         <div className={styles.userProfile}>
           <div className={styles.userInfo}>
-            <span className={styles.userName}>{user?.email?.split('@')[0] || 'Kullanıcı'}</span>
+            <span className={styles.userName}>{displayName}</span>
             <span className={styles.userRole}>{user?.roles?.[0] || 'Admin'}</span>
           </div>
           <div className={styles.avatar}>

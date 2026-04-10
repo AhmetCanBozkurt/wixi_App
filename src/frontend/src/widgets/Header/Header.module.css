@@ -1,48 +1,63 @@
+/* ============================================
+   HEADER - Referans Tasarıma Uygun
+   ============================================ */
+
 .headerContainer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  height: 80px; /* Match sidebar height or smaller */
-  padding: 0 2rem;
-  background: var(--surface-glass);
-  border-bottom: 1px solid var(--border-glass);
+  height: 64px;
+  padding: 0 24px;
+  background: #1a1d2e;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   flex-shrink: 0;
-  transition: all 0.3s ease;
 }
 
+/* ---- Left: Breadcrumb / Page Title ---- */
 .leftSection {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 12px;
 }
 
-.title {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--text-main);
-  margin: 0;
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
+.breadcrumbItem {
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.breadcrumbSep {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.25);
+}
+
+.breadcrumbCurrent {
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.75);
+  font-weight: 500;
+}
+
+/* ---- Right: Actions ---- */
 .rightSection {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  gap: 6px;
 }
 
-.iconGroup {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
+/* Icon Buttons - SQUARE with light border */
 .iconBtn {
-  background: transparent;
-  border: 1px solid var(--border-glass);
-  color: var(--text-secondary);
-  font-size: 1.1rem;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.8rem;
+  width: 34px;
+  height: 34px;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -51,55 +66,91 @@
 }
 
 .iconBtn:hover {
-  background: var(--surface-glass-hover);
-  color: var(--text-main);
-  border-color: var(--color-primary);
-  box-shadow: 0 0 10px rgba(79, 70, 229, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
-/* User Profile Styling */
+/* Theme badge button (shows current mode) */
+.themeBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 12px;
+  height: 34px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.themeBtn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+/* Divider between icon groups */
+.divider {
+  width: 1px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 0 4px;
+}
+
+/* ---- User Profile (SQUARE avatar) ---- */
 .userProfile {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 10px;
   cursor: pointer;
-  padding: 0.5rem;
-  border-radius: var(--radius-md);
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
   transition: background 0.2s;
+  margin-left: 4px;
 }
 
 .userProfile:hover {
-  background: var(--surface-glass-hover);
+  background: rgba(255, 255, 255, 0.08);
 }
 
+/* SQUARE avatar - matches reference */
 .avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--color-primary) 0%, #312e81 100%);
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%);
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: bold;
-  font-size: 1.1rem;
+  font-weight: 700;
+  font-size: 0.75rem;
   flex-shrink: 0;
+  letter-spacing: 0.05em;
 }
 
 .userInfo {
   display: flex;
   flex-direction: column;
+  line-height: 1.3;
 }
 
 .userName {
-  font-size: 0.95rem;
+  font-size: 0.82rem;
   font-weight: 600;
-  color: var(--text-main);
+  color: rgba(255, 255, 255, 0.9);
   margin: 0;
 }
 
 .userRole {
-  font-size: 0.75rem;
-  color: var(--text-muted);
+  font-size: 0.68rem;
+  color: rgba(255, 255, 255, 0.4);
   margin: 0;
 }

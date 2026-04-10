@@ -9,7 +9,7 @@ using Wixi.Modules.Core.Application.Logs.Queries.GetLogStats;
 namespace Wixi.API.Controllers;
 
 [ApiController]
-[Route("api/v1.0/admin/logs")]
+[Route("api/v1/admin/logs")]
 // [Authorize] // Secure once fully implemented
 public class SystemLogController : ControllerBase
 {
