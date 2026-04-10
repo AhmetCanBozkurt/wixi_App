@@ -12,7 +12,7 @@ Buradaki görevler otonom asistan (Antigravity) tarafından projenin fazlarına 
 
 - `[x]` **Backend:** `WixiDbContext` dosyasının analizi ve WIXI_USERS, WIXI_ROLES tablolarının ana hatlarıyla kurumsal şemaya (Audit field'lar vs.) oturtulması.
 - `[x]` **Backend:** Veritabanı (SQL Server) migration'ının oluşturulması, temel DB bağlantılarının test edilmesi ve Default Admin kullanıcısı (Seed Data) yaratılması.
-- `[ ]` **Backend:** `Program.cs` içerisindeki hardcoded bağımlılıkların temizlenmesi ve Login / Register API endpoint'lerinin (CQRS/MediatR mantığıyla) netleştirilmesi.
+- `[x]` **Backend:** `Program.cs` içerisindeki hardcoded bağımlılıkların temizlenmesi ve Login / Register API endpoint'lerinin (CQRS/MediatR mantığıyla) netleştirilmesi.
 - `[ ]` **Frontend:** FSD (Feature-Sliced Design) klasör hiyerarşisinin `src/` altına oluşturulması (`app`, `pages`, `widgets`, `features`, `entities`, `shared`).
 - `[ ]` **Frontend:** Base Axios config, Routing Container ve temel Shadcn UI bilesenlerinin `shared` katmanına yerleştirilmesi.
 - `[ ]` **Frontend:** `entities/User` altında global state (Zustand veya Context) tasarımının yapılması.

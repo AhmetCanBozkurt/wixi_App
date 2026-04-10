@@ -2,12 +2,21 @@ using Microsoft.EntityFrameworkCore;
 using Wixi.Modules.Core.Infrastructure.Data;
 using Wixi.Modules.Core.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
+using Wixi.Shared.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+// Add services to the container.
+builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// Options Pattern Configuration
+builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(JwtOptions.SectionName));
+
+// CQRS / MediatR
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(Wixi.Modules.Core.Application.Auth.Commands.Login.LoginCommand).Assembly));
 
 // Configure Enterprise Database
 builder.Services.AddDbContext<WixiCoreDbContext>(options =>
@@ -46,5 +55,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.MapControllers();
 
 app.Run();
