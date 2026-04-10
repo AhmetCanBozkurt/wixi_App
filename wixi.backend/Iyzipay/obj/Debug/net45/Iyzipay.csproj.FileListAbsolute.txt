@@ -1,0 +1,12 @@
+C:\PROJECTS\09_Tekstil\wixi.backend\Iyzipay\bin\Debug\net45\Iyzipay.dll.config
+C:\PROJECTS\09_Tekstil\wixi.backend\Iyzipay\bin\Debug\net45\Iyzipay.dll
+C:\PROJECTS\09_Tekstil\wixi.backend\Iyzipay\bin\Debug\net45\Iyzipay.pdb
+C:\PROJECTS\09_Tekstil\wixi.backend\Iyzipay\bin\Debug\net45\Newtonsoft.Json.dll
+C:\PROJECTS\09_Tekstil\wixi.backend\Iyzipay\obj\Debug\net45\Iyzipay.csproj.AssemblyReference.cache
+C:\PROJECTS\09_Tekstil\wixi.backend\Iyzipay\obj\Debug\net45\Iyzipay.GeneratedMSBuildEditorConfig.editorconfig
+C:\PROJECTS\09_Tekstil\wixi.backend\Iyzipay\obj\Debug\net45\Iyzipay.AssemblyInfoInputs.cache
+C:\PROJECTS\09_Tekstil\wixi.backend\Iyzipay\obj\Debug\net45\Iyzipay.AssemblyInfo.cs
+C:\PROJECTS\09_Tekstil\wixi.backend\Iyzipay\obj\Debug\net45\Iyzipay.csproj.CoreCompileInputs.cache
+C:\PROJECTS\09_Tekstil\wixi.backend\Iyzipay\obj\Debug\net45\Iyzipay.csproj.Up2Date
+C:\PROJECTS\09_Tekstil\wixi.backend\Iyzipay\obj\Debug\net45\Iyzipay.dll
+C:\PROJECTS\09_Tekstil\wixi.backend\Iyzipay\obj\Debug\net45\Iyzipay.pdb

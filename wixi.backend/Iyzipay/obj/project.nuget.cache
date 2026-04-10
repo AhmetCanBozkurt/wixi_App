@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "Vuu0ORy/iN4=",
+  "success": true,
+  "projectFilePath": "C:\\PROJECTS\\wixi.ClientV0_1\\wixi.backend\\Iyzipay\\Iyzipay.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Ahmet Can Bozkurt\\.nuget\\packages\\microsoft.netframework.referenceassemblies\\1.0.3\\microsoft.netframework.referenceassemblies.1.0.3.nupkg.sha512",
+    "C:\\Users\\Ahmet Can Bozkurt\\.nuget\\packages\\microsoft.netframework.referenceassemblies.net45\\1.0.3\\microsoft.netframework.referenceassemblies.net45.1.0.3.nupkg.sha512",
+    "C:\\Users\\Ahmet Can Bozkurt\\.nuget\\packages\\newtonsoft.json\\13.0.2\\newtonsoft.json.13.0.2.nupkg.sha512"
+  ],
+  "logs": []
+}

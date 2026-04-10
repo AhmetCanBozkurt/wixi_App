@@ -1,0 +1,4512 @@
+{
+  "items": [
+    {
+      "key": "about.mission",
+      "De": "Unsere Mission",
+      "Tr": "Misyonumuz",
+      "En": "Our Mission",
+      "Ar": "مهمتنا"
+    },
+    {
+      "key": "about.mission_text_1",
+      "De": "Unsere Mission ist es, Unternehmen in Deutschland mit internationalen Spezialisten zu verbinden. Wir fungieren als Brücke und unterstützen Sie mit unserem ganzheitlichen Ansatz und unseren Dienstleistungen bei der Suche, Rekrutierung und Vermittlung ausländischer Fachkräfte.",
+      "Tr": "Misyonumuz, Almanya'daki şirketleri uluslararası uzmanlarla buluşturmaktır. Köprü görevi görüyoruz ve bütünsel yaklaşımımız ve hizmetlerimizle yabancı uzmanların aranması, işe alınması ve yerleştirilmesi konularında sizi destekliyoruz.",
+      "En": "Our mission is to connect companies in Germany with international specialists. We act as a bridge and support you with our holistic approach and services in finding, recruiting and placing foreign skilled workers.",
+      "Ar": "مهمتنا هي ربط الشركات في ألمانيا بالخبراء الدوليين. نحن نعمل كجسر وندعمك بمنهجنا الشامل وخدماتنا في العثور على العمالة الماهرة الأجنبية وتوظيفها ووضعها."
+    },
+    {
+      "key": "about.mission_text_2",
+      "De": "Wir glauben, dass Talent keine Grenzen kennt und dass deutsche Unternehmen Zugang zu den besten Talenten der Welt haben sollten. Worklines bildet eine ideale Brücke zwischen Fachkräften, die in Deutschland arbeiten möchten, und Arbeitgebern, die qualifizierte Mitarbeiter suchen.",
+      "Tr": "Yeteneğin sınırları olmadığına ve Alman şirketlerinin dünyanın en iyi yeteneklerine erişimi olması gerektiğine inanıyoruz. Worklines, Almanya'da çalışmak isteyen uzmanlar ile nitelikli çalışan arayan işverenler arasında ideal bir köprü oluşturur.",
+      "En": "We believe that talent knows no boundaries and that German companies should have access to the world's best talent. Worklines creates an ideal bridge between skilled workers who want to work in Germany and employers looking for qualified employees.",
+      "Ar": "نؤمن أن المواهب لا تعرف الحدود وأن الشركات الألمانية يجب أن تتمكن من الوصول إلى أفضل المواهب في العالم. Worklines تخلق جسرًا مثاليًا بين العمالة الماهرة التي تريد العمل في ألمانيا وأصحاب العمل الذين يبحثون عن موظفين مؤهلين."
+    },
+    {
+      "key": "about.ready_desc",
+      "De": "Kontaktieren Sie noch heute unser erfahrenes Team und beginnen Sie mit der Planung Ihrer Zukunft in Deutschland.",
+      "Tr": "Deneyimli ekibimizle bugün iletişime geçin ve Almanya'daki geleceğinizi planlamaya başlayın.",
+      "En": "Contact our experienced team today and start planning your future in Germany.",
+      "Ar": "اتصل بفريقنا ذو الخبرة اليوم وابدأ التخطيط لمستقبلك في ألمانيا."
+    },
+    {
+      "key": "about.ready_title",
+      "De": "Bereit, Ihre Reise zu beginnen?",
+      "Tr": "Yolculuğunuza Başlamaya Hazır mısınız?",
+      "En": "Ready to Start Your Journey?",
+      "Ar": "هل أنت مستعد لبدء رحلتك؟"
+    },
+    {
+      "key": "about.subtitle",
+      "De": "Ihr Partner für die Einwanderung von Fachkräften und internationalen Talenten!",
+      "Tr": "Nitelikli işçilerin ve uluslararası yeteneklerin göçü için ortağınız!",
+      "En": "Your partner for skilled worker and international talent migration!",
+      "Ar": "شريكك في هجرة العمالة الماهرة والمواهب الدولية!"
+    },
+    {
+      "key": "about.team",
+      "De": "Unser Team",
+      "Tr": "Ekibimiz",
+      "En": "Our Team",
+      "Ar": "فريقنا"
+    },
+    {
+      "key": "about.title",
+      "De": "Über Worklines",
+      "Tr": "Worklines Hakkında",
+      "En": "About Worklines",
+      "Ar": "عن Worklines"
+    },
+    {
+      "key": "admin.breadcrumb.dashboard",
+      "De": "Dashboard",
+      "Tr": "Dashboard",
+      "En": "Dashboard",
+      "Ar": "لوحة التحكم"
+    },
+    {
+      "key": "admin.menu.application_logs",
+      "De": "Anwendungsprotokolle",
+      "Tr": "Uygulama Logları",
+      "En": "Application Logs",
+      "Ar": "سجلات التطبيق"
+    },
+    {
+      "key": "admin.menu.applications",
+      "De": "Bewerbungen",
+      "Tr": "Başvurular",
+      "En": "Applications",
+      "Ar": "الطلبات"
+    },
+    {
+      "key": "admin.menu.contact_submissions",
+      "De": "Kontaktformulare",
+      "Tr": "İletişim Formları",
+      "En": "Contact Forms",
+      "Ar": "نماذج الاتصال"
+    },
+    {
+      "key": "admin.menu.dashboard",
+      "De": "Dashboard",
+      "Tr": "Dashboard",
+      "En": "Dashboard",
+      "Ar": "لوحة التحكم"
+    },
+    {
+      "key": "admin.menu.email_logs",
+      "De": "E-Mail-Protokolle",
+      "Tr": "Email Logları",
+      "En": "Email Logs",
+      "Ar": "سجلات البريد الإلكتروني"
+    },
+    {
+      "key": "admin.menu.email_management",
+      "De": "E-Mail-Verwaltung",
+      "Tr": "E-Mail Yönetimi",
+      "En": "Email Management",
+      "Ar": "إدارة البريد الإلكتروني"
+    },
+    {
+      "key": "admin.menu.email_templates",
+      "De": "E-Mail-Vorlagen",
+      "Tr": "Email Template'leri",
+      "En": "Email Templates",
+      "Ar": "قوالب البريد الإلكتروني"
+    },
+    {
+      "key": "admin.menu.employee_submissions",
+      "De": "Mitarbeiter-Bewerbungen",
+      "Tr": "Çalışan Başvuruları",
+      "En": "Employee Submissions",
+      "Ar": "طلبات الموظفين"
+    },
+    {
+      "key": "admin.menu.employer_submissions",
+      "De": "Arbeitgeber-Anfragen",
+      "Tr": "İşveren Talepleri",
+      "En": "Employer Requests",
+      "Ar": "طلبات أصحاب العمل"
+    },
+    {
+      "key": "admin.menu.employer_submissions_v2",
+      "De": "Arbeitgeber-Anfragen V2",
+      "Tr": "İşveren Talepleri V2",
+      "En": "Employer Requests V2",
+      "Ar": "طلبات أصحاب العمل V2"
+    },
+    {
+      "key": "admin.menu.main",
+      "De": "Hauptmenü",
+      "Tr": "Ana Menü",
+      "En": "Main Menu",
+      "Ar": "القائمة الرئيسية"
+    },
+    {
+      "key": "admin.menu.news",
+      "De": "Nachrichten",
+      "Tr": "Haberler",
+      "En": "News",
+      "Ar": "الأخبار"
+    },
+    {
+      "key": "admin.menu.reports",
+      "De": "Berichte",
+      "Tr": "Raporlar",
+      "En": "Reports",
+      "Ar": "التقارير"
+    },
+    {
+      "key": "admin.menu.settings",
+      "De": "Einstellungen",
+      "Tr": "Ayarlar",
+      "En": "Settings",
+      "Ar": "الإعدادات"
+    },
+    {
+      "key": "admin.menu.smtp_settings",
+      "De": "SMTP-Einstellungen",
+      "Tr": "SMTP Ayarları",
+      "En": "SMTP Settings",
+      "Ar": "إعدادات SMTP"
+    },
+    {
+      "key": "admin.menu.system",
+      "De": "System",
+      "Tr": "Sistem",
+      "En": "System",
+      "Ar": "النظام"
+    },
+    {
+      "key": "admin.menu.team_members",
+      "De": "Team-Mitglieder",
+      "Tr": "Ekip Üyeleri",
+      "En": "Team Members",
+      "Ar": "أعضاء الفريق"
+    },
+    {
+      "key": "admin.menu.users",
+      "De": "Benutzer",
+      "Tr": "Kullanıcılar",
+      "En": "Users",
+      "Ar": "المستخدمون"
+    },
+    {
+      "key": "admin.title.application_logs",
+      "De": "Anwendungsprotokolle",
+      "Tr": "Uygulama Logları",
+      "En": "Application Logs",
+      "Ar": "سجلات التطبيق"
+    },
+    {
+      "key": "admin.title.contact_submissions",
+      "De": "Kontaktformulare",
+      "Tr": "İletişim Formları",
+      "En": "Contact Forms",
+      "Ar": "نماذج الاتصال"
+    },
+    {
+      "key": "admin.title.dashboard",
+      "De": "Dashboard",
+      "Tr": "Dashboard",
+      "En": "Dashboard",
+      "Ar": "لوحة التحكم"
+    },
+    {
+      "key": "admin.title.email_logs",
+      "De": "E-Mail-Protokolle",
+      "Tr": "Email Logları",
+      "En": "Email Logs",
+      "Ar": "سجلات البريد الإلكتروني"
+    },
+    {
+      "key": "admin.title.email_templates",
+      "De": "E-Mail-Vorlagen",
+      "Tr": "Email Template'leri",
+      "En": "Email Templates",
+      "Ar": "قوالب البريد الإلكتروني"
+    },
+    {
+      "key": "admin.title.employee_submissions",
+      "De": "Mitarbeiter-Bewerbungen",
+      "Tr": "Çalışan Başvuruları",
+      "En": "Employee Submissions",
+      "Ar": "طلبات الموظفين"
+    },
+    {
+      "key": "admin.title.employer_submissions",
+      "De": "Arbeitgeber-Anfragen",
+      "Tr": "İşveren Talepleri",
+      "En": "Employer Requests",
+      "Ar": "طلبات أصحاب العمل"
+    },
+    {
+      "key": "admin.title.employer_submissions_v2",
+      "De": "Arbeitgeber-Anfragen V2",
+      "Tr": "İşveren Talepleri V2",
+      "En": "Employer Requests V2",
+      "Ar": "طلبات أصحاب العمل V2"
+    },
+    {
+      "key": "admin.title.news",
+      "De": "Nachrichten",
+      "Tr": "Haberler",
+      "En": "News",
+      "Ar": "الأخبار"
+    },
+    {
+      "key": "admin.title.reports",
+      "De": "Berichte",
+      "Tr": "Raporlar",
+      "En": "Reports",
+      "Ar": "التقارير"
+    },
+    {
+      "key": "admin.title.settings",
+      "De": "Einstellungen",
+      "Tr": "Ayarlar",
+      "En": "Settings",
+      "Ar": "الإعدادات"
+    },
+    {
+      "key": "admin.title.smtp_settings",
+      "De": "SMTP-Einstellungen",
+      "Tr": "SMTP Ayarları",
+      "En": "SMTP Settings",
+      "Ar": "إعدادات SMTP"
+    },
+    {
+      "key": "admin.title.team_members",
+      "De": "Team-Mitglieder",
+      "Tr": "Ekip Üyeleri",
+      "En": "Team Members",
+      "Ar": "أعضاء الفريق"
+    },
+    {
+      "key": "admin.title.users",
+      "De": "Benutzer",
+      "Tr": "Kullanıcılar",
+      "En": "Users",
+      "Ar": "المستخدمون"
+    },
+    {
+      "key": "arbeitgeber.additional_info",
+      "De": "Zusätzliche Informationen",
+      "Tr": "Ek Bilgiler",
+      "En": "Additional Information",
+      "Ar": "معلومات إضافية"
+    },
+    {
+      "key": "arbeitgeber.company_info",
+      "De": "Unternehmensinformationen",
+      "Tr": "Şirket Bilgileri",
+      "En": "Company Information",
+      "Ar": "معلومات الشركة"
+    },
+    {
+      "key": "arbeitgeber.company_name",
+      "De": "Firmenname",
+      "Tr": "Şirket Adı",
+      "En": "Company Name",
+      "Ar": "اسم الشركة"
+    },
+    {
+      "key": "arbeitgeber.company_name_placeholder",
+      "De": "Ihr Firmenname",
+      "Tr": "Şirket adınız",
+      "En": "Your Company Name",
+      "Ar": "اسم شركتك"
+    },
+    {
+      "key": "arbeitgeber.company_size",
+      "De": "Unternehmensgröße",
+      "Tr": "Şirket Büyüklüğü",
+      "En": "Company Size",
+      "Ar": "حجم الشركة"
+    },
+    {
+      "key": "arbeitgeber.company_size_11_50",
+      "De": "11-50 Mitarbeiter",
+      "Tr": "11-50 Çalışan",
+      "En": "11-50 Employees",
+      "Ar": "11-50 موظف"
+    },
+    {
+      "key": "arbeitgeber.company_size_1_10",
+      "De": "1-10 Mitarbeiter",
+      "Tr": "1-10 Çalışan",
+      "En": "1-10 Employees",
+      "Ar": "1-10 موظف"
+    },
+    {
+      "key": "arbeitgeber.company_size_201_500",
+      "De": "201-500 Mitarbeiter",
+      "Tr": "201-500 Çalışan",
+      "En": "201-500 Employees",
+      "Ar": "201-500 موظف"
+    },
+    {
+      "key": "arbeitgeber.company_size_500_plus",
+      "De": "500+ Mitarbeiter",
+      "Tr": "500+ Çalışan",
+      "En": "500+ Employees",
+      "Ar": "500+ موظف"
+    },
+    {
+      "key": "arbeitgeber.company_size_51_200",
+      "De": "51-200 Mitarbeiter",
+      "Tr": "51-200 Çalışan",
+      "En": "51-200 Employees",
+      "Ar": "51-200 موظف"
+    },
+    {
+      "key": "arbeitgeber.company_size_placeholder",
+      "De": "Anzahl der Mitarbeiter",
+      "Tr": "Çalışan sayısı",
+      "En": "Number of Employees",
+      "Ar": "عدد الموظفين"
+    },
+    {
+      "key": "arbeitgeber.contact_person",
+      "De": "Ansprechpartner",
+      "Tr": "İletişim Kişisi",
+      "En": "Contact Person",
+      "Ar": "شخص الاتصال"
+    },
+    {
+      "key": "arbeitgeber.contact_person_placeholder",
+      "De": "Vor- und Nachname",
+      "Tr": "Ad ve Soyad",
+      "En": "First and Last Name",
+      "Ar": "الاسم الكامل"
+    },
+    {
+      "key": "arbeitgeber.email",
+      "De": "E-Mail Adresse",
+      "Tr": "E-posta Adresi",
+      "En": "Email Address",
+      "Ar": "عنوان البريد الإلكتروني"
+    },
+    {
+      "key": "arbeitgeber.email_placeholder",
+      "De": "firma@beispiel.de",
+      "Tr": "firma@ornek.com",
+      "En": "company@example.com",
+      "Ar": "company@example.com"
+    },
+    {
+      "key": "arbeitgeber.fast_placement",
+      "De": "Schnelle Vermittlung",
+      "Tr": "Hızlı Yerleştirme",
+      "En": "Fast Placement",
+      "Ar": "التنسيب السريع"
+    },
+    {
+      "key": "arbeitgeber.fast_placement_desc",
+      "De": "Wir haben Zugang zu einem großen Pool qualifizierter Fachkräfte und können schnell passende Kandidaten vermitteln.",
+      "Tr": "Büyük bir nitelikli uzman havuzuna erişimimiz var ve hızlı bir şekilde uygun adayları yerleştirebiliriz.",
+      "En": "We have access to a large pool of qualified skilled workers and can quickly place suitable candidates.",
+      "Ar": "لدينا وصول إلى مجموعة كبيرة من الخبراء المؤهلين ويمكننا تنسيب المرشحين المناسبين بسرعة."
+    },
+    {
+      "key": "arbeitgeber.follow_up",
+      "De": "Nachbetreuung",
+      "Tr": "Takip Desteği",
+      "En": "Follow-up Support",
+      "Ar": "دعم المتابعة"
+    },
+    {
+      "key": "arbeitgeber.follow_up_desc",
+      "De": "Auch nach der Vermittlung stehen wir Ihnen und Ihren neuen Mitarbeitern für Fragen und Unterstützung zur Verfügung.",
+      "Tr": "Yerleştirmeden sonra da siz ve yeni çalışanlarınız için sorular ve destek konularında yanınızdayız.",
+      "En": "Even after placement, we are available to you and your new employees for questions and support.",
+      "Ar": "نبقى معك ومع موظفيك الجدد بعد التنسيب أيضًا في الأسئلة والدعم."
+    },
+    {
+      "key": "arbeitgeber.form_desc",
+      "De": "Teilen Sie uns Ihre Anforderungen mit und wir finden die passenden Kandidaten für Ihr Unternehmen",
+      "Tr": "Gereksinimlerinizi bizimle paylaşın, şirketiniz için uygun adayları bulalım",
+      "En": "Share your requirements with us and we'll find the right candidates for your company",
+      "Ar": "شاركنا متطلباتك، وسنجد المرشحين المناسبين لشركتك"
+    },
+    {
+      "key": "arbeitgeber.form_title",
+      "De": "Arbeitgeber-Anfrage",
+      "Tr": "İşveren Talebi",
+      "En": "Employer Request",
+      "Ar": "طلب صاحب عمل"
+    },
+    {
+      "key": "arbeitgeber.industry",
+      "De": "Branche",
+      "Tr": "Sektör",
+      "En": "Industry",
+      "Ar": "القطاع"
+    },
+    {
+      "key": "arbeitgeber.industry_automotive",
+      "De": "Automobilindustrie",
+      "Tr": "Otomotiv",
+      "En": "Automotive Industry",
+      "Ar": "السيارات"
+    },
+    {
+      "key": "arbeitgeber.industry_construction",
+      "De": "Bauwesen",
+      "Tr": "İnşaat",
+      "En": "Construction",
+      "Ar": "البناء"
+    },
+    {
+      "key": "arbeitgeber.industry_engineering",
+      "De": "Ingenieurwesen",
+      "Tr": "Mühendislik",
+      "En": "Engineering",
+      "Ar": "الهندسة"
+    },
+    {
+      "key": "arbeitgeber.industry_finance",
+      "De": "Finanzwesen",
+      "Tr": "Finans",
+      "En": "Finance",
+      "Ar": "المالية"
+    },
+    {
+      "key": "arbeitgeber.industry_healthcare",
+      "De": "Gesundheitswesen",
+      "Tr": "Sağlık",
+      "En": "Healthcare",
+      "Ar": "الرعاية الصحية"
+    },
+    {
+      "key": "arbeitgeber.industry_hospitality",
+      "De": "Hotellerie & Gastronomie",
+      "Tr": "Otelcilik & Gastronomi",
+      "En": "Hospitality & Catering",
+      "Ar": "الضيافة والطعام"
+    },
+    {
+      "key": "arbeitgeber.industry_it",
+      "De": "Informationstechnologie",
+      "Tr": "Bilgi Teknolojileri",
+      "En": "Information Technology",
+      "Ar": "تكنولوجيا المعلومات"
+    },
+    {
+      "key": "arbeitgeber.industry_logistics",
+      "De": "Logistik",
+      "Tr": "Lojistik",
+      "En": "Logistics",
+      "Ar": "اللوجستيات"
+    },
+    {
+      "key": "arbeitgeber.industry_other",
+      "De": "Sonstiges",
+      "Tr": "Diğer",
+      "En": "Other",
+      "Ar": "أخرى"
+    },
+    {
+      "key": "arbeitgeber.industry_placeholder",
+      "De": "Wählen Sie Ihre Branche",
+      "Tr": "Sektörünüzü seçiniz",
+      "En": "Select Your Industry",
+      "Ar": "اختر قطاعك"
+    },
+    {
+      "key": "arbeitgeber.legal_support",
+      "De": "Rechtliche Unterstützung",
+      "Tr": "Yasal Destek",
+      "En": "Legal Support",
+      "Ar": "الدعم القانوني"
+    },
+    {
+      "key": "arbeitgeber.legal_support_desc",
+      "De": "Wir kümmern uns um alle Visa- und Arbeitserlaubnisverfahren und stellen sicher, dass alle rechtlichen Anforderungen erfüllt sind.",
+      "Tr": "Tüm vize ve çalışma izni işlemlerini hallediyoruz ve tüm yasal gereksinimlerin karşılandığından emin oluyoruz.",
+      "En": "We handle all visa and work permit procedures and ensure all legal requirements are met.",
+      "Ar": "نتعامل مع جميع إجراءات التأشيرة وتصريح العمل ونتأكد من استيفاء جميع المتطلبات القانونية."
+    },
+    {
+      "key": "arbeitgeber.message",
+      "De": "Weitere Anmerkungen",
+      "Tr": "Diğer Notlar",
+      "En": "Additional Notes",
+      "Ar": "ملاحظات أخرى"
+    },
+    {
+      "key": "arbeitgeber.message_placeholder",
+      "De": "Teilen Sie uns weitere Details mit, die für die Vermittlung wichtig sein könnten...",
+      "Tr": "Yerleştirme için önemli olabilecek diğer detayları bizimle paylaşın...",
+      "En": "Share any additional details that might be important for placement...",
+      "Ar": "شاركنا أي تفاصيل أخرى قد تكون مهمة للتنسيب..."
+    },
+    {
+      "key": "arbeitgeber.phone",
+      "De": "Telefonnummer",
+      "Tr": "Telefon Numarası",
+      "En": "Phone Number",
+      "Ar": "رقم الهاتف"
+    },
+    {
+      "key": "arbeitgeber.phone_placeholder",
+      "De": "+49 123 456789",
+      "Tr": "+90 555 123 45 67",
+      "En": "+49 123 456789",
+      "Ar": "+90 555 123 45 67"
+    },
+    {
+      "key": "arbeitgeber.position_requirements",
+      "De": "Stellenanforderungen",
+      "Tr": "Pozisyon Gereksinimleri",
+      "En": "Position Requirements",
+      "Ar": "متطلبات الوظيفة"
+    },
+    {
+      "key": "arbeitgeber.positions",
+      "De": "Gesuchte Position(en)",
+      "Tr": "Aranan Pozisyon(lar)",
+      "En": "Position(s) Required",
+      "Ar": "الوظيفة(الوظائف) المطلوبة"
+    },
+    {
+      "key": "arbeitgeber.positions_placeholder",
+      "De": "z.B. Softwareentwickler, Krankenpfleger, Maschinenbauingenieur",
+      "Tr": "örn. Yazılım Geliştirici, Hemşire, Makine Mühendisi",
+      "En": "e.g. Software Developer, Nurse, Mechanical Engineer",
+      "Ar": "مثال: مطور برمجيات، ممرض، مهندس ميكانيكي"
+    },
+    {
+      "key": "arbeitgeber.requirements",
+      "De": "Qualifikationen & Anforderungen",
+      "Tr": "Yeterlilikler & Gereksinimler",
+      "En": "Qualifications & Requirements",
+      "Ar": "المؤهلات والمتطلبات"
+    },
+    {
+      "key": "arbeitgeber.requirements_placeholder",
+      "De": "Beschreiben Sie die erforderlichen Qualifikationen, Berufserfahrung, Sprachkenntnisse, etc.",
+      "Tr": "Gerekli yeterlilikleri, iş deneyimini, dil bilgisini vb. açıklayın",
+      "En": "Describe the required qualifications, work experience, language skills, etc.",
+      "Ar": "اشرح المؤهلات المطلوبة والخبرة المهنية ومستوى اللغة وغيرها"
+    },
+    {
+      "key": "arbeitgeber.special_placeholder",
+      "De": "Haben Sie besondere Wünsche oder spezielle Anforderungen? Teilen Sie uns diese hier mit...",
+      "Tr": "Özel istekleriniz veya gereksinimleriniz var mı? Bunları bizimle paylaşın...",
+      "En": "Do you have any special requests or specific requirements? Share them here...",
+      "Ar": "هل لديك طلبات خاصة أو متطلبات؟ شاركها معنا..."
+    },
+    {
+      "key": "arbeitgeber.special_requests",
+      "De": "Besondere Wünsche oder Anmerkungen",
+      "Tr": "Özel İstekler veya Notlar",
+      "En": "Special Requests or Notes",
+      "Ar": "طلبات خاصة أو ملاحظات"
+    },
+    {
+      "key": "arbeitgeber.submit",
+      "De": "Anfrage absenden",
+      "Tr": "Talep Gönder",
+      "En": "Submit Request",
+      "Ar": "إرسال الطلب"
+    },
+    {
+      "key": "arbeitgeber.subtitle",
+      "De": "Füllen Sie das Formular aus, um den ersten Schritt zu machen. Unser Team wird sich umgehend mit passenden Angeboten bei Ihnen melden.",
+      "Tr": "Formu doldurun ve ilk adımı atın. Ekibimiz size uygun fırsatlarla hemen iletişime geçecek.",
+      "En": "Fill out the form to take the first step. Our team will contact you promptly with suitable offers.",
+      "Ar": "املأ النموذج واتخذ الخطوة الأولى. سيتواصل فريقنا معك بسرعة بالفرص المناسبة."
+    },
+    {
+      "key": "arbeitgeber.title",
+      "De": "Finden Sie qualifizierte Fachkräfte aus dem Ausland",
+      "Tr": "Yurtdışından Nitelikli Uzman Bulun",
+      "En": "Find Qualified Skilled Workers from Abroad",
+      "Ar": "ابحث عن خبير مؤهل من الخارج"
+    },
+    {
+      "key": "arbeitnehmer.additional_info",
+      "De": "Zusätzliche Informationen",
+      "Tr": "Ek Bilgiler",
+      "En": "Additional Information",
+      "Ar": "معلومات إضافية"
+    },
+    {
+      "key": "arbeitnehmer.additional_info_placeholder",
+      "De": "",
+      "Tr": "",
+      "En": "Tell us about your skills, interests, and what you're looking for in a job..."
+    },
+    {
+      "key": "arbeitnehmer.additional_placeholder",
+      "De": "Erzählen Sie uns mehr über Ihre Qualifikationen, Ziele und Erwartungen...",
+      "Tr": "Yeterlilikleriniz, hedefleriniz ve beklentileriniz hakkında daha fazla bilgi verin...",
+      "Ar": "قدم المزيد من المعلومات حول مؤهلاتك وأهدافك وتوقعاتك..."
+    },
+    {
+      "key": "arbeitnehmer.career_support",
+      "De": "",
+      "Tr": "",
+      "En": "Career Support"
+    },
+    {
+      "key": "arbeitnehmer.career_support_desc",
+      "De": "",
+      "Tr": "",
+      "En": "We provide ongoing support for your career development and help you achieve your professional goals."
+    },
+    {
+      "key": "arbeitnehmer.cv_no_file",
+      "De": "",
+      "Tr": "",
+      "En": "No file selected"
+    },
+    {
+      "key": "arbeitnehmer.cv_upload",
+      "De": "Lebenslauf hochladen",
+      "Tr": "CV Yükle",
+      "En": "Upload CV (PDF, Max 5MB)",
+      "Ar": "رفع السيرة الذاتية"
+    },
+    {
+      "key": "arbeitnehmer.cv_upload_button",
+      "De": "",
+      "Tr": "",
+      "En": "Choose File"
+    },
+    {
+      "key": "arbeitnehmer.education",
+      "De": "Höchster Bildungsabschluss",
+      "Tr": "En Yüksek Eğitim Seviyesi",
+      "En": "Education Level",
+      "Ar": "أعلى مستوى تعليمي"
+    },
+    {
+      "key": "arbeitnehmer.education_abitur",
+      "De": "Abitur",
+      "Tr": "Lise Mezunu",
+      "Ar": "خريج ثانوية"
+    },
+    {
+      "key": "arbeitnehmer.education_ausbildung",
+      "De": "Berufsausbildung",
+      "Tr": "Meslek Eğitimi",
+      "Ar": "تدريب مهني"
+    },
+    {
+      "key": "arbeitnehmer.education_bachelor",
+      "De": "Bachelor",
+      "Tr": "Lisans",
+      "Ar": "بكالوريوس"
+    },
+    {
+      "key": "arbeitnehmer.education_hauptschule",
+      "De": "Hauptschulabschluss",
+      "Tr": "İlkokul Mezunu",
+      "Ar": "خريج مدرسة ابتدائية"
+    },
+    {
+      "key": "arbeitnehmer.education_master",
+      "De": "Master",
+      "Tr": "Yüksek Lisans",
+      "Ar": "ماجستير"
+    },
+    {
+      "key": "arbeitnehmer.education_placeholder",
+      "De": "Wählen Sie...",
+      "Tr": "Seçiniz...",
+      "En": "Select your education level",
+      "Ar": "اختر..."
+    },
+    {
+      "key": "arbeitnehmer.education_promotion",
+      "De": "Promotion",
+      "Tr": "Doktora",
+      "Ar": "دكتوراه"
+    },
+    {
+      "key": "arbeitnehmer.education_realschule",
+      "De": "Realschulabschluss",
+      "Tr": "Ortaokul Mezunu",
+      "Ar": "خريج مدرسة متوسطة"
+    },
+    {
+      "key": "arbeitnehmer.email",
+      "De": "E-Mail Adresse",
+      "Tr": "E-posta Adresi",
+      "En": "Email Address",
+      "Ar": "عنوان البريد الإلكتروني"
+    },
+    {
+      "key": "arbeitnehmer.email_placeholder",
+      "De": "max@beispiel.de",
+      "Tr": "ahmet@ornek.com",
+      "En": "your.email@example.com",
+      "Ar": "ahmet@example.com"
+    },
+    {
+      "key": "arbeitnehmer.error_message",
+      "De": "",
+      "Tr": "",
+      "En": "An error occurred. Please try again."
+    },
+    {
+      "key": "arbeitnehmer.experience",
+      "De": "Berufserfahrung (Jahre)",
+      "Tr": "İş Deneyimi (Yıl)",
+      "En": "Years of Experience",
+      "Ar": "الخبرة المهنية (بالسنوات)"
+    },
+    {
+      "key": "arbeitnehmer.experience_placeholder",
+      "De": "0",
+      "Tr": "0",
+      "En": "Enter years of experience",
+      "Ar": "0"
+    },
+    {
+      "key": "arbeitnehmer.file_formats",
+      "De": "Akzeptierte Formate: PDF, DOC, DOCX (max. 5MB)",
+      "Tr": "Kabul edilen formatlar: PDF, DOC, DOCX (maks. 5MB)",
+      "Ar": "الصيغ المقبولة: PDF, DOC, DOCX (حد أقصى 5 ميجابايت)"
+    },
+    {
+      "key": "arbeitnehmer.file_select",
+      "De": "Datei auswählen",
+      "Tr": "Dosya Seç",
+      "Ar": "اختر الملف"
+    },
+    {
+      "key": "arbeitnehmer.form_desc",
+      "De": "Teilen Sie uns Ihre Qualifikationen mit und wir finden die passenden Möglichkeiten für Sie",
+      "Tr": "Yeterliliklerinizi bizimle paylaşın, sizin için uygun fırsatları bulalım",
+      "En": "Share your qualifications with us and we'll find the right opportunities for you",
+      "Ar": "شاركنا مؤهلاتك، وسنجد لك الفرص المناسبة"
+    },
+    {
+      "key": "arbeitnehmer.form_title",
+      "De": "Bewerber-Fragebogen",
+      "Tr": "Başvuru Formu",
+      "En": "Employee Application",
+      "Ar": "طلب موظف"
+    },
+    {
+      "key": "arbeitnehmer.full_name",
+      "De": "",
+      "Tr": "",
+      "En": "Full Name"
+    },
+    {
+      "key": "arbeitnehmer.full_name_placeholder",
+      "De": "",
+      "Tr": "",
+      "En": "First and Last Name"
+    },
+    {
+      "key": "arbeitnehmer.fullname",
+      "De": "Vor- und Nachname",
+      "Tr": "Ad ve Soyad",
+      "Ar": "الاسم الكامل"
+    },
+    {
+      "key": "arbeitnehmer.fullname_placeholder",
+      "De": "Max Mustermann",
+      "Tr": "Ahmet Yılmaz",
+      "Ar": "أحمد يلماز"
+    },
+    {
+      "key": "arbeitnehmer.german_a1",
+      "De": "A1 - Anfänger",
+      "Tr": "A1 - Başlangıç",
+      "Ar": "A1 - مبتدئ"
+    },
+    {
+      "key": "arbeitnehmer.german_a2",
+      "De": "A2 - Grundlegende Kenntnisse",
+      "Tr": "A2 - Temel Bilgi",
+      "Ar": "A2 - أساسي"
+    },
+    {
+      "key": "arbeitnehmer.german_b1",
+      "De": "B1 - Fortgeschritten",
+      "Tr": "B1 - Orta",
+      "Ar": "B1 - متوسط"
+    },
+    {
+      "key": "arbeitnehmer.german_b2",
+      "De": "B2 - Selbstständig",
+      "Tr": "B2 - İleri Orta",
+      "Ar": "B2 - متوسط متقدم"
+    },
+    {
+      "key": "arbeitnehmer.german_c1",
+      "De": "C1 - Fachkundig",
+      "Tr": "C1 - İleri",
+      "Ar": "C1 - متقدم"
+    },
+    {
+      "key": "arbeitnehmer.german_c2",
+      "De": "C2 - Muttersprachlich",
+      "Tr": "C2 - Ana Dil Seviyesi",
+      "Ar": "C2 - مستوى اللغة الأم"
+    },
+    {
+      "key": "arbeitnehmer.german_level",
+      "De": "Deutschkenntnisse",
+      "Tr": "Almanca Bilgisi",
+      "En": "German Language Level",
+      "Ar": "مستوى الألمانية"
+    },
+    {
+      "key": "arbeitnehmer.german_level_placeholder",
+      "De": "",
+      "Tr": "",
+      "En": "Select your German level"
+    },
+    {
+      "key": "arbeitnehmer.german_none",
+      "De": "Keine Kenntnisse",
+      "Tr": "Bilgi Yok",
+      "Ar": "لا توجد معرفة"
+    },
+    {
+      "key": "arbeitnehmer.german_placeholder",
+      "De": "Wählen Sie Ihr Niveau...",
+      "Tr": "Seviyenizi seçiniz...",
+      "Ar": "اختر مستواك..."
+    },
+    {
+      "key": "arbeitnehmer.language_skills",
+      "De": "",
+      "Tr": "",
+      "En": "Language Skills"
+    },
+    {
+      "key": "arbeitnehmer.legal_guidance",
+      "De": "",
+      "Tr": "",
+      "En": "Legal Guidance"
+    },
+    {
+      "key": "arbeitnehmer.legal_guidance_desc",
+      "De": "",
+      "Tr": "",
+      "En": "We handle all visa and work permit procedures and ensure all legal requirements are met."
+    },
+    {
+      "key": "arbeitnehmer.no_file",
+      "De": "Keine Datei ausgewählt",
+      "Tr": "Dosya seçilmedi",
+      "Ar": "لم يتم اختيار ملف"
+    },
+    {
+      "key": "arbeitnehmer.personal_info",
+      "De": "",
+      "Tr": "",
+      "En": "Personal Information"
+    },
+    {
+      "key": "arbeitnehmer.personalized_service",
+      "De": "",
+      "Tr": "",
+      "En": "Personalized Service"
+    },
+    {
+      "key": "arbeitnehmer.personalized_service_desc",
+      "De": "",
+      "Tr": "",
+      "En": "We evaluate each candidate individually and match them with the most suitable positions."
+    },
+    {
+      "key": "arbeitnehmer.phone",
+      "De": "Telefonnummer",
+      "Tr": "Telefon Numarası",
+      "En": "Phone Number",
+      "Ar": "رقم الهاتف"
+    },
+    {
+      "key": "arbeitnehmer.phone_placeholder",
+      "De": "+49 123 456789",
+      "Tr": "+90 555 123 45 67",
+      "En": "+49 123 456789",
+      "Ar": "+90 555 123 45 67"
+    },
+    {
+      "key": "arbeitnehmer.privacy",
+      "De": "Ihre Daten werden vertraulich behandelt und nur für die Vermittlung verwendet.",
+      "Tr": "Verileriniz gizli tutulur ve sadece yerleştirme için kullanılır.",
+      "Ar": "سيتم الحفاظ على بياناتك سرية واستخدامها فقط للتنسيب."
+    },
+    {
+      "key": "arbeitnehmer.profession",
+      "De": "In welchem Berufsfeld suchen Sie?",
+      "Tr": "Hangi meslek alanında arıyorsunuz?",
+      "En": "Profession",
+      "Ar": "في أي مجال مهني تبحث؟"
+    },
+    {
+      "key": "arbeitnehmer.profession_placeholder",
+      "De": "z.B. Softwareentwickler, Krankenpfleger...",
+      "Tr": "örn. Yazılım Geliştirici, Hemşire...",
+      "En": "e.g. Software Developer, Nurse, Mechanical Engineer",
+      "Ar": "مثال: مطور برمجيات، ممرض..."
+    },
+    {
+      "key": "arbeitnehmer.professional_info",
+      "De": "",
+      "Tr": "",
+      "En": "Professional Information"
+    },
+    {
+      "key": "arbeitnehmer.qualifications",
+      "De": "Qualifikationen",
+      "Tr": "Yeterlilikler",
+      "Ar": "المؤهلات"
+    },
+    {
+      "key": "arbeitnehmer.salutation",
+      "De": "Anrede",
+      "Tr": "Hitap",
+      "En": "Salutation",
+      "Ar": "اللقب"
+    },
+    {
+      "key": "arbeitnehmer.salutation_divers",
+      "De": "Divers",
+      "Tr": "Diğer",
+      "Ar": "أخرى"
+    },
+    {
+      "key": "arbeitnehmer.salutation_frau",
+      "De": "Frau",
+      "Tr": "Bayan",
+      "Ar": "السيدة"
+    },
+    {
+      "key": "arbeitnehmer.salutation_herr",
+      "De": "Herr",
+      "Tr": "Bay",
+      "Ar": "السيد"
+    },
+    {
+      "key": "arbeitnehmer.salutation_mr",
+      "De": "",
+      "Tr": "",
+      "En": "Mr."
+    },
+    {
+      "key": "arbeitnehmer.salutation_mrs",
+      "De": "",
+      "Tr": "",
+      "En": "Mrs."
+    },
+    {
+      "key": "arbeitnehmer.salutation_ms",
+      "De": "",
+      "Tr": "",
+      "En": "Ms."
+    },
+    {
+      "key": "arbeitnehmer.salutation_placeholder",
+      "De": "Wählen Sie...",
+      "Tr": "Seçiniz...",
+      "Ar": "اختر..."
+    },
+    {
+      "key": "arbeitnehmer.special_placeholder",
+      "De": "Haben Sie besondere Wünsche oder Anforderungen? Teilen Sie uns diese hier mit...",
+      "Tr": "Özel istekleriniz veya gereksinimleriniz var mı? Bunları bizimle paylaşın...",
+      "En": "Do you have any special requests or specific requirements? Share them here...",
+      "Ar": "هل لديك طلبات خاصة أو متطلبات؟ شاركها معنا..."
+    },
+    {
+      "key": "arbeitnehmer.special_requests",
+      "De": "Besondere Wünsche oder Anmerkungen",
+      "Tr": "Özel İstekler veya Notlar",
+      "En": "Special Requests or Notes",
+      "Ar": "طلبات خاصة أو ملاحظات"
+    },
+    {
+      "key": "arbeitnehmer.submit",
+      "De": "BEWERBUNG ABSENDEN",
+      "Tr": "BAŞVURU GÖNDER",
+      "En": "Submit Application",
+      "Ar": "إرسال الطلب"
+    },
+    {
+      "key": "arbeitnehmer.subtitle",
+      "De": "Füllen Sie das Formular aus, um den ersten Schritt zu machen. Unser Team wird sich umgehend mit passenden Angeboten bei Ihnen melden.",
+      "Tr": "Formu doldurun ve ilk adımı atın. Ekibimiz size uygun fırsatlarla hemen iletişime geçecek.",
+      "En": "Fill out the form to take the first step. Our team will contact you promptly with suitable offers.",
+      "Ar": "املأ النموذج واتخذ الخطوة الأولى. سيتواصل فريقنا معك بسرعة بالفرص المناسبة."
+    },
+    {
+      "key": "arbeitnehmer.success_message",
+      "De": "",
+      "Tr": "",
+      "En": "Your application has been submitted successfully!"
+    },
+    {
+      "key": "arbeitnehmer.title",
+      "De": "Ihr Weg nach Deutschland",
+      "Tr": "Almanya'ya Giden Yolunuz",
+      "En": "Find Your Dream Job in Germany",
+      "Ar": "ابحث عن وظيفة في ألمانيا"
+    },
+    {
+      "key": "arbeitnehmer.why_choose",
+      "De": "",
+      "Tr": "",
+      "En": "Why Work with Us?"
+    },
+    {
+      "key": "ausbildung.city.affordable_living",
+      "De": "Erschwingliches Leben",
+      "Tr": "Uygun yaşam"
+    },
+    {
+      "key": "ausbildung.city.art_center",
+      "De": "Kunstzentrum",
+      "Tr": "Sanat merkezi"
+    },
+    {
+      "key": "ausbildung.city.automotive",
+      "De": "Automobilsektor",
+      "Tr": "Otomotiv sektörü"
+    },
+    {
+      "key": "ausbildung.city.automotive_mechanical",
+      "De": "Automobil, Maschinenbau",
+      "Tr": "Otomotiv, Makine İmalat"
+    },
+    {
+      "key": "ausbildung.city.banking",
+      "De": "Banking",
+      "Tr": "Bankacılık"
+    },
+    {
+      "key": "ausbildung.city.banking_finance",
+      "De": "Banking, Finanzen",
+      "Tr": "Bankacılık, Finans"
+    },
+    {
+      "key": "ausbildung.city.business_center",
+      "De": "Geschäftszentrum",
+      "Tr": "İş merkezi"
+    },
+    {
+      "key": "ausbildung.city.cologne_desc",
+      "De": "Medien- und Kunstzentrum, vielfältige Ausbildungsmöglichkeiten",
+      "Tr": "Medya ve sanat merkezi, çeşitli Ausbildung imkanları"
+    },
+    {
+      "key": "ausbildung.city.companies_250",
+      "De": "250+ Unternehmen",
+      "Tr": "250+ şirket"
+    },
+    {
+      "key": "ausbildung.city.companies_280",
+      "De": "280+ Unternehmen",
+      "Tr": "280+ şirket"
+    },
+    {
+      "key": "ausbildung.city.companies_300",
+      "De": "300+ Unternehmen",
+      "Tr": "300+ şirket"
+    },
+    {
+      "key": "ausbildung.city.companies_350",
+      "De": "350+ Unternehmen",
+      "Tr": "350+ şirket"
+    },
+    {
+      "key": "ausbildung.city.companies_400",
+      "De": "400+ Unternehmen",
+      "Tr": "400+ şirket"
+    },
+    {
+      "key": "ausbildung.city.companies_500",
+      "De": "500+ Unternehmen",
+      "Tr": "500+ şirket"
+    },
+    {
+      "key": "ausbildung.city.cultural_events",
+      "De": "Kulturelle Veranstaltungen",
+      "Tr": "Kültürel etkinlikler"
+    },
+    {
+      "key": "ausbildung.city.cultural_richness",
+      "De": "Kultureller Reichtum",
+      "Tr": "Kültürel zenginlik"
+    },
+    {
+      "key": "ausbildung.city.diverse_sectors",
+      "De": "Vielfältige Sektoren",
+      "Tr": "Çeşitli sektörler"
+    },
+    {
+      "key": "ausbildung.city.dusseldorf_desc",
+      "De": "Zentrum der Geschäftswelt, Finanz- und Technologie-Ausbildungsprogramme",
+      "Tr": "İş dünyasının merkezi, finans ve teknoloji Ausbildung programları"
+    },
+    {
+      "key": "ausbildung.city.finance_center",
+      "De": "Finanzzentrum",
+      "Tr": "Finans merkezi"
+    },
+    {
+      "key": "ausbildung.city.finance_tech",
+      "De": "Finanzen, Technologie",
+      "Tr": "Finans, Teknoloji"
+    },
+    {
+      "key": "ausbildung.city.frankfurt_desc",
+      "De": "Finanzzentrum, Banking- und Finanz-Ausbildungsprogramme",
+      "Tr": "Finans merkezi, bankacılık ve finans Ausbildung programları"
+    },
+    {
+      "key": "ausbildung.city.hamburg_desc",
+      "De": "Hafenstadt, Logistik- und Schifffahrts-Ausbildungsprogramme",
+      "Tr": "Liman şehri, lojistik ve denizcilik Ausbildung programları"
+    },
+    {
+      "key": "ausbildung.city.high_salary",
+      "De": "Hohe Gehälter",
+      "Tr": "Yüksek maaşlar"
+    },
+    {
+      "key": "ausbildung.city.international_companies",
+      "De": "Internationale Unternehmen",
+      "Tr": "Uluslararası şirketler"
+    },
+    {
+      "key": "ausbildung.city.international_environment",
+      "De": "Internationale Umgebung",
+      "Tr": "Uluslararası ortam"
+    },
+    {
+      "key": "ausbildung.city.japanese_culture",
+      "De": "Japanische Kultur",
+      "Tr": "Japon kültürü"
+    },
+    {
+      "key": "ausbildung.city.job_guarantee",
+      "De": "Jobgarantie",
+      "Tr": "İş garantisi"
+    },
+    {
+      "key": "ausbildung.city.job_rate",
+      "De": "Jobquote",
+      "Tr": "iş oranı"
+    },
+    {
+      "key": "ausbildung.city.logistics_center",
+      "De": "Logistikzentrum",
+      "Tr": "Lojistik merkezi"
+    },
+    {
+      "key": "ausbildung.city.logistics_media",
+      "De": "Logistik, Medien",
+      "Tr": "Lojistik, Medya"
+    },
+    {
+      "key": "ausbildung.city.media_art",
+      "De": "Medien, Kunst",
+      "Tr": "Medya, Sanat"
+    },
+    {
+      "key": "ausbildung.city.media_sector",
+      "De": "Mediensektor",
+      "Tr": "Medya sektörü"
+    },
+    {
+      "key": "ausbildung.city.munich_desc",
+      "De": "Wirtschaftszentrum Bayerns, vielfältige Ausbildungsprogramme",
+      "Tr": "Bavyera'nın ekonomi merkezi, çeşitli Ausbildung programları"
+    },
+    {
+      "key": "ausbildung.city.port_economy",
+      "De": "Hafenwirtschaft",
+      "Tr": "Liman ekonomisi"
+    },
+    {
+      "key": "ausbildung.city.quality_life",
+      "De": "Lebensqualität",
+      "Tr": "Yaşam kalitesi"
+    },
+    {
+      "key": "ausbildung.city.safe_environment",
+      "De": "Sichere Umgebung",
+      "Tr": "Güvenli ortam"
+    },
+    {
+      "key": "ausbildung.city.shipping",
+      "De": "Schifffahrt",
+      "Tr": "Denizcilik"
+    },
+    {
+      "key": "ausbildung.city.stuttgart_desc",
+      "De": "Zentrum der Automobilindustrie, hohe Ausbildungsmöglichkeiten",
+      "Tr": "Otomotiv endüstrisinin merkezi, yüksek Ausbildung imkanları"
+    },
+    {
+      "key": "ausbildung.city.tech_center",
+      "De": "Technologiezentrum",
+      "Tr": "Teknoloji merkezi"
+    },
+    {
+      "key": "ausbildung.city.tech_finance",
+      "De": "Technologie, Finanzen",
+      "Tr": "Teknoloji, Finans"
+    },
+    {
+      "key": "ausbildung.contact_info",
+      "De": "Kontaktieren Sie uns für weitere Informationen",
+      "Tr": "Daha fazla bilgi için bizimle iletişime geçin"
+    },
+    {
+      "key": "ausbildung.doc.criminal_record",
+      "De": "Führungszeugnis",
+      "Tr": "Adli sicil belgesi"
+    },
+    {
+      "key": "ausbildung.doc.diploma",
+      "De": "Diplom und Zeugnis (apostilliert)",
+      "Tr": "Diploma ve transkript (apostilli)"
+    },
+    {
+      "key": "ausbildung.doc.health_cert",
+      "De": "Gesundheitszeugnis",
+      "Tr": "Sağlık raporu"
+    },
+    {
+      "key": "ausbildung.doc.language_cert",
+      "De": "Deutschsprachzertifikat",
+      "Tr": "Almanca dil sertifikası"
+    },
+    {
+      "key": "ausbildung.doc.passport",
+      "De": "Passkopie",
+      "Tr": "Pasaport fotokopisi"
+    },
+    {
+      "key": "ausbildung.field.automotive",
+      "De": "Automobilindustrie",
+      "Tr": "Otomotiv Endüstrisi"
+    },
+    {
+      "key": "ausbildung.field.automotive_desc",
+      "De": "Fahrzeugreparatur, Elektrosysteme, Karosseriebau",
+      "Tr": "Araç tamiri, elektrik sistemleri, kaportacılık"
+    },
+    {
+      "key": "ausbildung.field.automotive_duration",
+      "De": "3.5 Jahre",
+      "Tr": "3.5 yıl"
+    },
+    {
+      "key": "ausbildung.field.automotive_salary",
+      "De": "€750-1000",
+      "Tr": "€750-1000"
+    },
+    {
+      "key": "ausbildung.field.finance",
+      "De": "Banking & Finanzen",
+      "Tr": "Bankacılık & Finans"
+    },
+    {
+      "key": "ausbildung.field.finance_desc",
+      "De": "Bankgeschäfte, Kundenberatung, Versicherungen",
+      "Tr": "Bankacılık işlemleri, müşteri danışmanlığı, sigorta"
+    },
+    {
+      "key": "ausbildung.field.finance_duration",
+      "De": "3 Jahre",
+      "Tr": "3 yıl"
+    },
+    {
+      "key": "ausbildung.field.finance_salary",
+      "De": "€950-1250",
+      "Tr": "€950-1250"
+    },
+    {
+      "key": "ausbildung.field.healthcare",
+      "De": "Gesundheitswesen",
+      "Tr": "Sağlık"
+    },
+    {
+      "key": "ausbildung.field.healthcare_desc",
+      "De": "Krankenpflege, Physiotherapie, Medizintechnik",
+      "Tr": "Hemşirelik, fizyoterapi, tıbbi teknoloji"
+    },
+    {
+      "key": "ausbildung.field.healthcare_duration",
+      "De": "3 Jahre",
+      "Tr": "3 yıl"
+    },
+    {
+      "key": "ausbildung.field.healthcare_salary",
+      "De": "€1000-1300",
+      "Tr": "€1000-1300"
+    },
+    {
+      "key": "ausbildung.field.hospitality",
+      "De": "Hotellerie & Tourismus",
+      "Tr": "Otelcilik & Turizm"
+    },
+    {
+      "key": "ausbildung.field.hospitality_desc",
+      "De": "Hotelmanagement, Kochen, Tourismusführung",
+      "Tr": "Otel yönetimi, aşçılık, turizm rehberliği"
+    },
+    {
+      "key": "ausbildung.field.hospitality_duration",
+      "De": "3 Jahre",
+      "Tr": "3 yıl"
+    },
+    {
+      "key": "ausbildung.field.hospitality_salary",
+      "De": "€650-900",
+      "Tr": "€650-900"
+    },
+    {
+      "key": "ausbildung.field.it",
+      "De": "Informationstechnologie",
+      "Tr": "Bilişim Teknolojileri"
+    },
+    {
+      "key": "ausbildung.field.it_desc",
+      "De": "Softwareentwicklung, Systemverwaltung, Datenanalyse",
+      "Tr": "Yazılım geliştirme, sistem yönetimi, veri analizi"
+    },
+    {
+      "key": "ausbildung.field.it_duration",
+      "De": "3 Jahre",
+      "Tr": "3 yıl"
+    },
+    {
+      "key": "ausbildung.field.it_salary",
+      "De": "€900-1200",
+      "Tr": "€900-1200"
+    },
+    {
+      "key": "ausbildung.field.mechanical",
+      "De": "Maschinenbau",
+      "Tr": "Makine Mühendisliği"
+    },
+    {
+      "key": "ausbildung.field.mechanical_desc",
+      "De": "Industrielle Maschinenführung, Wartung und Reparatur",
+      "Tr": "Endüstriyel makine operasyonu, bakım ve onarım"
+    },
+    {
+      "key": "ausbildung.field.mechanical_duration",
+      "De": "3.5 Jahre",
+      "Tr": "3.5 yıl"
+    },
+    {
+      "key": "ausbildung.field.mechanical_salary",
+      "De": "€800-1100",
+      "Tr": "€800-1100"
+    },
+    {
+      "key": "ausbildung.req.age",
+      "De": "18-35 Jahre alt sein",
+      "Tr": "18-35 yaş arası olmak"
+    },
+    {
+      "key": "ausbildung.req.criminal_record",
+      "De": "Sauberes Führungszeugnis",
+      "Tr": "Temiz adli sicil kaydı"
+    },
+    {
+      "key": "ausbildung.req.education",
+      "De": "Abitur oder gleichwertigen Schulabschluss haben",
+      "Tr": "Lise veya dengi okul mezunu olmak"
+    },
+    {
+      "key": "ausbildung.req.german",
+      "De": "Mindestens B1-Niveau Deutschkenntnisse",
+      "Tr": "Minimum B1 seviyesinde Almanca bilmek"
+    },
+    {
+      "key": "ausbildung.step1.desc",
+      "De": "Wir bewerten Ihren Bildungshintergrund und Ihre Ziele",
+      "Tr": "Eğitim geçmişiniz ve hedeflerinizi değerlendiriyoruz"
+    },
+    {
+      "key": "ausbildung.step1.title",
+      "De": "Vorabprüfung",
+      "Tr": "Ön Değerlendirme"
+    },
+    {
+      "key": "ausbildung.step2.desc",
+      "De": "Wir bestimmen Ihr Deutschniveau (mindestens B1 erforderlich)",
+      "Tr": "Almanca seviyenizi belirliyoruz (minimum B1 gerekli)"
+    },
+    {
+      "key": "ausbildung.step2.title",
+      "De": "Sprachniveau-Test",
+      "Tr": "Dil Seviyesi Testi"
+    },
+    {
+      "key": "ausbildung.step3.desc",
+      "De": "Wir bestimmen geeignete Berufsfelder für Sie",
+      "Tr": "Size uygun meslek dallarını belirliyoruz"
+    },
+    {
+      "key": "ausbildung.step3.title",
+      "De": "Berufswahl",
+      "Tr": "Meslek Seçimi"
+    },
+    {
+      "key": "ausbildung.step4.desc",
+      "De": "Wir bereiten Ihren Lebenslauf, Ihr Motivationsschreiben und Ihre Dokumente vor",
+      "Tr": "CV, motivasyon mektubu ve belgelerinizi hazırlıyoruz"
+    },
+    {
+      "key": "ausbildung.step4.title",
+      "De": "Bewerbungsvorbereitung",
+      "Tr": "Başvuru Hazırlığı"
+    },
+    {
+      "key": "ausbildung.step5.desc",
+      "De": "Wir bewerben uns bei ausgewählten Unternehmen für Sie",
+      "Tr": "Seçilen şirketlere başvurularınızı yapıyoruz"
+    },
+    {
+      "key": "ausbildung.step5.title",
+      "De": "Unternehmensbewerbungen",
+      "Tr": "Şirket Başvuruları"
+    },
+    {
+      "key": "ausbildung.step6.desc",
+      "De": "Wir lehren und üben Vorstellungstechniken",
+      "Tr": "Mülakat tekniklerini öğretiyoruz ve pratik yapıyoruz"
+    },
+    {
+      "key": "ausbildung.step6.title",
+      "De": "Vorstellungsvorbereitung",
+      "Tr": "Mülakat Hazırlığı"
+    },
+    {
+      "key": "button.call_now",
+      "De": "Jetzt anrufen",
+      "Tr": "Hemen Ara",
+      "En": "Call Now",
+      "Ar": "اتصل الآن"
+    },
+    {
+      "key": "button.consultation",
+      "De": "Kostenlose Beratung",
+      "Tr": "Ücretsiz Danışmanlık Al",
+      "En": "Free Consultation",
+      "Ar": "استشارة مجانية"
+    },
+    {
+      "key": "button.contact",
+      "De": "Kontakt aufnehmen",
+      "Tr": "İletişime Geç",
+      "En": "Get in Touch",
+      "Ar": "تواصل معنا"
+    },
+    {
+      "key": "button.learn_more",
+      "De": "Mehr erfahren",
+      "Tr": "Daha Fazla Bilgi",
+      "En": "Learn More",
+      "Ar": "المزيد"
+    },
+    {
+      "key": "button.start_journey",
+      "De": "Reise beginnen",
+      "Tr": "Yolculuğa Başla",
+      "En": "Start Journey",
+      "Ar": "ابدأ الرحلة"
+    },
+    {
+      "key": "contact.additional_info",
+      "De": "Zusätzliche Informationen oder Fragen",
+      "Tr": "Ek Bilgiler veya Sorular",
+      "En": "Additional Information or Questions",
+      "Ar": "معلومات إضافية أو أسئلة"
+    },
+    {
+      "key": "contact.address",
+      "De": "Adresse",
+      "Tr": "Adres",
+      "En": "Address",
+      "Ar": "العنوان"
+    },
+    {
+      "key": "contact.address_germany",
+      "De": "Deutschland",
+      "Tr": "Almanya",
+      "En": "Germany"
+    },
+    {
+      "key": "contact.address_turkey_istanbul",
+      "De": "Türkiye - Istanbul",
+      "Tr": "Türkiye - İstanbul",
+      "En": "Turkey - Istanbul"
+    },
+    {
+      "key": "contact.address_turkey_mersin",
+      "De": "Türkiye - Mersin",
+      "Tr": "Türkiye - Mersin",
+      "En": "Turkey - Mersin"
+    },
+    {
+      "key": "contact.age",
+      "De": "Alter",
+      "Tr": "Yaş",
+      "En": "Age",
+      "Ar": "العمر"
+    },
+    {
+      "key": "contact.age_placeholder",
+      "De": "25",
+      "Tr": "25"
+    },
+    {
+      "key": "contact.city_placeholder",
+      "De": "z.B. Berlin, München, Hamburg",
+      "Tr": "örn. Berlin, Münih, Hamburg"
+    },
+    {
+      "key": "contact.education_bachelor",
+      "De": "Bachelor-Abschluss",
+      "Tr": "Lisans Mezunu"
+    },
+    {
+      "key": "contact.education_background",
+      "De": "Bildungshintergrund",
+      "Tr": "Eğitim Geçmişi",
+      "En": "Education Background",
+      "Ar": "خلفية التعليم"
+    },
+    {
+      "key": "contact.education_gymnasium",
+      "De": "Gymnasium/Abitur",
+      "Tr": "Lise Mezunu"
+    },
+    {
+      "key": "contact.education_hauptschule",
+      "De": "Hauptschulabschluss",
+      "Tr": "İlkokul Mezunu"
+    },
+    {
+      "key": "contact.education_master",
+      "De": "Master-Abschluss",
+      "Tr": "Yüksek Lisans Mezunu"
+    },
+    {
+      "key": "contact.education_other",
+      "De": "Sonstiges",
+      "Tr": "Diğer"
+    },
+    {
+      "key": "contact.education_phd",
+      "De": "Promotion/PhD",
+      "Tr": "Doktora"
+    },
+    {
+      "key": "contact.education_placeholder",
+      "De": "Wählen Sie Ihren Abschluss",
+      "Tr": "Eğitim seviyenizi seçin"
+    },
+    {
+      "key": "contact.education_realschule",
+      "De": "Realschulabschluss",
+      "Tr": "Ortaokul Mezunu"
+    },
+    {
+      "key": "contact.email",
+      "De": "E-Mail",
+      "Tr": "E-posta",
+      "En": "Email",
+      "Ar": "البريد الإلكتروني"
+    },
+    {
+      "key": "contact.email_address",
+      "De": "E-Mail-Adresse",
+      "Tr": "E-posta Adresi",
+      "En": "Email Address",
+      "Ar": "عنوان البريد الإلكتروني"
+    },
+    {
+      "key": "contact.email_placeholder",
+      "De": "ihre.email@beispiel.com",
+      "Tr": "email@ornek.com"
+    },
+    {
+      "key": "contact.english_a1",
+      "De": "A1 - Anfänger",
+      "Tr": "A1 - Başlangıç"
+    },
+    {
+      "key": "contact.english_a2",
+      "De": "A2 - Grundkenntnisse",
+      "Tr": "A2 - Temel"
+    },
+    {
+      "key": "contact.english_b1",
+      "De": "B1 - Mittelstufe",
+      "Tr": "B1 - Orta"
+    },
+    {
+      "key": "contact.english_b2",
+      "De": "B2 - Gute Mittelstufe",
+      "Tr": "B2 - İyi Orta"
+    },
+    {
+      "key": "contact.english_c1",
+      "De": "C1 - Fortgeschritten",
+      "Tr": "C1 - İleri"
+    },
+    {
+      "key": "contact.english_c2",
+      "De": "C2 - Muttersprachlich",
+      "Tr": "C2 - Ana Dil"
+    },
+    {
+      "key": "contact.english_level",
+      "De": "Englisch-Niveau",
+      "Tr": "İngilizce Seviyesi",
+      "En": "English Level",
+      "Ar": "مستوى الإنجليزية"
+    },
+    {
+      "key": "contact.english_none",
+      "De": "Keine Kenntnisse",
+      "Tr": "Bilgim Yok"
+    },
+    {
+      "key": "contact.english_placeholder",
+      "De": "Wählen Sie Ihr Englisch-Niveau",
+      "Tr": "İngilizce seviyenizi seçin"
+    },
+    {
+      "key": "contact.experience_10_plus",
+      "De": "Mehr als 10 Jahre",
+      "Tr": "10 Yıldan Fazla"
+    },
+    {
+      "key": "contact.experience_1_2",
+      "De": "1-2 Jahre",
+      "Tr": "1-2 Yıl"
+    },
+    {
+      "key": "contact.experience_3_5",
+      "De": "3-5 Jahre",
+      "Tr": "3-5 Yıl"
+    },
+    {
+      "key": "contact.experience_6_10",
+      "De": "6-10 Jahre",
+      "Tr": "6-10 Yıl"
+    },
+    {
+      "key": "contact.experience_none",
+      "De": "Keine Erfahrung",
+      "Tr": "Deneyim Yok"
+    },
+    {
+      "key": "contact.experience_placeholder",
+      "De": "Wählen Sie Ihre Erfahrung",
+      "Tr": "Deneyiminizi seçin"
+    },
+    {
+      "key": "contact.experienced_advisors",
+      "De": "Erfahrene Berater",
+      "Tr": "Deneyimli Danışmanlar",
+      "En": "Experienced Advisors",
+      "Ar": "مستشارون ذوو خبرة"
+    },
+    {
+      "key": "contact.field_of_study",
+      "De": "Studienbereich/Fachrichtung",
+      "Tr": "Çalışma Alanı/Bölüm",
+      "En": "Field of Study / Department",
+      "Ar": "مجال الدراسة"
+    },
+    {
+      "key": "contact.field_placeholder",
+      "De": "z.B. Ingenieurwesen, Medizin, BWL",
+      "Tr": "örn. Mühendislik, Tıp, İşletme"
+    },
+    {
+      "key": "contact.first_name",
+      "De": "Vorname",
+      "Tr": "Ad",
+      "En": "First Name"
+    },
+    {
+      "key": "contact.first_name_placeholder",
+      "De": "Ihr Vorname",
+      "Tr": "Adınız"
+    },
+    {
+      "key": "contact.firstname",
+      "De": "",
+      "Tr": "",
+      "Ar": "الاسم الأول"
+    },
+    {
+      "key": "contact.form_title",
+      "De": "Kontaktformular",
+      "Tr": "İletişim Formu",
+      "En": "Contact Form",
+      "Ar": "نموذج الاتصال"
+    },
+    {
+      "key": "contact.free_consultation",
+      "De": "Kostenlose Erstberatung",
+      "Tr": "Ücretsiz İlk Danışmanlık",
+      "En": "Free Initial Consultation",
+      "Ar": "استشارة أولية مجانية"
+    },
+    {
+      "key": "contact.german_a1",
+      "De": "A1 - Anfänger",
+      "Tr": "A1 - Başlangıç"
+    },
+    {
+      "key": "contact.german_a2",
+      "De": "A2 - Grundkenntnisse",
+      "Tr": "A2 - Temel"
+    },
+    {
+      "key": "contact.german_b1",
+      "De": "B1 - Mittelstufe",
+      "Tr": "B1 - Orta"
+    },
+    {
+      "key": "contact.german_b2",
+      "De": "B2 - Gute Mittelstufe",
+      "Tr": "B2 - İyi Orta"
+    },
+    {
+      "key": "contact.german_c1",
+      "De": "C1 - Fortgeschritten",
+      "Tr": "C1 - İleri"
+    },
+    {
+      "key": "contact.german_c2",
+      "De": "C2 - Muttersprachlich",
+      "Tr": "C2 - Ana Dil"
+    },
+    {
+      "key": "contact.german_level",
+      "De": "Deutsch-Niveau",
+      "Tr": "Almanca Seviyesi",
+      "En": "German Level",
+      "Ar": "مستوى الألمانية"
+    },
+    {
+      "key": "contact.german_none",
+      "De": "Keine Kenntnisse",
+      "Tr": "Bilgim Yok"
+    },
+    {
+      "key": "contact.german_placeholder",
+      "De": "Wählen Sie Ihr Deutsch-Niveau",
+      "Tr": "Almanca seviyenizi seçin"
+    },
+    {
+      "key": "contact.highest_education",
+      "De": "Höchster Bildungsabschluss",
+      "Tr": "En Yüksek Eğitim Seviyesi",
+      "En": "Highest Education Level",
+      "Ar": "أعلى مؤهل تعليمي"
+    },
+    {
+      "key": "contact.hours",
+      "De": "Öffnungszeiten",
+      "Tr": "Çalışma Saatleri",
+      "En": "Business Hours"
+    },
+    {
+      "key": "contact.hours_detail",
+      "De": "Mo-Fr: 9:00 - 18:00\nSa: 10:00 - 14:00\nSo: Geschlossen",
+      "Tr": "Pzt-Cum: 09:00 - 18:00\nCmt: 10:00 - 14:00\nPaz: Kapalı",
+      "En": "Mon-Fri: 9:00 - 18:00\nSat: 10:00 - 14:00\nSun: Closed"
+    },
+    {
+      "key": "contact.individual_support",
+      "De": "Individuelle Betreuung",
+      "Tr": "Bireysel Destek",
+      "En": "Individual Support",
+      "Ar": "دعم فردي"
+    },
+    {
+      "key": "contact.info_title",
+      "De": "Kontaktinformationen",
+      "Tr": "İletişim Bilgileri",
+      "En": "Contact Information",
+      "Ar": "معلومات الاتصال"
+    },
+    {
+      "key": "contact.interest_area",
+      "De": "Interessensbereich",
+      "Tr": "İlgi Alanı",
+      "En": "Area of Interest",
+      "Ar": "مجال الاهتمام"
+    },
+    {
+      "key": "contact.interest_ausbildung",
+      "De": "Ausbildung",
+      "Tr": "Meslek Eğitimi"
+    },
+    {
+      "key": "contact.interest_language",
+      "De": "Sprachkurse",
+      "Tr": "Dil Kursları"
+    },
+    {
+      "key": "contact.interest_multiple",
+      "De": "Mehrere Bereiche",
+      "Tr": "Birden Fazla Alan"
+    },
+    {
+      "key": "contact.interest_placeholder",
+      "De": "Wählen Sie Ihren Interessensbereich",
+      "Tr": "İlgi alanınızı seçin"
+    },
+    {
+      "key": "contact.interest_university",
+      "De": "Universität/Studium",
+      "Tr": "Üniversite/Eğitim"
+    },
+    {
+      "key": "contact.interest_work",
+      "De": "Arbeiten in Deutschland",
+      "Tr": "Almanya'da Çalışma"
+    },
+    {
+      "key": "contact.language_skills",
+      "De": "Sprachkenntnisse",
+      "Tr": "Dil Becerileri",
+      "En": "Language Skills",
+      "Ar": "المهارات اللغوية"
+    },
+    {
+      "key": "contact.last_name",
+      "De": "Nachname",
+      "Tr": "Soyad",
+      "En": "Last Name"
+    },
+    {
+      "key": "contact.last_name_placeholder",
+      "De": "Ihr Nachname",
+      "Tr": "Soyadınız"
+    },
+    {
+      "key": "contact.lastname",
+      "De": "",
+      "Tr": "",
+      "Ar": "اسم العائلة"
+    },
+    {
+      "key": "contact.message_placeholder",
+      "De": "Teilen Sie uns mit, was Sie besonders interessiert oder welche spezifischen Fragen Sie haben...",
+      "Tr": "Özellikle neye ilgi duyduğunuzu veya hangi özel sorularınız olduğunu bizimle paylaşın..."
+    },
+    {
+      "key": "contact.nationality",
+      "De": "Staatsangehörigkeit",
+      "Tr": "Uyruk",
+      "En": "Nationality",
+      "Ar": "الجنسية"
+    },
+    {
+      "key": "contact.nationality_placeholder",
+      "De": "z.B. Türkisch",
+      "Tr": "örn. Türk"
+    },
+    {
+      "key": "contact.newsletter",
+      "De": "Ich möchte den Newsletter mit aktuellen Informationen über Bildungsmöglichkeiten in Deutschland erhalten.",
+      "Tr": "Almanya'daki eğitim fırsatları hakkında güncel bilgiler içeren bülteni almak istiyorum.",
+      "En": "I want to receive the newsletter with current information about educational opportunities in Germany.",
+      "Ar": "أريد تلقي النشرة الإخبارية مع معلومات محدثة حول فرص التعليم في ألمانيا."
+    },
+    {
+      "key": "contact.phone",
+      "De": "Telefon",
+      "Tr": "Telefon",
+      "En": "Phone",
+      "Ar": "الهاتف"
+    },
+    {
+      "key": "contact.phone_number",
+      "De": "Telefonnummer",
+      "Tr": "Telefon Numarası",
+      "En": "Phone Number",
+      "Ar": "رقم الهاتف"
+    },
+    {
+      "key": "contact.phone_placeholder",
+      "De": "+49 XXX XXX XXXX",
+      "Tr": "+90 XXX XXX XX XX"
+    },
+    {
+      "key": "contact.preferred_city",
+      "De": "Bevorzugte Stadt in Deutschland",
+      "Tr": "Almanya'da Tercih Edilen Şehir",
+      "En": "Preferred City in Germany",
+      "Ar": "المدينة المفضلة في ألمانيا"
+    },
+    {
+      "key": "contact.privacy_consent",
+      "De": "Ich stimme der Verarbeitung meiner personenbezogenen Daten gemäß der Datenschutzerklärung zu und bin damit einverstanden, dass Worklines ProConsulting mich bezüglich meiner Anfrage kontaktiert.",
+      "Tr": "Kişisel verilerimin Gizlilik Politikası'na uygun olarak işlenmesini kabul ediyorum ve Worklines ProConsulting'in talebimle ilgili benimle iletişime geçmesine onay veriyorum.",
+      "En": "I accept the processing of my personal data in accordance with the Privacy Policy and consent to Worklines ProConsulting contacting me regarding my request.",
+      "Ar": "أوافق على معالجة بياناتي الشخصية وفقًا لسياسة الخصوصية وأوافق على أن Worklines ProConsulting تتصل بي فيما يتعلق بطلب الاستشارة."
+    },
+    {
+      "key": "contact.privacy_link",
+      "De": "Datenschutzerklärung",
+      "Tr": "Gizlilik Politikası"
+    },
+    {
+      "key": "contact.submit",
+      "De": "Kostenlose Beratung anfordern",
+      "Tr": "Ücretsiz Danışmanlık Talep Et",
+      "En": "Request Free Consultation",
+      "Ar": "طلب استشارة مجانية"
+    },
+    {
+      "key": "contact.subtitle",
+      "De": "Füllen Sie das Formular aus und erhalten Sie eine kostenlose Beratung von unseren Experten für Ihre Bildungsreise in Deutschland.",
+      "Tr": "Formu doldurun ve Almanya'daki eğitim yolculuğunuz için uzmanlarımızdan ücretsiz danışmanlık alın.",
+      "En": "Fill out the form and get free consultation from our experts for your education journey in Germany.",
+      "Ar": "املأ النموذج واحصل على استشارة مجانية من خبرائنا لرحلتك التعليمية في ألمانيا."
+    },
+    {
+      "key": "contact.successful_placements",
+      "De": "Erfolgreiche Vermittlungen",
+      "Tr": "Başarılı Yerleştirmeler",
+      "En": "Successful Placements",
+      "Ar": "التوظيف الناجح"
+    },
+    {
+      "key": "contact.timeline",
+      "De": "Wann möchten Sie nach Deutschland kommen?",
+      "Tr": "Ne zaman Almanya'ya gelmek istiyorsunuz?",
+      "En": "When do you want to come to Germany?",
+      "Ar": "متى تريد القدوم إلى ألمانيا؟"
+    },
+    {
+      "key": "contact.timeline_1year",
+      "De": "In den nächsten 12 Monaten",
+      "Tr": "Önümüzdeki 12 Ay İçinde"
+    },
+    {
+      "key": "contact.timeline_3months",
+      "De": "In den nächsten 3 Monaten",
+      "Tr": "Önümüzdeki 3 Ay İçinde"
+    },
+    {
+      "key": "contact.timeline_6months",
+      "De": "In den nächsten 6 Monaten",
+      "Tr": "Önümüzdeki 6 Ay İçinde"
+    },
+    {
+      "key": "contact.timeline_asap",
+      "De": "So bald wie möglich",
+      "Tr": "En Kısa Sürede"
+    },
+    {
+      "key": "contact.timeline_flexible",
+      "De": "Flexibel",
+      "Tr": "Esnek"
+    },
+    {
+      "key": "contact.timeline_placeholder",
+      "De": "Wählen Sie Ihren Zeitplan",
+      "Tr": "Zaman planınızı seçin"
+    },
+    {
+      "key": "contact.title",
+      "De": "Kostenlose Beratung",
+      "Tr": "Ücretsiz Danışmanlık",
+      "En": "Free Consultation",
+      "Ar": "استشارة مجانية"
+    },
+    {
+      "key": "contact.what_interests",
+      "De": "Wofür interessieren Sie sich?",
+      "Tr": "Neye ilgi duyuyorsunuz?",
+      "En": "What are you interested in?",
+      "Ar": "ما الذي يثير اهتمامك؟"
+    },
+    {
+      "key": "contact.why_choose",
+      "De": "Warum Worklines wählen?",
+      "Tr": "Neden Worklines?",
+      "En": "Why Choose Worklines?",
+      "Ar": "لماذا تختار Worklines؟"
+    },
+    {
+      "key": "contact.work_experience",
+      "De": "Berufserfahrung (Jahre)",
+      "Tr": "İş Deneyimi (Yıl)",
+      "En": "Work Experience (Years)",
+      "Ar": "الخبرة المهنية (بالسنوات)"
+    },
+    {
+      "key": "cta.subtitle",
+      "De": "Kontaktieren Sie uns noch heute für eine kostenlose Beratung und beginnen Sie Ihre Reise nach Deutschland.",
+      "Tr": "Bugün bizimle iletişime geçin, ücretsiz danışmanlık alın ve Almanya yolculuğunuza başlayın."
+    },
+    {
+      "key": "cta.title",
+      "De": "Bereit für Ihren nächsten Schritt?",
+      "Tr": "Bir sonraki adımınız için hazır mısınız?"
+    },
+    {
+      "key": "faq.ausbildung.a1",
+      "De": "Ausbildung ist Deutschlands Berufsbildungssystem. Dieses System, das theorische Bildung mit praktischer Arbeit kombiniert, dauert 2-3,5 Jahre und am Ende erhalten Sie ein offizielles Berufszertifikat.",
+      "Tr": "Ausbildung, Almanya'nın meslek eğitimi sistemidir. Teorik eğitim ile pratik çalışmayı birleştiren bu sistem 2-3,5 yıl sürer ve sonunda resmi meslek sertifikası alırsınız."
+    },
+    {
+      "key": "faq.ausbildung.a2",
+      "De": "Sie müssen mindestens einen Gymnasialabschluss haben, über Grundkenntnisse der deutschen Sprache verfügen (A2-B1 Niveau), zwischen 18-35 Jahre alt sein und ein Motivationsschreiben haben.",
+      "Tr": "En az lise mezunu olmanız, temel Almanca bilginizin bulunması (A2-B1 seviyesi), 18-35 yaş arasında olmanız ve motivasyon mektubunuzun olması gerekmektedir."
+    },
+    {
+      "key": "faq.ausbildung.a3",
+      "De": "Ja, während der Ausbildung erhalten Sie ein monatliches Gehalt zwischen 600-1500 Euro. Dieser Betrag variiert je nach dem von Ihnen gewählten Beruf und dem Jahr, in dem Sie sich befinden.",
+      "Tr": "Evet, Ausbildung süresince aylık 600-1500 Euro arası maaş alırsınız. Bu miktar seçtiğiniz mesleğe ve bulunduğunuz yıla göre değişir."
+    },
+    {
+      "key": "faq.ausbildung.a4",
+      "De": "Sie können in über 350 Berufsbereichen eine Ausbildung machen. Zu den beliebten Bereichen gehören Gesundheitswesen, Technologie, Automobilindustrie, Tourismus, Finanzen und Handel.",
+      "Tr": "350'den fazla meslek dalında Ausbildung yapabilirsiniz. Popüler alanlar arasında sağlık, teknoloji, otomotiv, turizm, finans ve ticaret yer almaktadır."
+    },
+    {
+      "key": "faq.ausbildung.q1",
+      "De": "Was ist Ausbildung?",
+      "Tr": "Ausbildung nedir?"
+    },
+    {
+      "key": "faq.ausbildung.q2",
+      "De": "Welche Voraussetzungen muss ich für eine Ausbildung erfüllen?",
+      "Tr": "Ausbildung için hangi şartları sağlamalıyım?"
+    },
+    {
+      "key": "faq.ausbildung.q3",
+      "De": "Erhalte ich während der Ausbildung ein Gehalt?",
+      "Tr": "Ausbildung sırasında maaş alır mıyım?"
+    },
+    {
+      "key": "faq.ausbildung.q4",
+      "De": "In welchen Berufen kann ich eine Ausbildung machen?",
+      "Tr": "Hangi mesleklerde Ausbildung yapabilirim?"
+    },
+    {
+      "key": "faq.category.ausbildung",
+      "De": "Über Ausbildung",
+      "Tr": "Ausbildung Hakkında"
+    },
+    {
+      "key": "faq.category.general",
+      "De": "Allgemeine Fragen",
+      "Tr": "Genel Sorular"
+    },
+    {
+      "key": "faq.category.university",
+      "De": "Universität und Sprachkurse",
+      "Tr": "Üniversite ve Dil Kursları"
+    },
+    {
+      "key": "faq.category.work",
+      "De": "Arbeit und Visa-Verfahren",
+      "Tr": "Çalışma ve Vize İşlemleri"
+    },
+    {
+      "key": "faq.contact.button",
+      "De": "Kontakt aufnehmen",
+      "Tr": "İletişime Geç"
+    },
+    {
+      "key": "faq.contact.subtitle",
+      "De": "Wenn Sie die gesuchte Antwort nicht gefunden haben, kontaktieren Sie unsere Expertenberater. Wir freuen uns darauf, maßgeschneiderte Lösungen für Sie zu entwickeln.",
+      "Tr": "Aradığınız cevabı bulamadıysanız, uzman danışmanlarımızla iletişime geçin. Sizin için özel çözümler geliştirmekten mutluluk duyarız."
+    },
+    {
+      "key": "faq.contact.title",
+      "De": "Ist Ihre Frage nicht dabei?",
+      "Tr": "Sorunuz burada yok mu?"
+    },
+    {
+      "key": "faq.general.a1",
+      "De": "Worklines ProConsulting ist ein professionelles Unternehmen, das seit 2015 Beratungsdienstleistungen für türkische Studenten anbietet, die in Deutschland studieren möchten. Wir bieten umfassende Unterstützung bei Ausbildung, Universitätsbewerbungen, Sprachkursen und Jobsuche.",
+      "Tr": "Worklines ProConsulting, 2015 yılından beri Almanya'da eğitim almak isteyen Türk öğrencilere danışmanlık hizmetleri sunan profesyonel bir şirkettir. Ausbildung, üniversite başvuruları, dil kursları ve iş bulma konularında kapsamlı destek sağlıyoruz."
+    },
+    {
+      "key": "faq.general.a2",
+      "De": "Unser erstes Beratungsgespräch ist kostenlos. Für unsere detaillierten Servicepakete bieten wir angemessene Preisoptionen. Die Preisgestaltung variiert je nach Umfang der von Ihnen in Anspruch genommenen Dienstleistung.",
+      "Tr": "İlk danışmanlık görüşmemiz ücretsizdir. Detaylı hizmet paketlerimiz için uygun fiyat seçenekleri sunuyoruz. Fiyatlandırma, aldığınız hizmetin kapsamına göre değişiklik gösterir."
+    },
+    {
+      "key": "faq.general.a3",
+      "De": "Wir haben ein Partnernetzwerk in allen großen Städten Deutschlands, insbesondere in Berlin, München, Hamburg, Köln, Frankfurt, Stuttgart, Düsseldorf, Dortmund, Essen, Leipzig, Dresden, Hannover, Nürnberg, Bremen und Duisburg.",
+      "Tr": "Almanya'nın tüm büyük şehirlerinde, özellikle Berlin, Münih, Hamburg, Köln, Frankfurt, Stuttgart, Düsseldorf, Dortmund, Essen, Leipzig, Dresden, Hannover, Nürnberg, Bremen ve Duisburg'da partner ağımız bulunmaktadır."
+    },
+    {
+      "key": "faq.general.a4",
+      "De": "Die Bewerbungsdauer variiert je nach dem von Ihnen gewählten Programm. Ausbildungsbewerbungen dauern in der Regel 2-4 Monate, Universitätsbewerbungen 3-6 Monate. Sprachkursbewerbungen können schneller bearbeitet werden.",
+      "Tr": "Başvuru süresi seçtiğiniz programa göre değişir. Ausbildung başvuruları genellikle 2-4 ay, üniversite başvuruları 3-6 ay sürer. Dil kursu başvuruları daha hızlı işlenebilir."
+    },
+    {
+      "key": "faq.general.q1",
+      "De": "Was ist Worklines ProConsulting und welche Dienstleistungen bietet es?",
+      "Tr": "Worklines ProConsulting nedir ve hangi hizmetleri sunmaktadır?"
+    },
+    {
+      "key": "faq.general.q2",
+      "De": "Sind Ihre Dienstleistungen kostenpflichtig?",
+      "Tr": "Hizmetleriniz ücretli midir?"
+    },
+    {
+      "key": "faq.general.q3",
+      "De": "In welchen Städten bieten Sie Dienstleistungen an?",
+      "Tr": "Hangi şehirlerde hizmet veriyorsunuz?"
+    },
+    {
+      "key": "faq.general.q4",
+      "De": "Wie lange dauert mein Bewerbungsprozess?",
+      "Tr": "Başvuru sürecim ne kadar sürer?"
+    },
+    {
+      "key": "faq.subtitle",
+      "De": "Hier finden Sie alles, was Sie über Bildung und Arbeitsleben in Deutschland wissen möchten. Wenn Sie die gesuchte Antwort nicht finden, kontaktieren Sie uns.",
+      "Tr": "Almanya'da eğitim ve çalışma hayatı hakkında bilmek istediğiniz her şeyi burada bulabilirsiniz. Aradığınız cevabı bulamazsanız bizimle iletişime geçin."
+    },
+    {
+      "key": "faq.tips.tip1.desc",
+      "De": "Bewerbungsverfahren können Zeit in Anspruch nehmen. Wir empfehlen, sich mindestens 6 Monate vor dem geplanten Termin zu bewerben.",
+      "Tr": "Başvuru süreçleri zaman alabilir. Planlanan tarihinizden en az 6 ay önce başvuru yapmanızı öneriyoruz."
+    },
+    {
+      "key": "faq.tips.tip1.title",
+      "De": "Frühe Bewerbung",
+      "Tr": "Erken Başvuru"
+    },
+    {
+      "key": "faq.tips.tip2.desc",
+      "De": "Beginnen Sie so früh wie möglich mit dem Deutschlernen. Sprachkenntnisse verschaffen Ihnen in allen Prozessen einen Vorteil.",
+      "Tr": "Almanca öğrenmeye mümkün olduğunca erken başlayın. Dil bilgisi tüm süreçlerde size avantaj sağlar."
+    },
+    {
+      "key": "faq.tips.tip2.title",
+      "De": "Sprachvorbereitung",
+      "Tr": "Dil Hazırlığı"
+    },
+    {
+      "key": "faq.tips.tip3.desc",
+      "De": "Halten Sie alle Ihre Dokumente apostilliert und übersetzt bereit. Dies beschleunigt die Prozesse.",
+      "Tr": "Tüm belgelerinizi apostilli ve çevrilmiş olarak hazır bulundurun. Bu süreçleri hızlandırır."
+    },
+    {
+      "key": "faq.tips.tip3.title",
+      "De": "Dokumentenvorbereitung",
+      "Tr": "Belge Hazırlığı"
+    },
+    {
+      "key": "faq.tips.title",
+      "De": "Schnelle Tipps",
+      "Tr": "Hızlı İpuçları"
+    },
+    {
+      "key": "faq.title",
+      "De": "Häufig gestellte Fragen",
+      "Tr": "Sıkça Sorulan Sorular"
+    },
+    {
+      "key": "faq.university.a1",
+      "De": "Sie müssen über ein Abitur oder einen Universitätsabschluss verfügen, ausreichende Deutsch- oder Englischkenntnisse (C1-Niveau), einen Nachweis der finanziellen Leistungsfähigkeit und je nach gewähltem Studiengang zusätzliche Voraussetzungen erfüllen.",
+      "Tr": "Lise veya üniversite mezunu olmanız, yeterli Almanca veya İngilizce bilginizin bulunması (C1 seviyesi), mali yeterlilik belgeniz ve seçtiğiniz programa göre ek şartları sağlamanız gerekmektedir."
+    },
+    {
+      "key": "faq.university.a2",
+      "De": "Die Dauer Ihres Sprachkurses hängt von Ihrem aktuellen Niveau ab. Von A1 bis C1 dauert es etwa 12-18 Monate. Mit Intensivkursen kann diese Zeit verkürzt werden.",
+      "Tr": "Dil kursu süreniz mevcut seviyenize bağlıdır. A1'den C1'e kadar yaklaşık 12-18 ay sürer. Yoğun kurslarla bu süre kısaltılabilir."
+    },
+    {
+      "key": "faq.university.a3",
+      "De": "An staatlichen Universitäten wird eine Verwaltungsgebühr von 150-350 Euro pro Semester erhoben. An privaten Universitäten kann dieser Betrag zwischen 3000-20000 Euro variieren.",
+      "Tr": "Devlet üniversitelerinde dönem başına 150-350 Euro idari ücret alınır. Özel üniversitelerde bu miktar 3000-20000 Euro arasında değişebilir."
+    },
+    {
+      "key": "faq.university.a4",
+      "De": "Sie bewerben sich beim deutschen Konsulat, nachdem Sie Ihren Zulassungsbescheid, Ihren Nachweis der finanziellen Leistungsfähigkeit, Ihre Krankenversicherung und andere erforderliche Dokumente vorbereitet haben.",
+      "Tr": "Kabul mektubunuzu, mali yeterlilik belgenizi, sağlık sigortanızı ve diğer gerekli belgelerinizi hazırladıktan sonra Alman konsolosluğuna başvuru yaparsınız."
+    },
+    {
+      "key": "faq.university.q1",
+      "De": "Welche Voraussetzungen muss ich erfüllen, um in Deutschland zu studieren?",
+      "Tr": "Almanya'da üniversite okumak için hangi şartları sağlamalıyım?"
+    },
+    {
+      "key": "faq.university.q2",
+      "De": "Wie lange dauert ein Sprachkurs?",
+      "Tr": "Dil kursu ne kadar sürer?"
+    },
+    {
+      "key": "faq.university.q3",
+      "De": "Wie hoch sind die Universitätsgebühren?",
+      "Tr": "Üniversite ücretleri ne kadardır?"
+    },
+    {
+      "key": "faq.university.q4",
+      "De": "Wie bekomme ich ein Studentenvisum?",
+      "Tr": "Öğrenci vizesi nasıl alırım?"
+    },
+    {
+      "key": "faq.work.a1",
+      "De": "Wenn Sie ein Jobangebot haben, beantragt Ihr Arbeitgeber eine Arbeitserlaubnis für Sie. Es gibt verschiedene Optionen wie die EU Blue Card und das Jobsuchvisum.",
+      "Tr": "İş teklifiniz varsa, işvereniniz sizin için çalışma izni başvurusu yapar. AB Mavi Kart ve iş arama vizesi gibi farklı seçenekler bulunmaktadır."
+    },
+    {
+      "key": "faq.work.a2",
+      "De": "Ja, mit einem Studentenvisum können Sie 120 Vollzeit- oder 240 Teilzeittage pro Jahr arbeiten. Außerdem können Sie unbegrenzt als studentische Hilfskraft arbeiten.",
+      "Tr": "Evet, öğrenci vizesiyle yılda 120 tam gün veya 240 yarım gün çalışabilirsiniz. Ayrıca öğrenci asistanı olarak sınırsız çalışabilirsiniz."
+    },
+    {
+      "key": "faq.work.a3",
+      "De": "Wenn Sie bestimmte Bedingungen erfüllen, können Sie Ihren Ehepartner und Ihre Kinder unter 18 Jahren nach Deutschland bringen. Dafür müssen Sie ausreichende Einkommens- und Wohnbedingungen erfüllen.",
+      "Tr": "Belirli şartları sağlarsanız, eşinizi ve 18 yaş altındaki çocuklarınızı Almanya'ya getirebilirsiniz. Bunun için yeterli gelir ve konut şartlarını sağlamanız gerekir."
+    },
+    {
+      "key": "faq.work.a4",
+      "De": "Sie müssen 5 Jahre ununterbrochen legal aufgehalten haben, ausreichende Deutschkenntnisse (B1-Niveau), finanzielle Unabhängigkeit und einen Integrationskurs abgeschlossen haben.",
+      "Tr": "5 yıl kesintisiz yasal olarak bulunmanız, yeterli Almanca bilginizin olması (B1 seviyesi), mali bağımsızlık ve entegrasyon kursunu tamamlamanız gerekmektedir."
+    },
+    {
+      "key": "faq.work.q1",
+      "De": "Wie bekomme ich eine Arbeitserlaubnis in Deutschland?",
+      "Tr": "Almanya'da çalışma izni nasıl alırım?"
+    },
+    {
+      "key": "faq.work.q2",
+      "De": "Kann ich als Student arbeiten?",
+      "Tr": "Öğrenci olarak çalışabilir miyim?"
+    },
+    {
+      "key": "faq.work.q3",
+      "De": "Ist eine Familienzusammenführung möglich?",
+      "Tr": "Aile birleşimi mümkün müdür?"
+    },
+    {
+      "key": "faq.work.q4",
+      "De": "Wie bekomme ich eine Daueraufenthaltserlaubnis?",
+      "Tr": "Daimi oturma izni nasıl alırım?"
+    },
+    {
+      "key": "footer.company_desc",
+      "De": "Wir begleiten Sie auf Ihrem Deutschland-Weg – mit Ausbildung, Sprachkursen, Universität und Arbeitsmöglichkeiten. Unser Ziel ist es, Ihnen einen einfachen und erfolgreichen Start in Ihr neues Leben zu ermöglichen.",
+      "Tr": "Almanya yolculuğunuzda yanınızdayız – Ausbildung, dil eğitimi, üniversite ve çalışma fırsatlarıyla. Amacımız, yeni hayatınıza kolay ve başarılı bir başlangıç yapmanızı sağlamak.",
+      "En": "We are with you on your journey to Germany – with training, language education, university and work opportunities. Our goal is to ensure you make an easy and successful start to your new life.",
+      "Ar": "نرافقك في رحلتك إلى ألمانيا - مع التدريب ودورات اللغة والجامعة وفرص العمل. هدفنا هو تسهيل بداية ناجحة لحياتك الجديدة."
+    },
+    {
+      "key": "footer.copyright",
+      "De": "© 2025 Worklines Proconsulting. Alle Rechte vorbehalten.",
+      "Tr": "© 2025 Worklines Proconsulting. Tüm hakları saklıdır.",
+      "En": "© 2024 Worklines ProConsulting. All rights reserved.",
+      "Ar": "© 2025 Worklines Proconsulting. جميع الحقوق محفوظة."
+    },
+    {
+      "key": "footer.email_placeholder",
+      "De": "",
+      "Tr": "",
+      "En": "Your email address"
+    },
+    {
+      "key": "footer.follow_us",
+      "De": "Folgen Sie uns!",
+      "Tr": "Bizi Takip Edin!",
+      "En": "Follow Us!",
+      "Ar": "تابعنا!"
+    },
+    {
+      "key": "footer.impressum",
+      "De": "Impressum",
+      "Tr": "Impressum",
+      "Ar": "البيانات القانونية"
+    },
+    {
+      "key": "footer.imprint",
+      "De": "",
+      "Tr": "",
+      "En": "Imprint"
+    },
+    {
+      "key": "footer.newsletter",
+      "De": "",
+      "Tr": "",
+      "En": "Newsletter"
+    },
+    {
+      "key": "footer.newsletter_desc",
+      "De": "",
+      "Tr": "",
+      "En": "Stay up to date with our latest news and special offers."
+    },
+    {
+      "key": "footer.privacy",
+      "De": "Datenschutz",
+      "Tr": "Gizlilik",
+      "En": "Privacy Policy",
+      "Ar": "الخصوصية"
+    },
+    {
+      "key": "footer.quick_links",
+      "De": "Schnelle Links",
+      "Tr": "Hızlı Linkler",
+      "En": "Quick Links",
+      "Ar": "روابط سريعة"
+    },
+    {
+      "key": "footer.services",
+      "De": "Dienstleistungen",
+      "Tr": "Hizmetlerimiz",
+      "En": "Our Services",
+      "Ar": "الخدمات"
+    },
+    {
+      "key": "footer.subscribe",
+      "De": "",
+      "Tr": "",
+      "En": "Subscribe"
+    },
+    {
+      "key": "footer.terms",
+      "De": "Nutzungsbedingungen",
+      "Tr": "Kullanım Şartları",
+      "En": "Terms of Use",
+      "Ar": "شروط الاستخدام"
+    },
+    {
+      "key": "hero.card.arbeitgeber.desc",
+      "De": "Erreichen Sie qualifizierte Mitarbeiter einfach",
+      "Tr": "Nitelikli çalışanlara kolayca ulaşın",
+      "En": "Easily reach qualified employees",
+      "Ar": "وصل بسهولة إلى موظفين مؤهلين"
+    },
+    {
+      "key": "hero.card.arbeitgeber.title",
+      "De": "Für Arbeitgeber",
+      "Tr": "İşveren misiniz?",
+      "En": "Are You an Employer?",
+      "Ar": "هل أنت صاحب عمل؟"
+    },
+    {
+      "key": "hero.card.arbeitnehmer.desc",
+      "De": "Entdecken Sie Karrieremöglichkeiten in Deutschland",
+      "Tr": "Almanya'da kariyer fırsatlarını keşfet",
+      "En": "Discover career opportunities in Germany",
+      "Ar": "اكتشف الفرص الوظيفية في ألمانيا"
+    },
+    {
+      "key": "hero.card.arbeitnehmer.title",
+      "De": "Für Arbeitnehmer",
+      "Tr": "İş mi arıyorsunuz?",
+      "En": "Looking for a Job?",
+      "Ar": "تبحث عن وظيفة؟"
+    },
+    {
+      "key": "hero.stats.experience",
+      "De": "Jahre Erfahrung",
+      "Tr": "Yıl Deneyim",
+      "En": "Years of Experience",
+      "Ar": "سنوات الخبرة"
+    },
+    {
+      "key": "hero.stats.students",
+      "De": "Erfolgreiche Studenten",
+      "Tr": "Başarılı Öğrenci",
+      "En": "Successful Students",
+      "Ar": "طلاب ناجحون"
+    },
+    {
+      "key": "hero.stats.success",
+      "De": "Erfolgsrate",
+      "Tr": "Başarı Oranı",
+      "En": "Success Rate",
+      "Ar": "معدل النجاح"
+    },
+    {
+      "key": "hero.subtitle",
+      "De": "Professionelle Beratung für Ausbildung, Universität und Arbeitsmöglichkeiten.",
+      "Tr": "Ausbildung, üniversite ve çalışma fırsatları için profesyonel danışmanlık.",
+      "En": "Professional consultation for training, university and work opportunities.",
+      "Ar": "استشارة احترافية للتدريب والجامعة وفرص العمل."
+    },
+    {
+      "key": "hero.title",
+      "De": "Verwirklichen Sie Ihren Deutschland-Traum",
+      "Tr": "Almanya Hayalinizi Gerçeğe Dönüştürün",
+      "En": "Realize Your Germany Dream",
+      "Ar": "حقّق حلمك في ألمانيا"
+    },
+    {
+      "key": "language.best_cities",
+      "De": "Beste Städte für Sprachkurse",
+      "Tr": "Dil Eğitimi İçin En İyi Şehirler"
+    },
+    {
+      "key": "language.business_german",
+      "De": "Business-Deutsch",
+      "Tr": "İş Almancası"
+    },
+    {
+      "key": "language.business_german_desc",
+      "De": "Spezielles Deutsch für das Berufsleben",
+      "Tr": "Profesyonel hayat için özel Almanca"
+    },
+    {
+      "key": "language.city.affordable_living",
+      "De": "Erschwingliche Lebenshaltungskosten",
+      "Tr": "Uygun yaşam maliyeti"
+    },
+    {
+      "key": "language.city.affordable_prices",
+      "De": "Erschwingliche Preise",
+      "Tr": "Uygun fiyatlar"
+    },
+    {
+      "key": "language.city.baroque_architecture",
+      "De": "Barocke Architektur",
+      "Tr": "Barok mimari"
+    },
+    {
+      "key": "language.city.berlin_desc",
+      "De": "Deutschlands Hauptstadt, zahlreiche Sprachschulen und kulturelle Vielfalt",
+      "Tr": "Almanya'nın başkenti, çok sayıda dil okulu ve kültürel çeşitlilik"
+    },
+    {
+      "key": "language.city.calm_environment",
+      "De": "Ruhige Umgebung",
+      "Tr": "Sakin ortam"
+    },
+    {
+      "key": "language.city.central_location",
+      "De": "Zentrale Lage",
+      "Tr": "Merkezi konum"
+    },
+    {
+      "key": "language.city.cologne_desc",
+      "De": "Historische Stadt, erschwingliche Sprachkursoptionen",
+      "Tr": "Tarihi şehir, uygun fiyatlı dil eğitimi seçenekleri"
+    },
+    {
+      "key": "language.city.cultural_events",
+      "De": "Kulturelle Veranstaltungen",
+      "Tr": "Kültürel etkinlikler"
+    },
+    {
+      "key": "language.city.dresden_desc",
+      "De": "Ostdeutschlands Perle, kostengünstige Sprachbildung",
+      "Tr": "Doğu Almanya'nın incisi, uygun maliyetli dil eğitimi"
+    },
+    {
+      "key": "language.city.easy_transport",
+      "De": "Einfache Verkehrsanbindung",
+      "Tr": "Kolay ulaşım"
+    },
+    {
+      "key": "language.city.hamburg_desc",
+      "De": "Norddeutschlands Sprachbildungszentrum, maritime Atmosphäre",
+      "Tr": "Kuzey Almanya'nın dil eğitimi merkezi, deniz kenti atmosferi"
+    },
+    {
+      "key": "language.city.heidelberg_desc",
+      "De": "Universitätsstadt, intensive Deutschkursprogramme",
+      "Tr": "Üniversite şehri, yoğun Almanca eğitimi programları"
+    },
+    {
+      "key": "language.city.historic_atmosphere",
+      "De": "Historische Atmosphäre",
+      "Tr": "Tarihi atmosfer"
+    },
+    {
+      "key": "language.city.intensive_programs",
+      "De": "Intensive Programme",
+      "Tr": "Yoğun programlar"
+    },
+    {
+      "key": "language.city.job_opportunities",
+      "De": "Arbeitsmöglichkeiten",
+      "Tr": "İş imkanları"
+    },
+    {
+      "key": "language.city.leipzig_desc",
+      "De": "Studentenstadt, erschwingliche und qualitativ hochwertige Sprachbildung",
+      "Tr": "Öğrenci şehri, uygun fiyatlı ve kaliteli dil eğitimi"
+    },
+    {
+      "key": "language.city.low_living_cost",
+      "De": "Niedrige Lebenshaltungskosten",
+      "Tr": "Düşük yaşam maliyeti"
+    },
+    {
+      "key": "language.city.maritime_air",
+      "De": "Maritime Atmosphäre",
+      "Tr": "Deniz havası"
+    },
+    {
+      "key": "language.city.multicultural",
+      "De": "Multikulturelles Umfeld",
+      "Tr": "Çok kültürlü ortam"
+    },
+    {
+      "key": "language.city.nature_proximity",
+      "De": "Nähe zur Natur",
+      "Tr": "Doğa yakınlığı"
+    },
+    {
+      "key": "language.city.quality_education",
+      "De": "Qualitativ hochwertige Bildung",
+      "Tr": "Kaliteli eğitim"
+    },
+    {
+      "key": "language.city.rich_culture",
+      "De": "Reiches Kulturleben",
+      "Tr": "Zengin kültürel hayat"
+    },
+    {
+      "key": "language.city.safe_environment",
+      "De": "Sichere Umgebung",
+      "Tr": "Güvenli ortam"
+    },
+    {
+      "key": "language.city.student_city",
+      "De": "Studentenstadt",
+      "Tr": "Öğrenci şehri"
+    },
+    {
+      "key": "language.city.student_friendly",
+      "De": "Studentenfreundlich",
+      "Tr": "Öğrenci dostu"
+    },
+    {
+      "key": "language.city.university_atmosphere",
+      "De": "Universitätsatmosphäre",
+      "Tr": "Üniversite atmosferi"
+    },
+    {
+      "key": "language.city.young_population",
+      "De": "Junge Bevölkerung",
+      "Tr": "Genç nüfus"
+    },
+    {
+      "key": "language.contact_info",
+      "De": "Für weitere Informationen kontaktieren Sie uns",
+      "Tr": "Daha fazla bilgi için bizimle iletişime geçin"
+    },
+    {
+      "key": "language.exam_prep",
+      "De": "Prüfungsvorbereitung",
+      "Tr": "Sınav Hazırlığı"
+    },
+    {
+      "key": "language.exam_prep_desc",
+      "De": "Vorbereitung auf DSH-, TestDaF-, Goethe-Prüfungen",
+      "Tr": "DSH, TestDaF, Goethe sınavlarına hazırlık"
+    },
+    {
+      "key": "language.general_german",
+      "De": "Allgemeines Deutsch",
+      "Tr": "Genel Almanca"
+    },
+    {
+      "key": "language.general_german_desc",
+      "De": "Grundlegende Deutschkenntnisse für den Alltag",
+      "Tr": "Günlük yaşam için temel Almanca becerileri"
+    },
+    {
+      "key": "language.hero.subtitle",
+      "De": "Lernen Sie Deutsch an Deutschlands besten Sprachschulen mit erfahrenen Lehrern. Kurse und Zertifikatsprogramme für alle Niveaus von A1 bis C2.",
+      "Tr": "Almanya'nın en iyi dil okullarında, deneyimli öğretmenlerle Almanca öğrenin. A1'den C2'ye kadar tüm seviyelerde kurslar ve sertifika programları."
+    },
+    {
+      "key": "language.hero.title",
+      "De": "Investieren Sie in Ihre Zukunft mit Deutschkursen in Deutschland",
+      "Tr": "Almanya'da Dil Eğitimi ile Geleceğinize Yatırım Yapın"
+    },
+    {
+      "key": "language.intensive_german",
+      "De": "Intensiv-Deutsch",
+      "Tr": "Yoğun Almanca"
+    },
+    {
+      "key": "language.intensive_german_desc",
+      "De": "Intensiver Sprachkurs für schnelles Lernen",
+      "Tr": "Hızlı öğrenme için yoğun dil kursu"
+    },
+    {
+      "key": "language.online_german",
+      "De": "Online-Deutsch",
+      "Tr": "Online Almanca"
+    },
+    {
+      "key": "language.online_german_desc",
+      "De": "Flexibler Online-Sprachunterricht",
+      "Tr": "Esnek saatlerle online dil eğitimi"
+    },
+    {
+      "key": "language.process.step1",
+      "De": "Niveaubestimmung",
+      "Tr": "Seviye Belirleme"
+    },
+    {
+      "key": "language.process.step1_desc",
+      "De": "Wir bestimmen Ihr aktuelles Deutschniveau",
+      "Tr": "Mevcut Almanca seviyenizi tespit ediyoruz"
+    },
+    {
+      "key": "language.process.step2",
+      "De": "Programmauswahl",
+      "Tr": "Program Seçimi"
+    },
+    {
+      "key": "language.process.step2_desc",
+      "De": "Wir bestimmen das für Ihre Ziele geeignete Sprachprogramm",
+      "Tr": "Hedeflerinize uygun dil programını belirliyoruz"
+    },
+    {
+      "key": "language.process.step3",
+      "De": "Stadt- und Schulwahl",
+      "Tr": "Şehir ve Okul Seçimi"
+    },
+    {
+      "key": "language.process.step3_desc",
+      "De": "Wir wählen die für Sie am besten geeignete Stadt und Sprachschule",
+      "Tr": "Size en uygun şehir ve dil okulunu seçiyoruz"
+    },
+    {
+      "key": "language.process.step4",
+      "De": "Anmeldeverfahren",
+      "Tr": "Kayıt İşlemleri"
+    },
+    {
+      "key": "language.process.step4_desc",
+      "De": "Wir schließen Ihre Anmeldung an der Sprachschule ab",
+      "Tr": "Dil okuluna kaydınızı tamamlıyoruz"
+    },
+    {
+      "key": "language.process.step5",
+      "De": "Visum und Unterkunft",
+      "Tr": "Vize ve Konaklama"
+    },
+    {
+      "key": "language.process.step5_desc",
+      "De": "Wir kümmern uns um Visaverfahren und Unterkunftsarrangements",
+      "Tr": "Vize işlemleri ve konaklama ayarlamalarını yapıyoruz"
+    },
+    {
+      "key": "language.process.step6",
+      "De": "Reise nach Deutschland",
+      "Tr": "Almanya'ya Gidiş"
+    },
+    {
+      "key": "language.process.step6_desc",
+      "De": "Wir unterstützen Sie bei Ihrer Reise nach Deutschland",
+      "Tr": "Almanya'ya gidişinizde size destek oluyoruz"
+    },
+    {
+      "key": "language.process.title",
+      "De": "Sprachkurs-Prozess",
+      "Tr": "Dil Eğitimi Süreci"
+    },
+    {
+      "key": "language.programs.title",
+      "De": "Sprachkursprogramme",
+      "Tr": "Dil Eğitimi Programları"
+    },
+    {
+      "key": "language.university_prep",
+      "De": "Universitätsvorbereitung",
+      "Tr": "Üniversite Hazırlığı"
+    },
+    {
+      "key": "language.university_prep_desc",
+      "De": "Akademisches Deutsch und Universitätsvorbereitung",
+      "Tr": "Akademik Almanca ve üniversite hazırlığı"
+    },
+    {
+      "key": "legal.back_home",
+      "De": "Zurück zur Startseite",
+      "Tr": "Ana Sayfaya Dön",
+      "Ar": "العودة إلى الصفحة الرئيسية"
+    },
+    {
+      "key": "legal.impressum.address",
+      "De": "Adresse",
+      "Tr": "Adres"
+    },
+    {
+      "key": "legal.impressum.commercial_register",
+      "De": "Handelsregister-Eintrag",
+      "Tr": "Ticaret Sicili Kaydı"
+    },
+    {
+      "key": "legal.impressum.company_info",
+      "De": "Firmeninformationen",
+      "Tr": "Şirket Bilgileri"
+    },
+    {
+      "key": "legal.impressum.company_name",
+      "De": "Firmenname:",
+      "Tr": "Şirket Adı:"
+    },
+    {
+      "key": "legal.impressum.contact",
+      "De": "Kontakt",
+      "Tr": "İletişim"
+    },
+    {
+      "key": "legal.impressum.content_law",
+      "De": "gemäß § 55 Abs. 2 RStV:",
+      "Tr": "§ 55 Abs. 2 RStV uyarınca:"
+    },
+    {
+      "key": "legal.impressum.content_responsible",
+      "De": "Verantwortlich für den Inhalt",
+      "Tr": "İçerikten Sorumlu"
+    },
+    {
+      "key": "legal.impressum.disclaimer",
+      "De": "Haftungsausschluss",
+      "Tr": "Sorumluluk Reddi"
+    },
+    {
+      "key": "legal.impressum.disclaimer_text",
+      "De": "Trotz sorgfältiger Kontrolle übernehmen wir keine Haftung für den Inhalt externer Links. Die Betreiber der verlinkten Seiten sind allein für ihren Inhalt verantwortlich.",
+      "Tr": "Dikkatli kontrole rağmen, harici bağlantıların içeriği için sorumluluk kabul etmiyoruz. Bağlantılı sayfaların işletmecileri yalnızca kendi içeriklerinden sorumludur."
+    },
+    {
+      "key": "legal.impressum.email",
+      "De": "E-Mail:",
+      "Tr": "E-posta:"
+    },
+    {
+      "key": "legal.impressum.managing_director",
+      "De": "Geschäftsführer",
+      "Tr": "Genel Müdür"
+    },
+    {
+      "key": "legal.impressum.phone",
+      "De": "Telefon:",
+      "Tr": "Telefon:"
+    },
+    {
+      "key": "legal.impressum.register_court",
+      "De": "Registergericht:",
+      "Tr": "Sicil Mahkemesi:"
+    },
+    {
+      "key": "legal.impressum.register_number",
+      "De": "Registernummer:",
+      "Tr": "Sicil Numarası:"
+    },
+    {
+      "key": "legal.impressum.vat_id",
+      "De": "Umsatzsteuer-Identifikationsnummer",
+      "Tr": "KDV Kimlik Numarası"
+    },
+    {
+      "key": "legal.impressum.vat_law",
+      "De": "gemäß §27a Umsatzsteuergesetz:",
+      "Tr": "§27a KDV Kanunu uyarınca:"
+    },
+    {
+      "key": "legal.impressum_subtitle",
+      "De": "Rechtliche Informationen und Firmendetails",
+      "Tr": "Legal Information and Company Details"
+    },
+    {
+      "key": "legal.impressum_title",
+      "De": "Impressum",
+      "Tr": "Impressum"
+    },
+    {
+      "key": "legal.privacy.cookies",
+      "De": "Cookies",
+      "Tr": "Çerezler"
+    },
+    {
+      "key": "legal.privacy.cookies_text",
+      "De": "Diese Website verwendet Cookies, um die Benutzerfreundlichkeit zu verbessern. Durch die weitere Nutzung der Website stimmen Sie der Verwendung von Cookies zu.",
+      "Tr": "Bu web sitesi kullanıcı deneyimini iyileştirmek için çerezler kullanır. Web sitesini kullanmaya devam ederek çerez kullanımını kabul etmiş olursunuz."
+    },
+    {
+      "key": "legal.privacy.data_collection",
+      "De": "Datenerhebung und -verwendung",
+      "Tr": "Veri Toplama ve Kullanım"
+    },
+    {
+      "key": "legal.privacy.data_collection_text",
+      "De": "Wir erheben und verwenden Ihre personenbezogenen Daten nur im Rahmen der gesetzlichen Bestimmungen der Datenschutzgesetze der Bundesrepublik Deutschland und der Europäischen Datenschutz-Grundverordnung (DSGVO).",
+      "Tr": "Kişisel verilerinizi yalnızca Almanya Federal Cumhuriyeti veri koruma yasaları ve Avrupa Genel Veri Koruma Yönetmeliği (GDPR) yasal hükümleri çerçevesinde topluyoruz ve kullanıyoruz."
+    },
+    {
+      "key": "legal.privacy.data_processing",
+      "De": "Datenverarbeitung",
+      "Tr": "Veri İşleme"
+    },
+    {
+      "key": "legal.privacy.data_processing_text",
+      "De": "Ihre Daten werden ausschließlich zur Bearbeitung Ihrer Anfrage und zur Erbringung unserer Dienstleistungen verwendet. Eine Weitergabe an Dritte erfolgt nicht ohne Ihre ausdrückliche Einwilligung.",
+      "Tr": "Verileriniz yalnızca talebinizi işlemek ve hizmetlerimizi sağlamak için kullanılır. Açık onayınız olmadan üçüncü taraflara aktarım yapılmaz."
+    },
+    {
+      "key": "legal.privacy.personal_data",
+      "De": "Personenbezogene Daten",
+      "Tr": "Kişisel Veriler"
+    },
+    {
+      "key": "legal.privacy.personal_data_text",
+      "De": "Personenbezogene Daten sind Informationen, mit deren Hilfe eine Person bestimmbar ist, also Angaben, die zurück zu einer Person verfolgt werden können.",
+      "Tr": "Kişisel veriler, bir kişinin belirlenebileceği bilgilerdir, yani bir kişiye geri izlenebilecek bilgilerdir."
+    },
+    {
+      "key": "legal.privacy.your_rights",
+      "De": "Ihre Rechte",
+      "Tr": "Haklarınız"
+    },
+    {
+      "key": "legal.privacy.your_rights_text",
+      "De": "Sie haben das Recht auf Auskunft, Berichtigung, Löschung und Einschränkung der Verarbeitung Ihrer personenbezogenen Daten sowie das Recht auf Datenübertragbarkeit.",
+      "Tr": "Kişisel verilerinizin işlenmesi konusunda bilgi alma, düzeltme, silme ve kısıtlama hakkınız ile veri taşınabilirlik hakkınız bulunmaktadır."
+    },
+    {
+      "key": "legal.privacy_subtitle",
+      "De": "Datenschutzrichtlinie & Datenschutz",
+      "Tr": "Privacy Policy & Data Protection",
+      "Ar": "سياسة الخصوصية وحماية البيانات"
+    },
+    {
+      "key": "legal.privacy_title",
+      "De": "Datenschutzerklärung",
+      "Tr": "Gizlilik Politikası",
+      "Ar": "سياسة الخصوصية"
+    },
+    {
+      "key": "legal.terms.changes",
+      "De": "Änderungen",
+      "Tr": "Değişiklikler"
+    },
+    {
+      "key": "legal.terms.changes_text",
+      "De": "Worklines Proconsulting behält sich das Recht vor, diese Nutzungsbedingungen jederzeit zu ändern. Änderungen werden auf der Website veröffentlicht.",
+      "Tr": "Worklines Proconsulting bu kullanım koşullarını istediği zaman değiştirme hakkını saklı tutar. Değişiklikler web sitesinde yayınlanacaktır."
+    },
+    {
+      "key": "legal.terms.intellectual_property",
+      "De": "Geistiges Eigentum",
+      "Tr": "Fikri Mülkiyet"
+    },
+    {
+      "key": "legal.terms.intellectual_property_text",
+      "De": "Alle Inhalte dieser Website sind urheberrechtlich geschützt. Eine Vervielfältigung oder Verwendung ohne ausdrückliche Genehmigung ist nicht gestattet.",
+      "Tr": "Bu web sitesinin tüm içerikleri telif hakkı ile korunmaktadır. Açık izin olmadan çoğaltma veya kullanım yasaktır."
+    },
+    {
+      "key": "legal.terms.liability",
+      "De": "Haftung",
+      "Tr": "Sorumluluk"
+    },
+    {
+      "key": "legal.terms.liability_text",
+      "De": "Worklines Proconsulting haftet nicht für Schäden, die durch die Nutzung der bereitgestellten Informationen entstehen. Die Haftung ist auf Vorsatz und grobe Fahrlässigkeit beschränkt.",
+      "Tr": "Worklines Proconsulting, sağlanan bilgilerin kullanımından kaynaklanan zararlardan sorumlu değildir. Sorumluluk kasıt ve ağır ihmal ile sınırlıdır."
+    },
+    {
+      "key": "legal.terms.scope",
+      "De": "Geltungsbereich",
+      "Tr": "Kapsam"
+    },
+    {
+      "key": "legal.terms.scope_text",
+      "De": "Diese Nutzungsbedingungen gelten für alle Dienstleistungen von Worklines Proconsulting. Mit der Inanspruchnahme unserer Dienste erkennen Sie diese Bedingungen an.",
+      "Tr": "Bu kullanım koşulları Worklines Proconsulting'in tüm hizmetleri için geçerlidir. Hizmetlerimizi kullanarak bu koşulları kabul etmiş olursunuz."
+    },
+    {
+      "key": "legal.terms.services",
+      "De": "Dienstleistungen",
+      "Tr": "Hizmetler"
+    },
+    {
+      "key": "legal.terms.services_text",
+      "De": "Worklines Proconsulting bietet Beratungsdienstleistungen für Bildung, Ausbildung und Arbeitsmöglichkeiten in Deutschland. Alle Informationen werden nach bestem Wissen und Gewissen bereitgestellt.",
+      "Tr": "Worklines Proconsulting, Almanya'da eğitim, meslek eğitimi ve iş fırsatları konusunda danışmanlık hizmetleri sunar. Tüm bilgiler en iyi bilgi ve vicdanla sağlanır."
+    },
+    {
+      "key": "legal.terms_subtitle",
+      "De": "Nutzungsbedingungen und Konditionen für die Nutzung der Worklines Proconsulting-Dienste",
+      "Tr": "Worklines Proconsulting hizmetlerini kullanırken uymanız gereken şartlar ve koşullar",
+      "Ar": "شروط وأحكام استخدام خدمات Worklines Proconsulting"
+    },
+    {
+      "key": "legal.terms_title",
+      "De": "Nutzungsbedingungen",
+      "Tr": "Kullanım Şartları",
+      "Ar": "شروط الاستخدام"
+    },
+    {
+      "key": "nav.about",
+      "De": "Über uns",
+      "Tr": "Hakkımızda",
+      "En": "About Us",
+      "Ar": "من نحن"
+    },
+    {
+      "key": "nav.appointment",
+      "De": "Termin buchen",
+      "Tr": "Randevu Al",
+      "En": "Book Appointment",
+      "Ar": "احجز موعد"
+    },
+    {
+      "key": "nav.arbeitgeber",
+      "De": "Für Arbeitgeber",
+      "Tr": "İşveren misiniz?",
+      "En": "For Employers",
+      "Ar": "لأصحاب العمل"
+    },
+    {
+      "key": "nav.arbeitnehmer",
+      "De": "Für Arbeitnehmer",
+      "Tr": "İş mi arıyorsunuz?",
+      "En": "For Employees",
+      "Ar": "للموظفين"
+    },
+    {
+      "key": "nav.cities",
+      "De": "Städte",
+      "Tr": "Şehirler",
+      "En": "Cities",
+      "Ar": "المدن"
+    },
+    {
+      "key": "nav.contact",
+      "De": "Kontakt",
+      "Tr": "İletişim",
+      "En": "Contact",
+      "Ar": "اتصل بنا"
+    },
+    {
+      "key": "nav.faq",
+      "De": "Häufig gestellte Fragen",
+      "Tr": "Sıkça Sorulan Sorular",
+      "En": "Frequently Asked Questions",
+      "Ar": "الأسئلة الشائعة"
+    },
+    {
+      "key": "nav.home",
+      "De": "Startseite",
+      "Tr": "Anasayfa",
+      "En": "Home",
+      "Ar": "الرئيسية"
+    },
+    {
+      "key": "nav.services",
+      "De": "Dienstleistungen",
+      "Tr": "Hizmetlerimiz",
+      "En": "Services",
+      "Ar": "الخدمات"
+    },
+    {
+      "key": "news.subtitle",
+      "De": "Bleiben Sie über die neuesten Entwicklungen im deutschen Bildungswesen informiert",
+      "Tr": "Almanya eğitimindeki son gelişmelerden haberdar olun",
+      "En": "Stay informed about the latest developments in German education",
+      "Ar": "ابق على اطلاع بآخر التطورات في التعليم الألماني"
+    },
+    {
+      "key": "news.title",
+      "De": "Aktuelle Nachrichten & Updates",
+      "Tr": "Son Haberler & Güncellemeler",
+      "En": "Latest News & Updates",
+      "Ar": "آخر الأخبار والتحديثات"
+    },
+    {
+      "key": "services.ausbildung",
+      "De": "Ausbildung",
+      "Tr": "Ausbildung",
+      "En": "Training",
+      "Ar": "التدريب"
+    },
+    {
+      "key": "services.ausbildung.application_process",
+      "De": "Ausbildung Bewerbungsprozess",
+      "Tr": "Ausbildung Başvuru Süreci"
+    },
+    {
+      "key": "services.ausbildung.best_cities",
+      "De": "Beste Städte für Ausbildung",
+      "Tr": "Ausbildung İçin En İyi Şehirler"
+    },
+    {
+      "key": "services.ausbildung.desc",
+      "De": "Berufsausbildungsprogramme und Bewerbungsverfahren",
+      "Tr": "Meslek eğitimi programları ve başvuru süreci",
+      "En": "Vocational training programs and application procedures",
+      "Ar": "برامج التدريب المهني وإجراءات التقديم"
+    },
+    {
+      "key": "services.ausbildung.duration",
+      "De": "Jahre Dauer",
+      "Tr": "Yıl Süre"
+    },
+    {
+      "key": "services.ausbildung.fields",
+      "De": "Berufsfelder",
+      "Tr": "Meslek Alanları"
+    },
+    {
+      "key": "services.ausbildung.general_requirements",
+      "De": "Allgemeine Voraussetzungen",
+      "Tr": "Genel Şartlar"
+    },
+    {
+      "key": "services.ausbildung.job_guarantee",
+      "De": "Garantierte Jobmöglichkeiten",
+      "Tr": "Garantili İş Fırsatları"
+    },
+    {
+      "key": "services.ausbildung.job_guarantee_desc",
+      "De": "68% der Absolventen arbeiten weiterhin bei ihrem Arbeitgeber",
+      "Tr": "Mezunların %68'i işverenlerinde çalışmaya devam ediyor"
+    },
+    {
+      "key": "services.ausbildung.paid_learning",
+      "De": "Lernen mit Gehalt",
+      "Tr": "Maaşlı Öğrenme"
+    },
+    {
+      "key": "services.ausbildung.paid_learning_desc",
+      "De": "Erhalten Sie während der Ausbildung ein monatliches Gehalt",
+      "Tr": "Eğitim sırasında aylık maaş alın"
+    },
+    {
+      "key": "services.ausbildung.popular_fields",
+      "De": "Beliebte Berufsfelder",
+      "Tr": "Popüler Meslek Alanları"
+    },
+    {
+      "key": "services.ausbildung.practical_training",
+      "De": "Praktische Ausbildung",
+      "Tr": "Pratik Eğitim"
+    },
+    {
+      "key": "services.ausbildung.practical_training_desc",
+      "De": "Sammeln Sie Erfahrungen in einer realen Arbeitsumgebung",
+      "Tr": "Gerçek çalışma ortamında deneyim kazanın"
+    },
+    {
+      "key": "services.ausbildung.required_documents",
+      "De": "Erforderliche Dokumente",
+      "Tr": "Gerekli Belgeler"
+    },
+    {
+      "key": "services.ausbildung.requirements",
+      "De": "Bewerbungsvoraussetzungen",
+      "Tr": "Başvuru Şartları"
+    },
+    {
+      "key": "services.ausbildung.retention",
+      "De": "Übernahmequote",
+      "Tr": "İşe Alım Oranı"
+    },
+    {
+      "key": "services.ausbildung.salary",
+      "De": "Monatsgehalt",
+      "Tr": "Aylık Maaş"
+    },
+    {
+      "key": "services.ausbildung.subtitle",
+      "De": "Mit Deutschlands weltberühmtem Berufsbildungssystem kombinieren Sie theorisches Wissen und praktische Erfahrung, um solide Grundlagen für Ihre Karriere zu schaffen. Bildungsmöglichkeiten in über 350 Berufsfeldern.",
+      "Tr": "Almanya'nın dünyaca ünlü meslek eğitimi sistemi ile teorik bilgi ve pratik deneyimi birleştirerek kariyerinizde sağlam temeller atın. 350'den fazla meslek dalında eğitim fırsatları.",
+      "En": "Build solid foundations for your career by combining theoretical knowledge and practical experience with Germany's world-famous vocational training system. Training opportunities in over 350 professions.",
+      "Ar": "مع نظام التدريب المهني الألماني المشهور عالميًا، تجمع بين المعرفة النظرية والخبرة العملية لبناء أسس صلبة لمهنتك. فرص تعليمية في أكثر من 350 مجال مهني."
+    },
+    {
+      "key": "services.ausbildung.title",
+      "De": "Gestalten Sie Ihre Zukunft mit Ausbildung in Deutschland",
+      "Tr": "Almanya'da Ausbildung ile Geleceğinizi Şekillendirin",
+      "En": "Shape Your Future with Ausbildung in Germany",
+      "Ar": "شكّل مستقبلك مع التدريب في ألمانيا"
+    },
+    {
+      "key": "services.ausbildung.what_is",
+      "De": "Was ist Ausbildung?",
+      "Tr": "Ausbildung Nedir?"
+    },
+    {
+      "key": "services.ausbildung.what_is_desc",
+      "De": "Ausbildung ist Deutschlands duales Bildungssystem. In diesem System sammeln Studierende 3-4 Tage pro Woche praktische Erfahrungen am Arbeitsplatz und erhalten 1-2 Tage theoretische Ausbildung in der Berufsschule.",
+      "Tr": "Ausbildung, Almanya'nın ikili eğitim sistemidir. Bu sistemde öğrenciler haftada 3-4 gün işyerinde pratik deneyim kazanır ve 1-2 gün meslek okulunda teorik eğitim alırlar."
+    },
+    {
+      "key": "services.language",
+      "De": "Sprache",
+      "Tr": "Dil",
+      "En": "Language",
+      "Ar": "اللغة"
+    },
+    {
+      "key": "services.language.desc",
+      "De": "Deutsche Sprachkurse und Zertifizierungen",
+      "Tr": "Almanca dil kursları ve sertifikaları",
+      "En": "German language courses and certifications",
+      "Ar": "دورات اللغة الألمانية والشهادات"
+    },
+    {
+      "key": "services.language.subtitle",
+      "De": "Meistern Sie die deutsche Sprache mit unseren strukturierten Kursen und offiziellen Zertifizierungsprogrammen.",
+      "Tr": "Yapılandırılmış kurslarımız ve resmi sertifika programlarımızla Almanca dilinde ustalaşın.",
+      "En": "Master the German language with our structured courses and official certificate programs.",
+      "Ar": "أتقن اللغة الألمانية مع دوراتنا المنظمة وبرامج الشهادات الرسمية."
+    },
+    {
+      "key": "services.language.title",
+      "De": "Deutsche Sprachkurse & Zertifizierungen",
+      "Tr": "Almanca Dil Kursları & Sertifikaları",
+      "En": "German Language Courses & Certificates",
+      "Ar": "دورات اللغة الألمانية والشهادات"
+    },
+    {
+      "key": "services.subtitle",
+      "De": "Umfassende Lösungen für Ihre Bildungsreise in Deutschland",
+      "Tr": "Almanya'daki eğitim yolculuğunuz için kapsamlı çözümler",
+      "En": "Comprehensive solutions for your education journey in Germany",
+      "Ar": "حلول شاملة لرحلتك التعليمية في ألمانيا"
+    },
+    {
+      "key": "services.title",
+      "De": "Unsere Dienstleistungen",
+      "Tr": "Hizmetlerimiz",
+      "En": "Our Services",
+      "Ar": "خدماتنا"
+    },
+    {
+      "key": "services.university",
+      "De": "Universität",
+      "Tr": "Üniversite",
+      "En": "University",
+      "Ar": "الجامعة"
+    },
+    {
+      "key": "services.university.desc",
+      "De": "Universitätsbewerbungen und Studienprogramme",
+      "Tr": "Üniversite başvuruları ve eğitim programları",
+      "En": "University applications and study programs",
+      "Ar": "التقدم للجامعات وبرامج الدراسة"
+    },
+    {
+      "key": "services.university.subtitle",
+      "De": "Zugang zu Deutschlands erstklassigen Universitäten und Forschungseinrichtungen.",
+      "Tr": "Almanya'nın birinci sınıf üniversitelerine ve araştırma kurumlarına erişim.",
+      "En": "Access to Germany's first-class universities and research institutions.",
+      "Ar": "الوصول إلى أفضل الجامعات ومراكز البحث في ألمانيا."
+    },
+    {
+      "key": "services.university.title",
+      "De": "Universitätsstudium in Deutschland",
+      "Tr": "Almanya'da Üniversite Eğitimi",
+      "En": "University Education in Germany",
+      "Ar": "الدراسة الجامعية في ألمانيا"
+    },
+    {
+      "key": "services.work",
+      "De": "Arbeiten",
+      "Tr": "Çalışma",
+      "En": "Work",
+      "Ar": "العمل"
+    },
+    {
+      "key": "services.work.desc",
+      "De": "Jobsuche und Arbeitserlaubnisverfahren",
+      "Tr": "İş bulma ve çalışma izni süreçleri",
+      "En": "Job search and work permit procedures",
+      "Ar": "البحث عن عمل وإجراءات تصريح العمل"
+    },
+    {
+      "key": "services.work.subtitle",
+      "De": "Finden Sie Ihren Traumjob in Deutschlands dynamischer Wirtschaft.",
+      "Tr": "Almanya'nın dinamik ekonomisinde hayalinizdeki işi bulun.",
+      "En": "Find your dream job in Germany's dynamic economy.",
+      "Ar": "ابحث عن وظيفة أحلامك في الاقتصاد الألماني الديناميكي."
+    },
+    {
+      "key": "services.work.title",
+      "De": "Arbeiten in Deutschland",
+      "Tr": "Almanya'da Çalışma",
+      "En": "Work in Germany",
+      "Ar": "العمل في ألمانيا"
+    },
+    {
+      "key": "team.about",
+      "De": "Über",
+      "Tr": "Hakkında"
+    },
+    {
+      "key": "team.achievements",
+      "De": "Erfolge",
+      "Tr": ""
+    },
+    {
+      "key": "team.back_to_team",
+      "De": "Zurück zum Team",
+      "Tr": "Takıma Geri Dön"
+    },
+    {
+      "key": "team.contact_desc",
+      "De": "Haben Sie Fragen oder möchten Sie mehr erfahren? Kontaktieren Sie",
+      "Tr": "Sorularınız var mı veya daha fazla bilgi almak mı istiyorsunuz?"
+    },
+    {
+      "key": "team.contact_direct",
+      "De": "direkt.",
+      "Tr": "ile doğrudan iletişime geçin."
+    },
+    {
+      "key": "team.contact_title",
+      "De": "Kontakt aufnehmen",
+      "Tr": "İletişime Geç"
+    },
+    {
+      "key": "team.cta.contact_us",
+      "De": "Kontakt aufnehmen",
+      "Tr": ""
+    },
+    {
+      "key": "team.cta.learn_more",
+      "De": "Mehr erfahren",
+      "Tr": ""
+    },
+    {
+      "key": "team.cta.subtitle",
+      "De": "Kontaktieren Sie unser Team für eine persönliche Beratung",
+      "Tr": ""
+    },
+    {
+      "key": "team.cta.title",
+      "De": "Bereit für den nächsten Schritt?",
+      "Tr": ""
+    },
+    {
+      "key": "team.education",
+      "De": "Ausbildung",
+      "Tr": ""
+    },
+    {
+      "key": "team.email",
+      "De": "E-Mail",
+      "Tr": "E-posta"
+    },
+    {
+      "key": "team.experience",
+      "De": "Erfahrung",
+      "Tr": "Deneyim",
+      "Ar": "سنوات الخبرة"
+    },
+    {
+      "key": "team.hero.subtitle",
+      "De": "Erfahrene Berater, die Ihnen bei Ihrem Weg nach Deutschland helfen",
+      "Tr": ""
+    },
+    {
+      "key": "team.hero.title",
+      "De": "Unser Expertenteam",
+      "Tr": ""
+    },
+    {
+      "key": "team.languages",
+      "De": "Sprachen",
+      "Tr": ""
+    },
+    {
+      "key": "team.location",
+      "De": "Standort",
+      "Tr": ""
+    },
+    {
+      "key": "team.meet_team",
+      "De": "Lernen Sie unser Team kennen",
+      "Tr": ""
+    },
+    {
+      "key": "team.schedule_consultation",
+      "De": "Beratungstermin vereinbaren",
+      "Tr": "Danışmanlık Randevusu Al"
+    },
+    {
+      "key": "team.send_message",
+      "De": "Nachricht senden",
+      "Tr": "Mesaj Gönder"
+    },
+    {
+      "key": "team.specializations",
+      "De": "Spezialisierungen",
+      "Tr": ""
+    },
+    {
+      "key": "team.subtitle",
+      "De": "",
+      "Tr": "",
+      "Ar": "تعرف على الفريق الذي سيرافقك في رحلتك"
+    },
+    {
+      "key": "team.title",
+      "De": "",
+      "Tr": "",
+      "Ar": "فريقنا"
+    },
+    {
+      "key": "team.view_profile",
+      "De": "Profil ansehen",
+      "Tr": ""
+    },
+    {
+      "key": "university.application_process",
+      "De": "Universitätsbewerbungsprozess",
+      "Tr": "Üniversite Başvuru Süreci"
+    },
+    {
+      "key": "university.arts",
+      "De": "Kunst & Design",
+      "Tr": "Sanat & Tasarım"
+    },
+    {
+      "key": "university.arts_desc",
+      "De": "Grafikdesign, Architektur, Musik, bildende Künste",
+      "Tr": "Grafik tasarım, mimarlık, müzik, güzel sanatlar"
+    },
+    {
+      "key": "university.bachelor",
+      "De": "Bachelor-Programme",
+      "Tr": "Lisans Programları"
+    },
+    {
+      "key": "university.best_cities",
+      "De": "Beste Städte für Universitätsstudium",
+      "Tr": "Üniversite Eğitimi İçin En İyi Şehirler"
+    },
+    {
+      "key": "university.business",
+      "De": "Betriebswirtschaft & Wirtschaft",
+      "Tr": "İşletme & Ekonomi"
+    },
+    {
+      "key": "university.business_desc",
+      "De": "Unternehmensführung, internationaler Handel, Finanzen",
+      "Tr": "İşletme yönetimi, uluslararası ticaret, finans"
+    },
+    {
+      "key": "university.city.berlin_desc",
+      "De": "Deutschlands Hauptstadt, 40+ Universitäten und Forschungszentren",
+      "Tr": "Almanya'nın başkenti, 40+ üniversite ve araştırma merkezi"
+    },
+    {
+      "key": "university.city.berlin_highlight1",
+      "De": "Humboldt-Universität",
+      "Tr": "Humboldt Üniversitesi"
+    },
+    {
+      "key": "university.city.berlin_highlight2",
+      "De": "TU Berlin",
+      "Tr": "TU Berlin"
+    },
+    {
+      "key": "university.city.berlin_highlight3",
+      "De": "Multikulturell",
+      "Tr": "Çok kültürlü"
+    },
+    {
+      "key": "university.city.berlin_highlight4",
+      "De": "Forschungszentren",
+      "Tr": "Araştırma merkezleri"
+    },
+    {
+      "key": "university.city.cologne_desc",
+      "De": "Medien- und Kunstzentrum, vielfältige Universitätsprogramme",
+      "Tr": "Medya ve sanat merkezi, çeşitli üniversite programları"
+    },
+    {
+      "key": "university.city.cologne_highlight1",
+      "De": "Universität zu Köln",
+      "Tr": "Köln Üniversitesi"
+    },
+    {
+      "key": "university.city.cologne_highlight2",
+      "De": "Medienzentrum",
+      "Tr": "Medya merkezi"
+    },
+    {
+      "key": "university.city.cologne_highlight3",
+      "De": "Kunstgalerien",
+      "Tr": "Sanat galerileri"
+    },
+    {
+      "key": "university.city.cologne_highlight4",
+      "De": "Kultureller Reichtum",
+      "Tr": "Kültürel zenginlik"
+    },
+    {
+      "key": "university.city.dresden_desc",
+      "De": "Ostdeutschlands Perle, Technologie- und Kunstzentrum",
+      "Tr": "Doğu Almanya'nın incisi, teknoloji ve sanat merkezi"
+    },
+    {
+      "key": "university.city.dresden_highlight1",
+      "De": "TU Dresden",
+      "Tr": "TU Dresden"
+    },
+    {
+      "key": "university.city.dresden_highlight2",
+      "De": "Barocke Architektur",
+      "Tr": "Barok mimari"
+    },
+    {
+      "key": "university.city.dresden_highlight3",
+      "De": "Niedrige Lebenshaltungskosten",
+      "Tr": "Düşük yaşam maliyeti"
+    },
+    {
+      "key": "university.city.dresden_highlight4",
+      "De": "Technologiezentrum",
+      "Tr": "Teknoloji merkezi"
+    },
+    {
+      "key": "university.city.hamburg_desc",
+      "De": "Norddeutschlands Bildungszentrum, Schifffahrt und Medien",
+      "Tr": "Kuzey Almanya'nın eğitim merkezi, denizcilik ve medya"
+    },
+    {
+      "key": "university.city.hamburg_highlight1",
+      "De": "Universität Hamburg",
+      "Tr": "Hamburg Üniversitesi"
+    },
+    {
+      "key": "university.city.hamburg_highlight2",
+      "De": "TUHH",
+      "Tr": "TUHH"
+    },
+    {
+      "key": "university.city.hamburg_highlight3",
+      "De": "Medienzentrum",
+      "Tr": "Medya merkezi"
+    },
+    {
+      "key": "university.city.hamburg_highlight4",
+      "De": "Hafenstadt",
+      "Tr": "Liman şehri"
+    },
+    {
+      "key": "university.city.heidelberg_desc",
+      "De": "Deutschlands älteste Universitätsstadt, akademische Atmosphäre",
+      "Tr": "Almanya'nın en eski üniversite şehri, akademik atmosfer"
+    },
+    {
+      "key": "university.city.heidelberg_highlight1",
+      "De": "Universität Heidelberg",
+      "Tr": "Heidelberg Üniversitesi"
+    },
+    {
+      "key": "university.city.heidelberg_highlight2",
+      "De": "Historische Atmosphäre",
+      "Tr": "Tarihi atmosfer"
+    },
+    {
+      "key": "university.city.heidelberg_highlight3",
+      "De": "Forschungsorientiert",
+      "Tr": "Araştırma odaklı"
+    },
+    {
+      "key": "university.city.heidelberg_highlight4",
+      "De": "Sichere Umgebung",
+      "Tr": "Güvenli ortam"
+    },
+    {
+      "key": "university.city.munich_desc",
+      "De": "Bayerns Bildungszentrum, prestigeträchtige Universitäten",
+      "Tr": "Bavyera'nın eğitim merkezi, prestijli üniversiteler"
+    },
+    {
+      "key": "university.city.munich_highlight1",
+      "De": "LMU München",
+      "Tr": "LMU München"
+    },
+    {
+      "key": "university.city.munich_highlight2",
+      "De": "TU München",
+      "Tr": "TU München"
+    },
+    {
+      "key": "university.city.munich_highlight3",
+      "De": "Max Planck",
+      "Tr": "Max Planck"
+    },
+    {
+      "key": "university.city.munich_highlight4",
+      "De": "Lebensqualität",
+      "Tr": "Yaşam kalitesi"
+    },
+    {
+      "key": "university.computer_science",
+      "De": "Informatik",
+      "Tr": "Bilgisayar Bilimleri"
+    },
+    {
+      "key": "university.computer_science_desc",
+      "De": "Softwaretechnik, Datenwissenschaft, Künstliche Intelligenz",
+      "Tr": "Yazılım mühendisliği, veri bilimi, yapay zeka"
+    },
+    {
+      "key": "university.contact_info",
+      "De": "Für weitere Informationen kontaktieren Sie uns",
+      "Tr": "Daha fazla bilgi için bizimle iletişime geçin"
+    },
+    {
+      "key": "university.engineering",
+      "De": "Ingenieurwesen",
+      "Tr": "Mühendislik"
+    },
+    {
+      "key": "university.engineering_desc",
+      "De": "Maschinenbau, Elektrotechnik, Informatik, Wirtschaftsingenieurwesen",
+      "Tr": "Makine, elektrik, bilgisayar, endüstri mühendisliği"
+    },
+    {
+      "key": "university.hero.subtitle",
+      "De": "Hochwertige Hochschulbildung zu niedrigen Kosten in einem der prestigeträchtigsten Bildungssysteme der Welt. Gestalten Sie Ihre Zukunft mit über 400 Universitäten und Tausenden von Programmoptionen.",
+      "Tr": "Dünyanın en prestijli eğitim sistemlerinden birinde, düşük maliyetlerle kaliteli yükseköğretim fırsatı. 400+ üniversite ve binlerce program seçeneği ile geleceğinizi şekillendirin."
+    },
+    {
+      "key": "university.hero.title",
+      "De": "Öffnen Sie sich der Welt mit Universitätsstudium in Deutschland",
+      "Tr": "Almanya'da Üniversite Eğitimi ile Dünyaya Açılın"
+    },
+    {
+      "key": "university.job_opportunities",
+      "De": "Jobmöglichkeiten",
+      "Tr": "İş İmkanları"
+    },
+    {
+      "key": "university.job_opportunities_desc",
+      "De": "18 Monate Jobsucherlaubnis nach dem Abschluss",
+      "Tr": "Mezuniyet sonrası 18 ay iş arama izni"
+    },
+    {
+      "key": "university.low_cost",
+      "De": "Niedrige Bildungskosten",
+      "Tr": "Düşük Eğitim Maliyeti"
+    },
+    {
+      "key": "university.low_cost_desc",
+      "De": "Kostenlose Bildung an staatlichen Universitäten",
+      "Tr": "Devlet üniversitelerinde ücretsiz eğitim"
+    },
+    {
+      "key": "university.master",
+      "De": "Master-Programme",
+      "Tr": "Yüksek Lisans"
+    },
+    {
+      "key": "university.medicine",
+      "De": "Medizin & Gesundheit",
+      "Tr": "Tıp & Sağlık"
+    },
+    {
+      "key": "university.medicine_desc",
+      "De": "Medizin, Zahnmedizin, Pharmazie, Krankenpflege",
+      "Tr": "Tıp, diş hekimliği, eczacılık, hemşirelik"
+    },
+    {
+      "key": "university.phd",
+      "De": "Promotionsprogramme",
+      "Tr": "Doktora Programları"
+    },
+    {
+      "key": "university.popular_programs",
+      "De": "Beliebte Studienprogramme",
+      "Tr": "Popüler Eğitim Programları"
+    },
+    {
+      "key": "university.process.step1",
+      "De": "Zielsetzung",
+      "Tr": "Hedef Belirleme"
+    },
+    {
+      "key": "university.process.step1_desc",
+      "De": "Wir bestimmen Ihre Bildungsziele und bevorzugten Bereiche",
+      "Tr": "Eğitim hedefleri ve tercih ettiğiniz alanları belirliyoruz"
+    },
+    {
+      "key": "university.process.step2",
+      "De": "Universitätsrecherche",
+      "Tr": "Üniversite Araştırması"
+    },
+    {
+      "key": "university.process.step2_desc",
+      "De": "Wir recherchieren geeignete Universitäten und Programme für Sie",
+      "Tr": "Size uygun üniversite ve programları araştırıyoruz"
+    },
+    {
+      "key": "university.process.step3",
+      "De": "Sprachvorbereitung",
+      "Tr": "Dil Hazırlığı"
+    },
+    {
+      "key": "university.process.step3_desc",
+      "De": "Wir erstellen einen Plan, um das erforderliche Sprachniveau zu erreichen",
+      "Tr": "Gerekli dil seviyesine ulaşmanız için plan yapıyoruz"
+    },
+    {
+      "key": "university.process.step4",
+      "De": "Dokumentenvorbereitung",
+      "Tr": "Belge Hazırlığı"
+    },
+    {
+      "key": "university.process.step4_desc",
+      "De": "Wir bereiten alle Ihre Bewerbungsunterlagen vor und bestätigen sie",
+      "Tr": "Tüm başvuru belgelerinizi hazırlıyoruz ve onaylıyoruz"
+    },
+    {
+      "key": "university.process.step5",
+      "De": "Bewerbungsprozess",
+      "Tr": "Başvuru Süreci"
+    },
+    {
+      "key": "university.process.step5_desc",
+      "De": "Wir führen Ihre Uni-assist- oder Direktbewerbungen durch",
+      "Tr": "Uni-assist veya direkt başvurularınızı yapıyoruz"
+    },
+    {
+      "key": "university.process.step6",
+      "De": "Visaverfahren",
+      "Tr": "Vize İşlemleri"
+    },
+    {
+      "key": "university.process.step6_desc",
+      "De": "Nach der Zulassung führen wir Ihre Studentenvisaverfahren durch",
+      "Tr": "Kabul aldıktan sonra öğrenci vizesi işlemlerinizi yürütüyoruz"
+    },
+    {
+      "key": "university.recognition",
+      "De": "Weltweite Anerkennung",
+      "Tr": "Dünya Çapında Tanınırlık"
+    },
+    {
+      "key": "university.recognition_desc",
+      "De": "International gültige Diplome",
+      "Tr": "Uluslararası geçerliliği olan diplomalar"
+    },
+    {
+      "key": "university.req.abitur",
+      "De": "Abitur oder gleichwertiger Abschluss",
+      "Tr": "Abitur veya eşdeğer diploma"
+    },
+    {
+      "key": "university.req.bachelor",
+      "De": "Bachelor-Abschluss",
+      "Tr": "Lisans diploması"
+    },
+    {
+      "key": "university.req.funding",
+      "De": "Finanzierungsplan",
+      "Tr": "Finansman planı"
+    },
+    {
+      "key": "university.req.gpa",
+      "De": "Min. 2,5 GPA",
+      "Tr": "Min. 2,5 GPA"
+    },
+    {
+      "key": "university.req.language",
+      "De": "Deutsch C1 oder Englisch B2",
+      "Tr": "Almanca C1 veya İngilizce B2"
+    },
+    {
+      "key": "university.req.language_cert",
+      "De": "Sprachzertifikat",
+      "Tr": "Dil sertifikası"
+    },
+    {
+      "key": "university.req.master",
+      "De": "Master-Abschluss",
+      "Tr": "Yüksek lisans diploması"
+    },
+    {
+      "key": "university.req.motivation_bachelor",
+      "De": "Motivationsschreiben",
+      "Tr": "Motivasyon mektubu"
+    },
+    {
+      "key": "university.req.motivation_master",
+      "De": "Motivationsschreiben",
+      "Tr": "Motivasyon mektubu"
+    },
+    {
+      "key": "university.req.publications",
+      "De": "Publikationsliste",
+      "Tr": "Yayın listesi"
+    },
+    {
+      "key": "university.req.recommendation",
+      "De": "Empfehlungsschreiben",
+      "Tr": "Referans mektubu"
+    },
+    {
+      "key": "university.req.research_proposal",
+      "De": "Forschungsvorschlag",
+      "Tr": "Araştırma önerisi"
+    },
+    {
+      "key": "university.req.studienkolleg",
+      "De": "Studienkolleg (falls erforderlich)",
+      "Tr": "Studienkolleg (gerekirse)"
+    },
+    {
+      "key": "university.req.supervisor",
+      "De": "Betreuerzustimmung",
+      "Tr": "Danışman onayı"
+    },
+    {
+      "key": "university.requirements",
+      "De": "Bewerbungsvoraussetzungen",
+      "Tr": "Başvuru Şartları"
+    },
+    {
+      "key": "university.research",
+      "De": "Forschungsmöglichkeiten",
+      "Tr": "Araştırma İmkanları"
+    },
+    {
+      "key": "university.research_desc",
+      "De": "Weltweit führende Forschungszentren",
+      "Tr": "Dünyanın önde gelen araştırma merkezleri"
+    },
+    {
+      "key": "university.social_sciences",
+      "De": "Sozialwissenschaften",
+      "Tr": "Sosyal Bilimler"
+    },
+    {
+      "key": "university.social_sciences_desc",
+      "De": "Psychologie, Soziologie, internationale Beziehungen",
+      "Tr": "Psikoloji, sosyoloji, uluslararası ilişkiler"
+    },
+    {
+      "key": "university.why_desc",
+      "De": "Deutschland ist die Wahl der Studenten mit seiner weltweit anerkannten Bildungsqualität, Forschungsmöglichkeiten und Jobmöglichkeiten nach dem Abschluss. Studieren Sie in einer multikulturellen Umgebung im Herzen Europas.",
+      "Tr": "Almanya, dünya çapında tanınan eğitim kalitesi, araştırma imkanları ve mezuniyet sonrası iş fırsatları ile öğrencilerin tercihi. Avrupa'nın kalbinde, çok kültürlü bir ortamda eğitim alın."
+    },
+    {
+      "key": "university.why_title",
+      "De": "Warum in Deutschland studieren?",
+      "Tr": "Neden Almanya'da Üniversite?"
+    },
+    {
+      "key": "work.application_cta",
+      "De": "Bereit, Ihre Karriere in Deutschland zu starten?",
+      "Tr": "Almanya'da kariyerinizi başlatmaya hazır mısınız?"
+    },
+    {
+      "key": "work.application_step1",
+      "De": "Qualifikationsbewertung",
+      "Tr": "Kalifikasyon Değerlendirmesi"
+    },
+    {
+      "key": "work.application_step1_desc",
+      "De": "Wir analysieren Ihre Erfahrung, Fähigkeiten und Ziele",
+      "Tr": "Deneyim, beceri ve hedeflerinizi analiz ediyoruz"
+    },
+    {
+      "key": "work.application_step2",
+      "De": "Anerkennung von deutschen Behörden",
+      "Tr": "Almanya'da Yetkili Kurumlardan Denklik Alma"
+    },
+    {
+      "key": "work.application_step2_desc",
+      "De": "Wir bereiten einen für den deutschen Arbeitsmarkt geeigneten Lebenslauf und ein Profil vor",
+      "Tr": "Alman iş piyasasına uygun CV ve profil hazırlıyoruz"
+    },
+    {
+      "key": "work.application_step3",
+      "De": "Jobsuche und Vorstellungsgespräche mit deutschen Arbeitgebern",
+      "Tr": "İş Bulma ve Alman İşveren Firmalarla Görüşme Süreci"
+    },
+    {
+      "key": "work.application_step3_desc",
+      "De": "Wir bestimmen geeignete Positionen für Sie und erstellen einen Bewerbungsplan",
+      "Tr": "Size uygun pozisyonları belirliyoruz ve başvuru planı yapıyoruz"
+    },
+    {
+      "key": "work.application_step4",
+      "De": "Arbeitserlaubnis wird ausgestellt",
+      "Tr": "Çalışma İzni Çıkarılacak"
+    },
+    {
+      "key": "work.application_step4_desc",
+      "De": "Wir bewerben uns auf die angestrebten Positionen für Sie",
+      "Tr": "Hedeflenen pozisyonlara başvurularınızı yapıyoruz"
+    },
+    {
+      "key": "work.application_step5",
+      "De": "Visaantrag bei der Ausländerpolizei / Visaantrag beim deutschen Konsulat",
+      "Tr": "Yabancılar Polisinden Vize Başvurusu / Alman Konsoloğuna Vize Başvurusu"
+    },
+    {
+      "key": "work.application_step5_desc",
+      "De": "Wir lehren Ihnen Vorstellungstechniken, die der deutschen Arbeitskultur entsprechen",
+      "Tr": "Alman iş kültürüne uygun mülakat teknikleri öğretiyoruz"
+    },
+    {
+      "key": "work.application_step6",
+      "De": "Visa-Terminprozess",
+      "Tr": "Vize Randevu Süreci"
+    },
+    {
+      "key": "work.application_step6_desc",
+      "De": "Nach dem Jobangebot verwalten wir den Visa- und Umzugsprozess",
+      "Tr": "İş teklifi aldıktan sonra vize ve taşınma sürecini yönetiyoruz"
+    },
+    {
+      "key": "work.application_title",
+      "De": "Qualifizierter Jobbewerbungsprozess",
+      "Tr": "Nitelikli İş Başvuru Süreci"
+    },
+    {
+      "key": "work.average_salary",
+      "De": "Durchschnittsgehalt",
+      "Tr": "Ortalama Maaş"
+    },
+    {
+      "key": "work.average_salary_stat",
+      "De": "Durchschnittsgehalt",
+      "Tr": "Ortalama Maaş"
+    },
+    {
+      "key": "work.career_development",
+      "De": "Karriereentwicklung",
+      "Tr": "Kariyer Gelişimi"
+    },
+    {
+      "key": "work.career_development_desc",
+      "De": "Kontinuierliche Bildungs- und Entwicklungsmöglichkeiten",
+      "Tr": "Sürekli eğitim ve gelişim imkanları"
+    },
+    {
+      "key": "work.cities_title",
+      "De": "Beste Städte zum Arbeiten",
+      "Tr": "Çalışma İçin En İyi Şehirler"
+    },
+    {
+      "key": "work.city_berlin",
+      "De": "Berlin",
+      "Tr": "Berlin"
+    },
+    {
+      "key": "work.city_berlin_cost",
+      "De": "Mittel",
+      "Tr": "Orta"
+    },
+    {
+      "key": "work.city_berlin_desc",
+      "De": "Deutschlands Hauptstadt und Startup-Hub",
+      "Tr": "Almanya'nın başkenti ve startup merkezi"
+    },
+    {
+      "key": "work.city_berlin_highlight1",
+      "De": "Startup-Ökosystem",
+      "Tr": "Startup ekosistemi"
+    },
+    {
+      "key": "work.city_berlin_highlight2",
+      "De": "Internationale Unternehmen",
+      "Tr": "Uluslararası şirketler"
+    },
+    {
+      "key": "work.city_berlin_highlight3",
+      "De": "Kulturelle Vielfalt",
+      "Tr": "Kültürel çeşitlilik"
+    },
+    {
+      "key": "work.city_berlin_highlight4",
+      "De": "Lebendiges Nachtleben",
+      "Tr": "Canlı gece hayatı"
+    },
+    {
+      "key": "work.city_berlin_opportunities",
+      "De": "Tech & Startups",
+      "Tr": "Teknoloji & Startuplar"
+    },
+    {
+      "key": "work.city_berlin_sectors",
+      "De": "Tech, Medien, Startups",
+      "Tr": "Teknoloji, Medya, Startuplar"
+    },
+    {
+      "key": "work.city_dusseldorf",
+      "De": "Düsseldorf",
+      "Tr": "Düsseldorf"
+    },
+    {
+      "key": "work.city_dusseldorf_cost",
+      "De": "Mittel-Hoch",
+      "Tr": "Orta-Yüksek"
+    },
+    {
+      "key": "work.city_dusseldorf_desc",
+      "De": "NRWs Wirtschaftsmetropole",
+      "Tr": "NRW'nin ekonomi metropolü"
+    },
+    {
+      "key": "work.city_dusseldorf_highlight1",
+      "De": "Industriezentrum",
+      "Tr": "Endüstri merkezi"
+    },
+    {
+      "key": "work.city_dusseldorf_highlight2",
+      "De": "Japanische Unternehmen",
+      "Tr": "Japon şirketleri"
+    },
+    {
+      "key": "work.city_dusseldorf_highlight3",
+      "De": "Mode & Kunst",
+      "Tr": "Moda & Sanat"
+    },
+    {
+      "key": "work.city_dusseldorf_highlight4",
+      "De": "Rhein-Ruhr-Gebiet",
+      "Tr": "Rhein-Ruhr bölgesi"
+    },
+    {
+      "key": "work.city_dusseldorf_opportunities",
+      "De": "Industrie & Beratung",
+      "Tr": "Endüstri & Danışmanlık"
+    },
+    {
+      "key": "work.city_dusseldorf_sectors",
+      "De": "Industrie, Beratung, Mode",
+      "Tr": "Endüstri, Danışmanlık, Moda"
+    },
+    {
+      "key": "work.city_frankfurt",
+      "De": "Frankfurt am Main",
+      "Tr": "Frankfurt am Main"
+    },
+    {
+      "key": "work.city_frankfurt_cost",
+      "De": "Hoch",
+      "Tr": "Yüksek"
+    },
+    {
+      "key": "work.city_frankfurt_desc",
+      "De": "Europas Finanzzentrum",
+      "Tr": "Avrupa'nın finans merkezi"
+    },
+    {
+      "key": "work.city_frankfurt_highlight1",
+      "De": "Finanzzentrum",
+      "Tr": "Finans merkezi"
+    },
+    {
+      "key": "work.city_frankfurt_highlight2",
+      "De": "Internationale Banken",
+      "Tr": "Uluslararası bankalar"
+    },
+    {
+      "key": "work.city_frankfurt_highlight3",
+      "De": "Hohe Gehälter",
+      "Tr": "Yüksek maaşlar"
+    },
+    {
+      "key": "work.city_frankfurt_highlight4",
+      "De": "Zentrale Lage",
+      "Tr": "Merkezi konum"
+    },
+    {
+      "key": "work.city_frankfurt_opportunities",
+      "De": "Finanz & Banking",
+      "Tr": "Finans & Bankacılık"
+    },
+    {
+      "key": "work.city_frankfurt_sectors",
+      "De": "Finanzen, Beratung",
+      "Tr": "Finans, Danışmanlık"
+    },
+    {
+      "key": "work.city_hamburg",
+      "De": "Hamburg",
+      "Tr": "Hamburg"
+    },
+    {
+      "key": "work.city_hamburg_cost",
+      "De": "Mittel-Hoch",
+      "Tr": "Orta-Yüksek"
+    },
+    {
+      "key": "work.city_hamburg_desc",
+      "De": "Norddeutschlands Wirtschaftszentrum",
+      "Tr": "Kuzey Almanya'nın ekonomi merkezi"
+    },
+    {
+      "key": "work.city_hamburg_highlight1",
+      "De": "Hafenwirtschaft",
+      "Tr": "Liman ekonomisi"
+    },
+    {
+      "key": "work.city_hamburg_highlight2",
+      "De": "Medienstandort",
+      "Tr": "Medya merkezi"
+    },
+    {
+      "key": "work.city_hamburg_highlight3",
+      "De": "Maritime Industrie",
+      "Tr": "Denizcilik endüstrisi"
+    },
+    {
+      "key": "work.city_hamburg_highlight4",
+      "De": "Lebensqualität",
+      "Tr": "Yaşam kalitesi"
+    },
+    {
+      "key": "work.city_hamburg_opportunities",
+      "De": "Logistik & Medien",
+      "Tr": "Lojistik & Medya"
+    },
+    {
+      "key": "work.city_hamburg_sectors",
+      "De": "Logistik, Medien, Handel",
+      "Tr": "Lojistik, Medya, Ticaret"
+    },
+    {
+      "key": "work.city_highlights",
+      "De": "Highlights",
+      "Tr": "Öne Çıkan Özellikler"
+    },
+    {
+      "key": "work.city_munich",
+      "De": "München",
+      "Tr": "Münih"
+    },
+    {
+      "key": "work.city_munich_cost",
+      "De": "Hoch",
+      "Tr": "Yüksek"
+    },
+    {
+      "key": "work.city_munich_desc",
+      "De": "Bayerns Wirtschaftsmetropole",
+      "Tr": "Bavyera'nın ekonomi metropolü"
+    },
+    {
+      "key": "work.city_munich_highlight1",
+      "De": "Automobilindustrie",
+      "Tr": "Otomotiv endüstrisi"
+    },
+    {
+      "key": "work.city_munich_highlight2",
+      "De": "Tech-Unternehmen",
+      "Tr": "Teknoloji şirketleri"
+    },
+    {
+      "key": "work.city_munich_highlight3",
+      "De": "Lebensqualität",
+      "Tr": "Yaşam kalitesi"
+    },
+    {
+      "key": "work.city_munich_highlight4",
+      "De": "Alpen-Nähe",
+      "Tr": "Alp yakınlığı"
+    },
+    {
+      "key": "work.city_munich_opportunities",
+      "De": "Tech & Automotive",
+      "Tr": "Teknoloji & Otomotiv"
+    },
+    {
+      "key": "work.city_munich_sectors",
+      "De": "Automotive, Tech, Medien",
+      "Tr": "Otomotiv, Teknoloji, Medya"
+    },
+    {
+      "key": "work.city_stuttgart",
+      "De": "Stuttgart",
+      "Tr": "Stuttgart"
+    },
+    {
+      "key": "work.city_stuttgart_cost",
+      "De": "Hoch",
+      "Tr": "Hoch"
+    },
+    {
+      "key": "work.city_stuttgart_desc",
+      "De": "Baden-Württembergs Automobilzentrum",
+      "Tr": "Baden-Württemberg'in otomotiv merkezi"
+    },
+    {
+      "key": "work.city_stuttgart_highlight1",
+      "De": "Automobilindustrie",
+      "Tr": "Otomotiv endüstrisi"
+    },
+    {
+      "key": "work.city_stuttgart_highlight2",
+      "De": "Ingenieurswesen",
+      "Tr": "Mühendislik"
+    },
+    {
+      "key": "work.city_stuttgart_highlight3",
+      "De": "Innovation",
+      "Tr": "İnovasyon"
+    },
+    {
+      "key": "work.city_stuttgart_highlight4",
+      "De": "Hohe Gehälter",
+      "Tr": "Hohe Gehälter"
+    },
+    {
+      "key": "work.city_stuttgart_opportunities",
+      "De": "Automotive & Engineering",
+      "Tr": "Otomotiv & Mühendislik"
+    },
+    {
+      "key": "work.city_stuttgart_sectors",
+      "De": "Automotive, Maschinenbau",
+      "Tr": "Automotive, Maschinenbau"
+    },
+    {
+      "key": "work.duration.1_2_weeks",
+      "De": "1-2 Wochen",
+      "Tr": "1-2 hafta"
+    },
+    {
+      "key": "work.duration.1_3_years",
+      "De": "1-3 Jahre",
+      "Tr": "1-3 yıl"
+    },
+    {
+      "key": "work.duration.1_week",
+      "De": "1 Woche",
+      "Tr": "1 hafta"
+    },
+    {
+      "key": "work.duration.3_years",
+      "De": "3 Jahre",
+      "Tr": "3 yıl"
+    },
+    {
+      "key": "work.duration.4_12_weeks",
+      "De": "4-12 Wochen",
+      "Tr": "4-12 hafta"
+    },
+    {
+      "key": "work.duration.4_years",
+      "De": "4 Jahre",
+      "Tr": "4 yıl"
+    },
+    {
+      "key": "work.duration.6_10_weeks",
+      "De": "6-10 Wochen",
+      "Tr": "6-10 hafta"
+    },
+    {
+      "key": "work.duration.6_months",
+      "De": "6 Monate",
+      "Tr": "6 ay"
+    },
+    {
+      "key": "work.eu_blue_card",
+      "De": "EU Blue Card",
+      "Tr": "AB Mavi Kart"
+    },
+    {
+      "key": "work.eu_blue_card_desc",
+      "De": "Für hochqualifizierte Fachkräfte mit Universitätsabschluss",
+      "Tr": "Üniversite mezunu yüksek nitelikli profesyoneller için"
+    },
+    {
+      "key": "work.freelancer",
+      "De": "Freiberufler",
+      "Tr": "Serbest Çalışan Vizesi"
+    },
+    {
+      "key": "work.freelancer_desc",
+      "De": "Für selbstständige Tätigkeiten",
+      "Tr": "Serbest meslek ve freelancer çalışma için"
+    },
+    {
+      "key": "work.growth",
+      "De": "Wachstum",
+      "Tr": "Büyüme"
+    },
+    {
+      "key": "work.hero.subtitle",
+      "De": "Machen Sie Karriere in Europas stärkster Wirtschaft. Bauen Sie Ihre berufliche Zukunft in Deutschland mit hohen Gehältern, Arbeitsplatzsicherheit und Lebensqualität auf.",
+      "Tr": "Avrupa'nın en güçlü ekonomisinde kariyer yapın. Yüksek maaşlar, iş güvencesi ve yaşam kalitesi ile Almanya'da profesyonel geleceğinizi inşa edin."
+    },
+    {
+      "key": "work.hero.title",
+      "De": "Starten Sie Ihr Berufsleben in Deutschland",
+      "Tr": "Almanya'da Çalışma Hayatınızı Başlatın"
+    },
+    {
+      "key": "work.high_salaries",
+      "De": "Hohe Gehälter",
+      "Tr": "Yüksek Maaşlar"
+    },
+    {
+      "key": "work.high_salaries_desc",
+      "De": "Europas höchste Durchschnittsgehälter",
+      "Tr": "Avrupa'nın en yüksek ortalama maaşları"
+    },
+    {
+      "key": "work.job_security",
+      "De": "Arbeitsplatzsicherheit",
+      "Tr": "İş Güvencesi"
+    },
+    {
+      "key": "work.job_security_desc",
+      "De": "Starke Arbeitnehmerrechte und Schutz",
+      "Tr": "Güçlü işçi hakları ve koruma"
+    },
+    {
+      "key": "work.job_seeker",
+      "De": "Arbeitssuchender",
+      "Tr": "İş Arama Vizesi"
+    },
+    {
+      "key": "work.job_seeker_desc",
+      "De": "Für die Jobsuche in Deutschland",
+      "Tr": "Almanya'da iş aramak için 6 ay süre"
+    },
+    {
+      "key": "work.open_positions",
+      "De": "Offene Stellen",
+      "Tr": "Açık Pozisyonlar"
+    },
+    {
+      "key": "work.open_positions_stat",
+      "De": "Offene Stellen",
+      "Tr": "Açık Pozisyon"
+    },
+    {
+      "key": "work.seasonal_worker",
+      "De": "Saisonarbeiter",
+      "Tr": "Şirket İçi Transfer"
+    },
+    {
+      "key": "work.seasonal_worker_desc",
+      "De": "Für saisonale Beschäftigung",
+      "Tr": "Uluslararası şirket çalışanları için"
+    },
+    {
+      "key": "work.sector_engineering",
+      "De": "Ingenieurwesen",
+      "Tr": "Mühendislik"
+    },
+    {
+      "key": "work.sector_finance",
+      "De": "Finanzwesen",
+      "Tr": "Finans"
+    },
+    {
+      "key": "work.sector_health",
+      "De": "Gesundheitswesen",
+      "Tr": "Sağlık"
+    },
+    {
+      "key": "work.sector_it",
+      "De": "Informationstechnologie",
+      "Tr": "Bilişim Teknolojileri"
+    },
+    {
+      "key": "work.sectors_title",
+      "De": "Stark nachgefragte Sektoren",
+      "Tr": "Yüksek Talep Gören Sektörler"
+    },
+    {
+      "key": "work.skilled_worker",
+      "De": "Fachkraft",
+      "Tr": "Nitelikli İşçi Vizesi"
+    },
+    {
+      "key": "work.skilled_worker_desc",
+      "De": "Für Fachkräfte mit Berufsausbildung",
+      "Tr": "Meslek eğitimi olan nitelikli çalışanlar için"
+    },
+    {
+      "key": "work.startup",
+      "De": "Startup",
+      "Tr": "Startup Vizesi"
+    },
+    {
+      "key": "work.startup_desc",
+      "De": "Für Unternehmensgründer",
+      "Tr": "Yenilikçi iş fikirleri ve girişimciler için"
+    },
+    {
+      "key": "work.unemployment_rate",
+      "De": "Arbeitslosenquote",
+      "Tr": "İşsizlik Oranı"
+    },
+    {
+      "key": "work.visa_advantages.company_support",
+      "De": "Unternehmensunterstützung",
+      "Tr": "Şirket desteği"
+    },
+    {
+      "key": "work.visa_advantages.creative_freedom",
+      "De": "Kreative Freiheit",
+      "Tr": "Yaratıcı özgürlük"
+    },
+    {
+      "key": "work.visa_advantages.eu_free_movement",
+      "De": "Freizügigkeit in der EU",
+      "Tr": "AB'de serbest dolaşım"
+    },
+    {
+      "key": "work.visa_advantages.family_bringing_right",
+      "De": "Recht auf Familiennachzug",
+      "Tr": "Aile getirme hakkı"
+    },
+    {
+      "key": "work.visa_advantages.family_reunification",
+      "De": "Familiennachzug",
+      "Tr": "Aile birleşimi"
+    },
+    {
+      "key": "work.visa_advantages.fast_permanent_residence",
+      "De": "Schnelle Daueraufenthaltserlaubnis",
+      "Tr": "Hızlı daimi oturma"
+    },
+    {
+      "key": "work.visa_advantages.fast_process",
+      "De": "Schneller Prozess",
+      "Tr": "Hızlı süreç"
+    },
+    {
+      "key": "work.visa_advantages.flexible_conditions",
+      "De": "Flexible Bedingungen",
+      "Tr": "Esnek şartlar"
+    },
+    {
+      "key": "work.visa_advantages.independent_work",
+      "De": "Selbstständige Arbeit",
+      "Tr": "Bağımsız çalışma"
+    },
+    {
+      "key": "work.visa_advantages.innovation_support",
+      "De": "Innovationsförderung",
+      "Tr": "İnovasyon desteği"
+    },
+    {
+      "key": "work.visa_advantages.international_experience",
+      "De": "Internationale Erfahrung",
+      "Tr": "Uluslararası deneyim"
+    },
+    {
+      "key": "work.visa_advantages.interview_possibility",
+      "De": "Vorstellungsgespräche möglich",
+      "Tr": "Mülakat yapabilme"
+    },
+    {
+      "key": "work.visa_advantages.investment_opportunities",
+      "De": "Investitionsmöglichkeiten",
+      "Tr": "Yatırım imkanları"
+    },
+    {
+      "key": "work.visa_advantages.job_search_opportunity",
+      "De": "Jobsuchmöglichkeit",
+      "Tr": "İş arama imkanı"
+    },
+    {
+      "key": "work.visa_advantages.mentor_network",
+      "De": "Mentor-Netzwerk",
+      "Tr": "Mentor ağı"
+    },
+    {
+      "key": "work.visa_advantages.multiple_clients",
+      "De": "Mehrere Kunden",
+      "Tr": "Çoklu müşteri"
+    },
+    {
+      "key": "work.visa_advantages.networking_opportunity",
+      "De": "Networking-Möglichkeiten",
+      "Tr": "Ağ kurma fırsatı"
+    },
+    {
+      "key": "work.visa_advantages.wide_profession_range",
+      "De": "Breites Berufsspektrum",
+      "Tr": "Geniş meslek yelpazesi"
+    },
+    {
+      "key": "work.visa_requirements.business_plan",
+      "De": "Geschäftsplan + Finanzierung",
+      "Tr": "İş planı + finansman"
+    },
+    {
+      "key": "work.visa_requirements.company_experience",
+      "De": "1+ Jahr Erfahrung im selben Unternehmen",
+      "Tr": "Aynı şirkette 1+ yıl deneyim"
+    },
+    {
+      "key": "work.visa_requirements.portfolio_references",
+      "De": "Portfolio + Kundenreferenzen",
+      "Tr": "Portföy + müşteri referansları"
+    },
+    {
+      "key": "work.visa_requirements.university_degree",
+      "De": "Universitätsabschluss + Jobangebot",
+      "Tr": "Üniversite mezunu + iş teklifi"
+    },
+    {
+      "key": "work.visa_requirements.university_or_vocational",
+      "De": "Universitätsabschluss oder Berufsausbildung",
+      "Tr": "Üniversite mezunu veya meslek sahibi"
+    },
+    {
+      "key": "work.visa_requirements.vocational_training",
+      "De": "Berufsausbildung + Jobangebot",
+      "Tr": "Meslek eğitimi + iş teklifi"
+    },
+    {
+      "key": "work.visa_types",
+      "De": "Arbeitsvisa-Typen",
+      "Tr": "Çalışma Vize Türleri"
+    },
+    {
+      "key": "work.weekly_hours",
+      "De": "Wochenstunden",
+      "Tr": "Haftalık Çalışma"
+    },
+    {
+      "key": "work.why_desc",
+      "De": "Deutschland ist ein ideales Land für Arbeitnehmer mit niedriger Arbeitslosigkeit, hohen Gehältern und einem starken Sozialversicherungssystem. Besonders hohe Nachfrage in den Bereichen Technologie, Ingenieurwesen und Gesundheitswesen.",
+      "Tr": "Almanya, düşük işsizlik oranı, yüksek maaşlar ve güçlü sosyal güvenlik sistemi ile çalışanlar için ideal bir ülke. Teknoloji, mühendislik ve sağlık sektörlerinde özellikle yüksek talep var."
+    },
+    {
+      "key": "work.why_title",
+      "De": "Warum sollten Sie in Deutschland arbeiten?",
+      "Tr": "Neden Almanya'da Çalışmalısınız?"
+    },
+    {
+      "key": "work.work_life_balance",
+      "De": "Work-Life-Balance",
+      "Tr": "İş-Yaşam Dengesi"
+    },
+    {
+      "key": "work.work_life_balance_desc",
+      "De": "24-30 Tage Urlaubsanspruch pro Jahr",
+      "Tr": "Yılda 24-30 gün tatil hakkı"
+    }
+  ]
+}
