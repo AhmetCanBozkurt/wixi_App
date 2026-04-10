@@ -1,89 +1,158 @@
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { 
-  FaTachometerAlt, FaChartBar, FaUser, FaCog, FaGlobe, FaTh, 
+import {
+  FaTachometerAlt, FaChartBar, FaUser, FaCog, FaGlobe, FaTh,
   FaFolderOpen, FaAward, FaCommentAlt, FaHeadset, FaBars, FaTimes,
-  FaChevronDown, FaChevronRight, FaStar, FaListAlt
+  FaChevronDown, FaChevronRight, FaStar, FaListAlt, FaSearch,
+  FaAngleDoubleDown, FaAngleDoubleUp
 } from 'react-icons/fa';
 import styles from './Sidebar.module.css';
 
+// Tüm workspace menüleri
+const ALL_WORKSPACES = [
+  {
+    id: 'main',
+    name: 'Ana Menü',
+    icon: <FaTh />,
+    items: [
+      { path: '/', icon: <FaTachometerAlt />, text: 'Dashboard' },
+      { path: '/admin/reports', icon: <FaChartBar />, text: 'Raporlar' },
+    ]
+  },
+  {
+    id: 'sistem',
+    name: 'Sistem',
+    icon: <FaCog />,
+    items: [
+      { path: '/admin/roles', icon: <FaUser />, text: 'Kullanıcılar ve Roller' },
+      { path: '/admin/application-logs', icon: <FaListAlt />, text: 'Uygulama Logları' },
+      { path: '/admin/settings', icon: <FaCog />, text: 'Ayarlar' },
+    ]
+  },
+  {
+    id: 'tekstil',
+    name: 'Tekstil Yönetimi',
+    icon: <FaGlobe />,
+    items: [
+      { path: '/admin/tekstil/stats', icon: <FaChartBar />, text: 'İstatistikler' },
+      { path: '/admin/tekstil/product-categories', icon: <FaFolderOpen />, text: 'Kategoriler' },
+      { path: '/admin/tekstil/products', icon: <FaTh />, text: 'Ürünler' },
+      { path: '/admin/tekstil/projects', icon: <FaAward />, text: 'Projeler' },
+      { path: '/admin/tekstil/contact-submissions', icon: <FaCommentAlt />, text: 'İletişim Formları' },
+      { path: '/admin/tekstil/contact-info', icon: <FaHeadset />, text: 'İletişim Bilgileri' },
+    ]
+  }
+];
+
+// LocalStorage keys
+const STORAGE_KEYS = {
+  COLLAPSED: 'wixi-sidebar-collapsed',
+  EXPANDED: 'wixi-sidebar-expanded',
+  FAVORITES: 'wixi-sidebar-favorites',
+} as const;
+
+const DEFAULT_FAVORITES = ['/', '/admin/application-logs'];
+
 export const Sidebar = () => {
-  // Persist collapse state in localStorage
-  const [isCollapsed, setIsCollapsed] = useState<boolean>(() => {
-    return localStorage.getItem('wixi-sidebar-collapsed') === 'true';
-  });
-  
+  const [isCollapsed, setIsCollapsed] = useState<boolean>(() =>
+    localStorage.getItem(STORAGE_KEYS.COLLAPSED) === 'true'
+  );
+
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>(() => {
     try {
-      const saved = localStorage.getItem('wixi-sidebar-expanded');
-      return saved ? JSON.parse(saved) : { 'sistem': true };
-    } catch {
-      return { 'sistem': true };
-    }
+      const saved = localStorage.getItem(STORAGE_KEYS.EXPANDED);
+      return saved ? JSON.parse(saved) : { sistem: true };
+    } catch { return { sistem: true }; }
   });
 
-  // Toggle categories (Accordion) + persist
+  const [favorites, setFavorites] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.FAVORITES);
+      return saved ? JSON.parse(saved) : DEFAULT_FAVORITES;
+    } catch { return DEFAULT_FAVORITES; }
+  });
+
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // --- Handlers ---
+  const handleCollapseToggle = () => {
+    const next = !isCollapsed;
+    setIsCollapsed(next);
+    localStorage.setItem(STORAGE_KEYS.COLLAPSED, String(next));
+  };
+
   const toggleCategory = (id: string) => {
+    // If sidebar collapsed, expand first
     if (isCollapsed) {
-      const newCollapsed = false;
-      setIsCollapsed(newCollapsed);
-      localStorage.setItem('wixi-sidebar-collapsed', String(newCollapsed));
+      setIsCollapsed(false);
+      localStorage.setItem(STORAGE_KEYS.COLLAPSED, 'false');
     }
     setExpandedCategories(prev => {
       const next = { ...prev, [id]: !prev[id] };
-      localStorage.setItem('wixi-sidebar-expanded', JSON.stringify(next));
+      localStorage.setItem(STORAGE_KEYS.EXPANDED, JSON.stringify(next));
       return next;
     });
   };
 
-  const handleCollapseToggle = () => {
-    const next = !isCollapsed;
-    setIsCollapsed(next);
-    localStorage.setItem('wixi-sidebar-collapsed', String(next));
+  const expandAll = () => {
+    const all: Record<string, boolean> = {};
+    ALL_WORKSPACES.forEach(ws => { all[ws.id] = true; });
+    setExpandedCategories(all);
+    localStorage.setItem(STORAGE_KEYS.EXPANDED, JSON.stringify(all));
   };
 
-  const favorites = [
-    { path: '/', icon: <FaTachometerAlt />, text: 'Dashboard' },
-    { path: '/admin/application-logs', icon: <FaListAlt />, text: 'Uygulama Logları' }
-  ];
+  const collapseAll = () => {
+    setExpandedCategories({});
+    localStorage.setItem(STORAGE_KEYS.EXPANDED, '{}');
+  };
 
-  const workspaces = [
-    {
-      id: 'main',
-      name: 'Ana Menü',
-      icon: <FaTh />,
-      items: [
-        { path: '/', icon: <FaTachometerAlt />, text: 'Dashboard' },
-        { path: '/admin/reports', icon: <FaChartBar />, text: 'Raporlar' },
-      ]
-    },
-    {
-      id: 'sistem',
-      name: 'Sistem',
-      icon: <FaCog />,
-      items: [
-        { path: '/admin/roles', icon: <FaUser />, text: 'Kullanıcılar ve Roller' },
-        { path: '/admin/application-logs', icon: <FaListAlt />, text: 'Uygulama Logları' },
-        { path: '/admin/settings', icon: <FaCog />, text: 'Ayarlar' },
-      ]
-    },
-    {
-      id: 'tekstil',
-      name: 'Tekstil Yönetimi',
-      icon: <FaGlobe />,
-      items: [
-        { path: '/admin/tekstil/stats', icon: <FaChartBar />, text: 'İstatistikler' },
-        { path: '/admin/tekstil/product-categories', icon: <FaFolderOpen />, text: 'Kategoriler' },
-        { path: '/admin/tekstil/products', icon: <FaTh />, text: 'Ürünler' },
-        { path: '/admin/tekstil/projects', icon: <FaAward />, text: 'Projeler' },
-        { path: '/admin/tekstil/contact-submissions', icon: <FaCommentAlt />, text: 'İletişim Formları' },
-        { path: '/admin/tekstil/contact-info', icon: <FaHeadset />, text: 'İletişim Bilgileri' },
-      ]
-    }
-  ];
+  const toggleFavorite = (path: string) => {
+    setFavorites(prev => {
+      const next = prev.includes(path)
+        ? prev.filter(p => p !== path)
+        : [...prev, path];
+      localStorage.setItem(STORAGE_KEYS.FAVORITES, JSON.stringify(next));
+      return next;
+    });
+  };
+
+  // Filter workspace items by search query
+  const filteredWorkspaces = ALL_WORKSPACES.map(ws => ({
+    ...ws,
+    items: ws.items.filter(item =>
+      !searchQuery || item.text.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+  })).filter(ws => ws.items.length > 0);
+
+  // Build favorites list from all items
+  const favoriteItems = ALL_WORKSPACES.flatMap(ws => ws.items)
+    .filter(item => favorites.includes(item.path));
+
+  // MenuItem component helper
+  const renderMenuItem = (item: { path: string; icon: React.ReactNode; text: string }, indent = true) => (
+    <li key={item.path} className={styles.menuItemRow}>
+      <NavLink
+        to={item.path}
+        className={({ isActive }) => isActive ? styles.active : ''}
+        title={isCollapsed ? item.text : undefined}
+        style={!indent ? { paddingLeft: '14px' } : undefined}
+      >
+        <span className={styles.menuIcon}>{item.icon}</span>
+        <span className={styles.menuText}>{item.text}</span>
+      </NavLink>
+      <button
+        className={`${styles.favStarBtn} ${favorites.includes(item.path) ? styles.isFav : ''}`}
+        onClick={() => toggleFavorite(item.path)}
+        title={favorites.includes(item.path) ? 'Favorilerden çıkar' : 'Favorilere ekle'}
+      >
+        <FaStar />
+      </button>
+    </li>
+  );
 
   return (
     <aside className={`${styles.sidebarContainer} ${isCollapsed ? styles.collapsed : ''}`}>
+      {/* ── Header / Logo ── */}
       <div className={styles.header}>
         {!isCollapsed && (
           <div className={styles.logoArea}>
@@ -94,46 +163,61 @@ export const Sidebar = () => {
             </div>
           </div>
         )}
-        <button 
-          className={styles.toggleBtn} 
-          onClick={handleCollapseToggle}
-          title="Menüyü Daralt/Genişlet"
-        >
+        <button className={styles.toggleBtn} onClick={handleCollapseToggle} title="Menüyü Daralt/Genişlet">
           {isCollapsed ? <FaBars /> : <FaTimes />}
         </button>
       </div>
 
-      <nav className={styles.navArea}>
-        {/* FAVORITES */}
-        <div className={styles.favoritesSection}>
-          <div className={styles.sectionHeader}>
-            <FaStar className={styles.starIcon} />
-            {!isCollapsed && <span className={styles.sectionTitleText}>FAVORİLER</span>}
+      {/* ── Search bar (hidden when collapsed) ── */}
+      {!isCollapsed && (
+        <div className={styles.searchBar}>
+          <div className={styles.searchInputWrapper}>
+            <FaSearch className={styles.searchBarIcon} />
+            <input
+              type="text"
+              className={styles.searchInput}
+              placeholder="Menüde ara..."
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+            />
           </div>
-          <ul className={styles.menuList}>
-             {favorites.map((fav, idx) => (
-                <li key={`fav-${idx}`} className={styles.menuItem}>
-                  <NavLink 
-                    to={fav.path}
-                    className={({ isActive }) => isActive ? styles.active : ''}
-                    title={isCollapsed ? fav.text : undefined}
-                  >
-                    <span className={styles.menuIcon}>{fav.icon}</span>
-                    <span className={styles.menuText}>{fav.text}</span>
-                  </NavLink>
-                </li>
-             ))}
-          </ul>
         </div>
+      )}
 
-        {/* WORKSPACES (ACCORDION) */}
-        {!isCollapsed && <div className={styles.sectionHeaderSpacer}>BÖLÜMLER</div>}
-        {workspaces.map((ws) => {
+      <nav className={styles.navArea}>
+        {/* ── FAVORİLER ── */}
+        {favoriteItems.length > 0 && !searchQuery && (
+          <div className={styles.favoritesSection}>
+            <div className={styles.sectionLabel}>
+              <FaStar className={styles.starIconGold} />
+              {!isCollapsed && <span className={styles.sectionTitleText}>FAVORİLER</span>}
+            </div>
+            <ul className={styles.menuList}>
+              {favoriteItems.map(item => renderMenuItem(item, false))}
+            </ul>
+          </div>
+        )}
+
+        {/* ── BÖLÜMLER header with expand-all / collapse-all ── */}
+        {!isCollapsed && (
+          <div className={styles.sectionControls}>
+            <span className={styles.sectionControlsTitle}>BÖLÜMLER</span>
+            <button className={styles.ctrlBtn} onClick={expandAll} title="Tümünü Aç">
+              <FaAngleDoubleDown />
+            </button>
+            <button className={styles.ctrlBtn} onClick={collapseAll} title="Tümünü Kapat">
+              <FaAngleDoubleUp />
+            </button>
+          </div>
+        )}
+
+        {/* ── Accordion Sections ── */}
+        {filteredWorkspaces.map(ws => {
           const isExpanded = expandedCategories[ws.id];
           return (
             <div key={ws.id} className={styles.section}>
-              <button 
-                className={styles.accordionHeader} 
+              <button
+                className={styles.accordionHeader}
                 onClick={() => toggleCategory(ws.id)}
                 title={isCollapsed ? ws.name : undefined}
               >
@@ -147,21 +231,10 @@ export const Sidebar = () => {
                   </span>
                 )}
               </button>
-              
-              {(!isCollapsed && isExpanded) && (
+
+              {(isExpanded || searchQuery) && !isCollapsed && (
                 <ul className={styles.menuList}>
-                  {ws.items.map((item, idx) => (
-                    <li key={idx} className={styles.menuItem}>
-                      <NavLink 
-                        to={item.path}
-                        className={({ isActive }) => isActive ? styles.active : ''}
-                        title={isCollapsed ? item.text : undefined}
-                      >
-                        <span className={styles.menuIcon}>{item.icon}</span>
-                        <span className={styles.menuText}>{item.text}</span>
-                      </NavLink>
-                    </li>
-                  ))}
+                  {ws.items.map(item => renderMenuItem(item))}
                 </ul>
               )}
             </div>

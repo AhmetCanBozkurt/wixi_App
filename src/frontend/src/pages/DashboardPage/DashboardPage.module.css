@@ -1,7 +1,7 @@
 .container {
   display: flex;
   min-height: 100vh;
-  background: #131525;
+  background: var(--content-bg);
   overflow: hidden;
 }
 .contentWrapper {
@@ -9,7 +9,8 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background: #131525;
+  background: var(--content-bg);
+  transition: background 0.3s;
 }
 .header {
   padding: 20px 40px;

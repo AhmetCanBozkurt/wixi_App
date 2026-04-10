@@ -1,23 +1,19 @@
-/* ============================================
-   HEADER - Referans Tasarıma Uygun
-   ============================================ */
-
 .headerContainer {
   display: flex;
   justify-content: space-between;
   align-items: center;
   height: 64px;
   padding: 0 24px;
-  background: #1a1d2e;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--header-bg);
+  border-bottom: 1px solid var(--header-border);
   flex-shrink: 0;
+  transition: background 0.3s, border-color 0.3s;
 }
 
-/* ---- Left: Breadcrumb / Page Title ---- */
+/* ---- Left: Breadcrumb ---- */
 .leftSection {
   display: flex;
   align-items: center;
-  gap: 12px;
 }
 
 .breadcrumb {
@@ -28,17 +24,18 @@
 
 .breadcrumbItem {
   font-size: 0.82rem;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--header-text-muted);
 }
 
 .breadcrumbSep {
   font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.25);
+  color: var(--header-text-muted);
+  opacity: 0.5;
 }
 
 .breadcrumbCurrent {
   font-size: 0.82rem;
-  color: rgba(255, 255, 255, 0.75);
+  color: var(--header-text);
   font-weight: 500;
 }
 
@@ -49,11 +46,11 @@
   gap: 6px;
 }
 
-/* Icon Buttons - SQUARE with light border */
+/* Square icon buttons */
 .iconBtn {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.6);
+  background: var(--header-btn-bg);
+  border: 1px solid var(--header-btn-border);
+  color: var(--header-btn-text);
   font-size: 0.8rem;
   width: 34px;
   height: 34px;
@@ -66,12 +63,12 @@
 }
 
 .iconBtn:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: #ffffff;
-  border-color: rgba(255, 255, 255, 0.2);
+  background: var(--header-btn-hover);
+  color: var(--header-text);
+  border-color: var(--color-primary);
 }
 
-/* Theme badge button (shows current mode) */
+/* Theme badge button */
 .themeBtn {
   display: flex;
   align-items: center;
@@ -79,30 +76,32 @@
   padding: 0 12px;
   height: 34px;
   border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.05);
-  color: rgba(255, 255, 255, 0.7);
+  border: 1px solid var(--header-btn-border);
+  background: var(--header-btn-bg);
+  color: var(--header-btn-text);
   font-size: 0.78rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
   white-space: nowrap;
+  font-family: inherit;
 }
 
 .themeBtn:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
+  background: var(--header-btn-hover);
+  color: var(--header-text);
+  border-color: var(--color-primary);
 }
 
-/* Divider between icon groups */
+/* Divider */
 .divider {
   width: 1px;
   height: 20px;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--header-btn-border);
   margin: 0 4px;
 }
 
-/* ---- User Profile (SQUARE avatar) ---- */
+/* User Profile */
 .userProfile {
   display: flex;
   align-items: center;
@@ -110,17 +109,18 @@
   cursor: pointer;
   padding: 5px 10px;
   border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--header-btn-border);
+  background: var(--header-btn-bg);
   transition: background 0.2s;
   margin-left: 4px;
 }
 
 .userProfile:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--header-btn-hover);
+  border-color: var(--color-primary);
 }
 
-/* SQUARE avatar - matches reference */
+/* Square avatar */
 .avatar {
   width: 30px;
   height: 30px;
@@ -131,7 +131,7 @@
   align-items: center;
   justify-content: center;
   font-weight: 700;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   flex-shrink: 0;
   letter-spacing: 0.05em;
 }
@@ -145,12 +145,12 @@
 .userName {
   font-size: 0.82rem;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--header-text);
   margin: 0;
 }
 
 .userRole {
   font-size: 0.68rem;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--header-text-muted);
   margin: 0;
 }
