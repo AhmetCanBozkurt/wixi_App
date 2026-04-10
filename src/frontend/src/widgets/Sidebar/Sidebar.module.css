@@ -92,31 +92,25 @@
   color: #fff;
 }
 
-/* ---- Search Bar ---- */
-.searchBar {
-  padding: 8px 12px;
-  border-bottom: 1px solid var(--sidebar-border);
-  background: var(--sidebar-bg);
-  flex-shrink: 0;
-}
-
-.searchInputWrapper {
+/* ---- Inline Search (under BÖLÜMLER, toggled by search icon) ---- */
+.inlineSearch {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+  margin: 2px 12px 4px;
+  padding: 5px 8px;
   background: var(--sidebar-hover-bg);
   border: 1px solid var(--sidebar-border);
-  border-radius: 6px;
-  padding: 6px 10px;
+  border-radius: 4px;
 }
 
-.searchBarIcon {
+.inlineSearchIcon {
   color: var(--sidebar-text-muted);
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   flex-shrink: 0;
 }
 
-.searchInput {
+.inlineSearchInput {
   background: transparent;
   border: none;
   outline: none;
@@ -126,7 +120,7 @@
   font-family: inherit;
 }
 
-.searchInput::placeholder {
+.inlineSearchInput::placeholder {
   color: var(--sidebar-text-muted);
 }
 
@@ -349,10 +343,8 @@
 }
 
 /* ---- Collapsed overrides ---- */
-.collapsed .searchBar,
 .collapsed .sectionTitleText,
-.collapsed .sectionControls .sectionControlsTitle,
-.collapsed .sectionControls .ctrlBtn,
+.collapsed .sectionControls,
 .collapsed .accordionTitle span,
 .collapsed .accordionArrow,
 .collapsed .menuText,

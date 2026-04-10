@@ -8,7 +8,6 @@ import {
 } from 'react-icons/fa';
 import styles from './Sidebar.module.css';
 
-// Tüm workspace menüleri
 const ALL_WORKSPACES = [
   {
     id: 'main',
@@ -44,10 +43,9 @@ const ALL_WORKSPACES = [
   }
 ];
 
-// LocalStorage keys
 const STORAGE_KEYS = {
   COLLAPSED: 'wixi-sidebar-collapsed',
-  EXPANDED: 'wixi-sidebar-expanded',
+  EXPANDED:  'wixi-sidebar-expanded',
   FAVORITES: 'wixi-sidebar-favorites',
 } as const;
 
@@ -72,17 +70,17 @@ export const Sidebar = () => {
     } catch { return DEFAULT_FAVORITES; }
   });
 
+  const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // --- Handlers ---
   const handleCollapseToggle = () => {
     const next = !isCollapsed;
     setIsCollapsed(next);
     localStorage.setItem(STORAGE_KEYS.COLLAPSED, String(next));
+    if (next) { setSearchOpen(false); setSearchQuery(''); }
   };
 
   const toggleCategory = (id: string) => {
-    // If sidebar collapsed, expand first
     if (isCollapsed) {
       setIsCollapsed(false);
       localStorage.setItem(STORAGE_KEYS.COLLAPSED, 'false');
@@ -108,15 +106,17 @@ export const Sidebar = () => {
 
   const toggleFavorite = (path: string) => {
     setFavorites(prev => {
-      const next = prev.includes(path)
-        ? prev.filter(p => p !== path)
-        : [...prev, path];
+      const next = prev.includes(path) ? prev.filter(p => p !== path) : [...prev, path];
       localStorage.setItem(STORAGE_KEYS.FAVORITES, JSON.stringify(next));
       return next;
     });
   };
 
-  // Filter workspace items by search query
+  const handleSearchToggle = () => {
+    if (searchOpen) { setSearchQuery(''); }
+    setSearchOpen(o => !o);
+  };
+
   const filteredWorkspaces = ALL_WORKSPACES.map(ws => ({
     ...ws,
     items: ws.items.filter(item =>
@@ -124,11 +124,9 @@ export const Sidebar = () => {
     )
   })).filter(ws => ws.items.length > 0);
 
-  // Build favorites list from all items
   const favoriteItems = ALL_WORKSPACES.flatMap(ws => ws.items)
     .filter(item => favorites.includes(item.path));
 
-  // MenuItem component helper
   const renderMenuItem = (item: { path: string; icon: React.ReactNode; text: string }, indent = true) => (
     <li key={item.path} className={styles.menuItemRow}>
       <NavLink
@@ -140,19 +138,21 @@ export const Sidebar = () => {
         <span className={styles.menuIcon}>{item.icon}</span>
         <span className={styles.menuText}>{item.text}</span>
       </NavLink>
-      <button
-        className={`${styles.favStarBtn} ${favorites.includes(item.path) ? styles.isFav : ''}`}
-        onClick={() => toggleFavorite(item.path)}
-        title={favorites.includes(item.path) ? 'Favorilerden çıkar' : 'Favorilere ekle'}
-      >
-        <FaStar />
-      </button>
+      {!isCollapsed && (
+        <button
+          className={`${styles.favStarBtn} ${favorites.includes(item.path) ? styles.isFav : ''}`}
+          onClick={() => toggleFavorite(item.path)}
+          title={favorites.includes(item.path) ? 'Favorilerden çıkar' : 'Favorilere ekle'}
+        >
+          <FaStar />
+        </button>
+      )}
     </li>
   );
 
   return (
     <aside className={`${styles.sidebarContainer} ${isCollapsed ? styles.collapsed : ''}`}>
-      {/* ── Header / Logo ── */}
+      {/* ── Header ── */}
       <div className={styles.header}>
         {!isCollapsed && (
           <div className={styles.logoArea}>
@@ -168,22 +168,6 @@ export const Sidebar = () => {
         </button>
       </div>
 
-      {/* ── Search bar (hidden when collapsed) ── */}
-      {!isCollapsed && (
-        <div className={styles.searchBar}>
-          <div className={styles.searchInputWrapper}>
-            <FaSearch className={styles.searchBarIcon} />
-            <input
-              type="text"
-              className={styles.searchInput}
-              placeholder="Menüde ara..."
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-            />
-          </div>
-        </div>
-      )}
-
       <nav className={styles.navArea}>
         {/* ── FAVORİLER ── */}
         {favoriteItems.length > 0 && !searchQuery && (
@@ -198,17 +182,37 @@ export const Sidebar = () => {
           </div>
         )}
 
-        {/* ── BÖLÜMLER header with expand-all / collapse-all ── */}
+        {/* ── BÖLÜMLER header: arama ikon + tümünü aç/kapat ── */}
         {!isCollapsed && (
-          <div className={styles.sectionControls}>
-            <span className={styles.sectionControlsTitle}>BÖLÜMLER</span>
-            <button className={styles.ctrlBtn} onClick={expandAll} title="Tümünü Aç">
-              <FaAngleDoubleDown />
-            </button>
-            <button className={styles.ctrlBtn} onClick={collapseAll} title="Tümünü Kapat">
-              <FaAngleDoubleUp />
-            </button>
-          </div>
+          <>
+            <div className={styles.sectionControls}>
+              <span className={styles.sectionControlsTitle}>BÖLÜMLER</span>
+              <button className={styles.ctrlBtn} onClick={handleSearchToggle} title="Menüde Ara">
+                <FaSearch />
+              </button>
+              <button className={styles.ctrlBtn} onClick={expandAll} title="Tümünü Aç">
+                <FaAngleDoubleDown />
+              </button>
+              <button className={styles.ctrlBtn} onClick={collapseAll} title="Tümünü Kapat">
+                <FaAngleDoubleUp />
+              </button>
+            </div>
+
+            {/* Inline arama satırı — sadece ikon tıklanınca açılır */}
+            {searchOpen && (
+              <div className={styles.inlineSearch}>
+                <FaSearch className={styles.inlineSearchIcon} />
+                <input
+                  autoFocus
+                  type="text"
+                  className={styles.inlineSearchInput}
+                  placeholder="Menüde ara..."
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                />
+              </div>
+            )}
+          </>
         )}
 
         {/* ── Accordion Sections ── */}
