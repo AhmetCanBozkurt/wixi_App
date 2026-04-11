@@ -1,32 +1,24 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { NavLink } from 'react-router-dom';
 import {
-  FaTachometerAlt, FaCog, FaTh,
   FaBars, FaTimes, FaChevronDown, FaChevronRight,
-  FaStar, FaListAlt, FaSearch, FaEllipsisH
+  FaStar, FaSearch, FaEllipsisH
 } from 'react-icons/fa';
+import { apiClient } from '../../shared/api/axiosConfig';
+import { DynamicIcon } from '../../shared/ui/DynamicIcon/DynamicIcon';
 import styles from './Sidebar.module.css';
 import logoImg from '../../assets/Logolar/logo.png';
 
-// ─── Sayfası olan menüler ─────────────────────────────
-const ALL_WORKSPACES = [
-  {
-    id: 'main',
-    name: 'Ana Menü',
-    icon: <FaTh />,
-    items: [
-      { path: '/', icon: <FaTachometerAlt />, text: 'Dashboard' },
-    ]
-  },
-  {
-    id: 'sistem',
-    name: 'Sistem',
-    icon: <FaCog />,
-    items: [
-      { path: '/admin/application-logs', icon: <FaListAlt />, text: 'Uygulama Logları' },
-    ]
-  }
-];
+// ─── Types ───────────────────────────────────────────────
+interface MenuItemDto {
+  id: string;
+  title: string;
+  path: string;
+  icon?: string;
+  iconColor?: string;
+  sortOrder: number;
+  children: MenuItemDto[];
+}
 
 const STORAGE_KEYS = {
   COLLAPSED: 'wixi-sidebar-collapsed',
@@ -34,35 +26,49 @@ const STORAGE_KEYS = {
   FAVORITES: 'wixi-sidebar-favorites',
 } as const;
 
-const DEFAULT_FAVORITES = ['/', '/admin/application-logs'];
-
 export const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState<boolean>(() =>
     localStorage.getItem(STORAGE_KEYS.COLLAPSED) === 'true'
   );
 
+  const [menus, setMenus] = useState<MenuItemDto[]>([]);
+  const [loading, setLoading] = useState(true);
+
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.EXPANDED);
-      return saved ? JSON.parse(saved) : { sistem: true };
-    } catch { return { sistem: true }; }
+      return saved ? JSON.parse(saved) : {};
+    } catch { return {}; }
   });
 
   const [favorites, setFavorites] = useState<string[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.FAVORITES);
-      return saved ? JSON.parse(saved) : DEFAULT_FAVORITES;
-    } catch { return DEFAULT_FAVORITES; }
+      return saved ? JSON.parse(saved) : ['/', '/admin/logs'];
+    } catch { return ['/', '/admin/logs']; }
   });
 
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-
-  // "..." dropdown state
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // Dışarı tıklanınca kapat
+  // Fetch menus from API
+  useEffect(() => {
+    const fetchMenus = async () => {
+      try {
+        const res = await apiClient.get<MenuItemDto[]>('menu/sidebar');
+        setMenus(res.data);
+      } catch (error) {
+        console.error('Menu fetch error:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchMenus();
+  }, []);
+
+  // Close context menu on click outside
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
@@ -72,6 +78,32 @@ export const Sidebar = () => {
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, []);
+
+  // ─── Recursive Helpers (Defined as regular functions to avoid useCallback recursion issues) ───
+  const filterMenuTree = (items: MenuItemDto[], query: string): MenuItemDto[] => {
+    return items
+      .map(item => {
+        const children = item.children ? filterMenuTree(item.children, query) : [];
+        const isMatch = item.title.toLowerCase().includes(query.toLowerCase());
+        
+        if (isMatch || children.length > 0) {
+          return { ...item, children };
+        }
+        return null;
+      })
+      .filter((item): item is MenuItemDto => item !== null);
+  };
+
+  const getFlatItems = (items: MenuItemDto[]): MenuItemDto[] => {
+    let result: MenuItemDto[] = [];
+    items.forEach(item => {
+      result.push(item);
+      if (item.children && item.children.length > 0) {
+        result = [...result, ...getFlatItems(item.children)];
+      }
+    });
+    return result;
+  };
 
   // ─── Handlers ───────────────────────────────────────
   const handleCollapseToggle = () => {
@@ -95,7 +127,8 @@ export const Sidebar = () => {
 
   const expandAll = () => {
     const all: Record<string, boolean> = {};
-    ALL_WORKSPACES.forEach(ws => { all[ws.id] = true; });
+    const flat = getFlatItems(menus);
+    flat.forEach((m: MenuItemDto) => { if (m.children && m.children.length > 0) all[m.id] = true; });
     setExpandedCategories(all);
     localStorage.setItem(STORAGE_KEYS.EXPANDED, JSON.stringify(all));
     setMenuOpen(false);
@@ -126,48 +159,79 @@ export const Sidebar = () => {
     setSearchOpen(o => !o);
   };
 
-  // Filtered workspaces by search
-  const filteredWorkspaces = ALL_WORKSPACES.map(ws => ({
-    ...ws,
-    items: ws.items.filter(item =>
-      !searchQuery || item.text.toLowerCase().includes(searchQuery.toLowerCase())
-    )
-  })).filter(ws => ws.items.length > 0);
-
-  const favoriteItems = ALL_WORKSPACES.flatMap(ws => ws.items)
-    .filter(item => favorites.includes(item.path));
-
-  // Are all expanded?
-  const allExpanded = ALL_WORKSPACES.every(ws => expandedCategories[ws.id]);
-
-  // ─── Render helpers ───────────────────────────────
-  const renderMenuItem = (item: { path: string; icon: React.ReactNode; text: string }, isTopLevel = false) => (
-    <li key={item.path} className={styles.menuItemRow}>
-      <NavLink
-        to={item.path}
-        className={({ isActive }) => isActive ? styles.active : ''}
-        title={isCollapsed ? item.text : undefined}
-        style={isTopLevel ? { paddingLeft: '14px' } : undefined}
-      >
-        <span className={styles.menuIcon}>{item.icon}</span>
-        <span className={styles.menuText}>{item.text}</span>
-      </NavLink>
-      {/* Star button — JSX controlled, never shows in collapsed */}
-      {!isCollapsed && (
-        <button
-          className={`${styles.favStarBtn} ${favorites.includes(item.path) ? styles.isFav : ''}`}
-          onClick={() => toggleFavorite(item.path)}
-          title={favorites.includes(item.path) ? 'Favorilerden çıkar' : 'Favorilere ekle'}
-        >
-          <FaStar />
-        </button>
-      )}
-    </li>
+  // ─── Derived Data ─────────────────────────────────
+  const filteredMenus = useMemo(() => 
+    filterMenuTree(menus, searchQuery), 
+    [menus, searchQuery]
   );
+
+  const flatItems = useMemo(() => getFlatItems(menus), [menus]);
+  const favoriteItems = flatItems.filter((item: MenuItemDto) => favorites.includes(item.path));
+
+  const allExpanded = menus.length > 0 && menus.every(m => (m.children && m.children.length === 0) || expandedCategories[m.id]);
+
+  // ─── Recursive Component ──────────────────────────
+  const renderMenuNode = (item: MenuItemDto, level: number = 0) => {
+    const hasChildren = item.children && item.children.length > 0;
+    const isExpanded = expandedCategories[item.id] || !!searchQuery;
+    const paddingLeft = isCollapsed ? 0 : (level * 15) + 14;
+
+    if (!hasChildren) {
+      return (
+        <li key={item.id} className={styles.menuItemRow}>
+          <NavLink
+            to={item.path}
+            className={({ isActive }) => isActive ? styles.active : ''}
+            title={isCollapsed ? item.title : undefined}
+            style={{ paddingLeft }}
+          >
+            <span className={styles.menuIcon}>
+              <DynamicIcon name={item.icon || 'FaCircle'} color={item.iconColor} />
+            </span>
+            <span className={styles.menuText}>{item.title}</span>
+          </NavLink>
+          {!isCollapsed && item.path !== '#' && (
+            <button
+              className={`${styles.favStarBtn} ${favorites.includes(item.path) ? styles.isFav : ''}`}
+              onClick={() => toggleFavorite(item.path)}
+              title={favorites.includes(item.path) ? 'Favorilerden çıkar' : 'Favorilere ekle'}
+            >
+              <FaStar />
+            </button>
+          )}
+        </li>
+      );
+    }
+
+    return (
+      <div key={item.id} className={styles.section}>
+        <button
+          className={`${styles.accordionHeader} ${isExpanded ? styles.isExpanded : ''}`}
+          onClick={() => toggleCategory(item.id)}
+          title={isCollapsed ? item.title : undefined}
+          style={{ paddingLeft }}
+        >
+          <div className={styles.accordionTitle}>
+            <DynamicIcon name={item.icon || 'FaFolder'} color={item.iconColor} />
+            {!isCollapsed && <span>{item.title}</span>}
+          </div>
+          {!isCollapsed && (
+            <span className={styles.accordionArrow}>
+              {isExpanded ? <FaChevronDown /> : <FaChevronRight />}
+            </span>
+          )}
+        </button>
+        {isExpanded && !isCollapsed && (
+          <ul className={styles.menuList}>
+            {item.children.map(child => renderMenuNode(child, level + 1))}
+          </ul>
+        )}
+      </div>
+    );
+  };
 
   return (
     <aside className={`${styles.sidebarContainer} ${isCollapsed ? styles.collapsed : ''}`}>
-      {/* ── Logo / Header ── */}
       <div className={styles.header}>
         <div className={styles.logoArea}>
           <img src={logoImg} alt="Wixi Logo" className={styles.logoImage} />
@@ -184,10 +248,10 @@ export const Sidebar = () => {
       </div>
 
       <nav className={styles.navArea}>
-        {/* ── FAVORİLER — sadece genişletilmiş modda etiket göster ── */}
+        {loading && !isCollapsed && <div style={{ padding: '20px', color: '#fff', opacity: 0.5 }}>Yükleniyor...</div>}
+
         {favoriteItems.length > 0 && !searchQuery && (
           <div className={styles.favoritesSection}>
-            {/* Etiket sadece genişletilmiş modda görünür */}
             {!isCollapsed && (
               <div className={styles.sectionLabel}>
                 <FaStar className={styles.starIconGold} />
@@ -195,18 +259,29 @@ export const Sidebar = () => {
               </div>
             )}
             <ul className={styles.menuList}>
-              {favoriteItems.map(item => renderMenuItem(item, true))}
+              {favoriteItems.map((item: MenuItemDto) => (
+                <li key={item.id + '_fav'} className={styles.menuItemRow}>
+                  <NavLink
+                    to={item.path}
+                    className={({ isActive }) => isActive ? styles.active : ''}
+                    title={isCollapsed ? item.title : undefined}
+                    style={{ paddingLeft: '14px' }}
+                  >
+                    <span className={styles.menuIcon}>
+                      <DynamicIcon name={item.icon || 'FaCircle'} color={item.iconColor} />
+                    </span>
+                    <span className={styles.menuText}>{item.title}</span>
+                  </NavLink>
+                </li>
+              ))}
             </ul>
           </div>
         )}
 
-        {/* ── BÖLÜMLER başlığı + 🔍 ve ... menüsü ── */}
-        {!isCollapsed && (
+        {!isCollapsed && menus.length > 0 && (
           <>
             <div className={styles.sectionControls}>
               <span className={styles.sectionControlsTitle}>BÖLÜMLER</span>
-
-              {/* Arama ikonu */}
               <button
                 className={`${styles.ctrlBtn} ${searchOpen ? styles.ctrlBtnActive : ''}`}
                 onClick={handleSearchToggle}
@@ -214,8 +289,6 @@ export const Sidebar = () => {
               >
                 <FaSearch />
               </button>
-
-              {/* "..." dropdown trigger */}
               <div className={styles.ctrlMenuWrapper} ref={menuRef}>
                 <button
                   className={`${styles.ctrlBtn} ${menuOpen ? styles.ctrlBtnActive : ''}`}
@@ -224,7 +297,6 @@ export const Sidebar = () => {
                 >
                   <FaEllipsisH />
                 </button>
-
                 {menuOpen && (
                   <div className={styles.ctrlDropdown}>
                     <button className={styles.ctrlDropdownItem} onClick={allExpanded ? collapseAll : expandAll}>
@@ -242,8 +314,6 @@ export const Sidebar = () => {
                 )}
               </div>
             </div>
-
-            {/* Inline arama */}
             {searchOpen && (
               <div className={styles.inlineSearch}>
                 <FaSearch className={styles.inlineSearchIcon} />
@@ -260,35 +330,7 @@ export const Sidebar = () => {
           </>
         )}
 
-        {/* ── Accordion Sections ── */}
-        {filteredWorkspaces.map(ws => {
-          const isExpanded = expandedCategories[ws.id];
-          return (
-            <div key={ws.id} className={styles.section}>
-              <button
-                className={styles.accordionHeader}
-                onClick={() => toggleCategory(ws.id)}
-                title={isCollapsed ? ws.name : undefined}
-              >
-                <div className={styles.accordionTitle}>
-                  {ws.icon}
-                  {!isCollapsed && <span>{ws.name}</span>}
-                </div>
-                {!isCollapsed && (
-                  <span className={styles.accordionArrow}>
-                    {isExpanded ? <FaChevronDown /> : <FaChevronRight />}
-                  </span>
-                )}
-              </button>
-
-              {(isExpanded || searchQuery) && !isCollapsed && (
-                <ul className={styles.menuList}>
-                  {ws.items.map(item => renderMenuItem(item))}
-                </ul>
-              )}
-            </div>
-          );
-        })}
+        {filteredMenus.map((m: MenuItemDto) => renderMenuNode(m, 0))}
       </nav>
     </aside>
   );

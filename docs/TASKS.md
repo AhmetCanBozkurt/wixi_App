@@ -14,7 +14,7 @@ Buradaki görevler otonom asistan (Antigravity) tarafından projenin fazlarına 
 - `[x]` **Backend:** Veritabanı (SQL Server) migration'ının oluşturulması, temel DB bağlantılarının test edilmesi ve Default Admin kullanıcısı (Seed Data) yaratılması.
 - `[x]` **Backend:** `Program.cs` içerisindeki hardcoded bağımlılıkların temizlenmesi ve Login / Register API endpoint'lerinin (CQRS/MediatR mantığıyla) netleştirilmesi.
 - `[x]` **Frontend:** FSD (Feature-Sliced Design) klasör hiyerarşisinin `src/` altına oluşturulması (`app`, `pages`, `widgets`, `features`, `entities`, `shared`).
-- `[/]` **Frontend:** Base Axios config ve Vanilla CSS (Glassmorphism) temel framework'ünün `shared` katmanına yerleştirilmesi.
+- `[x]` **Frontend:** Base Axios config ve Vanilla CSS (Glassmorphism) temel framework'ünün `shared` katmanına yerleştirilmesi. (Dinamik Accept-Language eklendi)
 - `[x]` **Frontend:** `entities/User` altında global state (Zustand veya Context) tasarımının yapılması.
 - `[x]` **Frontend:** `features/Auth` altında Login Form bileşeninin yazılması ve API'ye bağlanması.
 - `[x]` **Frontend:** `pages/LoginPage` ve `pages/DashboardPage` router entegrasyonu, Auth Guard (korumalı route) ile test.
@@ -25,9 +25,12 @@ Buradaki görevler otonom asistan (Antigravity) tarafından projenin fazlarına 
 *Amacımız; giriş/çıkış Audit loglarını (IP, Tarayıcı ile) sisteme kazandırmak ve eski projedeki Admin Layout (Sidebar) & DataTable bileşenlerini yepyeni Vanilla CSS kurallarıyla FSD mimarisine taşımaktır.*
 
 - `[ ]` **Backend:** `WixiAuditLog` tablosunun modellenerek Login/Logout (Auth) evrelerine eklenmesi (Müşteri detaylı loglama/IP vs.).
-- `[ ]` **Frontend:** Eski projedeki `AdvancedDataTable.tsx` yapısının alınarak `shared/ui` katmanında CQRS formatına uyumlu Premium Glassmorphism olarak refactor edilmesi.
-- `[ ]` **Frontend:** Eski projedeki `AdminLayout.tsx` yapısının (Sidebar ve Header) Tailwind'den temizlenerek `widgets/Sidebar` ve `widgets/Header` dizinlerinde Vanilla CSS modülleriyle canlandırılması.
-- `[ ]` **Backend:** `WIXI_MENUS` ve `WIXI_ROLE_MENU_PERMISSIONS` tablolarının tasarlanması.
+- `[x]` **Frontend:** Eski projedeki `AdvancedDataTable.tsx` yapısının alınarak `shared/ui` katmanında CQRS formatına uyumlu Premium Glassmorphism olarak refactor edilmesi.
+- `[x]` **Frontend:** Eski projedeki `AdminLayout.tsx` yapısının (Sidebar ve Header) Tailwind'den temizlenerek `widgets/Sidebar` ve `widgets/Header` dizinlerinde Vanilla CSS modülleriyle canlandırılması.
+- `[x]` **Backend:** `WIXI_MENUS`, `WIXI_LANGUAGES` ve `WIXI_MENU_TRANSLATIONS` tablolarının tasarlanması ve CRUD uçlarının yazılması.
+- `[x]` **Frontend:** Menü Yönetim Sayfası, İkon Seçici ve Akıllı Sayfa Seçici (Path Picker) entegrasyonu.
+- `[x]` **Frontend:** Global Dil Seçici (Header) ve Dinamik Menü (Sidebar) entegrasyonu.
+- `[x]` **Fullstack:** `@dnd-kit` ile Sürükle-Bırak özellikli Kullanıcı Menü Yönetimi Paneli (`UserManagementPage` & `WixiUserMenu`) geliştirildi.
 - `[ ]` **Frontend:** UI tarafında buton gizleme/gösterme mekanizması için `<HasPermission>` hook'u veya wrapper komponentinin yazılması.
 
 ---

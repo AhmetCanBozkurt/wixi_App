@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
-import { FaSearch, FaChevronDown, FaChevronUp, FaEye, FaTimes, FaColumns } from 'react-icons/fa';
+import { FaSearch, FaFilter, FaChevronDown, FaChevronUp, FaEye, FaTimes, FaColumns } from 'react-icons/fa';
 import { apiClient } from '../../api/axiosConfig';
 import styles from './AdvancedDataTable.module.css';
 
@@ -9,6 +9,8 @@ export interface Column<T = any> {
   accessor?: (row: T) => any;
   render?: (value: any, row: T) => React.ReactNode;
   sortable?: boolean;
+  filterable?: boolean;
+  searchable?: boolean;
   width?: string;
 }
 
@@ -52,6 +54,15 @@ export const AdvancedDataTable = <T extends Record<string, any>>(props: Advanced
   const [sortDir, setSortDir]         = useState<'asc' | 'desc'>('asc');
   const [selectedRow, setSelectedRow] = useState<T | null>(null);
 
+  // Column specific filters
+  const [columnFilters, setColumnFilters] = useState<Record<string, string>>({});
+  const [columnSearches, setColumnSearches] = useState<Record<string, string>>({});
+  const [expandedFilters, setExpandedFilters] = useState<Record<string, boolean>>({});
+
+  const handleFilterChange = (key: string, value: string) => { setColumnFilters(p => ({...p, [key]: value})); setPage(1); };
+  const handleSearchChange = (key: string, value: string) => { setColumnSearches(p => ({...p, [key]: value})); setPage(1); };
+  const toggleFilter = (key: string) => setExpandedFilters(p => ({...p, [key]: !p[key]}));
+
   // Col visibility
   const [colMenuOpen, setColMenuOpen] = useState(false);
   const [visibleCols, setVisibleCols] = useState<Record<string, boolean>>(() => {
@@ -85,12 +96,35 @@ export const AdvancedDataTable = <T extends Record<string, any>>(props: Advanced
     if (!isDataMode) return [];
     let d = [...externalData];
 
+    // Global filter
     if (globalSearch) {
       const q = globalSearch.toLowerCase();
       d = d.filter(row =>
         Object.values(row).some(v => v != null && String(v).toLowerCase().includes(q))
       );
     }
+
+    // Column specific filters
+    Object.entries(columnFilters).forEach(([colKey, filterVal]) => {
+      if (filterVal) {
+        const q = filterVal.toLowerCase();
+        d = d.filter(row => {
+          const val = row[colKey as keyof T];
+          return val != null && String(val).toLowerCase() === q;
+        });
+      }
+    });
+
+    // Column specific search
+    Object.entries(columnSearches).forEach(([colKey, searchVal]) => {
+      if (searchVal) {
+        const q = searchVal.toLowerCase();
+        d = d.filter(row => {
+          const val = row[colKey as keyof T];
+          return val != null && String(val).toLowerCase().includes(q);
+        });
+      }
+    });
 
     if (sortCol) {
       d.sort((a, b) => {
@@ -126,6 +160,9 @@ export const AdvancedDataTable = <T extends Record<string, any>>(props: Advanced
       };
       if (globalSearch) params.search = globalSearch;
       if (sortCol) { params.sortBy = sortCol; params.sortOrder = sortDir; }
+      
+      Object.entries(columnFilters).forEach(([key, val]) => { if (val) params[key] = val; });
+      Object.entries(columnSearches).forEach(([key, val]) => { if (val) params[`${key}_search`] = val; });
 
       // Use the project's apiClient (axios) to avoid CORS/auth issues
       const res = await apiClient.get(endpoint, { params });
@@ -205,12 +242,60 @@ export const AdvancedDataTable = <T extends Record<string, any>>(props: Advanced
             <tr>
               {activeColumns.map(col => (
                 <th key={col.key} style={{ width: col.width }}>
-                  <div className={styles.thContent}>
-                    <span>{col.header}</span>
-                    {col.sortable && (
-                      <button className={`${styles.iconBtn} ${sortCol === col.key ? styles.active : ''}`} onClick={() => handleSort(col.key)}>
-                        {sortCol === col.key ? (sortDir === 'asc' ? <FaChevronUp /> : <FaChevronDown />) : <FaChevronDown style={{ opacity: 0.3 }} />}
-                      </button>
+                  <div className={styles.columnHeader}>
+                    <div className={styles.thContent}>
+                      <span>{col.header}</span>
+                      {col.sortable && (
+                        <button className={`${styles.iconBtn} ${sortCol === col.key ? styles.active : ''}`} onClick={() => handleSort(col.key)} title="Sırala">
+                          {sortCol === col.key ? (sortDir === 'asc' ? <FaChevronUp /> : <FaChevronDown />) : <FaChevronDown style={{ opacity: 0.3 }} />}
+                        </button>
+                      )}
+                      {col.filterable && (
+                        <button 
+                          className={`${styles.iconBtn} ${expandedFilters[col.key] && !col.searchable ? styles.active : ''}`} 
+                          onClick={() => toggleFilter(col.key)}
+                          title="Filtrele"
+                        >
+                          <FaFilter />
+                        </button>
+                      )}
+                      {col.searchable && (
+                        <button 
+                          className={`${styles.iconBtn} ${expandedFilters[col.key] ? styles.active : ''}`} 
+                          onClick={() => toggleFilter(col.key)}
+                          title="Kolonda Ara"
+                        >
+                          <FaSearch style={{ fontSize: '0.6rem' }} />
+                        </button>
+                      )}
+                    </div>
+                    {/* Inline Filter Inputs */}
+                    {(col.filterable || col.searchable) && expandedFilters[col.key] && (
+                      <div className={styles.filterArea}>
+                        {col.filterable && !col.searchable && (
+                          <input
+                            type="text"
+                            className={styles.filterInput}
+                            placeholder={`${col.header} filtrele...`}
+                            value={columnFilters[col.key] || ''}
+                            onChange={(e) => handleFilterChange(col.key, e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && (!isDataMode && fetchData())}
+                          />
+                        )}
+                        {col.searchable && (
+                          <div className={styles.filterInputWrapper}>
+                            <FaSearch style={{ fontSize: '0.6rem', color: 'var(--text-muted)' }} />
+                            <input
+                              type="text"
+                              style={{ background: 'none', border: 'none', outline: 'none', color: 'var(--text-main)', fontSize: '0.78rem', width: '100%' }}
+                              placeholder="Kelimeler..."
+                              value={columnSearches[col.key] || ''}
+                              onChange={(e) => handleSearchChange(col.key, e.target.value)}
+                              onKeyDown={(e) => e.key === 'Enter' && (!isDataMode && fetchData())}
+                            />
+                          </div>
+                        )}
+                      </div>
                     )}
                   </div>
                 </th>

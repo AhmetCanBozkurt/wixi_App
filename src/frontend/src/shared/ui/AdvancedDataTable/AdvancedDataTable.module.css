@@ -289,7 +289,7 @@
 
 .retryBtn:hover {
   background: var(--color-danger);
-  color: #fff;
+  color: var(--text-main);
 }
 
 /* ─── Detail Button ─── */
@@ -310,7 +310,7 @@
 
 .detailBtn:hover {
   background: var(--color-primary);
-  color: #fff;
+  color: var(--text-main);
 }
 
 /* ─── Pagination ─── */

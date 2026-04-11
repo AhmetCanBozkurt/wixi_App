@@ -1,11 +1,52 @@
+import { useState, useEffect, useRef } from 'react';
 import { FaMoon, FaSun, FaBell, FaGlobe } from 'react-icons/fa';
 import { useAuthStore } from '../../entities/User/model/store';
 import { useTheme } from '../../app/providers/ThemeProvider';
+import { apiClient } from '../../shared/api/axiosConfig';
 import styles from './Header.module.css';
+
+interface Language {
+  id: string;
+  code: string;
+  name: string;
+}
 
 export const Header = () => {
   const { user } = useAuthStore();
   const { theme, toggleTheme } = useTheme();
+  
+  const [languages, setLanguages] = useState<Language[]>([]);
+  const [showLangs, setShowLangs] = useState(false);
+  const [currentLang, setCurrentLang] = useState(localStorage.getItem('lng') || 'tr-TR');
+  const langMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const fetchLanguages = async () => {
+      try {
+        const res = await apiClient.get<Language[]>('language');
+        setLanguages(res.data);
+      } catch (err) {
+        console.error("Diller yüklenemedi", err);
+      }
+    };
+
+    fetchLanguages();
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (langMenuRef.current && !langMenuRef.current.contains(event.target as Node)) {
+        setShowLangs(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleLangChange = (code: string) => {
+    localStorage.setItem('lng', code);
+    setCurrentLang(code);
+    setShowLangs(false);
+    window.location.reload();
+  };
 
   const getInitials = () => {
     if (user?.email) {
@@ -22,7 +63,6 @@ export const Header = () => {
 
   return (
     <header className={styles.headerContainer}>
-      {/* Left: Breadcrumb */}
       <div className={styles.leftSection}>
         <nav className={styles.breadcrumb}>
           <span className={styles.breadcrumbItem}>Dashboard</span>
@@ -31,14 +71,36 @@ export const Header = () => {
         </nav>
       </div>
 
-      {/* Right: Actions */}
       <div className={styles.rightSection}>
-        {/* Language */}
-        <button className={styles.iconBtn} title="Dil">
-          <FaGlobe />
-        </button>
+        <div className={styles.langWrapper} ref={langMenuRef}>
+          <button 
+            className={`${styles.langBtn} ${showLangs ? styles.active : ''}`} 
+            onClick={() => setShowLangs(!showLangs)}
+            title="Dil Değiştir"
+          >
+            <FaGlobe />
+            <span className={styles.activeLangCode}>
+              {currentLang.split('-')[1] || currentLang.substring(0, 2).toUpperCase()}
+            </span>
+          </button>
+          
+          {showLangs && (
+            <div className={styles.langDropdown}>
+              {languages.length === 0 && <div className={styles.langItem}>Yükleniyor...</div>}
+              {languages.map(lang => (
+                <button 
+                  key={lang.id} 
+                  className={`${styles.langItem} ${currentLang === lang.code ? styles.langItemActive : ''}`}
+                  onClick={() => handleLangChange(lang.code)}
+                >
+                  <span className={styles.flag}>{lang.code.split('-')[1] || lang.code.substring(0, 2)}</span>
+                  <span>{lang.name}</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
 
-        {/* Theme toggle - badge style like reference */}
         <button
           className={styles.themeBtn}
           onClick={toggleTheme}
@@ -47,14 +109,12 @@ export const Header = () => {
           {theme === 'dark' ? <><FaSun /> Light</> : <><FaMoon /> Dark</>}
         </button>
 
-        {/* Notifications */}
         <button className={styles.iconBtn} title="Bildirimler">
           <FaBell />
         </button>
 
         <div className={styles.divider} />
 
-        {/* User Profile - square avatar */}
         <div className={styles.userProfile}>
           <div className={styles.userInfo}>
             <span className={styles.userName}>{displayName}</span>

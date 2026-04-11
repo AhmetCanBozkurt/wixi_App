@@ -8,12 +8,17 @@ export const apiClient = axios.create({
   },
 });
 
-// Request Interceptor: Token eklemesi
+// Request Interceptor: Token ve Dil eklemesi
 apiClient.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+
+  // Tarayıcıdaki veya seçilen dili header olarak ekle
+  const lang = localStorage.getItem('lng') || 'tr-TR';
+  config.headers['Accept-Language'] = lang;
+  
   return config;
 });
 

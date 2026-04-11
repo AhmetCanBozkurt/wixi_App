@@ -147,3 +147,4 @@ C:\PROJECTS\wixi_App\src\backend\Wixi.API\bin\Debug\net9.0\MediatR.Contracts.dll
 C:\PROJECTS\wixi_App\src\backend\Wixi.API\bin\Debug\net9.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll
 C:\PROJECTS\wixi_App\src\backend\Wixi.API\bin\Debug\net9.0\Microsoft.Extensions.Logging.Abstractions.dll
 C:\PROJECTS\wixi_App\src\backend\Wixi.API\bin\Debug\net9.0\System.Diagnostics.DiagnosticSource.dll
+C:\PROJECTS\wixi_App\src\backend\Wixi.API\bin\Debug\net9.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll

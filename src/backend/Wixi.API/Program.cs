@@ -3,6 +3,10 @@ using Wixi.Modules.Core.Infrastructure.Data;
 using Wixi.Modules.Core.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Wixi.Shared.Configuration;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,6 +36,9 @@ builder.Services.AddDbContext<WixiCoreDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
+// Services
+builder.Services.AddScoped<Wixi.Modules.Core.Application.Common.Interfaces.ICurrentUserService, Wixi.Modules.Core.Infrastructure.Services.CurrentUserService>();
+
 // Configure Identity
 builder.Services.AddIdentity<WixiUser, WixiRole>(options => {
     options.User.RequireUniqueEmail = true;
@@ -41,6 +48,34 @@ builder.Services.AddIdentity<WixiUser, WixiRole>(options => {
 })
 .AddEntityFrameworkStores<WixiCoreDbContext>()
 .AddDefaultTokenProviders();
+
+// Configure JWT Authentication
+var jwtOptions = builder.Configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>();
+var key = Encoding.ASCII.GetBytes(jwtOptions?.SecretKey ?? "DefaultSecretKeyPlaceholder12345");
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.RequireHttpsMetadata = false;
+    options.SaveToken = true;
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+        ValidateIssuer = true,
+        ValidIssuer = jwtOptions?.Issuer,
+        ValidateAudience = true,
+        ValidAudience = jwtOptions?.Audience,
+        ValidateLifetime = true,
+        ClockSkew = TimeSpan.Zero
+    };
+});
+
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
@@ -64,6 +99,18 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseCors("AllowReactApp");
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+// Localization Middleware
+var supportedCultures = new[] { "tr-TR", "en-US", "de-DE" };
+var localizationOptions = new RequestLocalizationOptions()
+    .SetDefaultCulture(supportedCultures[0])
+    .AddSupportedCultures(supportedCultures)
+    .AddSupportedUICultures(supportedCultures);
+
+app.UseRequestLocalization(localizationOptions);
 
 app.MapControllers();
 
