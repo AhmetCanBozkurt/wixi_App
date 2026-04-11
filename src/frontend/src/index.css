@@ -5,39 +5,41 @@
    ============================ */
 :root,
 [data-theme="light"] {
-  --bg-primary: #f1f5f9;
-  --bg-secondary: #e2e8f0;
+  --bg-primary: #f8fafc; /* Slate 50 */
+  --bg-secondary: #f1f5f9; /* Slate 100 */
 
-  --surface-glass: #ffffff;
-  --surface-glass-hover: #f8fafc;
+  --surface: #ffffff;
+  --surface-hover: #f8fafc;
+  --surface-glass: rgba(255, 255, 255, 0.8);
+  --surface-glass-hover: rgba(255, 255, 255, 0.95);
   --border-glass: #e2e8f0;
   --border-glass-hover: #cbd5e1;
 
-  --color-primary: #4F46E5;
-  --color-primary-glow: rgba(79, 70, 229, 0.2);
+  --color-primary: #2563eb; /* Blue 600 */
+  --color-primary-glow: rgba(37, 99, 235, 0.1);
   --color-accent: #0891b2;
   --color-success: #059669;
   --color-danger: #dc2626;
 
-  --text-main: #0f172a;
+  --text-main: #0f172a; /* Slate 900 */
   --text-secondary: #334155;
   --text-muted: #64748b;
 
   --radius-sm: 4px;
   --radius-md: 6px;
-  --radius-lg: 10px;
+  --radius-lg: 8px;
   --radius-pill: 9999px;
 
   /* ---- Sidebar tokens (Light) ---- */
   --sidebar-bg: #ffffff;
-  --sidebar-header-bg: #7c3aed;
+  --sidebar-header-bg: #1e293b;
   --sidebar-border: #e2e8f0;
   --sidebar-text: #475569;
   --sidebar-text-muted: #94a3b8;
   --sidebar-hover-bg: #f1f5f9;
-  --sidebar-active-bg: rgba(124,58,237,0.08);
-  --sidebar-active-color: #7c3aed;
-  --sidebar-active-border: #7c3aed;
+  --sidebar-active-bg: rgba(37, 99, 235, 0.08);
+  --sidebar-active-color: #2563eb;
+  --sidebar-active-border: #2563eb;
   --sidebar-section-text: rgba(0,0,0,0.35);
   --sidebar-divider: #e2e8f0;
 
@@ -52,51 +54,53 @@
   --header-btn-text: #475569;
 
   /* ---- Content area ---- */
-  --content-bg: #f1f5f9;
+  --content-bg: #f8fafc;
 }
 
 /* ============================
    DARK MODE
    ============================ */
 [data-theme="dark"] {
-  --bg-primary: #040814;
-  --bg-secondary: #0A0F1F;
+  --bg-primary: #020617; /* Slate 950 */
+  --bg-secondary: #0f172a; /* Slate 900 */
 
-  --surface-glass: rgba(255, 255, 255, 0.03);
-  --surface-glass-hover: rgba(255, 255, 255, 0.08);
-  --border-glass: rgba(255, 255, 255, 0.08);
-  --border-glass-hover: rgba(255, 255, 255, 0.15);
+  --surface: #1e293b; /* Slate 800 */
+  --surface-hover: #334155;
+  --surface-glass: rgba(15, 23, 42, 0.6);
+  --surface-glass-hover: rgba(30, 41, 59, 0.8);
+  --border-glass: rgba(255, 255, 255, 0.06);
+  --border-glass-hover: rgba(255, 255, 255, 0.12);
 
-  --color-primary: #4F46E5;
-  --color-primary-glow: rgba(79, 70, 229, 0.4);
-  --color-accent: #06B6D4;
-  --color-success: #10B981;
-  --color-danger: #EF4444;
+  --color-primary: #3b82f6; /* Blue 500 */
+  --color-primary-glow: rgba(59, 130, 246, 0.2);
+  --color-accent: #06b6d4;
+  --color-success: #10b981;
+  --color-danger: #ef4444;
 
-  --text-main: #FFFFFF;
+  --text-main: #f8fafc;
   --text-secondary: #cbd5e1;
-  --text-muted: #94A3B8;
+  --text-muted: #94a3b8;
 
   --radius-sm: 4px;
   --radius-md: 6px;
-  --radius-lg: 10px;
+  --radius-lg: 8px;
   --radius-pill: 9999px;
 
   /* ---- Sidebar tokens (Dark) ---- */
-  --sidebar-bg: #1a1d2e;
-  --sidebar-header-bg: #7c3aed;
+  --sidebar-bg: #0f172a;
+  --sidebar-header-bg: #1e293b;
   --sidebar-border: rgba(255,255,255,0.06);
-  --sidebar-text: rgba(255,255,255,0.55);
-  --sidebar-text-muted: rgba(255,255,255,0.35);
+  --sidebar-text: rgba(255,255,255,0.7);
+  --sidebar-text-muted: rgba(255,255,255,0.4);
   --sidebar-hover-bg: rgba(255,255,255,0.05);
-  --sidebar-active-bg: rgba(124,58,237,0.15);
-  --sidebar-active-color: #a78bfa;
-  --sidebar-active-border: #7c3aed;
+  --sidebar-active-bg: rgba(59, 130, 246, 0.15);
+  --sidebar-active-color: #60a5fa;
+  --sidebar-active-border: #3b82f6;
   --sidebar-section-text: rgba(255,255,255,0.3);
   --sidebar-divider: rgba(255,255,255,0.06);
 
   /* ---- Header tokens (Dark) ---- */
-  --header-bg: #1a1d2e;
+  --header-bg: #0f172a;
   --header-border: rgba(255,255,255,0.06);
   --header-text: rgba(255,255,255,0.9);
   --header-text-muted: rgba(255,255,255,0.4);
@@ -106,7 +110,7 @@
   --header-btn-text: rgba(255,255,255,0.7);
 
   /* ---- Content area ---- */
-  --content-bg: #131525;
+  --content-bg: #020617;
 }
 
 

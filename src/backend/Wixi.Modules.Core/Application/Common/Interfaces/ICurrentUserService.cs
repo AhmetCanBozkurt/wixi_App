@@ -6,6 +6,7 @@ public interface ICurrentUserService
 {
     string? UserId { get; }
     string? Email { get; }
+    string? FullName { get; }
     string? IpAddress { get; }
     string? UserAgent { get; }
 }

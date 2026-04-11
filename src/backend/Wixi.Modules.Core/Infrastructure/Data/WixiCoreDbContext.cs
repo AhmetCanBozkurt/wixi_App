@@ -35,7 +35,7 @@ public class WixiCoreDbContext : IdentityDbContext<WixiUser, WixiRole, Guid>
                 entry.Entity.UpdatedAt = DateTime.UtcNow;
         }
 
-        // 2. Prepare Audit Logs (Safe Extraction)
+        // 2. Prepare Detailed Audit Logs
         var auditEntries = new List<WixiAuditLog>();
         try
         {
@@ -47,27 +47,62 @@ public class WixiCoreDbContext : IdentityDbContext<WixiUser, WixiRole, Guid>
             {
                 if (entry.Entity is WixiAuditLog) continue;
 
-                string entityId = "N/A";
-                var idProp = entry.Metadata.FindProperty("Id");
+                var tableName = entry.Metadata.GetTableName();
+                var primaryKey = entry.Properties.FirstOrDefault(p => p.Metadata.IsPrimaryKey())?.CurrentValue?.ToString() ?? "N/A";
                 
-                if (idProp != null)
+                var oldValues = new Dictionary<string, object?>();
+                var newValues = new Dictionary<string, object?>();
+                var affectedColumns = new List<string>();
+                string action = entry.State.ToString().ToUpper();
+
+                if (entry.State == EntityState.Modified)
                 {
-                    if (entry.State == EntityState.Deleted)
+                    // Check for Soft Delete
+                    var isDeletedProp = entry.Properties.FirstOrDefault(p => p.Metadata.Name == "IsDeleted");
+                    if (isDeletedProp != null && 
+                        (bool?)isDeletedProp.OriginalValue == false && 
+                        (bool?)isDeletedProp.CurrentValue == true)
                     {
-                        entityId = entry.Property("Id").OriginalValue?.ToString() ?? "N/A";
+                        action = "SOFT_DELETE";
                     }
-                    else
+
+                    foreach (var property in entry.Properties)
                     {
-                        entityId = entry.Property("Id").CurrentValue?.ToString() ?? "N/A";
+                        if (property.IsModified)
+                        {
+                            affectedColumns.Add(property.Metadata.Name);
+                            oldValues[property.Metadata.Name] = property.OriginalValue;
+                            newValues[property.Metadata.Name] = property.CurrentValue;
+                        }
+                    }
+                }
+                else if (entry.State == EntityState.Added)
+                {
+                    foreach (var property in entry.Properties)
+                    {
+                        newValues[property.Metadata.Name] = property.CurrentValue;
+                    }
+                }
+                else if (entry.State == EntityState.Deleted)
+                {
+                    foreach (var property in entry.Properties)
+                    {
+                        oldValues[property.Metadata.Name] = property.OriginalValue;
                     }
                 }
 
                 auditEntries.Add(new WixiAuditLog
                 {
-                    Action = $"{entry.State.ToString().ToUpper()}_{entry.Metadata.ClrType.Name.ToUpper()}",
-                    Details = $"EntityId: {entityId}",
+                    Action = action,
+                    TableName = tableName,
+                    EntityId = primaryKey,
+                    OldValues = oldValues.Count > 0 ? System.Text.Json.JsonSerializer.Serialize(oldValues) : null,
+                    NewValues = newValues.Count > 0 ? System.Text.Json.JsonSerializer.Serialize(newValues) : null,
+                    AffectedColumns = affectedColumns.Count > 0 ? string.Join(", ", affectedColumns) : null,
+                    Details = $"{action} operation on {tableName} ({primaryKey})",
                     UserId = _currentUserService?.UserId,
                     Email = _currentUserService?.Email,
+                    FullName = _currentUserService?.FullName,
                     IpAddress = _currentUserService?.IpAddress,
                     UserAgent = _currentUserService?.UserAgent,
                     CreatedAt = DateTime.UtcNow
@@ -81,7 +116,8 @@ public class WixiCoreDbContext : IdentityDbContext<WixiUser, WixiRole, Guid>
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Audit logging preparation failed: {ex.Message}");
+            // Logging internally to console for debug, but ensuring SaveChanges continues
+            Console.WriteLine($"Detailed Audit logging preparation failed: {ex.Message}");
         }
 
         // 3. Robust Save with Concurrency Handling

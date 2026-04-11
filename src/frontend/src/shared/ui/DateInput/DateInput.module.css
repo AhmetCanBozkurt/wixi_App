@@ -1,0 +1,71 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+    position: relative;
+}
+
+.label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-left: 2px;
+}
+
+.inputWrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: var(--surface-glass);
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-md);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    height: 42px;
+    cursor: pointer;
+}
+
+.inputWrapper:hover {
+    background: var(--surface-glass-hover);
+    border-color: var(--text-muted);
+}
+
+.active {
+    background: var(--surface-glass-hover);
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-glow);
+}
+
+.icon {
+    margin-left: 12px;
+    margin-right: 10px;
+    display: flex;
+    align-items: center;
+    color: var(--color-primary);
+}
+
+.displayValue {
+    flex: 1;
+    font-size: 0.95rem;
+    color: var(--text-main);
+}
+
+.placeholder {
+    color: var(--text-muted);
+    opacity: 0.7;
+}
+
+.popover {
+    z-index: 10000;
+}
+
+.hasError {
+    border-color: var(--color-danger) !important;
+}
+
+.errorText {
+    font-size: 0.75rem;
+    color: var(--color-danger);
+    margin-left: 2px;
+    margin-top: 2px;
+}

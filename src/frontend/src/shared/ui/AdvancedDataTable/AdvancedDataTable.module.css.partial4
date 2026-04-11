@@ -1,0 +1,80 @@
+/* Context Menu (Header Right Click) */
+.ctxMenu {
+    position: fixed;
+    background: var(--surface-glass);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-md);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+    z-index: 10000;
+    min-width: 220px;
+    padding: 6px 0;
+    animation: contextFade 0.2s ease-out;
+}
+
+@keyframes contextFade {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.ctxItem {
+    width: 100%;
+    background: none;
+    border: none;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--text-main);
+    font-size: 0.9rem;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.2s;
+}
+
+.ctxItem:hover {
+    background: var(--surface-hover);
+    color: var(--color-primary);
+}
+
+.ctxItem svg {
+    font-size: 1rem;
+    opacity: 0.8;
+}
+
+/* Grouping Zone Drag States */
+.groupingZoneOver {
+    background: var(--color-primary-glow) !important;
+    border: 1px dashed var(--color-primary) !important;
+}
+
+.groupCount {
+    color: var(--color-primary);
+    font-size: 0.85rem;
+    margin-left: 6px;
+    font-weight: 400;
+}
+
+/* Fix group chevron transition */
+.groupChevron {
+    transition: transform 0.2s;
+}
+
+.collapsed {
+    transform: rotate(-90deg);
+}
+
+/* Header fix */
+.actionTh {
+    width: 100px;
+    text-align: center !important;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background: rgba(255, 255, 255, 0.03);
+    border-bottom: 1px solid var(--border-glass);
+    padding: 14px;
+}

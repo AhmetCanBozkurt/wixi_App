@@ -38,7 +38,7 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, AuthResult>
         
         if (user == null || !await _userManager.CheckPasswordAsync(user, request.Password))
         {
-            await LogAuditAsync(user?.Id.ToString(), request.Email, "LOGIN_FAILED", "Kullanıcı adı veya şifre hatalı.");
+            await LogAuditAsync(user, request.Email, "LOGIN_FAILED", "Kullanıcı adı veya şifre hatalı.");
             return new AuthResult { Success = false, ErrorMessage = "E-posta veya şifre hatalı." };
         }
 
@@ -49,7 +49,8 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, AuthResult>
         var claims = new List<Claim>
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new Claim(ClaimTypes.Email, user.Email!)
+            new Claim(ClaimTypes.Email, user.Email!),
+            new Claim(ClaimTypes.Name, $"{user.FirstName} {user.LastName}")
         };
 
         var roles = await _userManager.GetRolesAsync(user);
@@ -70,7 +71,7 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, AuthResult>
         var token = tokenHandler.CreateToken(tokenDescriptor);
 
         // Başarılı giriş logu
-        await LogAuditAsync(user.Id.ToString(), user.Email, "LOGIN_SUCCESS", "Kullanıcı başarıyla giriş yaptı.");
+        await LogAuditAsync(user, user.Email, "LOGIN_SUCCESS", "Kullanıcı başarıyla giriş yaptı.");
 
         return new AuthResult
         {
@@ -79,7 +80,7 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, AuthResult>
         };
     }
 
-    private async Task LogAuditAsync(string? userId, string? email, string action, string details)
+    private async Task LogAuditAsync(WixiUser? user, string? email, string action, string details)
     {
         var context = _httpContextAccessor.HttpContext;
         var ipAddress = context?.Connection?.RemoteIpAddress?.ToString();
@@ -89,8 +90,9 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, AuthResult>
         {
             Action = action,
             Details = details,
-            UserId = userId,
-            Email = email,
+            UserId = user?.Id.ToString(),
+            Email = user?.Email ?? email,
+            FullName = user != null ? $"{user.FirstName} {user.LastName}" : null,
             IpAddress = ipAddress,
             UserAgent = userAgent,
             CreatedAt = DateTime.UtcNow

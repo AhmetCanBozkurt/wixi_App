@@ -7,12 +7,20 @@ public class WixiAuditLog : IAuditable
     public Guid Id { get; set; } = Guid.NewGuid();
     
     // Core Fields
-    public string Action { get; set; } = string.Empty; // e.g. "LOGIN_SUCCESS", "LOGIN_FAILED"
-    public string? Details { get; set; }
+    public string Action { get; set; } = string.Empty; // e.g. "CREATE", "UPDATE", "DELETE", "SOFT_DELETE"
+    public string? TableName { get; set; }
+    public string? EntityId { get; set; }
+    public string? Details { get; set; } // General summary or JSON diff summary
     
+    // Change Tracking (JSON)
+    public string? OldValues { get; set; }
+    public string? NewValues { get; set; }
+    public string? AffectedColumns { get; set; }
+
     // User Context
     public string? UserId { get; set; }
     public string? Email { get; set; }
+    public string? FullName { get; set; } // Name of the user at the time of action
     
     // Connection info
     public string? IpAddress { get; set; }

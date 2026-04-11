@@ -3,7 +3,8 @@ import { FaPlus, FaEdit, FaTrash, FaCheck, FaTimes, FaGlobe } from 'react-icons/
 import { toast } from 'react-hot-toast';
 import Swal from 'sweetalert2';
 import { apiClient } from '../../shared/api/axiosConfig';
-import { AdvancedDataTable, type Column } from '../../shared/ui/AdvancedDataTable/AdvancedDataTable';
+import { AdvancedDataTable } from '../../shared/ui/AdvancedDataTable/AdvancedDataTable';
+import { Badge } from '../../shared/ui/Badge/Badge';
 import styles from './LanguageManagementPage.module.css';
 
 interface Language {
@@ -102,10 +103,10 @@ export const LanguageManagementPage = () => {
       text: `${lang.name} (${lang.code}) sistemden silinecektir.`,
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#ef4444',
+      confirmButtonColor: 'var(--color-danger)',
       cancelButtonText: 'İptal',
       confirmButtonText: 'Evet, Sil!',
-      background: 'var(--bg-secondary)',
+      background: 'var(--surface)',
       color: 'var(--text-main)'
     });
 
@@ -119,78 +120,6 @@ export const LanguageManagementPage = () => {
       }
     }
   };
-
-  const columns: Column<Language>[] = [
-    {
-      key: 'iconBase64',
-      header: 'Bayrak',
-      width: '100px',
-      render: (_, row) => (
-        <div className={styles.flagIconWrapper}>
-          {row.iconBase64 ? (
-            <img 
-              src={row.iconBase64} 
-              alt={row.name} 
-              className={styles.tableFlag} 
-            />
-          ) : (
-            <span className={styles.flagBadge}>
-              {String(row.flagCode || row.code.substring(0,2)).toUpperCase()}
-            </span>
-          )}
-        </div>
-      )
-    },
-    {
-      key: 'name',
-      header: 'Dil Adı',
-      sortable: true,
-      searchable: true,
-      render: (val) => <strong className={styles.nameText}>{String(val)}</strong>
-    },
-    {
-      key: 'code',
-      header: 'Kod',
-      sortable: true,
-      searchable: true,
-      render: (val) => <code>{String(val)}</code>
-    },
-    {
-      key: 'isActive',
-      header: 'Durum',
-      width: '120px',
-      render: (val) => (
-        <span className={`${styles.statusBadge} ${val ? styles.active : ''}`}>
-          {val ? 'Aktif' : 'Pasif'}
-        </span>
-      )
-    },
-    {
-      key: 'isDefault',
-      header: 'Varsayılan',
-      width: '120px',
-      render: (val) => val ? (
-        <span className={styles.defaultBadge} title="Varsayılan Dil">
-          <FaCheck />
-        </span>
-      ) : null
-    },
-    {
-      key: 'actions',
-      header: 'İşlemler',
-      width: '120px',
-      render: (_, row) => (
-        <div className={styles.tableActions}>
-          <button className={styles.actionBtn} title="Düzenle" onClick={() => handleOpenModal(row)}>
-            <FaEdit />
-          </button>
-          <button className={styles.actionBtnDelete} title="Sil" onClick={() => handleDelete(row)}>
-            <FaTrash />
-          </button>
-        </div>
-      )
-    }
-  ];
 
   return (
     <div className={styles.container}>
@@ -208,11 +137,47 @@ export const LanguageManagementPage = () => {
       </div>
 
       <div className={styles.content}>
-        <AdvancedDataTable 
-          columns={columns} 
-          data={languages} 
-          pageSize={10}
-          loading={loading}
+        <AdvancedDataTable<Language>
+          dataSource={languages}
+          columns={[
+            {
+              field: 'iconBase64',
+              title: 'Bayrak',
+              width: 100,
+              template: (row) => (
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                  {row.iconBase64 ? (
+                    <img src={row.iconBase64} alt={row.name} style={{ height: '24px', borderRadius: '2px', border: '1px solid var(--border-glass)' }} />
+                  ) : (
+                    <Badge variant="info" size="sm">{row.code.substring(0,2).toUpperCase()}</Badge>
+                  )}
+                </div>
+              )
+            },
+            { field: 'name', title: 'Dil Adı' },
+            { field: 'code', title: 'Kod', template: (row) => <code>{row.code}</code> },
+            {
+              field: 'isActive',
+              title: 'Durum',
+              width: 120,
+              template: (row) => <Badge variant={row.isActive ? 'success' : 'danger'} size="sm" showDot>{row.isActive ? 'Aktif' : 'Pasif'}</Badge>
+            },
+            {
+              field: 'isDefault',
+              title: 'Varsayılan',
+              width: 120,
+              template: (row) => row.isDefault ? <Badge variant="primary" size="sm" outline><FaCheck style={{ marginRight: '4px' }} /> Ana Dil</Badge> : null
+            }
+          ]}
+          groupable={true}
+          sortable={true}
+          selectable={true}
+          reorderable={true}
+          resizable={true}
+          pageable={{ pageSize: 10 }}
+          toolbar={['search', 'excel', 'pdf']}
+          onEdit={handleOpenModal}
+          onDelete={handleDelete}
         />
       </div>
 

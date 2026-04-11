@@ -1,0 +1,65 @@
+.card {
+    background: var(--surface-glass);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    color: var(--text-main);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.hoverable:hover {
+    transform: translateY(-4px);
+    background: var(--surface-glass-hover);
+    border-color: var(--color-primary-glow);
+    box-shadow: 0 12px 40px 0 var(--color-primary-glow);
+    cursor: pointer;
+}
+
+.header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border-glass);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.titleSection {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.title {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.subtitle {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.content {
+    flex: 1;
+}
+
+.footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--border-glass);
+    background: rgba(0, 0, 0, 0.1);
+}
+
+/* Padding variants */
+.padding-none .content { padding: 0; }
+.padding-sm .content { padding: 12px; }
+.padding-md .content { padding: 24px; }
+.padding-lg .content { padding: 32px; }

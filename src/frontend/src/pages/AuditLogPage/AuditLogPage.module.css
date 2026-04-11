@@ -1,0 +1,103 @@
+.container {
+  padding: 30px;
+  background: var(--bg-primary);
+  min-height: calc(100vh - 80px);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.titleArea {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.mainIcon {
+  font-size: 2.5rem;
+  color: var(--color-primary);
+  background: var(--surface-glass);
+  padding: 10px;
+  border-radius: 12px;
+}
+
+.titleArea h1 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.titleArea p {
+  color: var(--text-secondary);
+  margin: 5px 0 0;
+}
+
+.content {
+  background: var(--surface-glass);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border-glass);
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: var(--shadow-xl);
+}
+
+/* Badges */
+.actionBadge {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.create { background: rgba(34, 197, 94, 0.1); color: #22c55e; }
+.update { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+.delete { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+.soft_delete { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+
+.tableText { color: var(--text-main); font-weight: 600; }
+.idText { font-family: 'DM Mono', monospace; font-size: 0.8rem; color: var(--text-secondary); }
+
+/* Diff View in Modal */
+.diffContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.diffSection {
+  background: var(--bg-secondary);
+  padding: 15px;
+  border-radius: 12px;
+  border: 1px solid var(--border-glass);
+}
+
+.diffSection h4 {
+  margin: 0 0 10px;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.jsonBlock {
+  background: #1e1e1e;
+  color: #dcdcdc;
+  padding: 15px;
+  border-radius: 8px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.85rem;
+  white-space: pre-wrap;
+  overflow-x: auto;
+}
+
+/* Modal sizing */
+.modal {
+  max-width: 800px !important;
+  width: 90% !important;
+}

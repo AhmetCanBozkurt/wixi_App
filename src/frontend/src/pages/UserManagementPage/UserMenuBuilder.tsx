@@ -28,10 +28,9 @@ const SYSTEM_PAGES = [
   { name: 'Menü Yönetimi', path: '/admin/menus' },
   { name: 'Kullanıcı Yönetimi', path: '/admin/users' },
   { name: 'Dil Yönetimi', path: '/admin/languages' },
-  { name: 'Uygulama Logları', path: '/admin/logs' },
-  { name: 'Chat İşlemleri', path: '/chat' },
-  { name: 'Bağlı Cihazlar', path: '/devices' },
-  { name: 'Ayarlar', path: '/settings' },
+  { name: 'Uygulama Logları (App Logs)', path: '/admin/logs' },
+  { name: 'Sistem Değişiklik Logları (Audit)', path: '/admin/audit' },
+  { name: 'UI Tasarım Vitrini (Showcase)', path: '/admin/ui-showcase' },
 ];
 
 const POPULAR_ICONS = Object.keys(FaIconsList).filter(key => key.startsWith('Fa')).slice(0, 100);

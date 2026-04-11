@@ -70,5 +70,6 @@ Buradaki görevler otonom asistan (Antigravity) tarafından projenin fazlarına 
 
 - `[ ]` **Frontend:** Recharts veya ApexCharts ile Global Dashboard grafik bileşenlerinin (Widget) oluşturulması.
 - `[ ]` **Frontend:** Dark / Light tema mantığının (Shadcn Theme Provider üzerinden) kusursuzlaştırılması.
-- `[ ]` **Frontend:** Tablolar için Generic Data-Table (Sorting, Pagination, Filtering) bileşeni kodlanması.
+- `[x]` **Frontend:** Tablolar için Generic Data-Table (`AdvancedDataTable`) bileşeni Premium Vanilla CSS olarak refactor edildi.
+- `[x]` **Frontend:** Premium UI Design System temelleri atıldı (Button, Input, Card) ve `ComponentShowcasePage` oluşturuldu.
 - `[ ]` **Frontend:** Lighthouse performans testi ve Bundle-size (dosya küçültme/lazy load) operasyonlarının tamamlanması.

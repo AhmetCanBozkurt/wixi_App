@@ -33,47 +33,30 @@ const toLocalDate = (iso: string) =>
 
 const ActionBadge = ({ action }: { action: string }) => {
   const up = action.toUpperCase();
-  if (up.includes('FAILED') || up.includes('DELETE') || up.includes('ERROR'))
-    return <span className={`${styles.badge} ${styles.red}`}><FaExclamationTriangle /> {action}</span>;
-  if (up.includes('WARNING') || up.includes('UPDATE'))
-    return <span className={`${styles.badge} ${styles.yellow}`}><FaExclamationTriangle /> {action}</span>;
-  if (up.includes('SUCCESS') || up.includes('CREATE'))
-    return <span className={`${styles.badge} ${styles.green}`}><FaCheckCircle /> {action}</span>;
-  if (up.includes('LOGIN') || up.includes('LOGOUT'))
-    return <span className={`${styles.badge} ${styles.blue}`}><FaInfoCircle /> {action}</span>;
-  return <span className={`${styles.badge} ${styles.gray}`}><FaInfoCircle /> {action}</span>;
+  const color = (up.includes('FAILED') || up.includes('DELETE') || up.includes('ERROR')) ? '#ef4444' :
+                (up.includes('WARNING') || up.includes('UPDATE')) ? '#f59e0b' :
+                (up.includes('SUCCESS') || up.includes('CREATE')) ? '#10b981' :
+                (up.includes('LOGIN') || up.includes('LOGOUT')) ? '#3b82f6' : '#6b7280';
+  
+  return (
+    <span style={{ 
+      backgroundColor: `${color}15`, 
+      color: color, 
+      padding: '2px 8px', 
+      borderRadius: '4px', 
+      fontSize: '0.75rem', 
+      fontWeight: 'bold',
+      border: `1px solid ${color}30`,
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: '4px'
+    }}>
+      {up.includes('FAILED') || up.includes('ERROR') ? <FaExclamationTriangle /> : 
+       up.includes('SUCCESS') ? <FaCheckCircle /> : <FaInfoCircle />}
+      {action}
+    </span>
+  );
 };
-
-const COLUMNS = [
-  {
-    key: 'action',
-    header: 'İŞLEM',
-    render: (val: string) => <ActionBadge action={val} />,
-  },
-  {
-    key: 'email',
-    header: 'E-POSTA',
-    sortable: true,
-    render: (val: string) => val || '-',
-  },
-  {
-    key: 'ipAddress',
-    header: 'IP ADRESİ',
-    render: (val: string) => <code style={{ fontSize: '0.8rem', fontFamily: 'monospace' }}>{val || '-'}</code>,
-  },
-  {
-    key: 'entityName',
-    header: 'VARLIK',
-    render: (val: string, row: AuditLogItem) =>
-      val ? `${val} #${String(row.entityId ?? '').slice(0, 8)}` : '-',
-  },
-  {
-    key: 'createdAt',
-    header: 'TARİH / SAAT',
-    sortable: true,
-    render: (val: string) => toLocalDate(val),
-  },
-];
 
 // Default date values
 const getDefaultStart = () => new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
@@ -103,7 +86,6 @@ export const ApplicationLogsPage = () => {
   useEffect(() => { fetchStats(); }, [fetchStats]);
 
   // Stable searchParams for AdvancedDataTable
-  // Stringify check inside the table will prevent re-fetches if these don't change
   const searchParams = useMemo(() => {
     const params: Record<string, string> = { startDate, endDate };
     if (filter !== 'all') params.action = filter;
@@ -123,7 +105,7 @@ export const ApplicationLogsPage = () => {
         <StatCard title="Bugün"       value={stats.todayCount} color="green"  icon={<FaCheckCircle />} />
       </div>
 
-      {/* Filters (only for stats and base search params) */}
+      {/* Filters */}
       <div className={styles.filtersCard}>
         <div className={styles.dateFilters}>
           <FaCalendar className={styles.dateIcon} />
@@ -145,18 +127,51 @@ export const ApplicationLogsPage = () => {
         </div>
       </div>
 
-      {/*
-        ENDPOINT MODE: AdvancedDataTable handles fetching via apiClient.
-        - No infinite loop: protected by useMemo searchParams + internal JSON.stringify check.
-        - No CORS error: uses project's apiClient.
-        - No double audit requests: Page doesn't fetch logs anymore.
-      */}
-      <AdvancedDataTable
-        endpoint={endpoint}
-        searchParams={searchParams}
-        columns={COLUMNS}
-        pageSize={15}
-      />
+      <div className={styles.gridWrapper}>
+        <AdvancedDataTable<AuditLogItem>
+          dataSource={endpoint}
+          searchParams={searchParams}
+          columns={[
+            {
+              field: 'action',
+              title: 'İŞLEM',
+              width: 160,
+              template: (row) => <ActionBadge action={row.action} />,
+            },
+            {
+              field: 'email',
+              title: 'E-POSTA',
+              template: (row) => <strong>{row.email || '-'}</strong>,
+            },
+            {
+              field: 'ipAddress',
+              title: 'IP ADRESİ',
+              width: 140,
+              template: (row) => <code style={{ fontSize: '0.8rem', opacity: 0.8 }}>{row.ipAddress || '-'}</code>,
+            },
+            {
+              field: 'entityName',
+              title: 'VARLIK',
+              template: (row) => row.entityName ? (
+                <span>{row.entityName} <small style={{ opacity: 0.5 }}>#{String(row.entityId).slice(0,8)}</small></span>
+              ) : '-',
+            },
+            {
+              field: 'createdAt',
+              title: 'TARİH / SAAT',
+              width: 200,
+              template: (row) => <span style={{ fontFamily: 'monospace' }}>{toLocalDate(row.createdAt)}</span>,
+            },
+          ]}
+          pageable={{ pageSize: 15 }}
+          sortable={true}
+          groupable={true}
+          resizable={true}
+          reorderable={true}
+          selectable={true}
+          toolbar={['search', 'excel', 'pdf']}
+        />
+      </div>
     </div>
   );
 };

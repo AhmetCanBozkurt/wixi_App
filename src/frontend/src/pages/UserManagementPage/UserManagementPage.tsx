@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
-import { FaUsers, FaSitemap, FaTrash } from 'react-icons/fa';
+import { FaUsers, FaSitemap } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 import Swal from 'sweetalert2';
 import { apiClient } from '../../shared/api/axiosConfig';
-import { AdvancedDataTable, type Column } from '../../shared/ui/AdvancedDataTable/AdvancedDataTable';
+import { AdvancedDataTable } from '../../shared/ui/AdvancedDataTable/AdvancedDataTable';
+import { Badge } from '../../shared/ui/Badge/Badge';
 import { UserMenuBuilder } from './UserMenuBuilder';
 import styles from './UserManagementPage.module.css';
 
@@ -48,10 +49,10 @@ export const UserManagementPage = () => {
       text: `${user.firstName} ${user.lastName} sistemden silinecektir.`,
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#ef4444',
+      confirmButtonColor: 'var(--color-danger)',
       cancelButtonText: 'İptal',
       confirmButtonText: 'Evet, Sil!',
-      background: 'var(--bg-secondary)',
+      background: 'var(--surface)',
       color: 'var(--text-main)'
     });
 
@@ -59,51 +60,6 @@ export const UserManagementPage = () => {
       toast.error('Bu sadece bir gösterim. Silme endpointi Role mimarisinde eklenecektir.');
     }
   };
-
-  const columns: Column<UserListDto>[] = [
-    {
-      key: 'firstName',
-      header: 'Ad',
-      sortable: true,
-      filterable: true
-    },
-    {
-      key: 'lastName',
-      header: 'Soyad',
-      sortable: true,
-      filterable: true
-    },
-    {
-      key: 'email',
-      header: 'E-Posta Adresi',
-      searchable: true,
-      sortable: true
-    },
-    {
-      key: 'isActive',
-      header: 'Durum',
-      render: (val) => (
-        <span className={`${styles.statusBadge} ${val ? styles.active : ''}`}>
-          {val ? 'Aktif' : 'Pasif'}
-        </span>
-      )
-    },
-    {
-      key: 'actions',
-      header: 'İşlemler',
-      width: '120px',
-      render: (_, row) => (
-        <div className={styles.tableActions}>
-          <button onClick={() => handleManageMenus(row)} className={styles.actionBtn} title="Menü Yetkilerini Düzenle">
-            <FaSitemap />
-          </button>
-          <button onClick={() => handleDeleteUser(row)} className={styles.actionBtn} style={{ color: '#ef4444' }} title="Kullanıcıyı Sil">
-            <FaTrash />
-          </button>
-        </div>
-      )
-    }
-  ];
 
   return (
     <div className={styles.container}>
@@ -118,11 +74,42 @@ export const UserManagementPage = () => {
       </div>
 
       <div className={styles.content}>
-        <AdvancedDataTable 
-          columns={columns} 
-          data={users} 
-          pageSize={10}
-          loading={loading}
+        <AdvancedDataTable<UserListDto>
+          dataSource={users}
+          columns={[
+            { field: 'id', title: 'ID', width: 80, hidden: true },
+            { 
+              field: 'firstName', 
+              title: 'Ad',
+              template: (row) => <strong>{row.firstName}</strong>
+            },
+            { field: 'lastName', title: 'Soyad' },
+            { field: 'email', title: 'E-Posta Adresi' },
+            { 
+              field: 'isActive', 
+              title: 'Durum',
+              width: 120,
+              template: (row) => (
+                <Badge 
+                  variant={row.isActive ? 'success' : 'danger'} 
+                  showDot 
+                  size="sm"
+                >
+                  {row.isActive ? 'Aktif' : 'Pasif'}
+                </Badge>
+              )
+            }
+          ]}
+          groupable={true}
+          sortable={true}
+          selectable={true}
+          reorderable={true}
+          resizable={true}
+          pageable={{ pageSize: 10 }}
+          toolbar={['search', 'excel', 'pdf']}
+          onDetail={handleManageMenus}
+          onDelete={handleDeleteUser}
+          onEdit={(user) => toast.success(`${user.firstName} için düzenleme formu açılacak.`)}
         />
       </div>
 

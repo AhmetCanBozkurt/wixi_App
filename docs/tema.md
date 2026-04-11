@@ -21,9 +21,10 @@ Bu döküman, projedeki üst düzey Premium görsel standartları ve Vanilla CSS
 
 ## 1. Premium Tasarım Felsefesi
 
-- **Kuruluş:** Uygulama, kullanıcılara "Wow!" dedirtecek premium bir "Dark Mode" hissiyatıyla tasarlanmıştır. 
-- **Tailwind Yasağı:** Projede `bg-red-500`, `flex`, `mt-4` gibi utility framework'ler kullanılmaz. Bütün stiller, komponentlerin yanındaki `.module.css` dosyalarında barınır.
-- **Dinamizm:** Her element, fare üzerine geldiğinde (hover) yumuşak mikro animasyonlar ve parlama (glow) efektleriyle tepki vermelidir.
+- **Kuruluş:** Uygulama, kurumsal bir ciddiyet ile modern estetiği birleştiren "Premium Dark" temasını esas alır. 
+- **Sadelik (Simplicity):** Gereksiz süslemelerden ve aşırı parlaklıktan kaçınılır. "Aşırı Sade" ama "Kaliteli" bir his önceliklidir.
+- **Konsistans:** Tüm bileşenler aynı köşe yumuşatması (border-radius) ve renk derinliğini kullanmalıdır.
+- **Tailwind Yasağı:** Bütün stiller, komponentlerin yanındaki `.module.css` dosyalarında barınır.
 
 ---
 
@@ -34,29 +35,32 @@ Uygulamanın kalbi `index.css` dosyasıdır. Aşağıdaki değişkenler tüm mod
 ```css
 :root {
   /* DARK OBSIDIAN BACKGROUND */
-  --bg-primary: #040814; 
-  --bg-secondary: #0A0F1F;
+  --bg-primary: #020617; /* Deepest Navy/Slate */
+  --bg-secondary: #0f172a; /* Slate 900 */
   
-  /* GLASSMORPHISM SURFACES */
-  --surface-glass: rgba(255, 255, 255, 0.03);
-  --surface-glass-hover: rgba(255, 255, 255, 0.08);
-  --border-glass: rgba(255, 255, 255, 0.08);
+  /* SURFACES (Clean & Subtle Glass) */
+  --surface: #1e293b; /* Slate 800 */
+  --surface-hover: #334155; /* Slate 700 */
+  --surface-glass: rgba(30, 41, 59, 0.4);
+  --surface-glass-hover: rgba(51, 65, 85, 0.6);
+  --border-glass: rgba(255, 255, 255, 0.05);
   
   /* VIBRANT BRAND COLORS */
-  --color-primary: #4F46E5; /* Electric Indigo */
-  --color-primary-glow: rgba(79, 70, 229, 0.4);
-  --color-accent: #06B6D4; /* Cyan */
-  --color-success: #10B981;
-  --color-danger: #EF4444;
+  --color-primary: #3b82f6; /* Modern Blue */
+  --color-primary-glow: rgba(59, 130, 246, 0.2);
+  --color-accent: #06b6d4; /* Cyan */
+  --color-success: #10b981;
+  --color-danger: #ef4444;
 
   /* TYPOGRAPHY */
-  --text-main: #FFFFFF;
-  --text-muted: #94A3B8;
+  --text-main: #f8fafc; /* Slate 50 */
+  --text-muted: #94a3b8; /* Slate 400 */
+  --text-secondary: #cbd5e1; /* Slate 300 */
 
   /* SPACING & BORDER RADIUS */
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 24px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
   --radius-pill: 9999px;
 }
 ```
