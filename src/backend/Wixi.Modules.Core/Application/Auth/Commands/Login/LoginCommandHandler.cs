@@ -90,6 +90,7 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, AuthResult>
         {
             Action = action,
             Details = details,
+            LogType = LogType.Security,
             UserId = user?.Id.ToString(),
             Email = user?.Email ?? email,
             FullName = user != null ? $"{user.FirstName} {user.LastName}" : null,

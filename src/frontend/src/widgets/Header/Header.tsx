@@ -58,7 +58,7 @@ export const Header = () => {
   useEffect(() => {
     const fetchLanguages = async () => {
       try {
-        const res = await apiClient.get<Language[]>('language');
+        const res = await apiClient.get<Language[]>('language', { params: { skipLog: true } });
         setLanguages(res.data);
       } catch (err) {
         console.error("Diller yüklenemedi", err);

@@ -6,6 +6,7 @@ import {
 } from 'react-icons/fa';
 import { apiClient } from '../../shared/api/axiosConfig';
 import { DynamicIcon } from '../../shared/ui/DynamicIcon/DynamicIcon';
+import { useAuthStore } from '../../entities/User/model/store';
 import styles from './Sidebar.module.css';
 import logoImg from '../../assets/Logolar/logo.png';
 
@@ -34,6 +35,7 @@ interface SidebarProps {
 export const Sidebar = ({ isCollapsed, onToggleCollapse }: SidebarProps) => {
   const [menus, setMenus] = useState<MenuItemDto[]>([]);
   const [loading, setLoading] = useState(true);
+  const { logout: storeLogout } = useAuthStore();
 
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>(() => {
     try {
@@ -80,7 +82,7 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse }: SidebarProps) => {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  // ─── Recursive Helpers (Defined as regular functions to avoid useCallback recursion issues) ───
+  // ─── Recursive Helpers ───
   const filterMenuTree = (items: MenuItemDto[], query: string): MenuItemDto[] => {
     return items
       .map(item => {
@@ -158,6 +160,17 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse }: SidebarProps) => {
   const handleSearchToggle = () => {
     if (searchOpen) setSearchQuery('');
     setSearchOpen(o => !o);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await apiClient.post('auth/logout');
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      storeLogout();
+      window.location.href = '/login';
+    }
   };
 
   // ─── Derived Data ─────────────────────────────────
@@ -335,7 +348,7 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse }: SidebarProps) => {
       </nav>
 
       <div className={styles.footer}>
-        <button className={styles.logoutBtn} onClick={() => {/* handle logout */}}>
+        <button className={styles.logoutBtn} onClick={handleLogout}>
           <FaSignOutAlt />
           {!isCollapsed && <span>Oturumu Kapat</span>}
         </button>

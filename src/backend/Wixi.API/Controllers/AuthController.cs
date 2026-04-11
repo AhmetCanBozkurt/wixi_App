@@ -1,7 +1,10 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Wixi.Modules.Core.Application.Auth.Commands.Login;
 using Wixi.Modules.Core.Application.Auth.Commands.Register;
+using Wixi.Modules.Core.Infrastructure.Data;
+using Wixi.Modules.Core.Domain.Entities;
 
 namespace Wixi.API.Controllers;
 
@@ -10,10 +13,20 @@ namespace Wixi.API.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly IMediator _mediator;
+    private readonly WixiCoreDbContext _context;
 
-    public AuthController(IMediator mediator)
+    public AuthController(IMediator mediator, WixiCoreDbContext context)
     {
         _mediator = mediator;
+        _context = context;
+    }
+
+    [Authorize]
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout()
+    {
+        await _context.LogActivityAsync("LOGOUT", null, null, "Kullanıcı oturumu sonlandırdı.", LogType.Security);
+        return Ok(new { message = "Oturum başarıyla kapatıldı." });
     }
 
     [HttpPost("login")]

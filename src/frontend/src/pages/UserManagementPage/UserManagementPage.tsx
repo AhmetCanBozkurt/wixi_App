@@ -107,9 +107,7 @@ export const UserManagementPage = () => {
           resizable={true}
           pageable={{ pageSize: 10 }}
           toolbar={['search', 'excel', 'pdf']}
-          onDetail={handleManageMenus}
-          onDelete={handleDeleteUser}
-          onEdit={(user) => toast.success(`${user.firstName} için düzenleme formu açılacak.`)}
+          onEdit={handleManageMenus}
         />
       </div>
 

@@ -3,8 +3,7 @@ import { FaPlus, FaEdit, FaTrash, FaCheck, FaTimes, FaGlobe } from 'react-icons/
 import { toast } from 'react-hot-toast';
 import Swal from 'sweetalert2';
 import { apiClient } from '../../shared/api/axiosConfig';
-import { AdvancedDataTable } from '../../shared/ui/AdvancedDataTable/AdvancedDataTable';
-import { Badge } from '../../shared/ui/Badge/Badge';
+import { AdvancedDataTable, Badge, Card, Input, Button } from '../../shared/ui';
 import styles from './LanguageManagementPage.module.css';
 
 interface Language {
@@ -18,10 +17,9 @@ interface Language {
 }
 
 export const LanguageManagementPage = () => {
-  const [languages, setLanguages] = useState<Language[]>([]);
-  const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingLang, setEditingLang] = useState<Language | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0); // Grid'i tazelemek için
 
   // Form State
   const [formData, setFormData] = useState({
@@ -34,18 +32,9 @@ export const LanguageManagementPage = () => {
   });
 
   const fetchLanguages = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res = await apiClient.get<Language[]>('language');
-      setLanguages(res.data);
-    } catch {
-      toast.error('Diller yüklenirken hata oluştu');
-    } finally {
-      setLoading(false);
-    }
+    const res = await apiClient.get<Language[]>('language');
+    return res.data;
   }, []);
-
-  useEffect(() => { fetchLanguages(); }, [fetchLanguages]);
 
   const handleOpenModal = (lang?: Language) => {
     if (lang) {
@@ -91,7 +80,7 @@ export const LanguageManagementPage = () => {
         toast.success('Yeni dil eklendi');
       }
       setIsModalOpen(false);
-      fetchLanguages();
+      setRefreshKey(prev => prev + 1); // Grid'i tazele
     } catch {
       toast.error('İşlem sırasında bir hata oluştu');
     }
@@ -114,7 +103,7 @@ export const LanguageManagementPage = () => {
       try {
         await apiClient.delete(`language/${lang.id}`);
         toast.success('Dil silindi');
-        fetchLanguages();
+        setRefreshKey(prev => prev + 1); // Grid'i tazele
       } catch {
         toast.error('Dil silinemedi (Varsayılan dili silemezsiniz)');
       }
@@ -138,7 +127,8 @@ export const LanguageManagementPage = () => {
 
       <div className={styles.content}>
         <AdvancedDataTable<Language>
-          dataSource={languages}
+          key={refreshKey}
+          dataSource="language"
           columns={[
             {
               field: 'iconBase64',
@@ -174,7 +164,7 @@ export const LanguageManagementPage = () => {
           selectable={true}
           reorderable={true}
           resizable={true}
-          pageable={{ pageSize: 10 }}
+          pageable={{ pageSize: 12 }}
           toolbar={['search', 'excel', 'pdf']}
           onEdit={handleOpenModal}
           onDelete={handleDelete}
@@ -184,103 +174,106 @@ export const LanguageManagementPage = () => {
       {/* Modern Modal */}
       {isModalOpen && (
         <div className={styles.modalOverlay} onClick={() => setIsModalOpen(false)}>
-          <div className={styles.modal} onClick={e => e.stopPropagation()}>
-            <div className={styles.modalHeader}>
-              <h3>
-                <FaGlobe style={{ color: 'var(--color-primary)' }} /> 
-                {editingLang ? 'Dili Düzenle' : 'Yeni Dil Ekle'}
-              </h3>
-              <button className={styles.closeBtn} onClick={() => setIsModalOpen(false)}>
+          <div className={styles.premiumModal} onClick={e => e.stopPropagation()}>
+            <div className={styles.premiumModalHeader}>
+              <div className={styles.modalTitleArea}>
+                <FaGlobe className={styles.modalTitleIcon} />
+                <div>
+                  <h3>{editingLang ? 'Dili Düzenle' : 'Yeni Dil Ekle'}</h3>
+                  <p>{editingLang ? 'Mevcut dil ayarlarını güncelleyin.' : 'Sisteme yeni bir dil ve bölgesel ayar ekleyin.'}</p>
+                </div>
+              </div>
+              <button className={styles.premiumCloseBtn} onClick={() => setIsModalOpen(false)}>
                 <FaTimes />
               </button>
             </div>
             
             <form onSubmit={handleSubmit}>
-              <div className={styles.modalBody}>
-                <div className={styles.formGroup}>
-                  <label>Dil Adı</label>
-                  <input 
-                    required 
-                    type="text" 
-                    value={formData.name} 
-                    onChange={e => setFormData({ ...formData, name: e.target.value })} 
-                    placeholder="örn: Türkçe" 
-                  />
-                </div>
-                <div className={styles.formGroup}>
-                  <label>Dil Kodu</label>
-                  <input 
-                    required 
-                    type="text" 
-                    value={formData.code} 
-                    onChange={e => setFormData({ ...formData, code: e.target.value })} 
-                    placeholder="örn: tr-TR" 
-                  />
-                </div>
-                <div className={styles.formGroup}>
-                  <label>Bayrak Kodu (ISO 639-1)</label>
-                  <input 
-                    type="text" 
-                    value={formData.flagCode} 
-                    onChange={e => setFormData({ ...formData, flagCode: e.target.value })} 
-                    placeholder="örn: tr, us" 
-                  />
-                </div>
-
-                <div className={styles.formGroup}>
-                  <label>Bayrak Görseli (Dosya Seçin)</label>
-                  <div className={styles.fileUploadWrapper}>
-                    {formData.iconBase64 && (
-                      <div className={styles.previewContainer}>
-                        <img src={formData.iconBase64} alt="Önizleme" className={styles.flagPreview} />
-                        <button 
-                          type="button" 
-                          className={styles.removeFileBtn}
-                          onClick={() => setFormData(prev => ({ ...prev, iconBase64: '' }))}
-                        >
-                          <FaTimes />
-                        </button>
-                      </div>
-                    )}
-                    <label className={styles.fileInputLabel}>
-                      <input 
-                        type="file" 
-                        accept="image/*" 
-                        onChange={handleFileChange} 
-                        className={styles.hiddenFileInput}
+              <div className={styles.premiumModalBody}>
+                <div className={styles.modalGrid}>
+                  <Card title="Temel Bilgiler" subtitle="Dilin sistem genelindeki adı ve kodu">
+                    <div className={styles.cardFields}>
+                      <Input 
+                        label="Dil Adı" 
+                        required 
+                        value={formData.name} 
+                        onChange={e => setFormData({ ...formData, name: e.target.value })} 
+                        placeholder="örn: Türkçe" 
+                        leftIcon={<FaGlobe />}
                       />
-                      <FaPlus /> Görsel Yükle
-                    </label>
-                  </div>
-                </div>
-                
-                <div className={styles.checkboxRow}>
-                  <label className={styles.checkbox}>
-                    <input 
-                      type="checkbox" 
-                      checked={formData.isActive} 
-                      onChange={e => setFormData({ ...formData, isActive: e.target.checked })} 
-                    />
-                    <span>Aktif</span>
-                  </label>
-                  <label className={styles.checkbox}>
-                    <input 
-                      type="checkbox" 
-                      checked={formData.isDefault} 
-                      onChange={e => setFormData({ ...formData, isDefault: e.target.checked })} 
-                    />
-                    <span>Sistem Varsayılanı</span>
-                  </label>
+                      <Input 
+                        label="Dil Kodu (ISO)" 
+                        required 
+                        value={formData.code} 
+                        onChange={e => setFormData({ ...formData, code: e.target.value })} 
+                        placeholder="örn: tr-TR" 
+                      />
+                      <Input 
+                        label="Bayrak Kodu" 
+                        value={formData.flagCode} 
+                        onChange={e => setFormData({ ...formData, flagCode: e.target.value })} 
+                        placeholder="örn: tr, us" 
+                      />
+                    </div>
+                  </Card>
+
+                  <Card title="Görsel & Durum" subtitle="İkon yönetimi ve aktiflik durumu">
+                    <div className={styles.cardFields}>
+                      <div className={styles.fileUploadSection}>
+                        <label className={styles.fieldLabel}>Bayrak Görseli</label>
+                        <div className={styles.uploadBox}>
+                          {formData.iconBase64 ? (
+                            <div className={styles.imagePreviewWrapper}>
+                              <img src={formData.iconBase64} alt="Önizleme" className={styles.imagePreview} />
+                              <button type="button" onClick={() => setFormData(prev => ({ ...prev, iconBase64: '' }))} className={styles.removeImgBtn}>
+                                <FaTrash size={12} />
+                              </button>
+                            </div>
+                          ) : (
+                            <label className={styles.uploadPlaceholder}>
+                              <input type="file" accept="image/*" onChange={handleFileChange} hidden />
+                              <FaPlus />
+                              <span>Görsel Yükle</span>
+                            </label>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className={styles.switchGrid}>
+                        <div className={styles.switchItem}>
+                          <label className={styles.switchLabel}>
+                            <input 
+                              type="checkbox" 
+                              checked={formData.isActive} 
+                              onChange={e => setFormData({ ...formData, isActive: e.target.checked })} 
+                            />
+                            <span>Dili Aktif Et</span>
+                          </label>
+                          <p className={styles.switchDesc}>Kullanıcılar bu dili seçebilir.</p>
+                        </div>
+
+                        <div className={styles.switchItem}>
+                          <label className={styles.switchLabel}>
+                            <input 
+                              type="checkbox" 
+                              checked={formData.isDefault} 
+                              onChange={e => setFormData({ ...formData, isDefault: e.target.checked })} 
+                            />
+                            <span>Varsayılan Dil</span>
+                          </label>
+                          <p className={styles.switchDesc}>Sistem açılış dili olur.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
                 </div>
               </div>
 
-              <div className={styles.modalFooter}>
-                <button type="button" className={styles.cancelBtn} onClick={() => setIsModalOpen(false)}>
-                  Vazgeç
-                </button>
-                <button type="submit" className={styles.submitBtn}>
-                  {editingLang ? 'Güncellemeleri Kaydet' : 'Dili Kaydet'}
-                </button>
+              <div className={styles.premiumModalFooter}>
+                <Button variant="ghost" type="button" onClick={() => setIsModalOpen(false)}>Vazgeç</Button>
+                <Button variant="primary" type="submit">
+                  {editingLang ? 'Değişiklikleri Kaydet' : 'Dili Oluştur'}
+                </Button>
               </div>
             </form>
           </div>

@@ -85,10 +85,13 @@
   font-size: 0.75rem;
 }
 
-.langBtn:hover, .langItemActive {
-  background: var(--color-primary-glow);
-  color: var(--color-primary);
-  border-left-color: var(--color-primary);
+.active {}
+
+.langBtn:hover, 
+.langBtn.active {
+  background: var(--header-btn-hover);
+  color: var(--header-text);
+  border-color: var(--color-primary);
 }
 
 .flagIconWrapper {
@@ -128,6 +131,13 @@
   background: var(--surface-glass-hover);
   padding: 2px 6px;
   border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.langBtn:hover .activeLangCode,
+.langBtn.active .activeLangCode {
+  background: var(--color-primary-glow);
+  color: var(--color-primary);
 }
 
 .activeFlagImg {

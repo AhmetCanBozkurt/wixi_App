@@ -84,12 +84,16 @@ export const AuditLogPage = () => {
             {
               field: 'fullName',
               title: 'Kullanıcı',
-              template: (row) => (
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  <strong>{row.fullName || 'Sistem'}</strong>
-                  <small style={{ color: 'var(--text-muted)', fontSize: '0.7rem' }}>{row.email}</small>
-                </div>
-              )
+              template: (row) => {
+                const userName = row.fullName || row.FullName || 'Sistem';
+                const userEmail = row.email || row.Email || '';
+                return (
+                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <strong>{userName}</strong>
+                    {userEmail && <small style={{ color: 'var(--text-muted)', fontSize: '0.7rem' }}>{userEmail}</small>}
+                  </div>
+                );
+              }
             },
             {
               field: 'action',

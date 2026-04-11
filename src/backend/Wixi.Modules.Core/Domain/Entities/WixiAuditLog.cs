@@ -2,11 +2,20 @@ using Wixi.Shared.Domain.Entities;
 
 namespace Wixi.Modules.Core.Domain.Entities;
 
+public enum LogType
+{
+    DataAudit = 1, // CRUD (Create, Update, Delete)
+    Security = 2,  // Login, Logout, Password Change
+    Activity = 3,  // Export, View, Custom Actions
+    System = 4     // Errors, Maintenance, System Tasks
+}
+
 public class WixiAuditLog : IAuditable
 {
     public Guid Id { get; set; } = Guid.NewGuid();
     
     // Core Fields
+    public LogType LogType { get; set; } = LogType.DataAudit;
     public string Action { get; set; } = string.Empty; // e.g. "CREATE", "UPDATE", "DELETE", "SOFT_DELETE"
     public string? TableName { get; set; }
     public string? EntityId { get; set; }

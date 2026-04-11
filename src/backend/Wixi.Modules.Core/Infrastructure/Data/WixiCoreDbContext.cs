@@ -47,13 +47,17 @@ public class WixiCoreDbContext : IdentityDbContext<WixiUser, WixiRole, Guid>
             {
                 if (entry.Entity is WixiAuditLog) continue;
 
-                var tableName = entry.Metadata.GetTableName();
+                var tableName = entry.Metadata.GetTableName() ?? entry.Entity.GetType().Name;
                 var primaryKey = entry.Properties.FirstOrDefault(p => p.Metadata.IsPrimaryKey())?.CurrentValue?.ToString() ?? "N/A";
                 
                 var oldValues = new Dictionary<string, object?>();
                 var newValues = new Dictionary<string, object?>();
                 var affectedColumns = new List<string>();
                 string action = entry.State.ToString().ToUpper();
+                LogType logType = LogType.DataAudit;
+
+                // Blacklist of columns to never log
+                var blacklist = new List<string> { "CreatedAt", "UpdatedAt", "CreatedBy", "UpdatedBy" };
 
                 if (entry.State == EntityState.Modified)
                 {
@@ -68,7 +72,7 @@ public class WixiCoreDbContext : IdentityDbContext<WixiUser, WixiRole, Guid>
 
                     foreach (var property in entry.Properties)
                     {
-                        if (property.IsModified)
+                        if (property.IsModified && !blacklist.Contains(property.Metadata.Name))
                         {
                             affectedColumns.Add(property.Metadata.Name);
                             oldValues[property.Metadata.Name] = property.OriginalValue;
@@ -80,19 +84,28 @@ public class WixiCoreDbContext : IdentityDbContext<WixiUser, WixiRole, Guid>
                 {
                     foreach (var property in entry.Properties)
                     {
-                        newValues[property.Metadata.Name] = property.CurrentValue;
+                        if (!blacklist.Contains(property.Metadata.Name))
+                        {
+                            newValues[property.Metadata.Name] = property.CurrentValue;
+                        }
                     }
                 }
                 else if (entry.State == EntityState.Deleted)
                 {
                     foreach (var property in entry.Properties)
                     {
-                        oldValues[property.Metadata.Name] = property.OriginalValue;
+                        if (!blacklist.Contains(property.Metadata.Name))
+                        {
+                            oldValues[property.Metadata.Name] = property.OriginalValue;
+                        }
                     }
                 }
 
+                if (oldValues.Count == 0 && newValues.Count == 0 && action == "UPDATE") continue;
+
                 auditEntries.Add(new WixiAuditLog
                 {
+                    LogType = logType,
                     Action = action,
                     TableName = tableName,
                     EntityId = primaryKey,
@@ -245,6 +258,26 @@ public class WixiCoreDbContext : IdentityDbContext<WixiUser, WixiRole, Guid>
                   .WithMany()
                   .HasForeignKey(e => e.LanguageId);
         });
+    }
 
+    public async Task LogActivityAsync(string action, string? tableName = null, string? entityId = null, string? details = null, LogType logType = LogType.Activity)
+    {
+        var auditLog = new WixiAuditLog
+        {
+            LogType = logType,
+            Action = action,
+            TableName = tableName,
+            EntityId = entityId,
+            Details = details,
+            UserId = _currentUserService?.UserId,
+            Email = _currentUserService?.Email,
+            FullName = _currentUserService?.FullName,
+            IpAddress = _currentUserService?.IpAddress,
+            UserAgent = _currentUserService?.UserAgent,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        await AuditLogs.AddAsync(auditLog);
+        await base.SaveChangesAsync();
     }
 }

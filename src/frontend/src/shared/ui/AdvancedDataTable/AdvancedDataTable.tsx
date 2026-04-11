@@ -276,23 +276,19 @@ export function AdvancedDataTable<T extends Record<string, any>>(options: GridOp
       setTotal(result.totalCount ?? result.total ?? items.length);
       onDataBound?.(items);
     } catch (e: any) { toast.error(e.message); } finally { setLoading(false); }
-  }, [isRemote, dataSource, page, pageSize, debouncedSearch, sortField, sortDir, columnFilters, searchParams]);
+  }, [isRemote, dataSource, page, pageSize, debouncedSearch, sortField, sortDir, JSON.stringify(columnFilters), JSON.stringify(searchParams)]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
   // ── Client-side processing ──
   const processedData = useMemo(() => {
     if (isRemote) {
-       console.log('[GridDebug] Remote data used:', remoteData);
        return remoteData;
     }
     let d = Array.isArray(dataSource) ? [...dataSource] : [];
     
-    console.log('[GridDebug] Client data source received:', dataSource);
-
     // Safety check: if data source is empty but was supposed to be there
     if (d.length === 0 && dataSource && (dataSource as any).length > 0) {
-       console.log('[GridDebug] Applying emergency fallback for dataSource');
        d = [...(dataSource as any)];
     }
 
@@ -362,7 +358,6 @@ export function AdvancedDataTable<T extends Record<string, any>>(options: GridOp
     const end = start + safePageSize;
     
     const result = d.slice(start, end);
-    console.log('[GridDebug] Final displayRows (paginated/grouped):', result);
     onDataBound?.(result);
     return result;
   }, [processedData, page, pageSize, collapsedGroups, groupedFields, groupable]);
@@ -446,6 +441,13 @@ export function AdvancedDataTable<T extends Record<string, any>>(options: GridOp
       XLSX.utils.book_append_sheet(wb, ws, "Data");
       XLSX.writeFile(wb, "Export.xlsx");
       toast.success(selectedRows.size > 0 ? `${selectedRows.size} seçili kayıt Excel'e aktarıldı.` : "Tüm liste Excel'e aktarıldı.");
+      
+      // Log export activity
+      apiClient.post('/audit/log-activity', {
+        action: 'EXPORT_EXCEL',
+        tableName: isRemote ? String(dataSource) : 'ClientData',
+        details: `Kullanıcı ${processedData.length} kaydı Excel'e aktardı.`
+      }).catch(() => {});
     } catch (error) {
       toast.error("Excel dışa aktarma hatası!");
     }
@@ -504,6 +506,13 @@ export function AdvancedDataTable<T extends Record<string, any>>(options: GridOp
       });
       doc.save("Export.pdf");
       toast.success(selectedRows.size > 0 ? `${selectedRows.size} seçili kayıt PDF'e aktarıldı.` : "Tüm liste PDF'e aktarıldı.");
+
+      // Log export activity
+      apiClient.post('/audit/log-activity', {
+        action: 'EXPORT_PDF',
+        tableName: isRemote ? String(dataSource) : 'ClientData',
+        details: `Kullanıcı ${baseData.length} kaydı PDF'e aktardı.`
+      }).catch(() => {});
     } catch (error) {
       toast.error("PDF dışa aktarma hatası!");
     }
@@ -588,7 +597,7 @@ export function AdvancedDataTable<T extends Record<string, any>>(options: GridOp
                       filterable={filterable}
                     />
                   ))}
-                  {(onEdit || onDelete || onDetail) && (
+                  {(onEdit || onDelete || onDetail || detailModal) && (
                     <th key="h-cell-actions" className={`${styles.th} ${styles.actionCol}`}></th>
                   )}
                 </tr>
@@ -603,7 +612,7 @@ export function AdvancedDataTable<T extends Record<string, any>>(options: GridOp
                 </tr>
               ) : displayRows.length === 0 ? (
                 <tr key="tr-empty-state">
-                  <td key="td-empty" colSpan={activeCols.length + (selectable ? 2 : 1) + (onEdit || onDelete || onDetail ? 1 : 0)} className={styles.stateCell}>
+                  <td key="td-empty" colSpan={activeCols.length + (selectable ? 2 : 1) + (onEdit || onDelete || onDetail || detailModal ? 1 : 0)} className={styles.stateCell}>
                     Kayıt bulunamadı.
                   </td>
                 </tr>
@@ -655,7 +664,7 @@ export function AdvancedDataTable<T extends Record<string, any>>(options: GridOp
                           {col.template ? col.template(row) : (getNestedValue(row, col.field) ?? '-')}
                         </td>
                       ))}
-                      {(onEdit || onDelete || onDetail) && (
+                      {(onEdit || onDelete || onDetail || detailModal) && (
                         <td key={`cell-actions-${rowKey}`} className={`${styles.td} ${styles.actionCol}`} onClick={e => e.stopPropagation()}>
                           <button className={styles.rowDots} onClick={e => setRowMenuState({ row, rect: e.currentTarget.getBoundingClientRect() })}>
                             <FaEllipsisH />
@@ -738,20 +747,28 @@ export function AdvancedDataTable<T extends Record<string, any>>(options: GridOp
       {rowMenuState && createPortal(
         <div ref={rowMenuRef} className={styles.popup}
           style={{ top: rowMenuState.rect.bottom + 4, left: rowMenuState.rect.right - 175 }}>
-          <button onClick={() => { 
-            if (onDetail) onDetail(rowMenuState.row);
-            else setDetailRow(rowMenuState.row); 
-            setRowMenuState(null); 
-          }}>
-            <FaEye /> Detayı Görüntüle
-          </button>
-          <button onClick={() => { onEdit?.(rowMenuState.row); setRowMenuState(null); }}>
-            <FaEdit /> Düzenle
-          </button>
-          <div className={styles.popupSep} />
-          <button className={styles.danger} onClick={() => { onDelete?.(rowMenuState.row); setRowMenuState(null); }}>
-            <FaTrashAlt /> Sil
-          </button>
+          {(onDetail || detailModal) && (
+            <button onClick={() => { 
+              if (onDetail) onDetail(rowMenuState.row);
+              setDetailRow(rowMenuState.row); 
+              setRowMenuState(null); 
+            }}>
+              <FaEye /> Detayı Görüntüle
+            </button>
+          )}
+          {onEdit && (
+            <button onClick={() => { onEdit(rowMenuState.row); setRowMenuState(null); }}>
+              <FaEdit /> Düzenle
+            </button>
+          )}
+          {onDelete && (
+            <>
+              <div className={styles.popupSep} />
+              <button className={styles.danger} onClick={() => { onDelete(rowMenuState.row); setRowMenuState(null); }}>
+                <FaTrashAlt /> Sil
+              </button>
+            </>
+          )}
         </div>, document.body
       )}
 
@@ -783,8 +800,7 @@ export function AdvancedDataTable<T extends Record<string, any>>(options: GridOp
                 )}
             </div>
             <div className={styles.modalFooter}>
-              <button className={styles.modalBtn} onClick={() => setDetailRow(null)}>Kapat</button>
-              <button className={`${styles.modalBtn} ${styles.modalBtnPrimary}`} onClick={() => setDetailRow(null)}>Kaydet</button>
+              <button className={`${styles.modalBtn} ${styles.modalBtnPrimary}`} onClick={() => setDetailRow(null)}>Kapat</button>
             </div>
           </div>
         </div>, document.body

@@ -163,12 +163,11 @@
   font-weight: 600;
 }
 
-/* Modal Styles */
 .modalOverlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -176,239 +175,225 @@
   animation: fadeIn 0.3s ease;
 }
 
-.modal {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-glass);
-  width: 100%;
-  max-width: 550px;
-  border-radius: 24px;
-  box-shadow: 0 40px 80px rgba(0, 0, 0, 0.6);
-  overflow: hidden;
-  animation: modalIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
-.modalHeader {
-  padding: 30px;
-  background: var(--surface-glass-hover);
-  border-bottom: 1px solid var(--border-glass);
+/* Premium Modal Refactor */
+.premiumModal {
+  background: #ffffff;
+  width: 100%;
+  max-width: 950px;
+  border-radius: var(--radius-xl);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+  animation: modalScaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+}
+
+@keyframes modalScaleIn {
+  from { opacity: 0; transform: scale(0.95) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.premiumModalHeader {
+  padding: 24px 32px;
+  background: #fdfdfd;
+  border-bottom: 1px solid #f3f4f6;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.modalHeader h3 {
-  font-size: 1.4rem;
-  font-weight: 700;
-  color: var(--text-main);
+.modalTitleArea {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
 }
 
-.closeBtn {
-  background: rgba(255, 255, 255, 0.05);
+.modalTitleIcon {
+  font-size: 1.8rem;
+  color: var(--color-primary);
+}
+
+.modalTitleArea h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.modalTitleArea p {
+  margin: 4px 0 0;
+  font-size: 0.88rem;
+  color: #6b7280;
+}
+
+.premiumCloseBtn {
+  background: none;
   border: none;
-  color: var(--text-muted);
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
+  color: #9ca3af;
+  font-size: 1.4rem;
+  cursor: pointer;
+  transition: all 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
 }
 
-.closeBtn:hover {
-  background: rgba(239, 68, 68, 0.1);
-  color: #ef4444;
+.premiumCloseBtn:hover {
+  background: #fee2e2;
+  color: #dc2626;
   transform: rotate(90deg);
 }
 
-.modalBody {
-  padding: 30px;
+.premiumModalBody {
+  padding: 32px;
+  max-height: 80vh;
+  overflow-y: auto;
+  background: #f9fafb;
+}
+
+.modalGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.cardFields {
   display: flex;
   flex-direction: column;
-  gap: 25px;
+  gap: 16px;
 }
 
-.formGroup {
+/* Custom File Upload */
+.fileUploadSection {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
-.formGroup label {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--text-main);
-  margin-left: 4px;
+.fieldLabel {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.formGroup input {
-  background: var(--bg-primary);
-  border: 1px solid var(--border-glass);
-  padding: 14px 18px;
-  border-radius: 12px;
-  color: var(--text-main);
-  outline: none;
+.uploadBox {
+  height: 120px;
+  border: 2px dashed #e5e7eb;
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
   transition: all 0.2s;
-  font-size: 0.95rem;
+  position: relative;
+  overflow: hidden;
 }
 
-.formGroup input:focus {
+.uploadBox:hover {
   border-color: var(--color-primary);
-  background: rgba(59, 130, 246, 0.05);
-  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+  background: rgba(37, 99, 235, 0.02);
 }
 
-.checkboxRow {
+.uploadPlaceholder {
   display: flex;
-  gap: 30px;
-  background: rgba(255, 255, 255, 0.02);
-  padding: 15px 20px;
-  border-radius: 15px;
-  border: 1px dashed var(--border-glass);
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  color: #9ca3af;
 }
 
-.checkbox {
+.uploadPlaceholder span { font-size: 0.88rem; font-weight: 500; }
+
+.imagePreviewWrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.imagePreview {
+  width: auto;
+  height: 80px;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.removeImgBtn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: #ef4444;
+  color: #fff;
+  border: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.removeImgBtn:hover { transform: scale(1.1); background: #dc2626; }
+
+/* Switch Layout */
+.switchGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.switchItem {
+  background: #fff;
+  padding: 16px;
+  border-radius: var(--radius-lg);
+  border: 1px solid #f3f4f6;
+}
+
+.switchLabel {
   display: flex;
   align-items: center;
   gap: 12px;
   cursor: pointer;
 }
 
-.checkbox input {
+.switchLabel input {
   width: 18px;
   height: 18px;
-  cursor: pointer;
+  accent-color: var(--color-primary);
 }
 
-.checkbox span {
-  font-size: 0.95rem;
-  font-weight: 500;
-  color: var(--text-secondary);
-}
-
-/* File Upload Styles */
-.fileUploadWrapper {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  background: var(--bg-primary);
-  padding: 15px;
-  border-radius: 15px;
-  border: 1px dashed var(--border-glass);
-}
-
-.previewContainer {
-  position: relative;
-  width: 60px;
-  height: 60px;
-}
-
-.flagPreview {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid var(--color-primary);
-}
-
-.removeFileBtn {
-  position: absolute;
-  top: -5px;
-  right: -5px;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: var(--color-danger);
-  color: #fff;
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.7rem;
-  cursor: pointer;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-}
-
-.fileInputLabel {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 18px;
-  background: var(--surface-glass-hover);
-  border: 1px solid var(--border-glass);
-  border-radius: 10px;
-  color: var(--text-main);
-  font-size: 0.85rem;
+.switchLabel span {
   font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
+  color: #111827;
 }
 
-.fileInputLabel:hover {
-  background: var(--color-primary);
-  color: #fff;
-  border-color: transparent;
+.switchDesc {
+  margin: 4px 0 0 30px;
+  font-size: 0.8rem;
+  color: #6b7280;
 }
 
-.hiddenFileInput {
-  display: none;
-}
-
-.modalFooter {
-  padding: 20px 30px 30px;
+.premiumModalFooter {
+  padding: 24px 32px;
+  background: #fdfdfd;
+  border-top: 1px solid #f3f4f6;
   display: flex;
   justify-content: flex-end;
-  gap: 15px;
-}
-
-.cancelBtn {
-  background: transparent;
-  border: 1px solid var(--border-glass);
-  color: var(--text-muted);
-  padding: 12px 24px;
-  border-radius: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.cancelBtn:hover {
-  background: rgba(255, 255, 255, 0.05);
-  color: #fff;
-}
-
-.submitBtn {
-  background: var(--color-primary);
-  border: none;
-  color: #fff;
-  padding: 12px 30px;
-  border-radius: 12px;
-  font-weight: 700;
-  cursor: pointer;
-  box-shadow: 0 4px 15px var(--color-primary-glow);
-  transition: all 0.2s;
-}
-
-.submitBtn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
-}
-
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes modalIn {
-  from { opacity: 0; transform: scale(0.95) translateY(20px); }
-  to { opacity: 1; transform: scale(1) translateY(0); }
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  gap: 12px;
 }
