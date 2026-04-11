@@ -9,9 +9,13 @@
   border-right: 1px solid var(--sidebar-border);
   display: flex;
   flex-direction: column;
-  transition: width 0.3s ease, background 0.3s;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s;
   overflow: hidden;
   flex-shrink: 0;
+  position: fixed; /* Kesin sabitleme */
+  left: 0;
+  top: 0;
+  z-index: 1000;
 }
 
 .sidebarContainer.collapsed {
@@ -26,21 +30,24 @@
   justify-content: space-between;
   padding: 0 16px;
   background: var(--sidebar-header-bg);
+  border-bottom: 1px solid var(--sidebar-divider);
   flex-shrink: 0;
+  transition: background 0.3s;
 }
 
 .logoArea {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   overflow: hidden;
 }
 
 .logoImage {
-  width: 34px;
-  height: 34px;
+  width: 38px;
+  height: 38px;
   object-fit: contain;
-  border-radius: 4px;
+  /* Soft shadow for logo */
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.05));
 }
 
 .titleBox {
@@ -50,39 +57,42 @@
 }
 
 .titleBox h1 {
-  font-size: 0.95rem;
+  font-size: 1rem;
   font-weight: 700;
   color: var(--text-main);
   margin: 0;
   white-space: nowrap;
-  line-height: 1.2;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
 }
 
 .titleBox p {
-  font-size: 0.68rem;
-  color: rgba(255,255,255,0.65);
+  font-size: 0.7rem;
+  color: var(--text-muted);
   margin: 0;
   white-space: nowrap;
+  font-weight: 500;
 }
 
 .toggleBtn {
   background: transparent;
   border: none;
-  color: rgba(255,255,255,0.8);
+  color: var(--sidebar-toggle-btn-color);
   cursor: pointer;
-  padding: 6px;
-  border-radius: 4px;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  transition: background 0.2s;
-  font-size: 0.85rem;
+  transition: all 0.2s;
+  font-size: 0.9rem;
 }
 
 .toggleBtn:hover {
-  background: rgba(255,255,255,0.15);
-  color: #fff;
+  background: var(--sidebar-toggle-btn-hover-bg);
+  color: var(--color-primary);
 }
 
 /* ---- Inline Search (under BÖLÜMLER, toggled by search icon) ---- */
@@ -272,14 +282,17 @@
   font-weight: 600;
   color: var(--sidebar-text);
   display: flex;
-  align-items: center;
+  align-items: center; /* Dikey hizalama */
   gap: 10px;
+  line-height: 1; /* Satır yüksekliği eşitleme */
 }
 
 .accordionTitle svg {
-  font-size: 0.88rem;
+  font-size: 1.1rem; /* Biraz daha belirgin ikonlar */
   flex-shrink: 0;
-  opacity: 0.8;
+  opacity: 0.9;
+  display: flex;
+  align-items: center;
 }
 
 .accordionArrow {
@@ -321,18 +334,14 @@
   align-items: center;
   gap: 10px;
   /* indent sub-items relative to accordion header */
-  padding: 7px 10px 7px 36px;
+  padding: 8px 10px 8px 36px;
   color: var(--sidebar-text);
   text-decoration: none;
   font-size: 0.85rem;
   font-weight: 400;
   transition: color 0.15s;
   border-radius: 6px;
-}
-
-/* Favorites top-level: less indent */
-.favoritesSection .menuItemRow a {
-  padding-left: 14px;
+  line-height: 1;
 }
 
 /* Active box highlight */
@@ -356,6 +365,8 @@
   opacity: 0;
   transition: opacity 0.15s, color 0.15s;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
 }
 
 .favStarBtn:hover {
@@ -369,9 +380,11 @@
 
 /* ---- Icons ---- */
 .menuIcon {
-  font-size: 0.88rem;
+  font-size: 1.1rem;
   flex-shrink: 0;
-  opacity: 0.75;
+  opacity: 0.9;
+  display: flex;
+  align-items: center;
 }
 
 .menuText {
@@ -393,33 +406,85 @@
 }
 
 .collapsed .accordionHeader {
-  justify-content: center;
-  padding: 10px;
+  justify-content: center !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
 }
 
 .collapsed .accordionTitle {
-  justify-content: center;
+  justify-content: center !important;
+  gap: 0 !important;
+  width: 100% !important;
 }
 
-/* Collapsed: remove side margins, center item */
 .collapsed .menuItemRow {
-  margin: 1px 4px;
+  margin: 1px 4px !important;
+  justify-content: center !important;
 }
 
 .collapsed .menuItemRow a {
+  justify-content: center !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  gap: 0 !important;
+  width: 100% !important;
+}
+
+/* ---- Footer (Logout Area) ---- */
+.footer {
+  padding: 16px;
+  border-top: 1px solid var(--sidebar-divider);
+  flex-shrink: 0;
+}
+
+.logoutBtn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  padding: 10px 14px;
+  background: transparent;
+  /* Red outline style */
+  border: 1.5px solid rgba(239, 68, 68, 0.2); 
+  border-radius: 8px;
+  color: var(--color-danger);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.logoutBtn svg {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.logoutBtn:hover {
+  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.5);
+  transform: translateY(-1px);
+}
+
+.logoutBtn:active {
+  transform: translateY(0);
+}
+
+.collapsed .footer {
+  padding: 16px 8px;
+  display: flex;
+  justify-content: center;
+}
+
+.collapsed .logoutBtn {
   justify-content: center;
   padding: 10px;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
 }
 
-.collapsed .favoritesSection .menuItemRow a {
-  padding: 10px;
-}
-
-.collapsed .header {
-  padding: 0;
-  justify-content: center;
-}
-
-.collapsed .toggleBtn {
-  padding: 10px;
+.collapsed .logoutBtn span {
+  display: none;
 }

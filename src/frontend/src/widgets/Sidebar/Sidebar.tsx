@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useMemo } from 'react';
 import { NavLink } from 'react-router-dom';
 import {
   FaBars, FaTimes, FaChevronDown, FaChevronRight,
-  FaStar, FaSearch, FaEllipsisH
+  FaStar, FaSearch, FaEllipsisH, FaSignOutAlt
 } from 'react-icons/fa';
 import { apiClient } from '../../shared/api/axiosConfig';
 import { DynamicIcon } from '../../shared/ui/DynamicIcon/DynamicIcon';
@@ -26,11 +26,12 @@ const STORAGE_KEYS = {
   FAVORITES: 'wixi-sidebar-favorites',
 } as const;
 
-export const Sidebar = () => {
-  const [isCollapsed, setIsCollapsed] = useState<boolean>(() =>
-    localStorage.getItem(STORAGE_KEYS.COLLAPSED) === 'true'
-  );
+interface SidebarProps {
+  isCollapsed: boolean;
+  onToggleCollapse: (val: boolean) => void;
+}
 
+export const Sidebar = ({ isCollapsed, onToggleCollapse }: SidebarProps) => {
   const [menus, setMenus] = useState<MenuItemDto[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -108,14 +109,14 @@ export const Sidebar = () => {
   // ─── Handlers ───────────────────────────────────────
   const handleCollapseToggle = () => {
     const next = !isCollapsed;
-    setIsCollapsed(next);
+    onToggleCollapse(next);
     localStorage.setItem(STORAGE_KEYS.COLLAPSED, String(next));
     if (next) { setSearchOpen(false); setSearchQuery(''); setMenuOpen(false); }
   };
 
   const toggleCategory = (id: string) => {
     if (isCollapsed) {
-      setIsCollapsed(false);
+      onToggleCollapse(false);
       localStorage.setItem(STORAGE_KEYS.COLLAPSED, 'false');
     }
     setExpandedCategories(prev => {
@@ -174,7 +175,7 @@ export const Sidebar = () => {
   const renderMenuNode = (item: MenuItemDto, level: number = 0) => {
     const hasChildren = item.children && item.children.length > 0;
     const isExpanded = expandedCategories[item.id] || !!searchQuery;
-    const paddingLeft = isCollapsed ? 0 : (level * 15) + 14;
+    const paddingLeft = isCollapsed ? undefined : (level * 15) + 14;
 
     if (!hasChildren) {
       return (
@@ -332,6 +333,13 @@ export const Sidebar = () => {
 
         {filteredMenus.map((m: MenuItemDto) => renderMenuNode(m, 0))}
       </nav>
+
+      <div className={styles.footer}>
+        <button className={styles.logoutBtn} onClick={() => {/* handle logout */}}>
+          <FaSignOutAlt />
+          {!isCollapsed && <span>Oturumu Kapat</span>}
+        </button>
+      </div>
     </aside>
   );
 };

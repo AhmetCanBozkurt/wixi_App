@@ -32,7 +32,7 @@
 
   /* ---- Sidebar tokens (Light) ---- */
   --sidebar-bg: #ffffff;
-  --sidebar-header-bg: #1e293b;
+  --sidebar-header-bg: #ffffff;
   --sidebar-border: #e2e8f0;
   --sidebar-text: #475569;
   --sidebar-text-muted: #94a3b8;
@@ -42,6 +42,8 @@
   --sidebar-active-border: #2563eb;
   --sidebar-section-text: rgba(0,0,0,0.35);
   --sidebar-divider: #e2e8f0;
+  --sidebar-toggle-btn-color: #64748b;
+  --sidebar-toggle-btn-hover-bg: #f1f5f9;
 
   /* ---- Header tokens (Light) ---- */
   --header-bg: #ffffff;
@@ -98,6 +100,8 @@
   --sidebar-active-border: #3b82f6;
   --sidebar-section-text: rgba(255,255,255,0.3);
   --sidebar-divider: rgba(255,255,255,0.06);
+  --sidebar-toggle-btn-color: rgba(255,255,255,0.6);
+  --sidebar-toggle-btn-hover-bg: rgba(255,255,255,0.1);
 
   /* ---- Header tokens (Dark) ---- */
   --header-bg: #0f172a;

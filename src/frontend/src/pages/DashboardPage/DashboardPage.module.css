@@ -10,7 +10,12 @@
   flex-direction: column;
   overflow: hidden;
   background: var(--content-bg);
-  transition: background 0.3s;
+  margin-left: 260px; /* Sidebar açıkken */
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s;
+}
+
+.contentWrapper.collapsed {
+  margin-left: 72px; /* Sidebar kapalıyken */
 }
 .header {
   padding: 20px 40px;

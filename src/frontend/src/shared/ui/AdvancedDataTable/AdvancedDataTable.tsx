@@ -588,20 +588,22 @@ export function AdvancedDataTable<T extends Record<string, any>>(options: GridOp
                       filterable={filterable}
                     />
                   ))}
-                  <th key="h-cell-actions" className={`${styles.th} ${styles.actionCol}`}></th>
+                  {(onEdit || onDelete || onDetail) && (
+                    <th key="h-cell-actions" className={`${styles.th} ${styles.actionCol}`}></th>
+                  )}
                 </tr>
               </SortableContext>
             </thead>
             <tbody>
               {loading ? (
                 <tr key="tr-loading-state">
-                  <td key="td-loading" colSpan={activeCols.length + (selectable ? 2 : 1)} className={styles.stateCell}>
+                  <td key="td-loading" colSpan={activeCols.length + (selectable ? 2 : 1) + (onEdit || onDelete || onDetail ? 1 : 0)} className={styles.stateCell}>
                     <span className={styles.spinner} /> Yükleniyor...
                   </td>
                 </tr>
               ) : displayRows.length === 0 ? (
                 <tr key="tr-empty-state">
-                  <td key="td-empty" colSpan={activeCols.length + (selectable ? 2 : 1)} className={styles.stateCell}>
+                  <td key="td-empty" colSpan={activeCols.length + (selectable ? 2 : 1) + (onEdit || onDelete || onDetail ? 1 : 0)} className={styles.stateCell}>
                     Kayıt bulunamadı.
                   </td>
                 </tr>
@@ -613,7 +615,7 @@ export function AdvancedDataTable<T extends Record<string, any>>(options: GridOp
                         onClick={() => setCollapsedGroups(prev => {
                           const n = new Set(prev); n.has(row.groupKey) ? n.delete(row.groupKey) : n.add(row.groupKey); return n;
                         })}>
-                        <td key={`group-cell-${idx}`} colSpan={activeCols.length + (selectable ? 2 : 1)} style={{ paddingLeft: `${row.level * 20 + 14}px` }}>
+                        <td key={`group-cell-${idx}`} colSpan={activeCols.length + (selectable ? 2 : 1) + (onEdit || onDelete || onDetail ? 1 : 0)} style={{ paddingLeft: `${row.level * 20 + 14}px` }}>
                           {collapsedGroups.has(row.groupKey) ? <FaAngleRight /> : <FaAngleDown />}
                           <span className={styles.groupTitle}>{columns.find(c => c.field === row.field)?.title}: </span>
                           <strong>{row.value}</strong>
@@ -653,11 +655,13 @@ export function AdvancedDataTable<T extends Record<string, any>>(options: GridOp
                           {col.template ? col.template(row) : (getNestedValue(row, col.field) ?? '-')}
                         </td>
                       ))}
-                      <td key={`cell-actions-${rowKey}`} className={`${styles.td} ${styles.actionCol}`} onClick={e => e.stopPropagation()}>
-                        <button className={styles.rowDots} onClick={e => setRowMenuState({ row, rect: e.currentTarget.getBoundingClientRect() })}>
-                          <FaEllipsisH />
-                        </button>
-                      </td>
+                      {(onEdit || onDelete || onDetail) && (
+                        <td key={`cell-actions-${rowKey}`} className={`${styles.td} ${styles.actionCol}`} onClick={e => e.stopPropagation()}>
+                          <button className={styles.rowDots} onClick={e => setRowMenuState({ row, rect: e.currentTarget.getBoundingClientRect() })}>
+                            <FaEllipsisH />
+                          </button>
+                        </td>
+                      )}
                     </tr>
                   );
                 })
