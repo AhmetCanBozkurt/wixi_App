@@ -20,6 +20,7 @@ export interface UserMenuBuilderProps {
   userId: string;
   userName: string;
   onClose: () => void;
+  isEmbedded?: boolean;
 }
 
 const SYSTEM_PAGES = [
@@ -36,7 +37,7 @@ const SYSTEM_PAGES = [
 const POPULAR_ICONS = Object.keys(FaIconsList).filter(key => key.startsWith('Fa')).slice(0, 100);
 
 // --- COMPONENT ---
-export const UserMenuBuilder: React.FC<UserMenuBuilderProps> = ({ userId, userName, onClose }) => {
+export const UserMenuBuilder: React.FC<UserMenuBuilderProps> = ({ userId, userName, onClose, isEmbedded }) => {
   const [treeData, setTreeData] = useState<NodeModel<any>[]>([]);
   const [languages, setLanguages] = useState<Language[]>([]);
   const [initialLoading, setInitialLoading] = useState(true);
@@ -138,11 +139,10 @@ export const UserMenuBuilder: React.FC<UserMenuBuilderProps> = ({ userId, userNa
     if (!selectedNodeId || isSaving) return;
     setIsSaving(true);
     try {
-      // Create a copy as a sub-menu of the current one
       await apiClient.post(`usermanagement/users/${userId}/menus`, { 
-        userId: userId, // Ensure correct ID
+        userId: userId,
         ...formData,
-        parentId: selectedNodeId // Make it a child
+        parentId: selectedNodeId 
       });
       toast.success('Menü kopyalandı (Alt kırılım olarak eklendi)');
       await fetchUserMenus(languages);
@@ -160,13 +160,13 @@ export const UserMenuBuilder: React.FC<UserMenuBuilderProps> = ({ userId, userNa
       if (selectedNodeId) {
         await apiClient.put(`usermanagement/users/${userId}/menus`, { 
           id: selectedNodeId,
-          userId: userId, // Ensure correct ID
+          userId: userId,
           ...formData 
         });
         toast.success('Menü güncellendi');
       } else {
         await apiClient.post(`usermanagement/users/${userId}/menus`, { 
-          userId: userId, // Ensure correct ID
+          userId: userId,
           ...formData 
         });
         toast.success('Yeni menü eklendi');
@@ -265,151 +265,175 @@ export const UserMenuBuilder: React.FC<UserMenuBuilderProps> = ({ userId, userNa
     );
   };
 
-  return (
-    <DndProvider backend={MultiBackend} options={getBackendOptions()}>
-      <div className={styles.modalOverlay} onClick={onClose}>
-        <div className={styles.dndModal} style={{ height: '90vh', maxWidth: '1200px' }} onClick={e => e.stopPropagation()}>
-          <div className={styles.modalHeader}>
-            <div>
-               <h3>Kullanıcı Menü Mimarı: {userName}</h3>
-               <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-muted)' }}>Sürükleyerek ağaç yapısını oluşturun, sağ panelden detayları düzenleyin.</p>
-            </div>
-            <div style={{ display: 'flex', gap: '10px' }}>
-               <button className={styles.addBtn} onClick={handleAddNew}>
-                 <FaPlus /> Yeni Menü/Klasör Ekle
-               </button>
-               <button className={styles.closeBtn} onClick={onClose}><FaTimes /></button>
-            </div>
+  const content = (
+    <div className={isEmbedded ? styles.embeddedDnd : styles.dndModal} style={!isEmbedded ? { height: '90vh', maxWidth: '1200px' } : {}} onClick={e => e.stopPropagation()}>
+      {!isEmbedded && (
+        <div className={styles.modalHeader}>
+          <div>
+             <h3>Kullanıcı Menü Mimarı: {userName}</h3>
+             <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-muted)' }}>Sürükleyerek ağaç yapısını oluşturun, sağ panelden detayları düzenleyin.</p>
+          </div>
+          <div style={{ display: 'flex', gap: '10px' }}>
+             <button className={styles.addBtn} onClick={handleAddNew}>
+               <FaPlus /> Yeni Menü/Klasör Ekle
+             </button>
+             <button className={styles.closeBtn} onClick={onClose}><FaTimes /></button>
+          </div>
+        </div>
+      )}
+
+      {isEmbedded && (
+        <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '15px 30px 0' }}>
+           <button className={styles.addBtn} onClick={handleAddNew}>
+             <FaPlus /> Yeni Menü/Klasör Ekle
+           </button>
+        </div>
+      )}
+
+      <div className={styles.modalBody}>
+          <div className={styles.treePane}>
+            {initialLoading ? (
+              <div className={styles.placeholder}>Yükleniyor...</div>
+            ) : treeData.length === 0 ? (
+              <div className={styles.placeholder}>Henüz menü yok.</div>
+            ) : (
+              <Tree
+                tree={treeData}
+                rootId="0"
+                sort={false}
+                initialOpen={true}
+                onDrop={handleDrop}
+                render={renderNode}
+                classes={{ 
+                  root: styles.treeRoot,
+                  draggingSource: styles.draggingSource,
+                  placeholder: styles.dropPlaceholder
+                }}
+              />
+            )}
           </div>
 
-          <div className={styles.modalBody}>
-             {/* LEFT PANE: TREE */}
-             <div className={styles.treePane}>
-                {initialLoading ? (
-                  <div className={styles.placeholder}>Yükleniyor...</div>
-                ) : treeData.length === 0 ? (
-                  <div className={styles.placeholder}>Henüz menü yok.</div>
-                ) : (
-                  <Tree
-                    tree={treeData}
-                    rootId="0"
-                    sort={false}
-                    initialOpen={true}
-                    onDrop={handleDrop}
-                    render={renderNode}
-                    classes={{ 
-                      root: styles.treeRoot,
-                      draggingSource: styles.draggingSource,
-                      placeholder: styles.dropPlaceholder
-                    }}
-                  />
+          <div className={styles.detailsPane}>
+            <div className={styles.detailsHeader}>
+                <h4>{selectedNodeId ? 'Menü Detayları' : 'Yeni Menü Tanımlama'}</h4>
+            </div>
+            
+            <div className={styles.formGrid}>
+              <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>Hedef Yol (Path)</label>
+                  <select className={styles.formInput} value={formData.path} onChange={e => setFormData({...formData, path: e.target.value})}>
+                    {SYSTEM_PAGES.map(p => <option key={p.path} value={p.path}>{p.name}</option>)}
+                  </select>
+              </div>
+              <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>Görünürlük</label>
+                  <label className={styles.customCheckbox}>
+                    <input type="checkbox" checked={formData.isVisible} onChange={e => setFormData({...formData, isVisible: e.target.checked})} />
+                    <span>Sidebar'da Göster</span>
+                  </label>
+              </div>
+            </div>
+
+            <div className={styles.formGroup} style={{ marginTop: '20px' }}>
+              <label className={styles.formLabel}>İkon ve Renk</label>
+              <div className={styles.iconRow}>
+                  <div className={styles.iconDisplay} style={{ color: formData.iconColor }}>
+                    <DynamicIcon name={formData.icon} />
+                  </div>
+                  <button className={styles.selectIconBtn} onClick={() => setIsIconPickerOpen(true)}>İkon Değiştir</button>
+                  <input type="color" className={styles.colorPicker} value={formData.iconColor} onChange={e => setFormData({...formData, iconColor: e.target.value})} />
+              </div>
+            </div>
+
+            <div className={styles.sectionTitle}><FaGlobe /> Çoklu Dil Başlıkları</div>
+            <div className={styles.translationsList}>
+              {formData.translations.map((t: any) => {
+                const lang = languages.find(l => l.id === t.languageId);
+                return (
+                  <div key={t.languageId} className={styles.translationRow}>
+                    <div className={styles.flagBadge}>{lang?.code?.toUpperCase().slice(0,2)}</div>
+                    <input 
+                      type="text" 
+                      className={styles.formInput} 
+                      placeholder={`${lang?.name} başlık...`}
+                      value={t.title} 
+                      onChange={e => {
+                        const newTrans = formData.translations.map((x: any) => x.languageId === t.languageId ? { ...x, title: e.target.value } : x);
+                        setFormData({...formData, translations: newTrans});
+                      }}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+
+              <div className={styles.detailsFooter}>
+                {selectedNodeId && (
+                  <>
+                      <button className={styles.btnCopy} onClick={handleCopyNode} disabled={isSaving}>
+                        <DynamicIcon name="FaCopy" /> {isSaving ? '...' : 'Kopyala'}
+                      </button>
+                      <button className={styles.btnDeleteNode} onClick={handleDeleteNode} disabled={isSaving}>
+                        <FaTrash /> {isSaving ? '...' : 'Sil'}
+                      </button>
+                  </>
                 )}
-             </div>
+                <button className={styles.btnSaveMain} onClick={handleSaveNode} disabled={isSaving}>
+                  <FaSave /> {isSaving ? 'Kaydediliyor...' : (selectedNodeId ? 'Değişiklikleri Kaydet' : 'Menüyü Oluştur')}
+                </button>
+              </div>
+          </div>
+      </div>
 
-             {/* RIGHT PANE: FORM */}
-             <div className={styles.detailsPane}>
-                <div className={styles.detailsHeader}>
-                   <h4>{selectedNodeId ? 'Menü Detayları' : 'Yeni Menü Tanımlama'}</h4>
-                </div>
-                
-                <div className={styles.formGrid}>
-                  <div className={styles.formGroup}>
-                     <label className={styles.formLabel}>Hedef Yol (Path)</label>
-                     <select className={styles.formInput} value={formData.path} onChange={e => setFormData({...formData, path: e.target.value})}>
-                        {SYSTEM_PAGES.map(p => <option key={p.path} value={p.path}>{p.name}</option>)}
-                     </select>
-                  </div>
-                  <div className={styles.formGroup}>
-                     <label className={styles.formLabel}>Görünürlük</label>
-                     <label className={styles.customCheckbox}>
-                        <input type="checkbox" checked={formData.isVisible} onChange={e => setFormData({...formData, isVisible: e.target.checked})} />
-                        <span>Sidebar'da Göster</span>
-                     </label>
-                  </div>
-                </div>
+      {!isEmbedded && (
+        <div className={styles.modalFooter}>
+          <button className={styles.btnCancel} onClick={onClose} disabled={isSaving}>İptal</button>
+          <button className={styles.btnSave} onClick={handleSyncHierarchy} disabled={isSaving}>
+            <FaSave /> {isSaving ? 'Senkronize ediliyor...' : 'Hiyerarşiyi Kaydet'}
+          </button>
+        </div>
+      )}
 
-                <div className={styles.formGroup} style={{ marginTop: '20px' }}>
-                  <label className={styles.formLabel}>İkon ve Renk</label>
-                  <div className={styles.iconRow}>
-                     <div className={styles.iconDisplay} style={{ color: formData.iconColor }}>
-                        <DynamicIcon name={formData.icon} />
-                     </div>
-                     <button className={styles.selectIconBtn} onClick={() => setIsIconPickerOpen(true)}>İkon Değiştir</button>
-                     <input type="color" className={styles.colorPicker} value={formData.iconColor} onChange={e => setFormData({...formData, iconColor: e.target.value})} />
-                  </div>
-                </div>
+      {isEmbedded && (
+        <div style={{ padding: '0 30px 20px', display: 'flex', justifyContent: 'flex-end' }}>
+          <button className={styles.btnSave} onClick={handleSyncHierarchy} disabled={isSaving}>
+            <FaSave /> {isSaving ? 'Senkronize ediliyor...' : 'Hiyerarşı Şemasını Kaydet'}
+          </button>
+        </div>
+      )}
 
-                <div className={styles.sectionTitle}><FaGlobe /> Çoklu Dil Başlıkları</div>
-                <div className={styles.translationsList}>
-                  {formData.translations.map((t: any) => {
-                    const lang = languages.find(l => l.id === t.languageId);
-                    return (
-                      <div key={t.languageId} className={styles.translationRow}>
-                        <div className={styles.flagBadge}>{lang?.code?.toUpperCase().slice(0,2)}</div>
-                        <input 
-                          type="text" 
-                          className={styles.formInput} 
-                          placeholder={`${lang?.name} başlık...`}
-                          value={t.title} 
-                          onChange={e => {
-                            const newTrans = formData.translations.map((x: any) => x.languageId === t.languageId ? { ...x, title: e.target.value } : x);
-                            setFormData({...formData, translations: newTrans});
-                          }}
-                        />
-                      </div>
-                    );
-                  })}
-                </div>
-
-                 <div className={styles.detailsFooter}>
-                    {selectedNodeId && (
-                      <>
-                         <button className={styles.btnCopy} onClick={handleCopyNode} disabled={isSaving}>
-                            <DynamicIcon name="FaCopy" /> {isSaving ? '...' : 'Kopyala'}
-                         </button>
-                         <button className={styles.btnDeleteNode} onClick={handleDeleteNode} disabled={isSaving}>
-                            <FaTrash /> {isSaving ? '...' : 'Sil'}
-                         </button>
-                      </>
-                    )}
-                    <button className={styles.btnSaveMain} onClick={handleSaveNode} disabled={isSaving}>
-                      <FaSave /> {isSaving ? 'Kaydediliyor...' : (selectedNodeId ? 'Değişiklikleri Kaydet' : 'Menüyü Oluştur')}
-                    </button>
+      {/* --- ICON PICKER --- */}
+      {isIconPickerOpen && (
+        <div className={styles.modalOverlay} style={{ zIndex: 1200 }} onClick={() => setIsIconPickerOpen(false)}>
+           <div className={styles.pickerModal} onClick={e => e.stopPropagation()}>
+              <div className={styles.modalHeader}>
+                 <div className={styles.searchWrap}>
+                    <FaSearch />
+                    <input placeholder="İkon ara..." value={iconSearch} onChange={e => setIconSearch(e.target.value)} />
                  </div>
+                 <button className={styles.closeBtn} onClick={() => setIsIconPickerOpen(false)}><FaTimes /></button>
+              </div>
+              <div className={styles.pickerGrid}>
+                 {filteredIcons.map(icon => (
+                   <div key={icon} className={styles.iconOption} onClick={() => { setFormData({...formData, icon}); setIsIconPickerOpen(false); }}>
+                      <DynamicIcon name={icon} className={styles.optIcon} />
+                      <span className={styles.optName}>{icon.replace('Fa', '')}</span>
+                   </div>
+                 ))}
               </div>
            </div>
- 
-           <div className={styles.modalFooter}>
-             <button className={styles.btnCancel} onClick={onClose} disabled={isSaving}>İptal</button>
-             <button className={styles.btnSave} onClick={handleSyncHierarchy} disabled={isSaving}>
-               <FaSave /> {isSaving ? 'Senkronize ediliyor...' : 'Hiyerarşiyi Kaydet'}
-             </button>
-           </div>
         </div>
+      )}
+    </div>
+  );
 
-        {/* --- ICON PICKER --- */}
-        {isIconPickerOpen && (
-          <div className={styles.modalOverlay} style={{ zIndex: 1200 }} onClick={() => setIsIconPickerOpen(false)}>
-             <div className={styles.pickerModal} onClick={e => e.stopPropagation()}>
-                <div className={styles.modalHeader}>
-                   <div className={styles.searchWrap}>
-                      <FaSearch />
-                      <input placeholder="İkon ara..." value={iconSearch} onChange={e => setIconSearch(e.target.value)} />
-                   </div>
-                   <button className={styles.closeBtn} onClick={() => setIsIconPickerOpen(false)}><FaTimes /></button>
-                </div>
-                <div className={styles.pickerGrid}>
-                   {filteredIcons.map(icon => (
-                     <div key={icon} className={styles.iconOption} onClick={() => { setFormData({...formData, icon}); setIsIconPickerOpen(false); }}>
-                        <DynamicIcon name={icon} className={styles.optIcon} />
-                        <span className={styles.optName}>{icon.replace('Fa', '')}</span>
-                     </div>
-                   ))}
-                </div>
-             </div>
-          </div>
-        )}
-      </div>
+  return (
+    <DndProvider backend={MultiBackend} options={getBackendOptions()}>
+       {isEmbedded ? content : (
+         <div className={styles.modalOverlay} onClick={onClose}>
+           {content}
+         </div>
+       )}
     </DndProvider>
   );
 };

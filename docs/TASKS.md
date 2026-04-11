@@ -30,7 +30,7 @@ Buradaki görevler otonom asistan (Antigravity) tarafından projenin fazlarına 
 - `[x]` **Backend:** `WIXI_MENUS`, `WIXI_LANGUAGES` ve `WIXI_MENU_TRANSLATIONS` tablolarının tasarlanması ve CRUD uçlarının yazılması.
 - `[x]` **Frontend:** Menü Yönetim Sayfası, İkon Seçici ve Akıllı Sayfa Seçici (Path Picker) entegrasyonu.
 - `[x]` **Frontend:** Global Dil Seçici (Header) ve Dinamik Menü (Sidebar) entegrasyonu.
-- `[x]` **Fullstack:** `@dnd-kit` ile Sürükle-Bırak özellikli Kullanıcı Menü Yönetimi Paneli (`UserManagementPage` & `WixiUserMenu`) geliştirildi.
+- `[x]` **Fullstack:** `@dnd-kit` ile Sürükle-Bırak özellikli Kullanıcı Menü Yönetimi Paneli (`UserManagementPage` & `WixiUserMenu`) geliştirildi. (Step-by-step logic: User Info + Menu Builder added).
 - `[ ]` **Frontend:** UI tarafında buton gizleme/gösterme mekanizması için `<HasPermission>` hook'u veya wrapper komponentinin yazılması.
 
 ---

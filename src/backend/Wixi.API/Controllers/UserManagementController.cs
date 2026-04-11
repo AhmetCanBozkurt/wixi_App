@@ -1,8 +1,10 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Wixi.Modules.Core.Application.UserManagement.Queries.GetUsers;
+using Wixi.Modules.Core.Application.UserManagement.Queries.GetUserById;
 using Wixi.Modules.Core.Application.UserManagement.Queries.GetUserMenus;
 using Wixi.Modules.Core.Application.UserManagement.Commands.SyncUserMenus;
+using Wixi.Modules.Core.Application.UserManagement.Commands.UpdateUser;
 using Wixi.Modules.Core.Application.UserManagement.Dto;
 using Wixi.Modules.Core.Application.Navigation.Commands.CreateMenu;
 using Wixi.Modules.Core.Application.Navigation.Commands.UpdateMenu;
@@ -27,6 +29,21 @@ public class UserManagementController : ControllerBase
     {
         var result = await _mediator.Send(new GetUsersQuery());
         return Ok(result);
+    }
+
+    [HttpGet("users/{id}")]
+    public async Task<IActionResult> GetUser(Guid id)
+    {
+        var result = await _mediator.Send(new GetUserByIdQuery(id));
+        return result != null ? Ok(result) : NotFound();
+    }
+
+    [HttpPut("users/{id}")]
+    public async Task<IActionResult> UpdateUser(Guid id, [FromBody] UserDetailDto user)
+    {
+        if (id != user.Id) return BadRequest();
+        var result = await _mediator.Send(new UpdateUserCommand(user));
+        return result ? Ok() : BadRequest();
     }
 
     [HttpGet("users/{id}/menus")]

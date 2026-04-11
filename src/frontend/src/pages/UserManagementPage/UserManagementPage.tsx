@@ -5,7 +5,7 @@ import Swal from 'sweetalert2';
 import { apiClient } from '../../shared/api/axiosConfig';
 import { AdvancedDataTable } from '../../shared/ui/AdvancedDataTable/AdvancedDataTable';
 import { Badge } from '../../shared/ui/Badge/Badge';
-import { UserMenuBuilder } from './UserMenuBuilder';
+import { UserEditorModal } from './UserEditorModal';
 import styles from './UserManagementPage.module.css';
 
 interface UserListDto {
@@ -112,10 +112,11 @@ export const UserManagementPage = () => {
       </div>
 
       {activeUser && (
-        <UserMenuBuilder 
+        <UserEditorModal 
           userId={activeUser.id}
           userName={`${activeUser.firstName} ${activeUser.lastName}`}
           onClose={() => setActiveUser(null)}
+          onSave={fetchUsers}
         />
       )}
     </div>
