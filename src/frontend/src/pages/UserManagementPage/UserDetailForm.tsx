@@ -18,15 +18,24 @@ interface UserDetail {
 }
 
 interface UserDetailFormProps {
-  userId: string;
-  onUserUpdated: (newName: string) => void;
+  userId: string | null;
+  onUserUpdated: (newName: string, id: string) => void;
   onNext: () => void;
 }
 
 export const UserDetailForm = forwardRef<{ handleSave: () => void }, UserDetailFormProps>(({ userId, onUserUpdated, onNext }, ref) => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [user, setUser] = useState<UserDetail | null>(null);
+  const [user, setUser] = useState<UserDetail | null>(userId ? null : {
+    firstName: '',
+    lastName: '',
+    email: '',
+    username: '',
+    isActive: true,
+    profilePicture: null,
+    phoneNumber: '',
+    twoFactorEnabled: false
+  } as any);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   useImperativeHandle(ref, () => ({
@@ -65,11 +74,9 @@ export const UserDetailForm = forwardRef<{ handleSave: () => void }, UserDetailF
       reader.onloadend = () => {
         const base64String = reader.result as string;
         setPreviewImage(base64String);
-        if (user) {
-          // Remove prefix like "data:image/jpeg;base64,"
-          const binary = base64String.split(',')[1];
-          setUser({ ...user, profilePicture: binary });
-        }
+        // Remove prefix like "data:image/jpeg;base64,"
+        const binary = base64String.split(',')[1];
+        setUser(prev => prev ? { ...prev, profilePicture: binary } : { profilePicture: binary } as any);
       };
       reader.readAsDataURL(file);
     }
@@ -77,9 +84,7 @@ export const UserDetailForm = forwardRef<{ handleSave: () => void }, UserDetailF
 
   const handleRemoveImage = () => {
     setPreviewImage(null);
-    if (user) {
-      setUser({ ...user, profilePicture: null });
-    }
+    setUser(prev => prev ? { ...prev, profilePicture: null } : { profilePicture: null } as any);
   };
 
   const handleSave = async (e: React.FormEvent) => {
@@ -88,11 +93,20 @@ export const UserDetailForm = forwardRef<{ handleSave: () => void }, UserDetailF
 
     setSaving(true);
     try {
-      await apiClient.put(`usermanagement/users/${userId}`, user);
-      toast.success('Kullanıcı bilgileri güncellendi.');
-      onUserUpdated(`${user.firstName} ${user.lastName}`);
+      let newId = userId || '';
+      if (!userId) {
+        // Create Mode
+        const res = await apiClient.post<{ id: string }>('usermanagement/users', user);
+        newId = res.data.id;
+        toast.success('Yeni kullanıcı başarıyla oluşturuldu.');
+      } else {
+        // Update Mode
+        await apiClient.put(`usermanagement/users/${userId}`, user);
+        toast.success('Kullanıcı bilgileri güncellendi.');
+      }
+      onUserUpdated(`${user.firstName} ${user.lastName}`, newId);
     } catch {
-      toast.error('Güncelleme sırasında bir hata oluştu.');
+      toast.error('İşlem sırasında bir hata oluştu.');
     } finally {
       setSaving(false);
     }
@@ -101,22 +115,28 @@ export const UserDetailForm = forwardRef<{ handleSave: () => void }, UserDetailF
   const formatPhoneNumber = (value: string) => {
     if (!value) return '';
     const phoneNumber = value.replace(/[^\d]/g, '');
-    const phoneNumberLength = phoneNumber.length;
-    if (phoneNumberLength < 4) return `+${phoneNumber}`;
-    if (phoneNumberLength < 7) {
-      return `+${phoneNumber.slice(0, 2)} (${phoneNumber.slice(2, 5)})`;
-    }
-    if (phoneNumberLength < 10) {
-      return `+${phoneNumber.slice(0, 2)} (${phoneNumber.slice(2, 5)}) ${phoneNumber.slice(5, 8)}`;
-    }
-    if (phoneNumberLength < 12) {
-      return `+${phoneNumber.slice(0, 2)} (${phoneNumber.slice(2, 5)}) ${phoneNumber.slice(5, 8)} ${phoneNumber.slice(8, 10)}`;
-    }
+    const length = phoneNumber.length;
+    
+    if (length <= 2) return `+${phoneNumber}`;
+    if (length <= 5) return `+${phoneNumber.slice(0, 2)} (${phoneNumber.slice(2, 5)})`;
+    if (length <= 8) return `+${phoneNumber.slice(0, 2)} (${phoneNumber.slice(2, 5)}) ${phoneNumber.slice(5, 8)}`;
+    if (length <= 10) return `+${phoneNumber.slice(0, 2)} (${phoneNumber.slice(2, 5)}) ${phoneNumber.slice(5, 8)} ${phoneNumber.slice(8, 10)}`;
     return `+${phoneNumber.slice(0, 2)} (${phoneNumber.slice(2, 5)}) ${phoneNumber.slice(5, 8)} ${phoneNumber.slice(8, 10)} ${phoneNumber.slice(10, 12)}`;
   };
 
-  if (loading) return <div className={styles.formPlaceholder}>Yükleniyor...</div>;
-  if (!user) return <div className={styles.formPlaceholder}>Kullanıcı bulunamadı.</div>;
+  if (loading && userId) return <div className={styles.formPlaceholder}>Yükleniyor...</div>;
+  
+  const displayUser = user || {
+    firstName: '',
+    lastName: '',
+    email: '',
+    username: '',
+    isActive: true,
+    profilePicture: null,
+    phoneNumber: '',
+    twoFactorEnabled: false,
+    password: ''
+  };
 
   return (
     <form id="userDetailForm" className={styles.detailForm} onSubmit={handleSave}>
@@ -127,7 +147,11 @@ export const UserDetailForm = forwardRef<{ handleSave: () => void }, UserDetailF
                <img src={previewImage} alt="Profile" />
              ) : (
                <div className={styles.avatarFallback}>
-                 {user.firstName[0]}{user.lastName[0]}
+                 {displayUser.firstName || displayUser.lastName ? (
+                    <>{(displayUser.firstName?.[0] || '').toUpperCase()}{(displayUser.lastName?.[0] || '').toUpperCase()}</>
+                 ) : (
+                    <FaUser size={40} style={{ opacity: 0.5 }} />
+                 )}
                </div>
              )}
              <label className={styles.cameraBtn} htmlFor="profilePic">
@@ -154,24 +178,24 @@ export const UserDetailForm = forwardRef<{ handleSave: () => void }, UserDetailF
             label="Ad"
             leftIcon={<FaUser />}
             placeholder="Ad giriniz..."
-            value={user.firstName} 
-            onChange={e => setUser({...user, firstName: e.target.value})} 
+            value={displayUser.firstName} 
+            onChange={e => setUser({...displayUser, firstName: e.target.value} as any)} 
             required
           />
           <Input 
             label="Soyad"
             leftIcon={<FaUser />}
             placeholder="Soyad giriniz..."
-            value={user.lastName} 
-            onChange={e => setUser({...user, lastName: e.target.value})} 
+            value={displayUser.lastName} 
+            onChange={e => setUser({...displayUser, lastName: e.target.value} as any)} 
             required
           />
           <Input 
             label="Kullanıcı Adı"
             leftIcon={<FaIdCard />}
             placeholder="Kullanıcı adı..."
-            value={user.username} 
-            onChange={e => setUser({...user, username: e.target.value})} 
+            value={displayUser.username} 
+            onChange={e => setUser({...displayUser, username: e.target.value} as any)} 
             required
           />
           <Input 
@@ -179,19 +203,30 @@ export const UserDetailForm = forwardRef<{ handleSave: () => void }, UserDetailF
             type="email" 
             leftIcon={<FaEnvelope />}
             placeholder="ornek@wixi.com"
-            value={user.email} 
-            onChange={e => setUser({...user, email: e.target.value})} 
+            value={displayUser.email} 
+            onChange={e => setUser({...displayUser, email: e.target.value} as any)} 
             required
           />
+          {!userId && (
+            <Input 
+              label="Şifre"
+              type="password"
+              leftIcon={<FaShieldAlt />}
+              placeholder="Giriş şifresi..."
+              value={(displayUser as any).password || ''} 
+              onChange={e => setUser({...displayUser, password: e.target.value} as any)} 
+              required
+            />
+          )}
           <Input 
             label="Telefon Numarası"
             leftIcon={<FaPhone />}
             placeholder="+90 (5xx) xxx xx xx"
-            value={user.phoneNumber || ''} 
+            value={displayUser.phoneNumber || ''} 
             maxLength={19}
             onChange={e => {
               const formatted = formatPhoneNumber(e.target.value);
-              setUser({...user, phoneNumber: formatted});
+              setUser({...displayUser, phoneNumber: formatted} as any);
             }} 
           />
           <div className={styles.formGroup}>
@@ -199,13 +234,13 @@ export const UserDetailForm = forwardRef<{ handleSave: () => void }, UserDetailF
             <label className={styles.switch}>
               <input 
                 type="checkbox" 
-                checked={user.twoFactorEnabled} 
-                onChange={e => setUser({...user, twoFactorEnabled: e.target.checked})} 
+                checked={displayUser.twoFactorEnabled} 
+                onChange={e => setUser({...displayUser, twoFactorEnabled: e.target.checked} as any)} 
               />
               <span className={styles.slider}></span>
               <span className={styles.switchLabel}>
-                <FaShieldAlt style={{ marginRight: '8px', color: user.twoFactorEnabled ? 'var(--color-success)' : 'var(--text-muted)' }} />
-                2-Factor Doğrulama {user.twoFactorEnabled ? 'Aktif' : 'Pasif'}
+                <FaShieldAlt style={{ marginRight: '8px', color: displayUser.twoFactorEnabled ? 'var(--color-success)' : 'var(--text-muted)' }} />
+                2-Factor Doğrulama {displayUser.twoFactorEnabled ? 'Aktif' : 'Pasif'}
               </span>
             </label>
           </div>
@@ -214,11 +249,11 @@ export const UserDetailForm = forwardRef<{ handleSave: () => void }, UserDetailF
             <label className={styles.switch}>
               <input 
                 type="checkbox" 
-                checked={user.isActive} 
-                onChange={e => setUser({...user, isActive: e.target.checked})} 
+                checked={displayUser.isActive} 
+                onChange={e => setUser({...displayUser, isActive: e.target.checked} as any)} 
               />
               <span className={styles.slider}></span>
-              <span className={styles.switchLabel}>{user.isActive ? 'Aktif Hesap' : 'Pasif Hesap'}</span>
+              <span className={styles.switchLabel}>{displayUser.isActive ? 'Aktif Hesap' : 'Pasif Hesap'}</span>
             </label>
           </div>
         </div>

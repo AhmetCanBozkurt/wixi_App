@@ -5,6 +5,7 @@ using Wixi.Modules.Core.Application.UserManagement.Queries.GetUserById;
 using Wixi.Modules.Core.Application.UserManagement.Queries.GetUserMenus;
 using Wixi.Modules.Core.Application.UserManagement.Commands.SyncUserMenus;
 using Wixi.Modules.Core.Application.UserManagement.Commands.UpdateUser;
+using Wixi.Modules.Core.Application.UserManagement.Commands.CreateUser;
 using Wixi.Modules.Core.Application.UserManagement.Dto;
 using Wixi.Modules.Core.Application.Navigation.Commands.CreateMenu;
 using Wixi.Modules.Core.Application.Navigation.Commands.UpdateMenu;
@@ -29,6 +30,13 @@ public class UserManagementController : ControllerBase
     {
         var result = await _mediator.Send(new GetUsersQuery());
         return Ok(result);
+    }
+
+    [HttpPost("users")]
+    public async Task<IActionResult> CreateUser([FromBody] UserDetailDto user)
+    {
+        var result = await _mediator.Send(new CreateUserCommand(user));
+        return result != null ? Ok(new { id = result }) : BadRequest();
     }
 
     [HttpGet("users/{id}")]

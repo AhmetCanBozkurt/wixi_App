@@ -2,7 +2,7 @@ namespace Wixi.Modules.Core.Application.UserManagement.Dto;
 
 public class UserDetailDto
 {
-    public Guid Id { get; set; }
+    public Guid? Id { get; set; }
     public string FirstName { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
@@ -11,4 +11,5 @@ public class UserDetailDto
     public byte[]? ProfilePicture { get; set; }
     public string? PhoneNumber { get; set; }
     public bool TwoFactorEnabled { get; set; }
+    public string? Password { get; set; }
 }

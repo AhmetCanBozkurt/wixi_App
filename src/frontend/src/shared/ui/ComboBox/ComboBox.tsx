@@ -17,6 +17,7 @@ interface ComboBoxProps {
   placeholder?: string;
   leftIcon?: React.ReactNode;
   required?: boolean;
+  containerClassName?: string;
 }
 
 export const ComboBox: React.FC<ComboBoxProps> = ({

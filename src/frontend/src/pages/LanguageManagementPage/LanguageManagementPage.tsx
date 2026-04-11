@@ -153,6 +153,7 @@ export const LanguageManagementPage = () => {
           pageable={{ pageSize: 12 }}
           toolbar={['search', 'excel', 'pdf']}
           onEdit={handleOpenModal}
+          onDelete={handleDelete}
         />
       </div>
 

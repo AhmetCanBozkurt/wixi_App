@@ -1,10 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
-import { FaUsers, FaSitemap } from 'react-icons/fa';
+import { FaUsers, FaSitemap, FaPlus } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 import Swal from 'sweetalert2';
 import { apiClient } from '../../shared/api/axiosConfig';
-import { AdvancedDataTable } from '../../shared/ui/AdvancedDataTable/AdvancedDataTable';
-import { Badge } from '../../shared/ui/Badge/Badge';
+import { AdvancedDataTable, Badge, Button } from '../../shared/ui';
 import { UserEditorModal } from './UserEditorModal';
 import styles from './UserManagementPage.module.css';
 
@@ -22,7 +21,9 @@ export const UserManagementPage = () => {
   const [loading, setLoading] = useState(true);
   
   // Dnd Modal State
+  // Modal State
   const [activeUser, setActiveUser] = useState<UserListDto | null>(null);
+  const [isAddingNew, setIsAddingNew] = useState(false);
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
@@ -72,6 +73,9 @@ export const UserManagementPage = () => {
             <p>Sistem kullanıcılarını görüntüleyin ve kişiye özel menü erişimlerini (sürükle-bırak) yapılandırın.</p>
           </div>
         </div>
+        <Button variant="primary" onClick={() => setIsAddingNew(true)} leftIcon={<FaPlus />}>
+          Yeni Kullanıcı Ekle
+        </Button>
       </div>
 
       <div className={styles.content}>
@@ -128,11 +132,14 @@ export const UserManagementPage = () => {
         />
       </div>
 
-      {activeUser && (
+      {(activeUser || isAddingNew) && (
         <UserEditorModal 
-          userId={activeUser.id}
-          userName={`${activeUser.firstName} ${activeUser.lastName}`}
-          onClose={() => setActiveUser(null)}
+          userId={activeUser?.id || null}
+          userName={activeUser ? `${activeUser.firstName} ${activeUser.lastName}` : 'Yeni Kullanıcı'}
+          onClose={() => {
+            setActiveUser(null);
+            setIsAddingNew(false);
+          }}
           onSave={fetchUsers}
         />
       )}
