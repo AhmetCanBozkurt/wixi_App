@@ -260,16 +260,18 @@
 }
 
 .accordionHeader {
-  width: 100%;
+  width: auto;
   background: transparent;
   border: none;
-  padding: 8px 14px;
+  padding: 8px 10px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   cursor: pointer;
   color: var(--sidebar-text);
   transition: all 0.15s ease;
+  margin: 1px 8px;
+  border-radius: 6px;
 }
 
 .accordionHeader:hover {
@@ -279,12 +281,12 @@
 
 .accordionTitle {
   font-size: 0.85rem;
-  font-weight: 600;
+  font-weight: 400;
   color: var(--sidebar-text);
   display: flex;
-  align-items: center; /* Dikey hizalama */
+  align-items: center;
   gap: 10px;
-  line-height: 1; /* Satır yüksekliği eşitleme */
+  line-height: 1;
 }
 
 .accordionTitle svg {
@@ -351,7 +353,7 @@
 
 .menuItemRow a.active {
   color: var(--sidebar-active-color) !important;
-  font-weight: 600;
+  font-weight: 500;
 }
 
 /* ---- Favorite Star Button ---- */

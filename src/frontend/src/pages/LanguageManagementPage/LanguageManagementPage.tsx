@@ -3,7 +3,7 @@ import { FaPlus, FaEdit, FaTrash, FaCheck, FaTimes, FaGlobe } from 'react-icons/
 import { toast } from 'react-hot-toast';
 import Swal from 'sweetalert2';
 import { apiClient } from '../../shared/api/axiosConfig';
-import { AdvancedDataTable, Badge, Card, Input, Button } from '../../shared/ui';
+import { AdvancedDataTable, Badge, Card, Input, Button, Modal, Switch, ImageUpload } from '../../shared/ui';
 import styles from './LanguageManagementPage.module.css';
 
 interface Language {
@@ -54,20 +54,6 @@ export const LanguageManagementPage = () => {
     setIsModalOpen(true);
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 2 * 1024 * 1024) {
-        toast.error('Görsel boyutu 2MB\'dan küçük olmalıdır');
-        return;
-      }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData(prev => ({ ...prev, iconBase64: reader.result as string }));
-      };
-      reader.readAsDataURL(file);
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -167,118 +153,94 @@ export const LanguageManagementPage = () => {
           pageable={{ pageSize: 12 }}
           toolbar={['search', 'excel', 'pdf']}
           onEdit={handleOpenModal}
-          onDelete={handleDelete}
         />
       </div>
 
-      {/* Modern Modal */}
-      {isModalOpen && (
-        <div className={styles.modalOverlay} onClick={() => setIsModalOpen(false)}>
-          <div className={styles.premiumModal} onClick={e => e.stopPropagation()}>
-            <div className={styles.premiumModalHeader}>
-              <div className={styles.modalTitleArea}>
-                <FaGlobe className={styles.modalTitleIcon} />
-                <div>
-                  <h3>{editingLang ? 'Dili Düzenle' : 'Yeni Dil Ekle'}</h3>
-                  <p>{editingLang ? 'Mevcut dil ayarlarını güncelleyin.' : 'Sisteme yeni bir dil ve bölgesel ayar ekleyin.'}</p>
+      {/* Premium Modal Upgrade */}
+      <Modal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)}
+        title={editingLang ? 'Dili Düzenle' : 'Yeni Dil Ekle'}
+        size="lg"
+        footer={
+          <>
+            <Button variant="ghost" onClick={() => setIsModalOpen(false)}>Vazgeç</Button>
+            <Button variant="primary" onClick={() => handleSubmit({ preventDefault: () => {} } as React.FormEvent)}>
+              {editingLang ? 'Değişiklikleri Kaydet' : 'Dili Oluştur'}
+            </Button>
+          </>
+        }
+      >
+        <div className={styles.premiumModalContent}>
+          <div className={styles.modalGrid}>
+            <div className={styles.modalLeft}>
+              <Card title="Görsel & Bayrak" subtitle="Dil ikonunu buradan yükleyebilirsiniz">
+                <div style={{ display: 'flex', justifyContent: 'center', padding: '20px 0' }}>
+                  <ImageUpload 
+                    label="Bayrak İkonu" 
+                    value={formData.iconBase64} 
+                    onChange={val => setFormData({ ...formData, iconBase64: val || '' })}
+                    shape="square"
+                    size={120}
+                    required
+                  />
                 </div>
-              </div>
-              <button className={styles.premiumCloseBtn} onClick={() => setIsModalOpen(false)}>
-                <FaTimes />
-              </button>
+              </Card>
+
+              <Card title="Durum Ayarları" subtitle="Dilin sistem genelindeki görünürlüğü" style={{ marginTop: '20px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  <Switch 
+                    label="Dili Aktif Et" 
+                    description="Kullanıcılar bu dili arayüzde seçebilir."
+                    checked={formData.isActive}
+                    onChange={e => setFormData({ ...formData, isActive: e.target.checked })}
+                  />
+                  <Switch 
+                    label="Varsayılan Dil" 
+                    description="Sistem açılışında bu dil otomatik seçilir."
+                    checked={formData.isDefault}
+                    onChange={e => setFormData({ ...formData, isDefault: e.target.checked })}
+                  />
+                </div>
+              </Card>
             </div>
-            
-            <form onSubmit={handleSubmit}>
-              <div className={styles.premiumModalBody}>
-                <div className={styles.modalGrid}>
-                  <Card title="Temel Bilgiler" subtitle="Dilin sistem genelindeki adı ve kodu">
-                    <div className={styles.cardFields}>
-                      <Input 
-                        label="Dil Adı" 
-                        required 
-                        value={formData.name} 
-                        onChange={e => setFormData({ ...formData, name: e.target.value })} 
-                        placeholder="örn: Türkçe" 
-                        leftIcon={<FaGlobe />}
-                      />
-                      <Input 
-                        label="Dil Kodu (ISO)" 
-                        required 
-                        value={formData.code} 
-                        onChange={e => setFormData({ ...formData, code: e.target.value })} 
-                        placeholder="örn: tr-TR" 
-                      />
-                      <Input 
-                        label="Bayrak Kodu" 
-                        value={formData.flagCode} 
-                        onChange={e => setFormData({ ...formData, flagCode: e.target.value })} 
-                        placeholder="örn: tr, us" 
-                      />
-                    </div>
-                  </Card>
 
-                  <Card title="Görsel & Durum" subtitle="İkon yönetimi ve aktiflik durumu">
-                    <div className={styles.cardFields}>
-                      <div className={styles.fileUploadSection}>
-                        <label className={styles.fieldLabel}>Bayrak Görseli</label>
-                        <div className={styles.uploadBox}>
-                          {formData.iconBase64 ? (
-                            <div className={styles.imagePreviewWrapper}>
-                              <img src={formData.iconBase64} alt="Önizleme" className={styles.imagePreview} />
-                              <button type="button" onClick={() => setFormData(prev => ({ ...prev, iconBase64: '' }))} className={styles.removeImgBtn}>
-                                <FaTrash size={12} />
-                              </button>
-                            </div>
-                          ) : (
-                            <label className={styles.uploadPlaceholder}>
-                              <input type="file" accept="image/*" onChange={handleFileChange} hidden />
-                              <FaPlus />
-                              <span>Görsel Yükle</span>
-                            </label>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className={styles.switchGrid}>
-                        <div className={styles.switchItem}>
-                          <label className={styles.switchLabel}>
-                            <input 
-                              type="checkbox" 
-                              checked={formData.isActive} 
-                              onChange={e => setFormData({ ...formData, isActive: e.target.checked })} 
-                            />
-                            <span>Dili Aktif Et</span>
-                          </label>
-                          <p className={styles.switchDesc}>Kullanıcılar bu dili seçebilir.</p>
-                        </div>
-
-                        <div className={styles.switchItem}>
-                          <label className={styles.switchLabel}>
-                            <input 
-                              type="checkbox" 
-                              checked={formData.isDefault} 
-                              onChange={e => setFormData({ ...formData, isDefault: e.target.checked })} 
-                            />
-                            <span>Varsayılan Dil</span>
-                          </label>
-                          <p className={styles.switchDesc}>Sistem açılış dili olur.</p>
-                        </div>
-                      </div>
-                    </div>
-                  </Card>
+            <div className={styles.modalRight}>
+              <Card title="Temel Bilgiler" subtitle="ISO standartlarına göre dil ayarları">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                  <Input 
+                    label="Dil Adı" 
+                    placeholder="Türkçe, English vb."
+                    required
+                    value={formData.name}
+                    onChange={e => setFormData({ ...formData, name: e.target.value })}
+                    leftIcon={<FaGlobe size={14} />}
+                  />
+                  <Input 
+                    label="Dil Kodu (ISO)" 
+                    placeholder="tr-TR, en-US vb."
+                    required
+                    value={formData.code}
+                    onChange={e => setFormData({ ...formData, code: e.target.value })}
+                  />
+                  <Input 
+                    label="Flag Code" 
+                    placeholder="tr, us, gb vb."
+                    value={formData.flagCode}
+                    onChange={e => setFormData({ ...formData, flagCode: e.target.value })}
+                  />
                 </div>
+              </Card>
+              
+              <div style={{ marginTop: '24px', padding: '16px', background: 'rgba(37, 99, 235, 0.05)', borderRadius: '12px', border: '1px dashed var(--color-primary-glow)' }}>
+                  <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', lineHeight: '1.5' }}>
+                    <strong>Not:</strong> Dil dosyasını (JSON) oluşturmak için dili kaydettikten sonra Dil Dosyası Düzenleyici'ye gitmeniz gerekmektedir.
+                  </p>
               </div>
-
-              <div className={styles.premiumModalFooter}>
-                <Button variant="ghost" type="button" onClick={() => setIsModalOpen(false)}>Vazgeç</Button>
-                <Button variant="primary" type="submit">
-                  {editingLang ? 'Değişiklikleri Kaydet' : 'Dili Oluştur'}
-                </Button>
-              </div>
-            </form>
+            </div>
           </div>
         </div>
-      )}
+      </Modal>
     </div>
   );
 };

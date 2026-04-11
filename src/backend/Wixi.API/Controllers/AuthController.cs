@@ -5,6 +5,7 @@ using Wixi.Modules.Core.Application.Auth.Commands.Login;
 using Wixi.Modules.Core.Application.Auth.Commands.Register;
 using Wixi.Modules.Core.Infrastructure.Data;
 using Wixi.Modules.Core.Domain.Entities;
+using Wixi.Modules.Core.Application.Auth.Queries.GetMe;
 
 namespace Wixi.API.Controllers;
 
@@ -27,6 +28,14 @@ public class AuthController : ControllerBase
     {
         await _context.LogActivityAsync("LOGOUT", null, null, "Kullanıcı oturumu sonlandırdı.", LogType.Security);
         return Ok(new { message = "Oturum başarıyla kapatıldı." });
+    }
+
+    [Authorize]
+    [HttpGet("me")]
+    public async Task<IActionResult> GetMe()
+    {
+        var result = await _mediator.Send(new GetMeQuery());
+        return result != null ? Ok(result) : NotFound();
     }
 
     [HttpPost("login")]

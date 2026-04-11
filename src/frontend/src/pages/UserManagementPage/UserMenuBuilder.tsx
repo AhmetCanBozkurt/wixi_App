@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, forwardRef, useImperativeHandle } from 'react';
 import { Tree, DndProvider, getBackendOptions, MultiBackend } from '@minoru/react-dnd-treeview';
 import type { NodeModel } from '@minoru/react-dnd-treeview';
 import { FaPlus, FaTimes, FaSave, FaSearch, FaTrash, FaGlobe } from 'react-icons/fa';
@@ -6,7 +6,8 @@ import * as FaIconsList from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 import Swal from 'sweetalert2';
 import { apiClient } from '../../shared/api/axiosConfig';
-import { DynamicIcon } from '../../shared/ui/DynamicIcon/DynamicIcon';
+import { DynamicIcon, Select, Switch } from '../../shared/ui';
+import { useAuthStore } from '../../entities/User/model/store';
 import styles from './UserManagementPage.module.css';
 
 // --- TYPES ---
@@ -37,10 +38,14 @@ const SYSTEM_PAGES = [
 const POPULAR_ICONS = Object.keys(FaIconsList).filter(key => key.startsWith('Fa')).slice(0, 100);
 
 // --- COMPONENT ---
-export const UserMenuBuilder: React.FC<UserMenuBuilderProps> = ({ userId, userName, onClose, isEmbedded }) => {
+export const UserMenuBuilder = forwardRef<{ syncHierarchy: () => void }, UserMenuBuilderProps>(({ userId, userName, onClose, isEmbedded }, ref) => {
   const [treeData, setTreeData] = useState<NodeModel<any>[]>([]);
   const [languages, setLanguages] = useState<Language[]>([]);
   const [initialLoading, setInitialLoading] = useState(true);
+
+  useImperativeHandle(ref, () => ({
+    syncHierarchy: handleSyncHierarchy
+  }));
 
   // UI State
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
@@ -48,6 +53,7 @@ export const UserMenuBuilder: React.FC<UserMenuBuilderProps> = ({ userId, userNa
   const [iconSearch, setIconSearch] = useState('');
   
   const [isSaving, setIsSaving] = useState(false);
+  const { user: currentUser } = useAuthStore();
   
   const [formData, setFormData] = useState<any>({
     path: '/',
@@ -108,6 +114,11 @@ export const UserMenuBuilder: React.FC<UserMenuBuilderProps> = ({ userId, userNa
       const langs = await fetchLanguages();
       if (langs.length > 0) {
         await fetchUserMenus(langs);
+        // Initialize translations for the "Add New" state if nothing is selected
+        setFormData(prev => ({
+          ...prev,
+          translations: langs.map(l => ({ languageId: l.id, title: '' }))
+        }));
       }
     };
     init();
@@ -220,6 +231,11 @@ export const UserMenuBuilder: React.FC<UserMenuBuilderProps> = ({ userId, userNa
       }));
       await apiClient.post(`usermanagement/users/${userId}/menus/sync`, payload);
       toast.success('Hiyerarşi şeması buluta işlendi!');
+
+      // If the admin is editing their own menu, notify the sidebar to refresh
+      if (currentUser?.id === userId) {
+        window.dispatchEvent(new CustomEvent('wixi-refresh-menu'));
+      }
     } catch {
       toast.error('Senkronizasyon başarısız');
     } finally {
@@ -241,7 +257,7 @@ export const UserMenuBuilder: React.FC<UserMenuBuilderProps> = ({ userId, userNa
     return (
       <div 
         className={`${styles.treeItemContainer} ${isSelected ? styles.selected : ''}`} 
-        style={{ marginLeft: (depth * 25) }}
+        style={{ marginLeft: (depth * 12) + 5 }}
         onClick={() => handleSelectNode(node)}
       >
         <div 
@@ -258,8 +274,6 @@ export const UserMenuBuilder: React.FC<UserMenuBuilderProps> = ({ userId, userNa
         
         <div className={styles.treeText}>
           <span className={styles.treeTitle}>{node.text}</span>
-          {!isFolder && <span className={styles.treePath}>{node.data?.path}</span>}
-          {isFolder && <span className={styles.treePath} style={{ fontStyle: 'italic', opacity: 0.5 }}>[ GRUP BAŞLIĞI ]</span>}
         </div>
       </div>
     );
@@ -279,14 +293,6 @@ export const UserMenuBuilder: React.FC<UserMenuBuilderProps> = ({ userId, userNa
              </button>
              <button className={styles.closeBtn} onClick={onClose}><FaTimes /></button>
           </div>
-        </div>
-      )}
-
-      {isEmbedded && (
-        <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '15px 30px 0' }}>
-           <button className={styles.addBtn} onClick={handleAddNew}>
-             <FaPlus /> Yeni Menü/Klasör Ekle
-           </button>
         </div>
       )}
 
@@ -320,17 +326,20 @@ export const UserMenuBuilder: React.FC<UserMenuBuilderProps> = ({ userId, userNa
             
             <div className={styles.formGrid}>
               <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>Hedef Yol (Path)</label>
-                  <select className={styles.formInput} value={formData.path} onChange={e => setFormData({...formData, path: e.target.value})}>
-                    {SYSTEM_PAGES.map(p => <option key={p.path} value={p.path}>{p.name}</option>)}
-                  </select>
+                  <Select 
+                    label="Hedef Yol (Path)"
+                    value={formData.path}
+                    onChange={val => setFormData({...formData, path: val as string})}
+                    options={SYSTEM_PAGES.map(p => ({ label: p.name, value: p.path }))}
+                  />
               </div>
               <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>Görünürlük</label>
-                  <label className={styles.customCheckbox}>
-                    <input type="checkbox" checked={formData.isVisible} onChange={e => setFormData({...formData, isVisible: e.target.checked})} />
-                    <span>Sidebar'da Göster</span>
-                  </label>
+                  <Switch 
+                    label="Görünürlük"
+                    description={formData.isVisible ? "Sidebar'da Gösteriliyor" : "Menü Gizli"}
+                    checked={formData.isVisible}
+                    onChange={e => setFormData({...formData, isVisible: e.target.checked})}
+                  />
               </div>
             </div>
 
@@ -378,7 +387,10 @@ export const UserMenuBuilder: React.FC<UserMenuBuilderProps> = ({ userId, userNa
                       </button>
                   </>
                 )}
-                <button className={styles.btnSaveMain} onClick={handleSaveNode} disabled={isSaving}>
+                <button className={styles.addBtnSmall} onClick={handleAddNew}>
+                  <FaPlus /> {selectedNodeId ? 'Yeni Menü/Grup Ekle' : 'Temizle'}
+                </button>
+                <button className={styles.btnSaveMainGreen} onClick={handleSaveNode} disabled={isSaving}>
                   <FaSave /> {isSaving ? 'Kaydediliyor...' : (selectedNodeId ? 'Değişiklikleri Kaydet' : 'Menüyü Oluştur')}
                 </button>
               </div>
@@ -396,9 +408,7 @@ export const UserMenuBuilder: React.FC<UserMenuBuilderProps> = ({ userId, userNa
 
       {isEmbedded && (
         <div style={{ padding: '0 30px 20px', display: 'flex', justifyContent: 'flex-end' }}>
-          <button className={styles.btnSave} onClick={handleSyncHierarchy} disabled={isSaving}>
-            <FaSave /> {isSaving ? 'Senkronize ediliyor...' : 'Hiyerarşı Şemasını Kaydet'}
-          </button>
+          {/* Moved to parent footer */}
         </div>
       )}
 
@@ -436,4 +446,4 @@ export const UserMenuBuilder: React.FC<UserMenuBuilderProps> = ({ userId, userNa
        )}
     </DndProvider>
   );
-};
+});

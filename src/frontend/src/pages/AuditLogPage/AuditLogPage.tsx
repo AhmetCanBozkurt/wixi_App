@@ -2,8 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { FaHistory, FaEye, FaTimes, FaUserEdit } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 import { apiClient } from '../../shared/api/axiosConfig';
-import { AdvancedDataTable } from '../../shared/ui/AdvancedDataTable/AdvancedDataTable';
-import { Badge } from '../../shared/ui/Badge/Badge';
+import { AdvancedDataTable, Badge, Modal, Card, Button } from '../../shared/ui';
 import styles from './AuditLogPage.module.css';
 
 interface AuditLog {
@@ -137,41 +136,50 @@ export const AuditLogPage = () => {
         />
       </div>
 
-      {/* Detail Modal */}
-      {selectedLog && (
-        <div className={styles.modalOverlay} onClick={() => setSelectedLog(null)}>
-          <div className={`${styles.modal} ${styles.auditModal}`} onClick={e => e.stopPropagation()}>
-            <div className={styles.modalHeader}>
-              <h3>
-                <FaUserEdit style={{ color: 'var(--color-primary)' }} /> 
-                Değişiklik Detayı
-              </h3>
-              <button className={styles.closeBtn} onClick={() => setSelectedLog(null)}>
-                <FaTimes />
-              </button>
-            </div>
-            
-            <div className={styles.modalBody}>
-              <div className={styles.diffContainer}>
-                <div className={styles.diffSection}>
-                  <h4>Eski Değerler</h4>
-                  <pre className={styles.jsonBlock}>{formatJSON(selectedLog.oldValues)}</pre>
-                </div>
-                <div className={styles.diffSection}>
-                  <h4>Yeni Değerler</h4>
-                  <pre className={styles.jsonBlock}>{formatJSON(selectedLog.newValues)}</pre>
-                </div>
+      {/* Premium Detail Modal Upgrade */}
+      <Modal 
+        isOpen={!!selectedLog} 
+        onClose={() => setSelectedLog(null)}
+        title="İşlem ve Değişiklik Detayı"
+        size="lg"
+        footer={
+          <Button variant="ghost" onClick={() => setSelectedLog(null)}>Kapat</Button>
+        }
+      >
+        {selectedLog && (
+          <div className={styles.premiumModalContent}>
+            <div className={styles.logMetaInfo}>
+              <div className={styles.metaItem}>
+                <span className={styles.metaLabel}>İşlemi Yapan:</span>
+                <span className={styles.metaValue}>{selectedLog.fullName || 'Sistem'} ({selectedLog.email})</span>
+              </div>
+              <div className={styles.metaItem}>
+                <span className={styles.metaLabel}>Tarih:</span>
+                <span className={styles.metaValue}>{new Date(selectedLog.createdAt).toLocaleString('tr-TR')}</span>
+              </div>
+              <div className={styles.metaItem}>
+                <span className={styles.metaLabel}>Tablo:</span>
+                <Badge variant="info">{selectedLog.tableName}</Badge>
               </div>
             </div>
 
-            <div className={styles.modalFooter}>
-              <button className={styles.cancelBtn} onClick={() => setSelectedLog(null)}>
-                Kapat
-              </button>
+            <div className={styles.modalGrid}>
+                <Card title="Eski Veri" subtitle="Değişiklik öncesi durum">
+                  <pre className={styles.jsonBlock}>{formatJSON(selectedLog.oldValues)}</pre>
+                </Card>
+                <Card title="Yeni Veri" subtitle="Değişiklik sonrası durum">
+                  <pre className={styles.jsonBlock}>{formatJSON(selectedLog.newValues)}</pre>
+                </Card>
+            </div>
+            
+            <div style={{ marginTop: '20px' }}>
+                <Card title="İşlem Detayı" padding="sm">
+                   <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-secondary)' }}>{selectedLog.details || 'Detaylı açıklama bulunmuyor.'}</p>
+                </Card>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </Modal>
     </div>
   );
 };

@@ -11,6 +11,7 @@ interface DateInputProps {
   onChange?: (date: string) => void;
   containerClassName?: string;
   placeholder?: string;
+  required?: boolean;
 }
 
 export const DateInput: React.FC<DateInputProps> = ({
@@ -20,6 +21,7 @@ export const DateInput: React.FC<DateInputProps> = ({
   onChange,
   containerClassName = '',
   placeholder = 'Tarih seçin...',
+  required,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -49,9 +51,22 @@ export const DateInput: React.FC<DateInputProps> = ({
   const toggleOpen = () => {
     if (!isOpen && containerRef.current) {
       const rect = containerRef.current.getBoundingClientRect();
+      const calendarWidth = 300; 
+      const viewportWidth = window.innerWidth;
+      
+      let left = rect.left + window.scrollX;
+      
+      // Sağ kenar kontrolü
+      if (rect.left + calendarWidth > viewportWidth) {
+        left = viewportWidth - calendarWidth - 20; 
+      }
+      
+      // Sol kenar kontrolü (çok küçük ekranlarda)
+      if (left < 0) left = 10;
+
       setPopoverPos({
         top: rect.bottom + window.scrollY,
-        left: rect.left + window.scrollX,
+        left: left,
         width: rect.width
       });
     }
@@ -72,7 +87,12 @@ export const DateInput: React.FC<DateInputProps> = ({
 
   return (
     <div className={`${styles.container} ${containerClassName}`} ref={containerRef}>
-      {label && <label className={styles.label}>{label}</label>}
+      {label && (
+        <label className={styles.label}>
+          {label}
+          {required && <span className={styles.requiredAsterisk}>*</span>}
+        </label>
+      )}
       <div 
         className={`${styles.inputWrapper} ${error ? styles.hasError : ''} ${isOpen ? styles.active : ''}`}
         onClick={toggleOpen}
@@ -93,7 +113,7 @@ export const DateInput: React.FC<DateInputProps> = ({
             top: `${popoverPos.top + 2}px`, 
             left: `${popoverPos.left}px`,
             position: 'absolute',
-            zIndex: 9999
+            zIndex: 11000
           }}
         >
           <Calendar selectedDate={selectedDate} onSelect={handleSelect} />

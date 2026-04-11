@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { FaSave, FaCamera, FaTrashAlt, FaInfoCircle } from 'react-icons/fa';
+import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
+import { FaSave, FaCamera, FaTrashAlt, FaInfoCircle, FaUser, FaEnvelope, FaIdCard, FaPhone, FaShieldAlt } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 import { apiClient } from '../../shared/api/axiosConfig';
+import { Input } from '../../shared/ui/Input/Input';
 import styles from './UserManagementPage.module.css';
 
 interface UserDetail {
@@ -11,7 +12,9 @@ interface UserDetail {
   email: string;
   username: string;
   isActive: boolean;
-  profilePicture: string | null; // Base64 string from server
+  profilePicture: string | null;
+  phoneNumber: string | null;
+  twoFactorEnabled: boolean;
 }
 
 interface UserDetailFormProps {
@@ -20,11 +23,18 @@ interface UserDetailFormProps {
   onNext: () => void;
 }
 
-export const UserDetailForm: React.FC<UserDetailFormProps> = ({ userId, onUserUpdated, onNext }) => {
+export const UserDetailForm = forwardRef<{ handleSave: () => void }, UserDetailFormProps>(({ userId, onUserUpdated, onNext }, ref) => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [user, setUser] = useState<UserDetail | null>(null);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+
+  useImperativeHandle(ref, () => ({
+    handleSave: () => {
+      const form = document.getElementById('userDetailForm') as HTMLFormElement;
+      form?.requestSubmit();
+    }
+  }));
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -88,11 +98,28 @@ export const UserDetailForm: React.FC<UserDetailFormProps> = ({ userId, onUserUp
     }
   };
 
+  const formatPhoneNumber = (value: string) => {
+    if (!value) return '';
+    const phoneNumber = value.replace(/[^\d]/g, '');
+    const phoneNumberLength = phoneNumber.length;
+    if (phoneNumberLength < 4) return `+${phoneNumber}`;
+    if (phoneNumberLength < 7) {
+      return `+${phoneNumber.slice(0, 2)} (${phoneNumber.slice(2, 5)})`;
+    }
+    if (phoneNumberLength < 10) {
+      return `+${phoneNumber.slice(0, 2)} (${phoneNumber.slice(2, 5)}) ${phoneNumber.slice(5, 8)}`;
+    }
+    if (phoneNumberLength < 12) {
+      return `+${phoneNumber.slice(0, 2)} (${phoneNumber.slice(2, 5)}) ${phoneNumber.slice(5, 8)} ${phoneNumber.slice(8, 10)}`;
+    }
+    return `+${phoneNumber.slice(0, 2)} (${phoneNumber.slice(2, 5)}) ${phoneNumber.slice(5, 8)} ${phoneNumber.slice(8, 10)} ${phoneNumber.slice(10, 12)}`;
+  };
+
   if (loading) return <div className={styles.formPlaceholder}>Yükleniyor...</div>;
   if (!user) return <div className={styles.formPlaceholder}>Kullanıcı bulunamadı.</div>;
 
   return (
-    <form className={styles.detailForm} onSubmit={handleSave}>
+    <form id="userDetailForm" className={styles.detailForm} onSubmit={handleSave}>
       <div className={styles.formSection}>
         <div className={styles.avatarUploadArea}>
            <div className={styles.avatarPreview}>
@@ -123,44 +150,67 @@ export const UserDetailForm: React.FC<UserDetailFormProps> = ({ userId, onUserUp
         </div>
 
         <div className={styles.formGrid}>
+          <Input 
+            label="Ad"
+            leftIcon={<FaUser />}
+            placeholder="Ad giriniz..."
+            value={user.firstName} 
+            onChange={e => setUser({...user, firstName: e.target.value})} 
+            required
+          />
+          <Input 
+            label="Soyad"
+            leftIcon={<FaUser />}
+            placeholder="Soyad giriniz..."
+            value={user.lastName} 
+            onChange={e => setUser({...user, lastName: e.target.value})} 
+            required
+          />
+          <Input 
+            label="Kullanıcı Adı"
+            leftIcon={<FaIdCard />}
+            placeholder="Kullanıcı adı..."
+            value={user.username} 
+            onChange={e => setUser({...user, username: e.target.value})} 
+            required
+          />
+          <Input 
+            label="E-Posta"
+            type="email" 
+            leftIcon={<FaEnvelope />}
+            placeholder="ornek@wixi.com"
+            value={user.email} 
+            onChange={e => setUser({...user, email: e.target.value})} 
+            required
+          />
+          <Input 
+            label="Telefon Numarası"
+            leftIcon={<FaPhone />}
+            placeholder="+90 (5xx) xxx xx xx"
+            value={user.phoneNumber || ''} 
+            maxLength={19}
+            onChange={e => {
+              const formatted = formatPhoneNumber(e.target.value);
+              setUser({...user, phoneNumber: formatted});
+            }} 
+          />
           <div className={styles.formGroup}>
-            <label>Ad</label>
-            <input 
-              type="text" 
-              value={user.firstName} 
-              onChange={e => setUser({...user, firstName: e.target.value})} 
-              required
-            />
+            <label className={styles.formLabel}>Güvenlik</label>
+            <label className={styles.switch}>
+              <input 
+                type="checkbox" 
+                checked={user.twoFactorEnabled} 
+                onChange={e => setUser({...user, twoFactorEnabled: e.target.checked})} 
+              />
+              <span className={styles.slider}></span>
+              <span className={styles.switchLabel}>
+                <FaShieldAlt style={{ marginRight: '8px', color: user.twoFactorEnabled ? 'var(--color-success)' : 'var(--text-muted)' }} />
+                2-Factor Doğrulama {user.twoFactorEnabled ? 'Aktif' : 'Pasif'}
+              </span>
+            </label>
           </div>
           <div className={styles.formGroup}>
-            <label>Soyad</label>
-            <input 
-              type="text" 
-              value={user.lastName} 
-              onChange={e => setUser({...user, lastName: e.target.value})} 
-              required
-            />
-          </div>
-          <div className={styles.formGroup}>
-            <label>Kullanıcı Adı</label>
-            <input 
-              type="text" 
-              value={user.username} 
-              onChange={e => setUser({...user, username: e.target.value})} 
-              required
-            />
-          </div>
-          <div className={styles.formGroup}>
-            <label>E-Posta</label>
-            <input 
-              type="email" 
-              value={user.email} 
-              onChange={e => setUser({...user, email: e.target.value})} 
-              required
-            />
-          </div>
-          <div className={styles.formGroup}>
-            <label>Durum</label>
+            <label className={styles.formLabel}>Hesap Durumu</label>
             <label className={styles.switch}>
               <input 
                 type="checkbox" 
@@ -168,20 +218,11 @@ export const UserDetailForm: React.FC<UserDetailFormProps> = ({ userId, onUserUp
                 onChange={e => setUser({...user, isActive: e.target.checked})} 
               />
               <span className={styles.slider}></span>
-              <span className={styles.switchLabel}>{user.isActive ? 'Aktif' : 'Pasif'}</span>
+              <span className={styles.switchLabel}>{user.isActive ? 'Aktif Hesap' : 'Pasif Hesap'}</span>
             </label>
           </div>
         </div>
       </div>
-
-      <div className={styles.formActions}>
-         <div className={styles.infoNote}>
-           <FaInfoCircle /> Bilgileri kaydettikten sonra menü düzenlemeye geçebilirsiniz.
-         </div>
-         <button type="submit" className={styles.btnSaveMain} disabled={saving}>
-           <FaSave /> {saving ? 'Kaydediliyor...' : 'Bilgileri Kaydet'}
-         </button>
-      </div>
     </form>
   );
-};
+});

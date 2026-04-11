@@ -14,6 +14,7 @@ interface UserListDto {
   lastName: string;
   email: string;
   isActive: boolean;
+  profilePicture?: string | null;
 }
 
 export const UserManagementPage = () => {
@@ -78,6 +79,22 @@ export const UserManagementPage = () => {
           dataSource={users}
           columns={[
             { field: 'id', title: 'ID', width: 80, hidden: true },
+            {
+               field: 'profilePicture',
+               title: '',
+               width: 60,
+               template: (row) => (
+                 <div className={styles.tableAvatar}>
+                   {row.profilePicture ? (
+                     <img src={`data:image/jpeg;base64,${row.profilePicture}`} alt="Avatar" />
+                   ) : (
+                     <div className={styles.tableAvatarFallback}>
+                       {row.firstName[0]}{row.lastName[0]}
+                     </div>
+                   )}
+                 </div>
+               )
+            },
             { 
               field: 'firstName', 
               title: 'Ad',

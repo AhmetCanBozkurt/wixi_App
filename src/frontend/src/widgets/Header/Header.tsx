@@ -84,17 +84,16 @@ export const Header = () => {
   };
 
   const getInitials = () => {
+    if (user?.firstName && user?.lastName) {
+      return (user.firstName[0] + user.lastName[0]).toUpperCase();
+    }
     if (user?.email) {
-      const parts = user.email.split('@')[0].split(/[._-]/);
-      if (parts.length >= 2) {
-        return (parts[0][0] + parts[1][0]).toUpperCase();
-      }
       return user.email.substring(0, 2).toUpperCase();
     }
     return 'WX';
   };
 
-  const displayName = user?.email?.split('@')[0] || 'Kullanıcı';
+  const displayName = user?.firstName ? `${user.firstName} ${user.lastName}` : (user?.email?.split('@')[0] || 'Kullanıcı');
 
   const activeLang = languages.find(l => l.code === currentLang);
 
@@ -185,8 +184,12 @@ export const Header = () => {
             <span className={styles.userName}>{displayName}</span>
             <span className={styles.userRole}>{user?.roles?.[0] || 'Admin'}</span>
           </div>
-          <div className={styles.avatar}>
-            {getInitials()}
+          <div className={`${styles.avatar} ${user?.profilePicture ? styles.hasPic : ''}`}>
+            {user?.profilePicture ? (
+              <img src={`data:image/jpeg;base64,${user.profilePicture}`} alt="Avatar" className={styles.avatarImg} />
+            ) : (
+              getInitials()
+            )}
           </div>
         </div>
       </div>

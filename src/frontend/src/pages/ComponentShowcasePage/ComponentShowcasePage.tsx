@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Input, Card, DateInput, AdvancedDataTable, Badge } from '../../shared/ui';
+import { Button, Input, Card, DateInput, AdvancedDataTable, Badge, Select, Switch, ImageUpload, ComboBox, Modal } from '../../shared/ui';
 import styles from './ComponentShowcasePage.module.css';
 import toast from 'react-hot-toast';
 import Swal from 'sweetalert2';
@@ -26,6 +26,10 @@ export const ComponentShowcasePage: React.FC = () => {
     const [activeTab, setActiveTab] = useState<TabType>('components');
     const [activeLayout, setActiveLayout] = useState<LayoutType>('login');
   const [selectedDate, setSelectedDate] = useState('2026-04-11');
+  const [userRole, setUserRole] = useState<string | number>('admin');
+  const [errorStatus, setErrorStatus] = useState<string | number>('');
+  const [selectedCountry, setSelectedCountry] = useState<string | number>('tr');
+  const [isLargeModalOpen, setIsLargeModalOpen] = useState(false);
 
   const handleTestToast = () => {
     toast.success('İşlem başarıyla tamamlandı!', {
@@ -173,13 +177,72 @@ export const ComponentShowcasePage: React.FC = () => {
                 <h2 className={styles.sectionTitle}>Inputs & Date (Atoms)</h2>
                 <Card title="Form Elements" subtitle="Kullanıcı giriş bileşenleri">
                 <div className={styles.inputGrid}>
-                    <Input label="Email Adresi" placeholder="example@wixi.com" leftIcon={<FaUser size={14} />} />
-                    <Input label="Şifre" type="password" placeholder="••••••••" leftIcon={<FaLock size={14} />} />
-                    <DateInput label="Doğum Tarihi" value={selectedDate} onChange={setSelectedDate} />
-                    <Input label="Hatalı Giriş" error="Bu alan zorunludur" defaultValue="Mevcut veri" />
-                    <Input label="Disabled" disabled placeholder="Yazılamaz" />
+                    <Input label="Email Adresi" placeholder="example@wixi.com" leftIcon={<FaUser size={14} />} required />
+                    <Input label="Şifre" type="password" placeholder="••••••••" leftIcon={<FaLock size={14} />} required />
+                    <DateInput label="Doğum Tarihi" value={selectedDate} onChange={setSelectedDate} required />
                 </div>
                 </Card>
+            </section>
+
+            <section className={styles.section}>
+                <h2 className={styles.sectionTitle}>Asset Management (Molecules)</h2>
+                <div className={styles.grid}>
+                    <Card title="Image Upload" subtitle="Profil ve görsel yükleme">
+                        <div className={styles.flexGroup}>
+                            <ImageUpload label="Profil Resmi" shape="circle" size={100} />
+                            <ImageUpload label="Kapak Görseli" shape="square" size={150} hint="1200x400 önerilir." />
+                        </div>
+                    </Card>
+                </div>
+            </section>
+
+            <section className={styles.section}>
+                <h2 className={styles.sectionTitle}>Selection & Toggles (Atoms)</h2>
+                <div className={styles.grid}>
+                    <Card title="Dropdowns" subtitle="Select bileşeni ve varyasyonları">
+                        <div className={styles.inputGrid}>
+                            <Select 
+                                label="Kullanıcı Rolü" 
+                                value={userRole}
+                                onChange={setUserRole}
+                                options={[
+                                    { label: 'Admin', value: 'admin' },
+                                    { label: 'Editör', value: 'editor' },
+                                    { label: 'İzleyici', value: 'viewer' }
+                                ]} 
+                                leftIcon={<FaUsers size={14} />}
+                            />
+                            <Select 
+                                label="Hata Durumu" 
+                                value={errorStatus}
+                                onChange={setErrorStatus}
+                                options={[{ label: 'Lütfen seçin', value: '' }, { label: 'Hata var', value: 'err' }]} 
+                                error={errorStatus === 'err' ? "Geçersiz seçim" : undefined}
+                            />
+                            <ComboBox 
+                                label="Searchable Dropdown"
+                                placeholder="Ülke ara..."
+                                value={selectedCountry}
+                                onChange={setSelectedCountry}
+                                options={[
+                                    { label: 'Türkiye', value: 'tr' },
+                                    { label: 'Amerika', value: 'us' },
+                                    { label: 'Almanya', value: 'de' },
+                                    { label: 'Fransa', value: 'fr' },
+                                    { label: 'İngiltere', value: 'uk' }
+                                ]}
+                            />
+                        </div>
+                    </Card>
+
+                    <Card title="Switches" subtitle="Modern toggle bileşenleri">
+                        <div className={styles.flexColumn} style={{ gap: '20px' }}>
+                            <Switch label="Bildirimleri Aç" description="E-posta ve push bildirimleri gönderilir." defaultChecked />
+                            <Switch label="Karanlık Mod" description="Arayüz rengini gece moduna çevirir." />
+                            <Switch label="Bakım Modu" description="Sistemi geçici olarak dışarıya kapatır." disabled />
+                        </div>
+                    </Card>
+                </div>
             </section>
 
             <section className={styles.section}>
@@ -188,9 +251,72 @@ export const ComponentShowcasePage: React.FC = () => {
                 <div className={styles.flexGroup}>
                     <Button variant="primary" onClick={handleTestToast}>Toast Mesajı Göster</Button>
                     <Button variant="danger" onClick={handleTestSwal}>SweetAlert2 Onay Kutusu</Button>
+                    <Button variant="glass" onClick={() => setIsLargeModalOpen(true)}>Large Modal Penceresi</Button>
                 </div>
                 </Card>
             </section>
+
+            <Modal 
+                isOpen={isLargeModalOpen} 
+                onClose={() => setIsLargeModalOpen(false)}
+                title="Premium Modal Yapısı"
+                size="lg"
+                footer={
+                    <>
+                        <Button variant="ghost" onClick={() => setIsLargeModalOpen(false)}>Vazgeç</Button>
+                        <Button variant="primary" onClick={() => { toast.success('Kaydedildi'); setIsLargeModalOpen(false); }}>Değişiklikleri Kaydet</Button>
+                    </>
+                }
+            >
+                <div className={styles.modalInnerContent}>
+                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '24px' }}>
+                        <ImageUpload label="Sistem Logosu" shape="square" size={100} required />
+                    </div>
+
+                    <div className={styles.sectionHeader} style={{ marginBottom: '16px', borderBottom: '1px solid var(--border-glass)', paddingBottom: '8px' }}>
+                        <h4 style={{ margin: 0, color: 'var(--color-primary)' }}>Genel Bilgiler</h4>
+                    </div>
+                    
+                    <div className={styles.inputGrid} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px', marginBottom: '24px' }}>
+                        <Input label="Uygulama Adı" placeholder="Wixi Core Pro" required />
+                        <Input label="Yönetici E-posta" placeholder="admin@wixi.com" required leftIcon={<FaUser size={12} />} />
+                        <DateInput label="Kurulum Tarihi" value={selectedDate} onChange={setSelectedDate} required />
+                    </div>
+
+                    <div className={styles.sectionHeader} style={{ marginBottom: '16px', borderBottom: '1px solid var(--border-glass)', paddingBottom: '8px' }}>
+                        <h4 style={{ margin: 0, color: 'var(--color-primary)' }}>Sunucu ve Veritabanı</h4>
+                    </div>
+
+                    <div className={styles.inputGrid} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px', marginBottom: '24px' }}>
+                        <Input label="Sunucu IP Adresi" placeholder="192.168.1.100" required />
+                        <Select 
+                            label="Sunucu Bölgesi" 
+                            options={[{label: 'Avrupa (Frankfurt)', value: 'eu-central-1'}, {label: 'Asya (İstanbul)', value: 'tr-east-1'}]} 
+                            required 
+                        />
+                        <ComboBox 
+                            label="Birincil Veritabanı" 
+                            value="pg" 
+                            options={[
+                                {label: 'PostgreSQL 15', value: 'pg'}, 
+                                {label: 'MongoDB 6.0', value: 'mongo'},
+                                {label: 'Redis Cache', value: 'redis'}
+                            ]} 
+                            required 
+                        />
+                    </div>
+
+                    <div className={styles.sectionHeader} style={{ marginBottom: '16px', borderBottom: '1px solid var(--border-glass)', paddingBottom: '8px' }}>
+                        <h4 style={{ margin: 0, color: 'var(--color-primary)' }}>Güvenlik ve Tercihler</h4>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                        <Switch label="İki Faktörlü Doğrulama" description="Giriş yaparken ek güvenlik katmanı sağlar." defaultChecked />
+                        <Switch label="Otomatik Bakım Modu" description="Her hafta sonu sistemi güncellemelere açar." />
+                        <Switch label="Hata Kayıtlarını Tut" description="Kritik hataları veritabanına loglar." defaultChecked />
+                    </div>
+                </div>
+            </Modal>
 
             <section className={styles.section}>
                 <h2 className={styles.sectionTitle}>Cards (Molecules)</h2>

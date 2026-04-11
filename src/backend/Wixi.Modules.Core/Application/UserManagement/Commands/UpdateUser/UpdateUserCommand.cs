@@ -32,6 +32,9 @@ public class UpdateUserCommandHandler : IRequestHandler<UpdateUserCommand, bool>
             user.ProfilePicture = request.User.ProfilePicture;
         }
 
+        user.PhoneNumber = request.User.PhoneNumber;
+        user.TwoFactorEnabled = request.User.TwoFactorEnabled;
+
         user.UpdatedAt = DateTime.UtcNow;
 
         var result = await _userManager.UpdateAsync(user);

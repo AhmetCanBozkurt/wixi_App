@@ -1,0 +1,106 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+}
+
+.label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.requiredAsterisk {
+  color: var(--color-danger);
+  font-weight: bold;
+}
+
+.uploadBox {
+  position: relative;
+  background: var(--bg-primary);
+  border: 2px dashed var(--border-glass);
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-sm);
+}
+
+.uploadBox:hover {
+  border-color: var(--color-primary);
+  background: var(--color-primary-glow);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.uploadBox.circle { border-radius: 50%; }
+.uploadBox.square { border-radius: var(--radius-lg); }
+
+.hasError { border-color: var(--color-danger); }
+
+.preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: var(--text-muted);
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  opacity: 0;
+  transition: 0.3s;
+}
+
+.uploadBox:hover .overlay {
+  opacity: 1;
+}
+
+.hiddenInput { display: none; }
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.removeBtn {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: var(--color-danger);
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: 0.2s;
+}
+
+.removeBtn:hover {
+  background: var(--color-danger);
+  color: #fff;
+}
+
+.hint { font-size: 0.7rem; color: var(--text-muted); }
+.errorText { color: var(--color-danger); font-size: 0.72rem; font-weight: 600; }

@@ -29,7 +29,9 @@ public class GetUserByIdQueryHandler : IRequestHandler<GetUserByIdQuery, UserDet
             Email = user.Email ?? string.Empty,
             Username = user.UserName ?? string.Empty,
             IsActive = user.IsActive,
-            ProfilePicture = user.ProfilePicture
+            ProfilePicture = user.ProfilePicture,
+            PhoneNumber = user.PhoneNumber,
+            TwoFactorEnabled = user.TwoFactorEnabled
         };
     }
 }

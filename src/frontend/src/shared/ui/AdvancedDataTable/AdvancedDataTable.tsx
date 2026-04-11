@@ -22,6 +22,8 @@ import toast from 'react-hot-toast';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { Modal } from '../Modal/Modal';
+import { Button } from '../Button/Button';
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 export interface ColumnConfig<T = any> {
@@ -772,39 +774,37 @@ export function AdvancedDataTable<T extends Record<string, any>>(options: GridOp
         </div>, document.body
       )}
 
-      {/* Detail Modal - Always available, falls back to built-in field viewer */}
-      {detailRow && createPortal(
-        <div className={styles.modalBg} onClick={() => setDetailRow(null)}>
-          <div className={styles.modal} onClick={e => e.stopPropagation()}>
-            <div className={styles.modalHeader}>
-              <FaEye className={styles.modalIcon} />
-              <h3>Kayıt Detayı</h3>
-              <button className={styles.modalClose} onClick={() => setDetailRow(null)}><FaTimes /></button>
-            </div>
-            <div className={styles.modalBody}>
-              {detailModal
-                ? detailModal(detailRow, () => setDetailRow(null))
-                : (
-                  <div className={styles.defaultForm}>
-                    {columns.map(col => (
-                      <div key={col.field} className={styles.formField}>
-                        <label className={styles.formLabel}>{col.title}</label>
-                        <input
-                          className={styles.formInput}
-                          defaultValue={String(getNestedValue(detailRow, col.field) ?? '')}
-                          readOnly
-                        />
-                      </div>
-                    ))}
-                  </div>
-                )}
-            </div>
-            <div className={styles.modalFooter}>
-              <button className={`${styles.modalBtn} ${styles.modalBtnPrimary}`} onClick={() => setDetailRow(null)}>Kapat</button>
-            </div>
+      {/* Premium Detail Modal Upgrade */}
+      <Modal 
+        isOpen={!!detailRow} 
+        onClose={() => setDetailRow(null)}
+        title="Kayıt Detayı"
+        size="lg"
+        footer={
+          <Button variant="primary" onClick={() => setDetailRow(null)}>Kapat</Button>
+        }
+      >
+        {detailRow && (
+          <div className={styles.modalBody}>
+            {detailModal
+              ? detailModal(detailRow, () => setDetailRow(null))
+              : (
+                <div className={styles.defaultForm}>
+                  {columns.map(col => (
+                    <div key={col.field} className={styles.formField}>
+                      <label className={styles.formLabel}>{col.title}</label>
+                      <input
+                        className={styles.formInput}
+                        defaultValue={String(getNestedValue(detailRow, col.field) ?? '')}
+                        readOnly
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
           </div>
-        </div>, document.body
-      )}
+        )}
+      </Modal>
     </div>
   );
 }

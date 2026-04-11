@@ -93,6 +93,12 @@
     align-items: center;
 }
 
+.flexColumn {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
 .inputGrid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));

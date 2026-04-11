@@ -63,41 +63,65 @@
 .tableText { color: var(--text-main); font-weight: 600; }
 .idText { font-family: 'DM Mono', monospace; font-size: 0.8rem; color: var(--text-secondary); }
 
-/* Diff View in Modal */
-.diffContainer {
+/* Premium Modal Styles */
+.premiumModalContent {
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
-.diffSection {
-  background: var(--bg-secondary);
-  padding: 15px;
+.logMetaInfo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  background: var(--surface-glass);
+  padding: 16px;
   border-radius: 12px;
   border: 1px solid var(--border-glass);
 }
 
-.diffSection h4 {
-  margin: 0 0 10px;
-  color: var(--text-secondary);
-  font-size: 0.9rem;
+.metaItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.metaLabel {
+  font-size: 0.75rem;
+  color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 1px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.metaValue {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.modalGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
 }
 
 .jsonBlock {
-  background: #1e1e1e;
-  color: #dcdcdc;
+  background: #0f172a; /* Çok koyu slate */
+  color: #94a3b8; /* Muted slate */
   padding: 15px;
   border-radius: 8px;
   font-family: 'DM Mono', monospace;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   white-space: pre-wrap;
-  overflow-x: auto;
+  word-break: break-all;
+  max-height: 400px;
+  overflow-y: auto;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-/* Modal sizing */
-.modal {
-  max-width: 800px !important;
-  width: 90% !important;
+@media (max-width: 900px) {
+  .modalGrid {
+    grid-template-columns: 1fr;
+  }
 }

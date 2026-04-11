@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { FaUserEdit, FaSitemap, FaTimes, FaArrowRight, FaArrowLeft, FaSave } from 'react-icons/fa';
 import { UserMenuBuilder } from './UserMenuBuilder';
 import { UserDetailForm } from './UserDetailForm';
+import { Button } from '../../shared/ui/Button/Button';
 import styles from './UserManagementPage.module.css';
 
 interface UserEditorModalProps {
@@ -14,6 +15,16 @@ interface UserEditorModalProps {
 export const UserEditorModal: React.FC<UserEditorModalProps> = ({ userId, userName, onClose, onSave }) => {
   const [step, setStep] = useState<1 | 2>(1);
   const [localUserName, setLocalUserName] = useState(userName);
+  const menuBuilderRef = React.useRef<{ syncHierarchy: () => void } | null>(null);
+  const userFormRef = React.useRef<{ handleSave: () => void } | null>(null);
+
+  const handleSaveInfo = () => {
+    userFormRef.current?.handleSave();
+  };
+
+  const handleSyncHierarchy = () => {
+    menuBuilderRef.current?.syncHierarchy();
+  };
 
   return (
     <div className={styles.modalOverlay} onClick={onClose}>
@@ -51,6 +62,7 @@ export const UserEditorModal: React.FC<UserEditorModalProps> = ({ userId, userNa
                 setLocalUserName(newName);
               }}
               onNext={() => setStep(2)}
+              ref={userFormRef}
             />
           ) : (
             <UserMenuBuilder 
@@ -58,6 +70,7 @@ export const UserEditorModal: React.FC<UserEditorModalProps> = ({ userId, userNa
               userName={localUserName} 
               onClose={onClose} 
               isEmbedded={true}
+              ref={menuBuilderRef}
             />
           )}
         </div>
@@ -70,13 +83,23 @@ export const UserEditorModal: React.FC<UserEditorModalProps> = ({ userId, userNa
            )}
            <div style={{ flex: 1 }} />
            {step === 1 ? (
-             <button className={styles.btnNext} onClick={() => setStep(2)}>
-               İleri: Menü Düzenle <FaArrowRight />
-             </button>
+             <div style={{ display: 'flex', gap: '12px' }}>
+                <button className={styles.btnSaveHierarchy} onClick={handleSaveInfo}>
+                   <FaSave /> Bilgileri Kaydet
+                </button>
+                <button className={styles.btnNext} onClick={() => setStep(2)}>
+                   İleri: Menü Düzenle <FaArrowRight />
+                </button>
+             </div>
            ) : (
-             <button className={styles.btnFinish} onClick={onClose}>
-               Kapat
-             </button>
+             <div style={{ display: 'flex', gap: '12px' }}>
+                <button className={styles.btnSaveHierarchy} onClick={handleSyncHierarchy}>
+                   <FaSave /> Hiyerarşiyi Kaydet
+                </button>
+                <button className={styles.btnFinishRed} onClick={onClose}>
+                   Kapat
+                </button>
+             </div>
            )}
         </div>
       </div>

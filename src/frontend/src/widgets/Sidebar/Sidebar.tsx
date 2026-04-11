@@ -57,18 +57,24 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse }: SidebarProps) => {
   const menuRef = useRef<HTMLDivElement>(null);
 
   // Fetch menus from API
+  const fetchMenus = async () => {
+    try {
+      const res = await apiClient.get<MenuItemDto[]>('menu/sidebar');
+      setMenus(res.data);
+    } catch (error) {
+      console.error('Menu fetch error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchMenus = async () => {
-      try {
-        const res = await apiClient.get<MenuItemDto[]>('menu/sidebar');
-        setMenus(res.data);
-      } catch (error) {
-        console.error('Menu fetch error:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchMenus();
+
+    // Listen for manual refresh requests (e.g., after updating own menu)
+    const handleRefresh = () => fetchMenus();
+    window.addEventListener('wixi-refresh-menu', handleRefresh);
+    return () => window.removeEventListener('wixi-refresh-menu', handleRefresh);
   }, []);
 
   // Close context menu on click outside
