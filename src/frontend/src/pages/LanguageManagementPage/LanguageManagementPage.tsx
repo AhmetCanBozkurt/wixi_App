@@ -12,6 +12,7 @@ interface Language {
   name: string;
   isDefault: boolean;
   flagCode?: string;
+  iconBase64?: string;
   isActive: boolean;
 }
 
@@ -27,7 +28,8 @@ export const LanguageManagementPage = () => {
     name: '',
     isDefault: false,
     isActive: true,
-    flagCode: ''
+    flagCode: '',
+    iconBase64: ''
   });
 
   const fetchLanguages = useCallback(async () => {
@@ -52,13 +54,29 @@ export const LanguageManagementPage = () => {
         name: lang.name,
         isDefault: lang.isDefault,
         isActive: lang.isActive,
-        flagCode: lang.flagCode || ''
+        flagCode: lang.flagCode || '',
+        iconBase64: lang.iconBase64 || ''
       });
     } else {
       setEditingLang(null);
-      setFormData({ code: '', name: '', isDefault: false, isActive: true, flagCode: '' });
+      setFormData({ code: '', name: '', isDefault: false, isActive: true, flagCode: '', iconBase64: '' });
     }
     setIsModalOpen(true);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        toast.error('Görsel boyutu 2MB\'dan küçük olmalıdır');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData(prev => ({ ...prev, iconBase64: reader.result as string }));
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -104,13 +122,23 @@ export const LanguageManagementPage = () => {
 
   const columns: Column<Language>[] = [
     {
-      key: 'flagCode',
+      key: 'iconBase64',
       header: 'Bayrak',
       width: '100px',
-      render: (val) => (
-        <span className={styles.flagBadge}>
-          {String(val || '?').toUpperCase()}
-        </span>
+      render: (_, row) => (
+        <div className={styles.flagIconWrapper}>
+          {row.iconBase64 ? (
+            <img 
+              src={row.iconBase64} 
+              alt={row.name} 
+              className={styles.tableFlag} 
+            />
+          ) : (
+            <span className={styles.flagBadge}>
+              {String(row.flagCode || row.code.substring(0,2)).toUpperCase()}
+            </span>
+          )}
+        </div>
       )
     },
     {
@@ -232,6 +260,33 @@ export const LanguageManagementPage = () => {
                     onChange={e => setFormData({ ...formData, flagCode: e.target.value })} 
                     placeholder="örn: tr, us" 
                   />
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label>Bayrak Görseli (Dosya Seçin)</label>
+                  <div className={styles.fileUploadWrapper}>
+                    {formData.iconBase64 && (
+                      <div className={styles.previewContainer}>
+                        <img src={formData.iconBase64} alt="Önizleme" className={styles.flagPreview} />
+                        <button 
+                          type="button" 
+                          className={styles.removeFileBtn}
+                          onClick={() => setFormData(prev => ({ ...prev, iconBase64: '' }))}
+                        >
+                          <FaTimes />
+                        </button>
+                      </div>
+                    )}
+                    <label className={styles.fileInputLabel}>
+                      <input 
+                        type="file" 
+                        accept="image/*" 
+                        onChange={handleFileChange} 
+                        className={styles.hiddenFileInput}
+                      />
+                      <FaPlus /> Görsel Yükle
+                    </label>
+                  </div>
                 </div>
                 
                 <div className={styles.checkboxRow}>

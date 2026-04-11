@@ -9,6 +9,7 @@ interface Language {
   id: string;
   code: string;
   name: string;
+  iconBase64?: string;
 }
 
 export const Header = () => {
@@ -61,6 +62,8 @@ export const Header = () => {
 
   const displayName = user?.email?.split('@')[0] || 'Kullanıcı';
 
+  const activeLang = languages.find(l => l.code === currentLang);
+
   return (
     <header className={styles.headerContainer}>
       <div className={styles.leftSection}>
@@ -78,7 +81,15 @@ export const Header = () => {
             onClick={() => setShowLangs(!showLangs)}
             title="Dil Değiştir"
           >
-            <FaGlobe />
+            {activeLang?.iconBase64 ? (
+              <img 
+                src={activeLang.iconBase64} 
+                alt="Flag" 
+                className={styles.activeFlagImg} 
+              />
+            ) : (
+              <FaGlobe />
+            )}
             <span className={styles.activeLangCode}>
               {currentLang.split('-')[1] || currentLang.substring(0, 2).toUpperCase()}
             </span>
@@ -93,7 +104,17 @@ export const Header = () => {
                   className={`${styles.langItem} ${currentLang === lang.code ? styles.langItemActive : ''}`}
                   onClick={() => handleLangChange(lang.code)}
                 >
-                  <span className={styles.flag}>{lang.code.split('-')[1] || lang.code.substring(0, 2)}</span>
+                  <div className={styles.flagIconWrapper}>
+                    {lang.iconBase64 ? (
+                      <img 
+                        src={lang.iconBase64} 
+                        alt={lang.name} 
+                        className={styles.itemFlagImg} 
+                      />
+                    ) : (
+                      <span className={styles.flagTextPlaceholder}>{lang.code.split('-')[1] || lang.code.substring(0, 2)}</span>
+                    )}
+                  </div>
                   <span>{lang.name}</span>
                 </button>
               ))}

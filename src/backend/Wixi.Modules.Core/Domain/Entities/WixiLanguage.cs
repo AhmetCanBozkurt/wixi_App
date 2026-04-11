@@ -9,6 +9,8 @@ public class WixiLanguage : IAuditable
     public string Name { get; set; } = string.Empty; // Türkçe, English
     public bool IsDefault { get; set; }
     public string? FlagCode { get; set; } // örn: "tr", "us" (UI'da bayrak göstermek için)
+    public byte[]? IconData { get; set; } // Varbinary storage for flag images
+    public string? IconMimeType { get; set; } // image/png, image/svg+xml, etc.
     
     // IAuditable Implementation
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

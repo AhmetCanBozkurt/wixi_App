@@ -18,18 +18,22 @@ public class GetLanguagesQueryHandler : IRequestHandler<GetLanguagesQuery, List<
 
     public async Task<List<LanguageDto>> Handle(GetLanguagesQuery request, CancellationToken cancellationToken)
     {
-        return await _context.Languages
+        var languages = await _context.Languages
             .Where(l => !l.IsDeleted)
             .OrderBy(l => l.Name)
-            .Select(l => new LanguageDto
-            {
-                Id = l.Id,
-                Code = l.Code,
-                Name = l.Name,
-                IsDefault = l.IsDefault,
-                FlagCode = l.FlagCode,
-                IsActive = l.IsActive
-            })
             .ToListAsync(cancellationToken);
+
+        return languages.Select(l => new LanguageDto
+        {
+            Id = l.Id,
+            Code = l.Code,
+            Name = l.Name,
+            IsDefault = l.IsDefault,
+            FlagCode = l.FlagCode,
+            IconBase64 = l.IconData != null && l.IconMimeType != null 
+                ? $"data:{l.IconMimeType};base64,{Convert.ToBase64String(l.IconData)}" 
+                : (l.IconData != null ? $"data:image/png;base64,{Convert.ToBase64String(l.IconData)}" : null),
+            IsActive = l.IsActive
+        }).ToList();
     }
 }

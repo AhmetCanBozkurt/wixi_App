@@ -4,7 +4,7 @@ using Wixi.Modules.Core.Infrastructure.Data;
 
 namespace Wixi.Modules.Core.Application.Languages.Commands.UpdateLanguage;
 
-public record UpdateLanguageCommand(Guid Id, string Code, string Name, bool IsDefault, string? FlagCode, bool IsActive) : IRequest<bool>;
+public record UpdateLanguageCommand(Guid Id, string Code, string Name, bool IsDefault, string? FlagCode, bool IsActive, string? IconBase64) : IRequest<bool>;
 
 public class UpdateLanguageCommandHandler : IRequestHandler<UpdateLanguageCommand, bool>
 {
@@ -26,6 +26,14 @@ public class UpdateLanguageCommandHandler : IRequestHandler<UpdateLanguageComman
         lang.FlagCode = request.FlagCode;
         lang.IsActive = request.IsActive;
         lang.UpdatedAt = DateTime.UtcNow;
+
+        if (!string.IsNullOrEmpty(request.IconBase64) && request.IconBase64.Contains(";base64,"))
+        {
+            var parts = request.IconBase64.Split(';');
+            lang.IconMimeType = parts[0].Replace("data:", "");
+            var base64Data = parts[1].Replace("base64,", "");
+            lang.IconData = Convert.FromBase64String(base64Data);
+        }
 
         if (lang.IsDefault)
         {
