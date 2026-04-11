@@ -24,7 +24,7 @@ Buradaki görevler otonom asistan (Antigravity) tarafından projenin fazlarına 
 ## 🔐 FAZ 2: Gelişmiş Loglama, Dinamik Menü ve UI Taşıma (Migration)
 *Amacımız; giriş/çıkış Audit loglarını (IP, Tarayıcı ile) sisteme kazandırmak ve eski projedeki Admin Layout (Sidebar) & DataTable bileşenlerini yepyeni Vanilla CSS kurallarıyla FSD mimarisine taşımaktır.*
 
-- `[ ]` **Backend:** `WixiAuditLog` tablosunun modellenerek Login/Logout (Auth) evrelerine eklenmesi (Müşteri detaylı loglama/IP vs.).
+- `[x]` **Backend:** `WixiAuditLog` tablosunun modellenerek Login/Logout (Auth) evrelerine eklenmesi (Müşteri detaylı loglama/IP vs.). (Tamamlandı: Audit API + Log Yönetim Paneli).
 - `[x]` **Frontend:** Eski projedeki `AdvancedDataTable.tsx` yapısının alınarak `shared/ui` katmanında CQRS formatına uyumlu Premium Glassmorphism olarak refactor edilmesi.
 - `[x]` **Frontend:** Eski projedeki `AdminLayout.tsx` yapısının (Sidebar ve Header) Tailwind'den temizlenerek `widgets/Sidebar` ve `widgets/Header` dizinlerinde Vanilla CSS modülleriyle canlandırılması.
 - `[x]` **Backend:** `WIXI_MENUS`, `WIXI_LANGUAGES` ve `WIXI_MENU_TRANSLATIONS` tablolarının tasarlanması ve CRUD uçlarının yazılması.
@@ -41,7 +41,7 @@ Buradaki görevler otonom asistan (Antigravity) tarafından projenin fazlarına 
 - `[ ]` **Backend:** Kurumsal Loglama altyapısının (Serilog) kurulması, DB Log (WIXI_LOGS) sink entegrasyonu.
 - `[ ]` **Backend:** Merkezi Mail Servisi (`WIXI_MAIL_QUEUE`) altyapısının oluşturulması (Template desteği ve async retry mantığı).
 - `[ ]` **Backend:** Merkezi Dosya Servisi (`WIXI_FILES`) - (Azure Blob / S3 veya local storage desteği ve guid base file mapper).
-- `[ ]` **Frontend:** Resim yükleme, Cropper (kesme) ve Drag&Drop (Dropzone) bileşenlerinin `shared/ui` katmanına generic bir şekilde eklenmesi.
+- `[x]` **Frontend:** Resim yükleme, Cropper (kesme) ve Drag&Drop (Dropzone) bileşenlerinin `shared/ui` katmanına generic bir şekilde eklenmesi. (ImageUpload bileşeni eklendi).
 
 ---
 
