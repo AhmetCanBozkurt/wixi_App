@@ -27,7 +27,13 @@ public class GetUsersQueryHandler : IRequestHandler<GetUsersQuery, List<UserList
                 LastName = u.LastName,
                 Email = u.Email ?? "",
                 IsActive = u.IsActive,
-                ProfilePicture = u.ProfilePicture
+                ProfilePicture = u.ProfilePicture,
+                Roles = new List<string> { "Normal" },
+                Menus = new List<Guid>(),
+                CreatedAt = u.CreatedAt,
+                CreatedByUser = u.CreatedByUser,
+                UpdatedAt = u.UpdatedAt,
+                UpdatedByUser = u.UpdatedByUser
             })
             .ToListAsync(cancellationToken);
     }

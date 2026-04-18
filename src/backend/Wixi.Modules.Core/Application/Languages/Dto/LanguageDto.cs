@@ -1,6 +1,8 @@
+using Wixi.Shared.Application.Dto;
+
 namespace Wixi.Modules.Core.Application.Languages.Dto;
 
-public class LanguageDto
+public class LanguageDto : AuditableDto
 {
     public Guid Id { get; set; }
     public string Code { get; set; } = string.Empty;

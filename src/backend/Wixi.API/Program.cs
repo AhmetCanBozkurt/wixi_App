@@ -19,7 +19,11 @@ builder.Services.AddCors(options => {
               .AllowAnyMethod();
     });
 });
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpContextAccessor();
@@ -104,11 +108,14 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 // Localization Middleware
-var supportedCultures = new[] { "tr-TR", "en-US", "de-DE" };
+var supportedCultures = new[] { "tr-TR", "en-US", "de-DE", "fr-FR", "es-ES", "ru-RU", "it-IT", "pt-PT" };
 var localizationOptions = new RequestLocalizationOptions()
     .SetDefaultCulture(supportedCultures[0])
     .AddSupportedCultures(supportedCultures)
     .AddSupportedUICultures(supportedCultures);
+
+// Allow any culture from header if needed (Optional: can be made more dynamic by querying DB)
+localizationOptions.RequestCultureProviders.Insert(0, new Microsoft.AspNetCore.Localization.AcceptLanguageHeaderRequestCultureProvider());
 
 app.UseRequestLocalization(localizationOptions);
 

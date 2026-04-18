@@ -29,7 +29,7 @@ public class UserManagementController : ControllerBase
     public async Task<IActionResult> GetUsers()
     {
         var result = await _mediator.Send(new GetUsersQuery());
-        return Ok(result);
+        return Ok(new { items = result });
     }
 
     [HttpPost("users")]

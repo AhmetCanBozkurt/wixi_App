@@ -14,6 +14,10 @@ interface UserListDto {
   email: string;
   isActive: boolean;
   profilePicture?: string | null;
+  createdAt?: string;
+  createdByUser?: string;
+  updatedAt?: string;
+  updatedByUser?: string;
 }
 
 export const UserManagementPage = () => {
@@ -28,8 +32,10 @@ export const UserManagementPage = () => {
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await apiClient.get<UserListDto[]>('usermanagement/users');
-      setUsers(res.data);
+      const res = await apiClient.get<{ items: UserListDto[] }>('usermanagement/users');
+      const data = res.data.items || [];
+      setUsers(data);
+      return data;
     } catch {
       toast.error('Kullanıcı listesi alınamadı.');
     } finally {
@@ -119,7 +125,11 @@ export const UserManagementPage = () => {
                   {row.isActive ? 'Aktif' : 'Pasif'}
                 </Badge>
               )
-            }
+            },
+            { field: 'createdAt', title: 'Oluşturma', hidden: true, template: (row) => row.createdAt ? new Date(row.createdAt).toLocaleString() : '-' },
+            { field: 'createdByUser', title: 'Oluşturan', hidden: true },
+            { field: 'updatedAt', title: 'Güncelleme', hidden: true, template: (row) => row.updatedAt ? new Date(row.updatedAt).toLocaleString() : '-' },
+            { field: 'updatedByUser', title: 'Güncelleyen', hidden: true }
           ]}
           groupable={true}
           sortable={true}
@@ -128,6 +138,7 @@ export const UserManagementPage = () => {
           resizable={true}
           pageable={{ pageSize: 10 }}
           toolbar={['search', 'excel', 'pdf']}
+          exportTitle="Kullanici_Listesi"
           onEdit={handleManageMenus}
         />
       </div>

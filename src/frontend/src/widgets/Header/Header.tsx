@@ -58,8 +58,8 @@ export const Header = () => {
   useEffect(() => {
     const fetchLanguages = async () => {
       try {
-        const res = await apiClient.get<Language[]>('language', { params: { skipLog: true } });
-        setLanguages(res.data);
+        const res = await apiClient.get<{ items: Language[] }>('language', { params: { skipLog: true } });
+        setLanguages(res.data.items || []);
       } catch (err) {
         console.error("Diller yüklenemedi", err);
       }
@@ -95,7 +95,7 @@ export const Header = () => {
 
   const displayName = user?.firstName ? `${user.firstName} ${user.lastName}` : (user?.email?.split('@')[0] || 'Kullanıcı');
 
-  const activeLang = languages.find(l => l.code === currentLang);
+  const activeLang = languages?.find(l => l.code === currentLang);
 
   return (
     <header className={styles.headerContainer}>

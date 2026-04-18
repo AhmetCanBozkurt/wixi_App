@@ -52,6 +52,8 @@ public class GetAuditLogsQueryHandler : IRequestHandler<GetAuditLogsQuery, GetAu
                 EntityId = x.UserId,
                 Email = x.Email,
                 IpAddress = x.IpAddress,
+                UserAgent = x.UserAgent,
+                TableName = x.TableName,
                 CreatedAt = x.CreatedAt
             })
             .ToListAsync(cancellationToken);

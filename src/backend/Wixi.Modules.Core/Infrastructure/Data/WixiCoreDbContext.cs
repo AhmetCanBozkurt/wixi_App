@@ -30,9 +30,15 @@ public class WixiCoreDbContext : IdentityDbContext<WixiUser, WixiRole, Guid>
         foreach (var entry in auditableEntries)
         {
             if (entry.State == EntityState.Added)
+            {
                 entry.Entity.CreatedAt = DateTime.UtcNow;
+                entry.Entity.CreatedByUser = _currentUserService?.FullName ?? "System";
+            }
             else if (entry.State == EntityState.Modified)
+            {
                 entry.Entity.UpdatedAt = DateTime.UtcNow;
+                entry.Entity.UpdatedByUser = _currentUserService?.FullName ?? "System";
+            }
         }
 
         // 2. Prepare Detailed Audit Logs
@@ -57,7 +63,7 @@ public class WixiCoreDbContext : IdentityDbContext<WixiUser, WixiRole, Guid>
                 LogType logType = LogType.DataAudit;
 
                 // Blacklist of columns to never log
-                var blacklist = new List<string> { "CreatedAt", "UpdatedAt", "CreatedBy", "UpdatedBy" };
+                var blacklist = new List<string> { "CreatedAt", "CreatedByUser", "UpdatedAt", "UpdatedByUser", "CreatedBy", "UpdatedBy" };
 
                 if (entry.State == EntityState.Modified)
                 {

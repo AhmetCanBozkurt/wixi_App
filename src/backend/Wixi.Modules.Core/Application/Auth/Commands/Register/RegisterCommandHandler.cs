@@ -40,6 +40,6 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, AuthResul
         // Otomatik "Normal" rolü atama
         await _userManager.AddToRoleAsync(newUser, "Normal");
 
-        return new AuthResult { Success = true };
+        return new AuthResult { Success = true, UserId = newUser.Id.ToString() };
     }
 }

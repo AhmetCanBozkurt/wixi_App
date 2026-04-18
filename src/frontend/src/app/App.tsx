@@ -25,7 +25,17 @@ const DashboardHome = () => {
 const App = () => {
   return (
     <>
-      <Toaster position="top-center" />
+      <Toaster 
+        position="top-center" 
+        containerStyle={{
+          zIndex: 999999,
+        }}
+        toastOptions={{
+          style: {
+            zIndex: 999999,
+          },
+        }}
+      />
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<LoginPage />} />

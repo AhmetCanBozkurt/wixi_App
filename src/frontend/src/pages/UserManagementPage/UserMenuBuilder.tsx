@@ -414,7 +414,7 @@ export const UserMenuBuilder = forwardRef<{ syncHierarchy: () => void }, UserMen
 
       {/* --- ICON PICKER --- */}
       {isIconPickerOpen && (
-        <div className={styles.modalOverlay} style={{ zIndex: 1200 }} onClick={() => setIsIconPickerOpen(false)}>
+        <div className={styles.modalOverlay} style={{ zIndex: 12000 }} onClick={() => setIsIconPickerOpen(false)}>
            <div className={styles.pickerModal} onClick={e => e.stopPropagation()}>
               <div className={styles.modalHeader}>
                  <div className={styles.searchWrap}>
