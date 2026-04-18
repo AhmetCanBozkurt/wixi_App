@@ -25,6 +25,8 @@ public class WixiCoreDbContext : IdentityDbContext<WixiUser, WixiRole, Guid>
     public DbSet<WixiMailTemplate> MailTemplates { get; set; }
     public DbSet<WixiMailLog> MailLogs { get; set; }
     public DbSet<WixiSmtpSetting> SmtpSettings { get; set; }
+    public DbSet<WixiTwoFactorCode> TwoFactorCodes { get; set; }
+    public DbSet<WixiRefreshToken> RefreshTokens { get; set; }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
@@ -297,6 +299,25 @@ public class WixiCoreDbContext : IdentityDbContext<WixiUser, WixiRole, Guid>
             entity.Property(e => e.Username).HasMaxLength(255);
             entity.Property(e => e.SenderName).HasMaxLength(255);
             entity.Property(e => e.SenderEmail).IsRequired().HasMaxLength(255);
+        });
+
+        // 2FA Codes Mapping
+        builder.Entity<WixiTwoFactorCode>(entity =>
+        {
+            entity.ToTable("WIXI_2FA_CODES");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Code).IsRequired().HasMaxLength(10);
+            entity.Property(e => e.SessionToken).IsRequired().HasMaxLength(100);
+            entity.HasIndex(e => e.SessionToken).IsUnique();
+        });
+
+        // Refresh Tokens Mapping
+        builder.Entity<WixiRefreshToken>(entity =>
+        {
+            entity.ToTable("WIXI_REFRESH_TOKENS");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Token).IsRequired().HasMaxLength(100);
+            entity.HasIndex(e => e.Token).IsUnique();
         });
     }
 

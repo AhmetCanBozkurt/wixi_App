@@ -6,6 +6,7 @@ using Wixi.Modules.Core.Application.UserManagement.Queries.GetUserMenus;
 using Wixi.Modules.Core.Application.UserManagement.Commands.SyncUserMenus;
 using Wixi.Modules.Core.Application.UserManagement.Commands.UpdateUser;
 using Wixi.Modules.Core.Application.UserManagement.Commands.CreateUser;
+using Wixi.Modules.Core.Application.UserManagement.Commands.ImportUserMenus;
 using Wixi.Modules.Core.Application.UserManagement.Dto;
 using Wixi.Modules.Core.Application.Navigation.Commands.CreateMenu;
 using Wixi.Modules.Core.Application.Navigation.Commands.UpdateMenu;
@@ -74,6 +75,13 @@ public class UserManagementController : ControllerBase
         menu.UserId = id;
         var result = await _mediator.Send(new CreateMenuCommand(menu));
         return Ok(new { id = result });
+    }
+
+    [HttpPost("users/{targetUserId}/menus/import-from/{sourceUserId}")]
+    public async Task<IActionResult> ImportMenusFromUser(Guid targetUserId, Guid sourceUserId, [FromQuery] bool replace = true)
+    {
+        var result = await _mediator.Send(new ImportUserMenusCommand(targetUserId, sourceUserId, replace));
+        return Ok(new { success = result });
     }
 
     [HttpPut("users/{id}/menus")]

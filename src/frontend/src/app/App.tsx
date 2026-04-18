@@ -2,6 +2,8 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthGuard } from './providers/AuthGuard';
 import { LoginPage } from '../pages/LoginPage/LoginPage';
+import { ForgotPasswordPage } from '../pages/ForgotPasswordPage/ForgotPasswordPage';
+import { ResetPasswordPage } from '../pages/ResetPasswordPage/ResetPasswordPage';
 import { DashboardPage } from '../pages/DashboardPage/DashboardPage';
 import { ApplicationLogsPage } from '../pages/ApplicationLogsPage/ApplicationLogsPage';
 import { LanguageManagementPage } from '../pages/LanguageManagementPage/LanguageManagementPage';
@@ -40,6 +42,8 @@ const App = () => {
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route element={<AuthGuard />}>
             <Route path="/" element={<DashboardPage />}>
               <Route index element={<DashboardHome />} />

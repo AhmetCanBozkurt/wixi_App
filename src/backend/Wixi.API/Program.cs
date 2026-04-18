@@ -16,7 +16,8 @@ builder.Services.AddCors(options => {
     options.AddPolicy("AllowReactApp", policy => {
         policy.WithOrigins("http://localhost:5173", "http://localhost:5174", "http://127.0.0.1:5173")
               .AllowAnyHeader()
-              .AllowAnyMethod();
+              .AllowAnyMethod()
+              .AllowCredentials();
     });
 });
 builder.Services.AddControllers()
@@ -97,6 +98,40 @@ using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     try {
+        // Ensure new auth tables exist even without migrations (dev-friendly)
+        var db = services.GetRequiredService<WixiCoreDbContext>();
+        await db.Database.ExecuteSqlRawAsync(@"
+IF OBJECT_ID(N'dbo.WIXI_2FA_CODES', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.WIXI_2FA_CODES (
+        Id UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
+        UserId UNIQUEIDENTIFIER NOT NULL,
+        Code NVARCHAR(10) NOT NULL,
+        SessionToken NVARCHAR(100) NOT NULL,
+        ExpiresAt DATETIME2 NOT NULL,
+        IsUsed BIT NOT NULL,
+        AttemptCount INT NOT NULL,
+        CreatedAt DATETIME2 NOT NULL
+    );
+    CREATE UNIQUE INDEX IX_WIXI_2FA_CODES_SessionToken ON dbo.WIXI_2FA_CODES(SessionToken);
+END
+
+IF OBJECT_ID(N'dbo.WIXI_REFRESH_TOKENS', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.WIXI_REFRESH_TOKENS (
+        Id UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
+        UserId UNIQUEIDENTIFIER NOT NULL,
+        Token NVARCHAR(100) NOT NULL,
+        ExpiresAt DATETIME2 NOT NULL,
+        IsRevoked BIT NOT NULL,
+        IpAddress NVARCHAR(64) NULL,
+        UserAgent NVARCHAR(512) NULL,
+        CreatedAt DATETIME2 NOT NULL
+    );
+    CREATE UNIQUE INDEX IX_WIXI_REFRESH_TOKENS_Token ON dbo.WIXI_REFRESH_TOKENS(Token);
+END
+");
+
         await SeedData.InitializeAsync(services);
     } catch (Exception ex) {
         Console.WriteLine($"An error occurred seeding the DB: {ex.Message}");

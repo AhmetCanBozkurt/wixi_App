@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useCallback, useMemo, forwardRef, useImperativeHandle } from 'react';
+import { useState, useEffect, useCallback, useMemo, forwardRef, useImperativeHandle } from 'react';
 import { Tree, DndProvider, getBackendOptions, MultiBackend } from '@minoru/react-dnd-treeview';
 import type { NodeModel } from '@minoru/react-dnd-treeview';
-import { FaPlus, FaTimes, FaSave, FaSearch, FaTrash, FaGlobe } from 'react-icons/fa';
+import { FaPlus, FaTimes, FaSave, FaSearch, FaTrash, FaGlobe, FaUserFriends, FaDownload } from 'react-icons/fa';
 import * as FaIconsList from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 import Swal from 'sweetalert2';
@@ -15,6 +15,13 @@ interface Language {
   id: string;
   code: string;
   name: string;
+}
+
+interface SimpleUser {
+  id: string;
+  email?: string;
+  firstName?: string;
+  lastName?: string;
 }
 
 export interface UserMenuBuilderProps {
@@ -43,6 +50,10 @@ export const UserMenuBuilder = forwardRef<{ syncHierarchy: () => void }, UserMen
   const [treeData, setTreeData] = useState<NodeModel<any>[]>([]);
   const [languages, setLanguages] = useState<Language[]>([]);
   const [initialLoading, setInitialLoading] = useState(true);
+  const [users, setUsers] = useState<SimpleUser[]>([]);
+  const [isImportOpen, setIsImportOpen] = useState(false);
+  const [importSourceUserId, setImportSourceUserId] = useState<string>('');
+  const [isImporting, setIsImporting] = useState(false);
 
   useImperativeHandle(ref, () => ({
     syncHierarchy: handleSyncHierarchy
@@ -112,11 +123,24 @@ export const UserMenuBuilder = forwardRef<{ syncHierarchy: () => void }, UserMen
     }
   }, [userId]);
 
+  const fetchUsers = useCallback(async () => {
+    try {
+      const res = await apiClient.get<{ items: SimpleUser[] }>('usermanagement/users');
+      const items = res.data.items || [];
+      setUsers(items);
+      return items;
+    } catch {
+      toast.error('Kullanıcı listesi yüklenemedi.');
+      return [];
+    }
+  }, []);
+
   useEffect(() => {
     const init = async () => {
       const langs = await fetchLanguages();
       if (langs.length > 0) {
         await fetchUserMenus(langs);
+        await fetchUsers();
         // Initialize translations for the "Add New" state if nothing is selected
         setFormData(prev => ({
           ...prev,
@@ -246,6 +270,45 @@ export const UserMenuBuilder = forwardRef<{ syncHierarchy: () => void }, UserMen
     }
   };
 
+  const handleImportFromUser = async () => {
+    if (!importSourceUserId || isImporting) return;
+
+    const source = users.find(u => u.id === importSourceUserId);
+    const sourceLabel = source ? (source.email || `${source.firstName ?? ''} ${source.lastName ?? ''}`.trim() || source.id) : importSourceUserId;
+
+    const confirm = await Swal.fire({
+      title: 'Menüleri içe aktar',
+      text: `${sourceLabel} kullanıcısının menüleri bu kullanıcıya kopyalanacak. Mevcut menüler silinip yerine yenileri gelecek.`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'İçe Aktar',
+      cancelButtonText: 'Vazgeç',
+      confirmButtonColor: '#10b981'
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    setIsImporting(true);
+    try {
+      const res = await apiClient.post(`usermanagement/users/${userId}/menus/import-from/${importSourceUserId}?replace=true`);
+      if (res.data?.success) {
+        toast.success('Menüler içe aktarıldı.');
+        setIsImportOpen(false);
+        setImportSourceUserId('');
+        await fetchUserMenus(languages);
+        if (currentUser?.id === userId) {
+          window.dispatchEvent(new CustomEvent('wixi-refresh-menu'));
+        }
+      } else {
+        toast.error('İçe aktarma başarısız.');
+      }
+    } catch {
+      toast.error('İçe aktarma sırasında hata oluştu.');
+    } finally {
+      setIsImporting(false);
+    }
+  };
+
   const filteredIcons = useMemo(() => {
     if (!iconSearch) return POPULAR_ICONS;
     return Object.keys(FaIconsList).filter(key => 
@@ -291,6 +354,9 @@ export const UserMenuBuilder = forwardRef<{ syncHierarchy: () => void }, UserMen
              <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-muted)' }}>Sürükleyerek ağaç yapısını oluşturun, sağ panelden detayları düzenleyin.</p>
           </div>
           <div style={{ display: 'flex', gap: '10px' }}>
+             <button className={styles.btnCopy} onClick={() => setIsImportOpen(true)}>
+               <FaUserFriends /> Başka Kullanıcıdan Çek
+             </button>
              <button className={styles.addBtn} onClick={handleAddNew}>
                <FaPlus /> Yeni Menü/Klasör Ekle
              </button>
@@ -435,6 +501,44 @@ export const UserMenuBuilder = forwardRef<{ syncHierarchy: () => void }, UserMen
                  ))}
               </div>
            </div>
+        </div>
+      )}
+
+      {/* --- IMPORT FROM USER MODAL --- */}
+      {isImportOpen && (
+        <div className={styles.modalOverlay} style={{ zIndex: 12500 }} onClick={() => setIsImportOpen(false)}>
+          <div className={styles.pickerModal} onClick={e => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <FaDownload />
+                <strong>Başka Kullanıcıdan Menü Çek</strong>
+              </div>
+              <button className={styles.closeBtn} onClick={() => setIsImportOpen(false)}><FaTimes /></button>
+            </div>
+
+            <div style={{ padding: '16px' }}>
+              <Select
+                label="Kaynak Kullanıcı"
+                value={importSourceUserId}
+                onChange={(val) => setImportSourceUserId(val as string)}
+                options={users
+                  .filter(u => u.id !== userId)
+                  .map(u => ({
+                    label: u.email || `${u.firstName ?? ''} ${u.lastName ?? ''}`.trim() || u.id,
+                    value: u.id
+                  }))}
+              />
+              <p style={{ marginTop: '10px', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                Seçtiğiniz kullanıcının menüleri kopyalanır ve bu kullanıcıya uygulanır.
+              </p>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '14px' }}>
+                <button className={styles.btnCancel} onClick={() => setIsImportOpen(false)} disabled={isImporting}>İptal</button>
+                <button className={styles.btnSave} onClick={handleImportFromUser} disabled={!importSourceUserId || isImporting}>
+                  <FaDownload /> {isImporting ? 'Aktarılıyor...' : 'İçe Aktar'}
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>
