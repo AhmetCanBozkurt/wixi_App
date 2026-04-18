@@ -27,10 +27,11 @@ export const mailingApi = {
     return response.data.success;
   },
 
-  sendTestMail: async (templateCode: string, testEmailAddress: string) => {
+  sendTestMail: async (templateCode: string, testEmailAddress: string, variables?: Record<string, string>) => {
     const response = await axiosInstance.post<{ success: boolean }>('/mailing/test', {
       templateCode,
-      testEmailAddress
+      testEmailAddress,
+      variables
     });
     return response.data.success;
   }

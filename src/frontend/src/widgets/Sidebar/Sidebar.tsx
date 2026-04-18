@@ -179,6 +179,18 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse }: SidebarProps) => {
     }
   };
 
+  const handleLogoutAllDevices = async () => {
+    if (!confirm('Tüm cihazlardaki oturumlarınız sonlandırılacak. Devam edilsin mi?')) return;
+    try {
+      await apiClient.post('auth/logout-all');
+    } catch (error) {
+      console.error('Logout all error:', error);
+    } finally {
+      storeLogout();
+      window.location.href = '/login';
+    }
+  };
+
   // ─── Derived Data ─────────────────────────────────
   const filteredMenus = useMemo(() => 
     filterMenuTree(menus, searchQuery), 
@@ -358,6 +370,11 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse }: SidebarProps) => {
           <FaSignOutAlt />
           {!isCollapsed && <span>Oturumu Kapat</span>}
         </button>
+        {!isCollapsed && (
+          <button type="button" className={styles.logoutAllBtn} onClick={handleLogoutAllDevices}>
+            Tüm cihazlardan çık
+          </button>
+        )}
       </div>
     </aside>
   );

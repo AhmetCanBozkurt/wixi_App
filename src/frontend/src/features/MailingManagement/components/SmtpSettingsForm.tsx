@@ -5,6 +5,7 @@ import Swal from 'sweetalert2';
 import styles from './SmtpSettingsForm.module.css';
 import { mailingApi } from '../api/mailing';
 import type { SmtpSettings } from '../types';
+import axios from 'axios';
 
 export const SmtpSettingsForm: React.FC = () => {
   const [loading, setLoading] = useState(true);
@@ -26,15 +27,24 @@ export const SmtpSettingsForm: React.FC = () => {
   const fetchSettings = async () => {
     try {
       const data = await mailingApi.getSmtpSettings();
-      if (data && Object.keys(data).length > 0) {
-        setFormData({
-          ...data,
-          password: '', // Ensure we don't put undefined or null in the input
-        });
-      }
+      // Backend may respond with {} when no settings exist yet.
+      // Still update form state so the UI doesn't look "stuck".
+      const next: SmtpSettings = {
+        server: (data as any)?.server ?? formData.server ?? '',
+        port: (data as any)?.port ?? formData.port ?? 587,
+        username: (data as any)?.username ?? formData.username ?? '',
+        password: '', // never hydrate password into the input
+        senderName: (data as any)?.senderName ?? formData.senderName ?? '',
+        senderEmail: (data as any)?.senderEmail ?? formData.senderEmail ?? '',
+        enableSsl: (data as any)?.enableSsl ?? formData.enableSsl ?? true,
+      };
+      setFormData(next);
     } catch (error) {
       console.error('Failed to fetch SMTP settings:', error);
-      toast.error('Ayarlar yüklenirken bir hata oluştu');
+      const ax = axios.isAxiosError(error) ? error : undefined;
+      const status = ax?.response?.status;
+      const msg = (ax?.response?.data as any)?.error || (ax?.response?.data as any)?.message;
+      toast.error(`Ayarlar yüklenirken bir hata oluştu${status ? ` (HTTP ${status})` : ''}${msg ? `: ${msg}` : ''}`);
     } finally {
       setLoading(false);
     }
@@ -52,7 +62,13 @@ export const SmtpSettingsForm: React.FC = () => {
     e.preventDefault();
     setSaving(true);
     try {
-      await mailingApi.updateSmtpSettings(formData);
+      // Important: empty password means "keep existing password" on backend.
+      // Don't send empty string, otherwise it can overwrite a valid password.
+      const payload: SmtpSettings = {
+        ...formData,
+        password: formData.password?.trim() ? formData.password : undefined
+      };
+      await mailingApi.updateSmtpSettings(payload);
       
       // We use SweetAlert2 here for successfully updating settings as requested in global rules
       Swal.fire({
@@ -65,7 +81,10 @@ export const SmtpSettingsForm: React.FC = () => {
       
     } catch (error) {
       console.error('Failed to update SMTP settings:', error);
-      toast.error('SMTP Ayarları güncellenemedi');
+      const ax = axios.isAxiosError(error) ? error : undefined;
+      const status = ax?.response?.status;
+      const msg = (ax?.response?.data as any)?.error || (ax?.response?.data as any)?.message;
+      toast.error(`SMTP Ayarları güncellenemedi${status ? ` (HTTP ${status})` : ''}${msg ? `: ${msg}` : ''}`);
     } finally {
       setSaving(false);
     }

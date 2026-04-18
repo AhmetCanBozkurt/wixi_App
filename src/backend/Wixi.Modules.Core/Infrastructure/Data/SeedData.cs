@@ -102,7 +102,12 @@ public static class SeedData
             mMail.Translations.Add(new WixiMenuTranslation { LanguageId = tr.Id, Title = "Mail Yönetimi" });
             mMail.Translations.Add(new WixiMenuTranslation { LanguageId = en.Id, Title = "Mail Management" });
 
-            await context.Menus.AddRangeAsync(mDash, mMenu, mLogs, mChat, mDev, mSet, mMail);
+            // Role Management
+            var mRole = new WixiMenu { UserId = adminUser.Id, Path = "/admin/roles", Icon = "FaUserShield", IconColor = "#ef4444", SortOrder = 8 };
+            mRole.Translations.Add(new WixiMenuTranslation { LanguageId = tr.Id, Title = "Rol Yönetimi" });
+            mRole.Translations.Add(new WixiMenuTranslation { LanguageId = en.Id, Title = "Role Management" });
+
+            await context.Menus.AddRangeAsync(mDash, mMenu, mLogs, mChat, mDev, mSet, mMail, mRole);
             await context.SaveChangesAsync();
         }
         else
@@ -119,6 +124,19 @@ public static class SeedData
                 mMail.Translations.Add(new WixiMenuTranslation { LanguageId = en.Id, Title = "Mail Management" });
 
                 await context.Menus.AddAsync(mMail);
+                await context.SaveChangesAsync();
+            }
+
+            if (adminUser != null && !await context.Menus.AnyAsync(m => m.Path == "/admin/roles"))
+            {
+                var tr = await context.Languages.FirstAsync(l => l.Code == "tr-TR");
+                var en = await context.Languages.FirstAsync(l => l.Code == "en-US");
+
+                var mRole = new WixiMenu { UserId = adminUser.Id, Path = "/admin/roles", Icon = "FaUserShield", IconColor = "#ef4444", SortOrder = 8 };
+                mRole.Translations.Add(new WixiMenuTranslation { LanguageId = tr.Id, Title = "Rol Yönetimi" });
+                mRole.Translations.Add(new WixiMenuTranslation { LanguageId = en.Id, Title = "Role Management" });
+
+                await context.Menus.AddAsync(mRole);
                 await context.SaveChangesAsync();
             }
         }
@@ -153,10 +171,22 @@ public static class SeedData
                             <p style=""margin: 20px 0;"">
                                 <a href=""{{ resetLink }}"" style=""display: inline-block; padding: 12px 24px; background-color: #2563eb; color: #fff; text-decoration: none; border-radius: 6px; font-weight: bold;"">Şifremi Sıfırla</a>
                             </p>
+                            <p style=""font-size: 0.9em; color: #666;"">Buton çalışmıyorsa bu linki kopyalayıp tarayıcıya yapıştırın:</p>
+                            <p style=""font-size: 0.9em; word-break: break-all;""><a href=""{{ resetLink }}"" style=""color:#2563eb;"">{{ resetLinkText ?? resetLink }}</a></p>
                             <p style=""font-size: 0.9em; color: #666;"">Eğer bu talebi siz yapmadıysanız, hesabınız güvendedir ve bu e-postayı dikkate almayabilirsiniz.</p>
                             <br/>
                             <p style=""font-size: 0.9em; color: #666;"">Saygılarımızla,<br/><strong>Wixi Ekibi</strong></p>
                         </div>",
+                Category = "Auth",
+                IsActive = true
+            };
+
+            // Alias template for plan compatibility
+            var forgotPasswordTemplate = new WixiMailTemplate
+            {
+                Code = "FORGOT_PASSWORD",
+                Subject = resetPasswordTemplate.Subject,
+                Body = resetPasswordTemplate.Body,
                 Category = "Auth",
                 IsActive = true
             };
@@ -179,8 +209,74 @@ public static class SeedData
                 IsActive = true
             };
 
-            await context.MailTemplates.AddRangeAsync(welcomeTemplate, resetPasswordTemplate, twoFactorAuthTemplate);
+            await context.MailTemplates.AddRangeAsync(welcomeTemplate, resetPasswordTemplate, forgotPasswordTemplate, twoFactorAuthTemplate);
             await context.SaveChangesAsync();
+        }
+        else
+        {
+            // Ensure FORGOT_PASSWORD exists even if templates were already seeded earlier
+            var hasForgot = await context.MailTemplates.AnyAsync(t => t.Code == "FORGOT_PASSWORD" && !t.IsDeleted);
+            if (!hasForgot)
+            {
+                var reset = await context.MailTemplates.FirstOrDefaultAsync(t => t.Code == "PASSWORD_RESET" && !t.IsDeleted);
+                if (reset != null)
+                {
+                    context.MailTemplates.Add(new WixiMailTemplate
+                    {
+                        Code = "FORGOT_PASSWORD",
+                        Subject = reset.Subject,
+                        Body = reset.Body,
+                        Category = reset.Category ?? "Auth",
+                        IsActive = true,
+                        IsDeleted = false,
+                        CreatedAt = DateTime.UtcNow
+                    });
+                    await context.SaveChangesAsync();
+                }
+            }
+
+            // Ensure reset templates contain a copyable plain link line (some clients disable styled buttons)
+            var templatesToFix = await context.MailTemplates
+                .Where(t => (t.Code == "PASSWORD_RESET" || t.Code == "FORGOT_PASSWORD") && !t.IsDeleted)
+                .ToListAsync();
+
+            foreach (var t in templatesToFix)
+            {
+                // If it already contains a plain visible URL, skip
+                if (t.Body.Contains("Kopyalayıp tarayıcıya", StringComparison.OrdinalIgnoreCase) &&
+                    (t.Body.Contains("{{ resetLink }}", StringComparison.OrdinalIgnoreCase) || t.Body.Contains("{{resetLink}}", StringComparison.OrdinalIgnoreCase)))
+                {
+                    continue;
+                }
+
+                // Append a plain link section before the "Eğer bu talebi siz yapmadıysanız" line if possible.
+                var marker = "Eğer bu talebi siz yapmadıysanız";
+                var insertHtml =
+                    @"<p style=""font-size: 0.9em; color: #666;"">Buton tıklanamazsa linki kopyalayıp tarayıcıya yapıştırın:</p>
+<p style=""font-size: 0.9em; word-break: break-all; margin: 6px 0;"">
+  <a href=""{{ resetLink }}"" style=""color:#2563eb;"">{{ resetLink }}</a>
+</p>
+<p style=""font-size: 0.85em; color:#111827; word-break: break-all; background:#f3f4f6; padding:10px 12px; border-radius:8px; border:1px solid #e5e7eb;"">
+  {{ resetLink }}
+</p>";
+
+                var idx = t.Body.IndexOf(marker, StringComparison.OrdinalIgnoreCase);
+                if (idx >= 0)
+                {
+                    t.Body = t.Body.Insert(idx, insertHtml + Environment.NewLine);
+                }
+                else
+                {
+                    t.Body += Environment.NewLine + insertHtml;
+                }
+
+                t.UpdatedAt = DateTime.UtcNow;
+            }
+
+            if (templatesToFix.Count > 0)
+            {
+                await context.SaveChangesAsync();
+            }
         }
     }
 }

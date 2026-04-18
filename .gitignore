@@ -1,0 +1,20 @@
+# Build outputs
+**/bin/
+**/obj/
+
+# Frontend outputs
+src/frontend/dist/
+src/frontend/node_modules/
+src/frontend/.vite/
+
+# General
+.vs/
+.idea/
+*.user
+*.suo
+*.cache
+*.log
+*.pdb
+*.dll
+*.exe
+

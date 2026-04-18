@@ -11,7 +11,6 @@ using Wixi.Modules.Core.Application.Common.Interfaces;
 
 namespace Wixi.API.Controllers;
 
-[Authorize(Roles = "SuperAdmin,Admin")]
 [ApiController]
 [Route("api/v1/[controller]")]
 public class LanguageController : ControllerBase
@@ -30,6 +29,7 @@ public class LanguageController : ControllerBase
         _currentUserService = currentUserService;
     }
 
+    [AllowAnonymous]
     [HttpGet]
     public async Task<IActionResult> GetLanguages([FromQuery] bool skipLog = false)
     {
@@ -52,6 +52,7 @@ public class LanguageController : ControllerBase
         return Ok(new { items = result });
     }
 
+    [Authorize(Roles = "SuperAdmin,Admin")]
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateLanguageCommand command)
     {
@@ -59,6 +60,7 @@ public class LanguageController : ControllerBase
         return Ok(result);
     }
 
+    [Authorize(Roles = "SuperAdmin,Admin")]
     [HttpPut]
     public async Task<IActionResult> Update([FromBody] UpdateLanguageCommand command)
     {
@@ -66,6 +68,7 @@ public class LanguageController : ControllerBase
         return result ? Ok() : NotFound();
     }
 
+    [Authorize(Roles = "SuperAdmin,Admin")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(Guid id)
     {

@@ -3,6 +3,7 @@ import { TemplateList } from '../components/TemplateList';
 import { TemplateForm } from '../components/TemplateForm';
 import { LogsTable } from '../components/LogsTable';
 import { SmtpSettingsForm } from '../components/SmtpSettingsForm';
+import { TemplateTestModal } from '../components/TemplateTestModal';
 import { mailingApi } from '../api/mailing';
 import type { MailTemplate, MailLog } from '../types';
 import { toast } from 'react-hot-toast';
@@ -18,10 +19,29 @@ export const MailingManagementPage: React.FC = () => {
   
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState<MailTemplate | undefined>();
+  const [testingTemplate, setTestingTemplate] = useState<MailTemplate | null>(null);
+  const [isSendingTest, setIsSendingTest] = useState(false);
 
   useEffect(() => {
     loadData();
   }, []);
+
+  useEffect(() => {
+    // Keep logs fresh when user opens the tab
+    const refreshLogs = async () => {
+      if (activeTab !== 'logs') return;
+      try {
+        setIsLoading(true);
+        const lData = await mailingApi.getLogs();
+        setLogs(lData);
+      } catch {
+        toast.error('Gönderim geçmişi alınamadı');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    refreshLogs();
+  }, [activeTab]);
 
   const loadData = async () => {
     setIsLoading(true);
@@ -93,48 +113,7 @@ export const MailingManagementPage: React.FC = () => {
   };
 
   const handleTest = async (template: MailTemplate) => {
-    const { value: email } = await Swal.fire({
-      title: 'Test Maili Gönder',
-      input: 'email',
-      inputLabel: `Şablonu test etmek istediğiniz E-posta adresini girin: (${template.code})`,
-      inputPlaceholder: 'ornek@wixi.com',
-      showCancelButton: true,
-      showConfirmButton: true,
-      confirmButtonText: 'Gönder',
-      cancelButtonText: 'İptal',
-      confirmButtonColor: '#2563eb', /* Tailwind Blue 600 - Same as var(--color-primary) */
-      cancelButtonColor: '#dc2626'   /* Tailwind Red 600 - Same as var(--color-danger) */
-    });
-
-    if (email) {
-      try {
-        Swal.fire({
-          title: 'Gönderiliyor...',
-          allowOutsideClick: false,
-          didOpen: () => Swal.showLoading()
-        });
-
-        await mailingApi.sendTestMail(template.code, email);
-        
-        await Swal.fire({
-          title: 'Başarılı!',
-          text: 'Test e-postası başarıyla gönderildi.',
-          icon: 'success',
-          confirmButtonColor: '#2563eb'
-        });
-
-        // Günlükleri yenile
-        loadData();
-      } catch (error: any) {
-        const errorMsg = error?.response?.data?.error || 'Test maili gönderilemedi. Lütfen SMTP ayarlarınızı kontrol edin.';
-        Swal.fire({
-          title: 'Gönderilemedi!',
-          text: errorMsg,
-          icon: 'error',
-          confirmButtonColor: '#dc2626'
-        });
-      }
-    }
+    setTestingTemplate(template);
   };
 
   return (
@@ -204,6 +183,31 @@ export const MailingManagementPage: React.FC = () => {
           onCancel={() => setIsFormOpen(false)}
         />
       )}
+
+      <TemplateTestModal
+        isOpen={!!testingTemplate}
+        template={testingTemplate}
+        isSending={isSendingTest}
+        onClose={() => {
+          if (isSendingTest) return;
+          setTestingTemplate(null);
+        }}
+        onSend={async ({ email, variables }) => {
+          if (!testingTemplate) return;
+          setIsSendingTest(true);
+          try {
+            await mailingApi.sendTestMail(testingTemplate.code, email, variables);
+            toast.success('Test e-postası gönderildi.');
+            setTestingTemplate(null);
+            await loadData();
+          } catch (error: any) {
+            const msg = error?.response?.data?.error || 'Test maili gönderilemedi. Lütfen SMTP ayarlarınızı kontrol edin.';
+            toast.error(msg);
+          } finally {
+            setIsSendingTest(false);
+          }
+        }}
+      />
     </div>
   );
 };

@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useCallback, useMemo, forwardRef, useImperativeHandle } from 'react';
+import { useState, useEffect, useCallback, useMemo, forwardRef, useImperativeHandle } from 'react';
 import { Tree, DndProvider, getBackendOptions, MultiBackend } from '@minoru/react-dnd-treeview';
 import type { NodeModel } from '@minoru/react-dnd-treeview';
-import { FaPlus, FaTimes, FaSave, FaSearch, FaTrash, FaGlobe } from 'react-icons/fa';
+import { FaPlus, FaTimes, FaSave, FaSearch, FaTrash, FaGlobe, FaUserFriends, FaDownload } from 'react-icons/fa';
 import * as FaIconsList from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 import Swal from 'sweetalert2';
@@ -9,12 +9,20 @@ import { apiClient } from '../../shared/api/axiosConfig';
 import { DynamicIcon, Select, Switch } from '../../shared/ui';
 import { useAuthStore } from '../../entities/User/model/store';
 import styles from './UserManagementPage.module.css';
+import axios from 'axios';
 
 // --- TYPES ---
 interface Language {
   id: string;
   code: string;
   name: string;
+}
+
+interface SimpleUser {
+  id: string;
+  email?: string;
+  firstName?: string;
+  lastName?: string;
 }
 
 export interface UserMenuBuilderProps {
@@ -43,6 +51,13 @@ export const UserMenuBuilder = forwardRef<{ syncHierarchy: () => void }, UserMen
   const [treeData, setTreeData] = useState<NodeModel<any>[]>([]);
   const [languages, setLanguages] = useState<Language[]>([]);
   const [initialLoading, setInitialLoading] = useState(true);
+  const [users, setUsers] = useState<SimpleUser[]>([]);
+  const [isImportOpen, setIsImportOpen] = useState(false);
+  const [importSourceUserId, setImportSourceUserId] = useState<string>('');
+  const [isImporting, setIsImporting] = useState(false);
+  const [importReplaceTarget, setImportReplaceTarget] = useState(false);
+  const [importSourceMenus, setImportSourceMenus] = useState<any[]>([]);
+  const [importSelectedMenuIds, setImportSelectedMenuIds] = useState<Set<string>>(new Set());
 
   useImperativeHandle(ref, () => ({
     syncHierarchy: handleSyncHierarchy
@@ -112,11 +127,46 @@ export const UserMenuBuilder = forwardRef<{ syncHierarchy: () => void }, UserMen
     }
   }, [userId]);
 
+  const fetchUsers = useCallback(async () => {
+    try {
+      const res = await apiClient.get<{ items: SimpleUser[] }>('usermanagement/users');
+      const items = res.data.items || [];
+      setUsers(items);
+      return items;
+    } catch {
+      toast.error('Kullanıcı listesi yüklenemedi.');
+      return [];
+    }
+  }, []);
+
+  const fetchSourceUserMenus = useCallback(async (sourceId: string) => {
+    if (!sourceId) {
+      setImportSourceMenus([]);
+      setImportSelectedMenuIds(new Set());
+      return;
+    }
+
+    try {
+      const menusRes = await apiClient.get<{ items: any[] }>(`usermanagement/users/${sourceId}/menus`);
+      const menus = menusRes.data.items || [];
+      setImportSourceMenus(menus);
+      setImportSelectedMenuIds(new Set());
+    } catch (err) {
+      const ax = axios.isAxiosError(err) ? err : undefined;
+      const status = ax?.response?.status;
+      const msg = (ax?.response?.data as any)?.error || (ax?.response?.data as any)?.message;
+      toast.error(`Kaynak kullanıcı menüleri yüklenemedi${status ? ` (HTTP ${status})` : ''}${msg ? `: ${msg}` : ''}`);
+      setImportSourceMenus([]);
+      setImportSelectedMenuIds(new Set());
+    }
+  }, []);
+
   useEffect(() => {
     const init = async () => {
       const langs = await fetchLanguages();
       if (langs.length > 0) {
         await fetchUserMenus(langs);
+        await fetchUsers();
         // Initialize translations for the "Add New" state if nothing is selected
         setFormData(prev => ({
           ...prev,
@@ -246,6 +296,80 @@ export const UserMenuBuilder = forwardRef<{ syncHierarchy: () => void }, UserMen
     }
   };
 
+  const handleImportFromUser = async () => {
+    if (!importSourceUserId || isImporting) return;
+
+    const source = users.find(u => u.id === importSourceUserId);
+    const sourceLabel = source ? (source.email || `${source.firstName ?? ''} ${source.lastName ?? ''}`.trim() || source.id) : importSourceUserId;
+
+    const selectedIds = Array.from(importSelectedMenuIds);
+    if (selectedIds.length === 0) {
+      toast.error('Lütfen içe aktarılacak menü kırılımlarını seçin.');
+      return;
+    }
+
+    const confirm = await Swal.fire({
+      title: 'Menüleri içe aktar',
+      text: `${sourceLabel} kullanıcısından ${selectedIds.length} adet menü kırılımı (alt dallarıyla birlikte) bu kullanıcıya aktarılacak.${importReplaceTarget ? ' Mevcut menüler silinip yerine seçilenler gelecek.' : ' Mevcut menüler korunacak ve seçilenler eklenecek.'}`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'İçe Aktar',
+      cancelButtonText: 'Vazgeç',
+      confirmButtonColor: '#10b981'
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    setIsImporting(true);
+    try {
+      const res = await apiClient.post(
+        `usermanagement/users/${userId}/menus/import-selected-from/${importSourceUserId}`,
+        { menuIds: selectedIds, replaceTarget: importReplaceTarget }
+      );
+      if (res.data?.success) {
+        toast.success('Menüler içe aktarıldı.');
+        setIsImportOpen(false);
+        setImportSourceUserId('');
+        setImportReplaceTarget(false);
+        setImportSourceMenus([]);
+        setImportSelectedMenuIds(new Set());
+        await fetchUserMenus(languages);
+        if (currentUser?.id === userId) {
+          window.dispatchEvent(new CustomEvent('wixi-refresh-menu'));
+        }
+      } else {
+        toast.error('İçe aktarma başarısız.');
+      }
+    } catch {
+      toast.error('İçe aktarma sırasında hata oluştu.');
+    } finally {
+      setIsImporting(false);
+    }
+  };
+
+  const importSourceMenuFlat = useMemo(() => {
+    if (!importSourceMenus || importSourceMenus.length === 0) return [];
+
+    const byParent: Record<string, any[]> = {};
+    for (const m of importSourceMenus) {
+      const p = m.parentId ?? '0';
+      if (!byParent[p]) byParent[p] = [];
+      byParent[p].push(m);
+    }
+    Object.values(byParent).forEach(arr => arr.sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0)));
+
+    const out: Array<{ menu: any; depth: number }> = [];
+    const walk = (parentId: string, depth: number) => {
+      const kids = byParent[parentId] || [];
+      for (const k of kids) {
+        out.push({ menu: k, depth });
+        walk(k.id, depth + 1);
+      }
+    };
+    walk('0', 0);
+    return out;
+  }, [importSourceMenus]);
+
   const filteredIcons = useMemo(() => {
     if (!iconSearch) return POPULAR_ICONS;
     return Object.keys(FaIconsList).filter(key => 
@@ -284,20 +408,25 @@ export const UserMenuBuilder = forwardRef<{ syncHierarchy: () => void }, UserMen
 
   const content = (
     <div className={isEmbedded ? styles.embeddedDnd : styles.dndModal} style={!isEmbedded ? { height: '90vh', maxWidth: '1200px' } : {}} onClick={e => e.stopPropagation()}>
-      {!isEmbedded && (
-        <div className={styles.modalHeader}>
-          <div>
-             <h3>Kullanıcı Menü Mimarı: {userName}</h3>
-             <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-muted)' }}>Sürükleyerek ağaç yapısını oluşturun, sağ panelden detayları düzenleyin.</p>
-          </div>
-          <div style={{ display: 'flex', gap: '10px' }}>
-             <button className={styles.addBtn} onClick={handleAddNew}>
-               <FaPlus /> Yeni Menü/Klasör Ekle
-             </button>
-             <button className={styles.closeBtn} onClick={onClose}><FaTimes /></button>
-          </div>
+      <div className={styles.modalHeader}>
+        <div>
+          <h3>Kullanıcı Menü Mimarı: {userName}</h3>
+          <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+            Sürükleyerek ağaç yapısını oluşturun, sağ panelden detayları düzenleyin.
+          </p>
         </div>
-      )}
+        <div className={styles.headerActions}>
+          <button className={styles.btnCopy} onClick={() => setIsImportOpen(true)}>
+            <FaUserFriends /> Başka Kullanıcıdan Çek
+          </button>
+          <button className={styles.addBtn} onClick={handleAddNew}>
+            <FaPlus /> Yeni Menü/Klasör Ekle
+          </button>
+          {!isEmbedded && (
+            <button className={styles.closeBtn} onClick={onClose}><FaTimes /></button>
+          )}
+        </div>
+      </div>
 
       <div className={styles.modalBody}>
           <div className={styles.treePane}>
@@ -435,6 +564,123 @@ export const UserMenuBuilder = forwardRef<{ syncHierarchy: () => void }, UserMen
                  ))}
               </div>
            </div>
+        </div>
+      )}
+
+      {/* --- IMPORT FROM USER MODAL --- */}
+      {isImportOpen && (
+        <div className={styles.modalOverlay} style={{ zIndex: 12500 }} onClick={() => setIsImportOpen(false)}>
+          <div className={styles.pickerModal} onClick={e => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <FaDownload />
+                <strong>Başka Kullanıcıdan Menü Çek</strong>
+              </div>
+              <button className={styles.closeBtn} onClick={() => setIsImportOpen(false)}><FaTimes /></button>
+            </div>
+
+            <div style={{ padding: '16px' }}>
+              <Select
+                label="Kaynak Kullanıcı"
+                value={importSourceUserId}
+                onChange={(val) => {
+                  const next = val as string;
+                  setImportSourceUserId(next);
+                  fetchSourceUserMenus(next);
+                }}
+                options={users
+                  .filter(u => u.id !== userId)
+                  .map(u => ({
+                    label: u.email || `${u.firstName ?? ''} ${u.lastName ?? ''}`.trim() || u.id,
+                    value: u.id
+                  }))}
+              />
+              <p style={{ marginTop: '10px', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                Kaynak kullanıcının menüsünden istediğiniz kırılımları seçin. Seçilen her kırılım alt dallarıyla birlikte içe aktarılır.
+              </p>
+
+              <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap', marginTop: '10px' }}>
+                <label className={styles.importToggle}>
+                  <input
+                    type="checkbox"
+                    checked={importReplaceTarget}
+                    onChange={(e) => setImportReplaceTarget(e.target.checked)}
+                  />
+                  <span style={{ fontSize: '0.9rem' }}>Mevcut menüleri sil (replace)</span>
+                </label>
+
+                <button
+                  className={styles.btnCancel}
+                  type="button"
+                  onClick={() => setImportSelectedMenuIds(new Set(importSourceMenus.map(m => m.id)))}
+                  disabled={!importSourceUserId || importSourceMenus.length === 0}
+                >
+                  Tümünü Seç
+                </button>
+                <button
+                  className={styles.btnCancel}
+                  type="button"
+                  onClick={() => setImportSelectedMenuIds(new Set())}
+                  disabled={!importSourceUserId || importSourceMenus.length === 0}
+                >
+                  Temizle
+                </button>
+              </div>
+
+              <div className={styles.importList}>
+                {!importSourceUserId ? (
+                  <div className={styles.importListEmpty}>Önce kaynak kullanıcı seçin.</div>
+                ) : importSourceMenuFlat.length === 0 ? (
+                  <div className={styles.importListEmpty}>Kaynak kullanıcıda menü bulunamadı.</div>
+                ) : (
+                  importSourceMenuFlat.map(({ menu, depth }) => {
+                    const titles = menu.titles || {};
+                    const title = titles['tr-TR'] || titles['tr'] || Object.values(titles)[0] || menu.path || 'İsimsiz';
+                    const checked = importSelectedMenuIds.has(menu.id);
+                    const isFolder = menu.path === 'folder';
+                    const iconName = menu.icon || (isFolder ? 'FaFolder' : 'FaCircle');
+                    const iconColor = menu.iconColor || (isFolder ? '#f59e0b' : '#64748b');
+                    return (
+                      <label
+                        key={menu.id}
+                        className={styles.importListItem}
+                        style={{ marginLeft: depth * 16 }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={(e) => {
+                            setImportSelectedMenuIds(prev => {
+                              const next = new Set(prev);
+                              if (e.target.checked) next.add(menu.id);
+                              else next.delete(menu.id);
+                              return next;
+                            });
+                          }}
+                        />
+                        <span className={styles.importIcon} style={{ color: iconColor }}>
+                          <DynamicIcon name={iconName} />
+                        </span>
+                        <span style={{ fontSize: '0.92rem' }}>{title}</span>
+                        <span className={styles.importMeta}>{menu.path}</span>
+                      </label>
+                    );
+                  })
+                )}
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '14px' }}>
+                <button className={styles.btnCancel} onClick={() => setIsImportOpen(false)} disabled={isImporting}>İptal</button>
+                <button
+                  className={styles.btnSave}
+                  onClick={handleImportFromUser}
+                  disabled={!importSourceUserId || isImporting || importSelectedMenuIds.size === 0}
+                >
+                  <FaDownload /> {isImporting ? 'Aktarılıyor...' : 'İçe Aktar'}
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

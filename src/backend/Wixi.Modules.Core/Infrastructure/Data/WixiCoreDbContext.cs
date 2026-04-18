@@ -25,6 +25,8 @@ public class WixiCoreDbContext : IdentityDbContext<WixiUser, WixiRole, Guid>
     public DbSet<WixiMailTemplate> MailTemplates { get; set; }
     public DbSet<WixiMailLog> MailLogs { get; set; }
     public DbSet<WixiSmtpSetting> SmtpSettings { get; set; }
+    public DbSet<WixiTwoFactorCode> TwoFactorCodes { get; set; }
+    public DbSet<WixiRefreshToken> RefreshTokens { get; set; }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
@@ -298,6 +300,26 @@ public class WixiCoreDbContext : IdentityDbContext<WixiUser, WixiRole, Guid>
             entity.Property(e => e.SenderName).HasMaxLength(255);
             entity.Property(e => e.SenderEmail).IsRequired().HasMaxLength(255);
         });
+
+        // 2FA Codes Mapping
+        builder.Entity<WixiTwoFactorCode>(entity =>
+        {
+            entity.ToTable("WIXI_2FA_CODES");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.CodeHash).IsRequired().HasMaxLength(128);
+            entity.Property(e => e.CodeSalt).IsRequired().HasMaxLength(64);
+            entity.Property(e => e.SessionToken).IsRequired().HasMaxLength(100);
+            entity.HasIndex(e => e.SessionToken).IsUnique();
+        });
+
+        // Refresh Tokens Mapping
+        builder.Entity<WixiRefreshToken>(entity =>
+        {
+            entity.ToTable("WIXI_REFRESH_TOKENS");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Token).IsRequired().HasMaxLength(100);
+            entity.HasIndex(e => e.Token).IsUnique();
+        });
     }
 
     public async Task LogActivityAsync(string action, string? tableName = null, string? entityId = null, string? details = null, LogType logType = LogType.Activity)
@@ -319,5 +341,33 @@ public class WixiCoreDbContext : IdentityDbContext<WixiUser, WixiRole, Guid>
 
         await AuditLogs.AddAsync(auditLog);
         await base.SaveChangesAsync();
+    }
+
+    /// <summary>Anonymous veya JWT’li güvenlik olayları için (IP/UserAgent açıkça verilebilir).</summary>
+    public async Task LogSecurityEventAsync(
+        string action,
+        string details,
+        string? userId = null,
+        string? email = null,
+        string? fullName = null,
+        string? ipAddress = null,
+        string? userAgent = null,
+        CancellationToken cancellationToken = default)
+    {
+        var auditLog = new WixiAuditLog
+        {
+            LogType = LogType.Security,
+            Action = action,
+            Details = details,
+            UserId = userId ?? _currentUserService?.UserId,
+            Email = email ?? _currentUserService?.Email,
+            FullName = fullName ?? _currentUserService?.FullName,
+            IpAddress = ipAddress ?? _currentUserService?.IpAddress,
+            UserAgent = userAgent ?? _currentUserService?.UserAgent,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        await AuditLogs.AddAsync(auditLog, cancellationToken);
+        await base.SaveChangesAsync(cancellationToken);
     }
 }

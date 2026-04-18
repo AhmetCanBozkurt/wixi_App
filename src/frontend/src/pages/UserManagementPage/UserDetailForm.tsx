@@ -3,6 +3,7 @@ import { FaSave, FaCamera, FaTrashAlt, FaInfoCircle, FaUser, FaEnvelope, FaIdCar
 import { toast } from 'react-hot-toast';
 import { apiClient } from '../../shared/api/axiosConfig';
 import { Input } from '../../shared/ui/Input/Input';
+import { MultiSelect } from '../../shared/ui';
 import styles from './UserManagementPage.module.css';
 
 interface UserDetail {
@@ -15,6 +16,7 @@ interface UserDetail {
   profilePicture: string | null;
   phoneNumber: string | null;
   twoFactorEnabled: boolean;
+  roles?: string[];
 }
 
 interface UserDetailFormProps {
@@ -26,6 +28,8 @@ interface UserDetailFormProps {
 export const UserDetailForm = forwardRef<{ handleSave: () => void }, UserDetailFormProps>(({ userId, onUserUpdated, onNext }, ref) => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [allRoles, setAllRoles] = useState<{ id: string; name: string; description?: string | null }[]>([]);
+  const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
   const [user, setUser] = useState<UserDetail | null>(userId ? null : {
     firstName: '',
     lastName: '',
@@ -50,6 +54,7 @@ export const UserDetailForm = forwardRef<{ handleSave: () => void }, UserDetailF
       try {
         const res = await apiClient.get<UserDetail>(`usermanagement/users/${userId}`);
         setUser(res.data);
+        setSelectedRoles(res.data.roles || []);
         if (res.data.profilePicture) {
           setPreviewImage(`data:image/jpeg;base64,${res.data.profilePicture}`);
         }
@@ -59,7 +64,17 @@ export const UserDetailForm = forwardRef<{ handleSave: () => void }, UserDetailF
         setLoading(false);
       }
     };
-    fetchUser();
+    const fetchRoles = async () => {
+      try {
+        const res = await apiClient.get<{ items: { id: string; name: string; description?: string | null }[] }>('usermanagement/roles');
+        setAllRoles(res.data.items || []);
+      } catch {
+        // role management is admin feature; keep silent
+      }
+    };
+
+    if (userId) fetchUser();
+    fetchRoles();
   }, [userId]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -102,6 +117,7 @@ export const UserDetailForm = forwardRef<{ handleSave: () => void }, UserDetailF
       } else {
         // Update Mode
         await apiClient.put(`usermanagement/users/${userId}`, user);
+        await apiClient.put(`usermanagement/users/${userId}/roles`, { roles: selectedRoles });
         toast.success('Kullanıcı bilgileri güncellendi.');
       }
       onUserUpdated(`${user.firstName} ${user.lastName}`, newId);
@@ -244,6 +260,21 @@ export const UserDetailForm = forwardRef<{ handleSave: () => void }, UserDetailF
               </span>
             </label>
           </div>
+
+          {!!userId && allRoles.length > 0 && (
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>Roller</label>
+              <MultiSelect
+                options={allRoles.map(r => ({ label: r.name, value: r.name }))}
+                values={selectedRoles}
+                onChange={setSelectedRoles}
+                placeholder="Rol seçiniz..."
+              />
+              <div style={{ marginTop: 6, fontSize: '0.85rem', opacity: 0.8 }}>
+                Not: Roller sadece mevcut kullanıcıda güncellenir.
+              </div>
+            </div>
+          )}
           <div className={styles.formGroup}>
             <label className={styles.formLabel}>Hesap Durumu</label>
             <label className={styles.switch}>

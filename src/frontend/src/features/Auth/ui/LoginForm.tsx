@@ -4,10 +4,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { toast } from 'react-hot-toast';
 import { FaEye, FaEyeSlash, FaLock } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 import { apiClient } from '../../../shared/api/axiosConfig';
 import { useAuthStore } from '../../../entities/User/model/store';
 import styles from './LoginForm.module.css';
 import logoSrc from '../../../assets/Logolar/logo.png';
+import { TwoFactorModal } from './TwoFactorModal.tsx';
 
 const loginSchema = z.object({
   email: z.string().min(1, 'Email zorunludur').email('Lütfen geçerli bir e-posta adresi girin'),
@@ -20,7 +22,9 @@ export const LoginForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [twoFactorToken, setTwoFactorToken] = useState<string | null>(null);
   const login = useAuthStore((state) => state.login);
+  const navigate = useNavigate();
 
   const { register, handleSubmit, formState: { errors } } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema)
@@ -29,10 +33,19 @@ export const LoginForm = () => {
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true);
     try {
-      const response = await apiClient.post('/Auth/login', data);
+      const response = await apiClient.post('/Auth/login', { ...data, rememberMe });
       
-      if (response.data?.token) {
-        login(response.data.token);
+      if (response.data?.requiresTwoFactor) {
+        setTwoFactorToken(response.data.twoFactorToken);
+        toast.success("Doğrulama kodu e-posta adresinize gönderildi.", {
+          style: { background: 'var(--bg-secondary)', color: 'var(--text-main)', border: '1px solid var(--color-success)' }
+        });
+        return;
+      }
+
+      const token = response.data?.token || response.data?.accessToken;
+      if (token) {
+        await login(token);
         toast.success("Oturumunuz güvenli bir şekilde açıldı!", {
             style: { background: 'var(--bg-secondary)', color: 'var(--text-main)', border: '1px solid var(--color-success)' }
         });
@@ -54,6 +67,21 @@ export const LoginForm = () => {
 
   return (
     <div className={styles.containerWrapper}>
+      <TwoFactorModal
+        isOpen={!!twoFactorToken}
+        twoFactorToken={twoFactorToken}
+        rememberMe={rememberMe}
+        onClose={() => setTwoFactorToken(null)}
+        onSuccess={async (token) => {
+          await login(token);
+          toast.success("Oturumunuz güvenli bir şekilde açıldı!", {
+            style: { background: 'var(--bg-secondary)', color: 'var(--text-main)', border: '1px solid var(--color-success)' }
+          });
+          setTimeout(() => {
+            window.location.href = '/';
+          }, 800);
+        }}
+      />
       <div className={styles.body}>
         <div className={styles.header}>
           <img src={logoSrc} alt="Wixisoftware Logo" className={styles.logoIcon} />
@@ -111,7 +139,14 @@ export const LoginForm = () => {
               />
               Remember Me
             </label>
-            <a href="#" className={styles.forgotLink} onClick={(e) => e.preventDefault()}>
+            <a
+              href="/forgot-password"
+              className={styles.forgotLink}
+              onClick={(e) => {
+                e.preventDefault();
+                navigate('/forgot-password');
+              }}
+            >
               Forgot Password?
             </a>
           </div>

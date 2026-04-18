@@ -12,4 +12,6 @@ public class UserDetailDto
     public string? PhoneNumber { get; set; }
     public bool TwoFactorEnabled { get; set; }
     public string? Password { get; set; }
+
+    public List<string> Roles { get; set; } = new();
 }

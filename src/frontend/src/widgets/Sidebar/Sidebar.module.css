@@ -490,3 +490,21 @@
 .collapsed .logoutBtn span {
   display: none;
 }
+
+.logoutAllBtn {
+  width: 100%;
+  margin-top: 8px;
+  padding: 6px 8px;
+  border: none;
+  background: transparent;
+  color: var(--sidebar-text-muted, #94a3b8);
+  font-size: 0.78rem;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.logoutAllBtn:hover {
+  color: var(--text-main, #e2e8f0);
+}
