@@ -15,7 +15,9 @@ public class WixiMenuTranslation : IAuditable
 
     // IAuditable Implementation
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public string? CreatedByUser { get; set; }
     public DateTime? UpdatedAt { get; set; }
+    public string? UpdatedByUser { get; set; }
     public bool IsActive { get; set; } = true;
     public bool IsDeleted { get; set; } = false;
 }

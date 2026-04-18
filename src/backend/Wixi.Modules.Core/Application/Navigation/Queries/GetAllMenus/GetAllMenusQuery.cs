@@ -37,7 +37,11 @@ public class GetAllMenusQueryHandler : IRequestHandler<GetAllMenusQuery, List<Me
             {
                 LanguageId = t.LanguageId,
                 Title = t.Title
-            }).ToList()
+            }).ToList(),
+            CreatedAt = m.CreatedAt,
+            CreatedByUser = m.CreatedByUser,
+            UpdatedAt = m.UpdatedAt,
+            UpdatedByUser = m.UpdatedByUser
         }).ToList();
     }
 }

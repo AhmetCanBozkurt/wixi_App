@@ -25,7 +25,7 @@ public class MenuController : ControllerBase
     public async Task<IActionResult> GetSidebarMenus()
     {
         var result = await _mediator.Send(new GetSidebarMenusQuery());
-        return Ok(result);
+        return Ok(new { items = result });
     }
 
     [Authorize(Roles = "SuperAdmin,Admin")]
@@ -33,7 +33,7 @@ public class MenuController : ControllerBase
     public async Task<IActionResult> GetAllMenus()
     {
         var result = await _mediator.Send(new GetAllMenusQuery());
-        return Ok(result);
+        return Ok(new { items = result });
     }
 
     [Authorize(Roles = "SuperAdmin,Admin")]

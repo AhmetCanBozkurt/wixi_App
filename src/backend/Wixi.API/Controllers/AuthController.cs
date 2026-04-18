@@ -46,7 +46,10 @@ public class AuthController : ControllerBase
         {
             return Unauthorized(new { error = result.ErrorMessage });
         }
-        return Ok(new { token = result.Token });
+        return Ok(new { 
+            token = result.Token,
+            accessToken = result.Token 
+        });
     }
 
     [HttpPost("register")]
@@ -57,6 +60,6 @@ public class AuthController : ControllerBase
         {
             return BadRequest(new { error = result.ErrorMessage });
         }
-        return Ok(new { message = "Kullanıcı başarıyla oluşturuldu." });
+        return StatusCode(201, new { message = "Kullanıcı başarıyla oluşturuldu.", id = result.UserId });
     }
 }

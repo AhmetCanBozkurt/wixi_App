@@ -5,7 +5,7 @@ import { toast } from 'react-hot-toast';
 import Swal from 'sweetalert2';
 import { apiClient } from '../../shared/api/axiosConfig';
 import { DynamicIcon } from '../../shared/ui/DynamicIcon/DynamicIcon';
-import { AdvancedDataTable, type Column } from '../../shared/ui/AdvancedDataTable/AdvancedDataTable';
+import { AdvancedDataTable, type ColumnConfig } from '../../shared/ui/AdvancedDataTable/AdvancedDataTable';
 import styles from './MenuManagementPage.module.css';
 
 interface Language {
@@ -36,6 +36,7 @@ const SYSTEM_PAGES = [
   { name: 'Kullanıcı Yönetimi', path: '/admin/users' },
   { name: 'Dil Yönetimi', path: '/admin/languages' },
   { name: 'Uygulama Logları', path: '/admin/logs' },
+  { name: 'Mail Yönetimi', path: '/admin/mailing' },
   { name: 'Chat İşlemleri', path: '/chat' },
   { name: 'Bağlı Cihazlar', path: '/devices' },
   { name: 'Ayarlar', path: '/settings' },
@@ -66,12 +67,12 @@ export const MenuManagementPage = () => {
     setLoading(true);
     try {
       const [langsRes, menusRes] = await Promise.all([
-        apiClient.get<Language[]>('language'),
-        apiClient.get<any[]>('menu/all')
+        apiClient.get<{ items: Language[] }>('language'),
+        apiClient.get<{ items: any[] }>('menu/all')
       ]);
-      setLanguages(langsRes.data);
+      setLanguages(langsRes.data.items || []);
       
-      const mappedMenus = menusRes.data.map(m => ({
+      const mappedMenus = (menusRes.data.items || []).map(m => ({
         id: m.id,
         parentId: m.parentId,
         path: m.path,
@@ -190,63 +191,57 @@ export const MenuManagementPage = () => {
     return menus.filter(m => !m.parentId && m.id !== editingMenu?.id);
   }, [menus, editingMenu]);
 
-  const columns: Column<MenuEdit>[] = [
+  const columns: ColumnConfig<MenuEdit>[] = [
     {
-      key: 'icon',
-      header: 'İkon',
-      width: '80px',
-      render: (_, row) => (
+      field: 'icon',
+      title: 'İkon',
+      width: 80,
+      template: (row) => (
         <div style={{ color: row.iconColor, fontSize: '1.4rem' }}>
           <DynamicIcon name={row.icon || 'FaCircle'} color={row.iconColor} />
         </div>
       )
     },
     {
-      key: 'title',
-      header: 'Başlık (Varsayılan)',
-      accessor: (row) => row.translations.find(t => t.languageId === languages[0]?.id)?.title || 'İsimsiz',
-      sortable: true,
-      render: (val, row) => (
-        <div className={styles.titleWithContext}>
-          {row.parentId && <span className={styles.subIndicator} title="Alt Menü">↪</span>}
-          <strong>{val}</strong>
-        </div>
-      )
+      field: 'title',
+      title: 'Başlık (Varsayılan)',
+      template: (row) => {
+        const val = row.translations.find(t => t.languageId === languages[0]?.id)?.title || 'İsimsiz';
+        return (
+          <div className={styles.titleWithContext}>
+            {row.parentId && <span className={styles.subIndicator} title="Alt Menü">↪</span>}
+            <strong>{val}</strong>
+          </div>
+        );
+      }
     },
     {
-      key: 'path',
-      header: 'Yol',
+      field: 'path',
+      title: 'Yol',
       sortable: true,
-      render: (val) => <code style={{ color: 'var(--color-primary)' }}>{val}</code>
+      template: (row) => <code style={{ color: 'var(--color-primary)' }}>{row.path}</code>
     },
     {
-      key: 'sortOrder',
-      header: 'Sıra',
-      width: '80px',
+      field: 'sortOrder',
+      title: 'Sıra',
+      width: 80,
       sortable: true,
-      render: (val) => <span className={styles.orderBadge}>{val}</span>
+      template: (row) => <span className={styles.orderBadge}>{row.sortOrder}</span>
     },
     {
-      key: 'isVisible',
-      header: 'Durum',
-      width: '100px',
-      render: (val) => (
-        <span className={`${styles.statusBadge} ${val ? styles.active : ''}`}>
-          {val ? 'Aktif' : 'Pasif'}
+      field: 'isVisible',
+      title: 'Durum',
+      width: 100,
+      template: (row) => (
+        <span className={`${styles.statusBadge} ${row.isVisible ? styles.active : ''}`}>
+          {row.isVisible ? 'Aktif' : 'Pasif'}
         </span>
       )
     },
-    {
-      key: 'actions',
-      header: 'İşlemler',
-      width: '120px',
-      render: (_, row) => (
-        <div className={styles.tableActions}>
-          <button onClick={() => handleOpenModal(row)} title="Düzenle" className={styles.actionBtn}><FaEdit /></button>
-          <button onClick={() => handleDelete(row.id!)} title="Sil" className={styles.actionBtnDelete}><FaTrash /></button>
-        </div>
-      )
-    }
+    { field: 'createdAt', title: 'Oluşturma', hidden: true, template: (row: any) => row.createdAt ? new Date(row.createdAt).toLocaleString() : '-' },
+    { field: 'createdByUser', title: 'Oluşturan', hidden: true },
+    { field: 'updatedAt', title: 'Güncelleme', hidden: true, template: (row: any) => row.updatedAt ? new Date(row.updatedAt).toLocaleString() : '-' },
+    { field: 'updatedByUser', title: 'Güncelleyen', hidden: true }
   ];
 
   return (
@@ -265,11 +260,15 @@ export const MenuManagementPage = () => {
       </div>
 
       <div className={styles.content}>
-        <AdvancedDataTable 
+        <AdvancedDataTable<MenuEdit> 
           columns={columns} 
-          data={menus} 
-          pageSize={10}
+          dataSource={menus} 
+          pageable={{ pageSize: 10 }}
           loading={loading}
+          onEdit={handleOpenModal}
+          onDelete={(row) => handleDelete(row.id!)}
+          toolbar={['search', 'excel', 'pdf']}
+          exportTitle="Menu_Yapisi"
         />
       </div>
 
@@ -335,9 +334,12 @@ export const MenuManagementPage = () => {
               </div>
 
               <div className={styles.checkboxRow}>
-                <label className={styles.customCheckbox}>
-                  <input type="checkbox" checked={formData.isVisible} onChange={e => setFormData({...formData, isVisible: e.target.checked})} />
-                  <span>Bu menü sol barda listelenmeye uygun (Aktif)</span>
+                <label className={styles.switchContainer}>
+                  <div className={styles.switch}>
+                    <input type="checkbox" checked={formData.isVisible} onChange={e => setFormData({...formData, isVisible: e.target.checked})} />
+                    <span className={styles.slider}></span>
+                  </div>
+                  <span className={styles.switchText}>Bu menü sol barda listelenmeye uygun (Aktif)</span>
                 </label>
               </div>
 

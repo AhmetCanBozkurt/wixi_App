@@ -32,8 +32,8 @@ export const LanguageManagementPage = () => {
   });
 
   const fetchLanguages = useCallback(async () => {
-    const res = await apiClient.get<Language[]>('language');
-    return res.data;
+    const res = await apiClient.get<{ items: Language[] }>('language');
+    return res.data.items || [];
   }, []);
 
   const handleOpenModal = (lang?: Language) => {
@@ -143,7 +143,11 @@ export const LanguageManagementPage = () => {
               title: 'Varsayılan',
               width: 120,
               template: (row) => row.isDefault ? <Badge variant="primary" size="sm" outline><FaCheck style={{ marginRight: '4px' }} /> Ana Dil</Badge> : null
-            }
+            },
+            { field: 'createdAt', title: 'Oluşturma', hidden: true, template: (row) => row.createdAt ? new Date(row.createdAt).toLocaleString() : '-' },
+            { field: 'createdByUser', title: 'Oluşturan', hidden: true },
+            { field: 'updatedAt', title: 'Güncelleme', hidden: true, template: (row) => row.updatedAt ? new Date(row.updatedAt).toLocaleString() : '-' },
+            { field: 'updatedByUser', title: 'Güncelleyen', hidden: true }
           ]}
           groupable={true}
           sortable={true}
@@ -152,6 +156,7 @@ export const LanguageManagementPage = () => {
           resizable={true}
           pageable={{ pageSize: 12 }}
           toolbar={['search', 'excel', 'pdf']}
+          exportTitle="Dil_Listesi"
           onEdit={handleOpenModal}
           onDelete={handleDelete}
         />

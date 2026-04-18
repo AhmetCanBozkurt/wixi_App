@@ -59,10 +59,12 @@ export interface GridOptions<T = any> {
   onDetail?: (row: T) => void;
   detailModal?: (row: T, onClose: () => void) => React.ReactNode;
   searchParams?: Record<string, any>;
+  exportTitle?: string;
 }
 
 // ─── Utility ───────────────────────────────────────────────────────────────
 function getNestedValue(obj: any, path: string): any {
+  if (!path) return undefined;
   return path.split('.').reduce((acc, p) => acc?.[p], obj);
 }
 
@@ -142,6 +144,7 @@ export function AdvancedDataTable<T extends Record<string, any>>(options: GridOp
     toolbar = [], height, onDataBound, onRowClick, onEdit, onDelete, detailModal,
     searchParams = {},
     onDetail,
+    exportTitle,
   } = options;
 
   const isRemote = typeof dataSource === 'string';
@@ -429,36 +432,58 @@ export function AdvancedDataTable<T extends Record<string, any>>(options: GridOp
 
   const handleExportExcel = () => {
     try {
-      const exportData = processedData.map(row => {
+      // Selection has priority
+      const baseData = selectedRows.size > 0 
+        ? processedData.filter(row => selectedRows.has(row.id ?? JSON.stringify(row)))
+        : processedData;
+
+      if (baseData.length === 0) {
+        toast.error("İçe aktarılacak veri bulunamadı!");
+        return;
+      }
+
+      const getImgSrc = (val: any) => {
+        if (!val || typeof val !== 'string') return null;
+        if (val.startsWith('data:image')) return val;
+        if (val.length > 100 && /^[A-Za-z0-9+/=]+$/.test(val)) return `data:image/jpeg;base64,${val}`;
+        return null;
+      };
+
+      const exportData = baseData.map(row => {
         const entry: any = {};
         activeCols.forEach(col => {
+          if (!col.field) return;
           const val = getNestedValue(row, col.field);
-          // If it's a base64 image, don't dump the text
-          entry[col.title] = String(val).startsWith('data:image') ? '[Görsel]' : val;
+          const imgSrc = getImgSrc(val);
+          entry[col.title] = imgSrc ? '[Görsel]' : (val ?? '-');
         });
         return entry;
       });
+
       const ws = XLSX.utils.json_to_sheet(exportData);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Data");
-      XLSX.writeFile(wb, "Export.xlsx");
+      const fileName = exportTitle || (typeof dataSource === 'string' ? dataSource : 'Export');
+      XLSX.writeFile(wb, `${fileName}.xlsx`);
+      
       toast.success(selectedRows.size > 0 ? `${selectedRows.size} seçili kayıt Excel'e aktarıldı.` : "Tüm liste Excel'e aktarıldı.");
       
       // Log export activity
       apiClient.post('/audit/log-activity', {
         action: 'EXPORT_EXCEL',
         tableName: isRemote ? String(dataSource) : 'ClientData',
-        details: `Kullanıcı ${processedData.length} kaydı Excel'e aktardı.`
+        details: `Kullanıcı ${baseData.length} kaydı Excel'e aktardı.`
       }).catch(() => {});
     } catch (error) {
       toast.error("Excel dışa aktarma hatası!");
     }
   };
 
-  const handleExportPDF = () => {
+  const handleExportPDF = async () => {
     try {
       const trCharFix = (str: string) => {
-        return str
+        if (!str) return '-';
+        return String(str)
           .replace(/ğ/g, 'g').replace(/Ğ/g, 'G')
           .replace(/ü/g, 'u').replace(/Ü/g, 'U')
           .replace(/ş/g, 's').replace(/Ş/g, 'S')
@@ -467,46 +492,99 @@ export function AdvancedDataTable<T extends Record<string, any>>(options: GridOp
           .replace(/ç/g, 'c').replace(/Ç/g, 'C');
       };
 
+      const svgToPng = (svgDataUri: string): Promise<string | null> => {
+        return new Promise((resolve) => {
+          const img = new Image();
+          img.crossOrigin = "anonymous";
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = 120; // Yeterli çözünürlük
+            canvas.height = 120;
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+              ctx.clearRect(0,0,120,120);
+              ctx.drawImage(img, 0, 0, 120, 120);
+              resolve(canvas.toDataURL('image/png'));
+            } else resolve(null);
+          };
+          img.onerror = () => resolve(null);
+          img.src = svgDataUri;
+        });
+      };
+
+      const getImgSrc = async (val: any) => {
+        if (!val || typeof val !== 'string') return null;
+        const cleanVal = val.trim().replace(/\s/g, '');
+        
+        if (cleanVal.startsWith('data:image')) {
+          if (cleanVal.includes('svg+xml')) {
+            return await svgToPng(cleanVal);
+          }
+          return cleanVal;
+        }
+        
+        if (cleanVal.length > 50 && /^[A-Za-z0-9+/=_ -]+$/.test(cleanVal)) {
+          return `data:image/jpeg;base64,${cleanVal}`;
+        }
+        return null;
+      };
+
+      // Selection has priority
       const baseData = selectedRows.size > 0 
         ? processedData.filter(row => selectedRows.has(row.id ?? JSON.stringify(row)))
         : processedData;
 
+      if (baseData.length === 0) {
+        toast.error("İçe aktarılacak veri bulunamadı!");
+        return;
+      }
+
       const doc = new jsPDF('l', 'mm', 'a4');
       
-      // We need to keep raw values for didDrawCell to check if it's an image
-      const tableBody = baseData.map(row => 
-        activeCols.map(col => {
-          const val = getNestedValue(row, col.field);
+      const tableBody = await Promise.all(baseData.map(async row => 
+        await Promise.all(activeCols.map(async col => {
+          const val = col.field ? getNestedValue(row, col.field) : undefined;
+          const imgSrc = await getImgSrc(val);
           return {
-            content: String(val).startsWith('data:image') ? '' : trCharFix(String(val || '-')),
-            raw: val
+            content: imgSrc ? '' : (String(val || '').length > 50 ? '[Görsel]' : trCharFix(String(val ?? '-'))),
+            raw: val,
+            imgSrc: imgSrc
           };
-        })
-      );
+        }))
+      ));
       
       const tableHeaders = activeCols.map(col => trCharFix(col.title));
 
       autoTable(doc, {
         head: [tableHeaders],
-        body: tableBody.map(r => r.map(c => c.content)), // Clean text for main body
+        body: tableBody.map(r => r.map(c => c.content)),
         theme: 'striped',
-        styles: { fontSize: 8, valign: 'middle' },
-        headStyles: { fillColor: [0, 242, 254], textColor: [0, 0, 0] },
+        styles: { fontSize: 8, valign: 'middle', minCellHeight: 14 },
+        columnStyles: {
+            0: { cellWidth: 20 } // İlk sütun (genelde resim) için sabit genişlik denenebilir
+        },
+        headStyles: { fillColor: [37, 99, 235], textColor: [255, 255, 255] },
         didDrawCell: (data) => {
           if (data.section === 'body') {
-            const rawValue = tableBody[data.row.index][data.column.index].raw;
-            if (String(rawValue).startsWith('data:image')) {
-              try {
-                // Draw miniature image in the center of the cell
-                doc.addImage(String(rawValue), 'PNG', data.cell.x + 2, data.cell.y + 2, 6, 6);
-              } catch (e) {
-                // fallback if image is corrupted
+            const rowData = tableBody[data.row.index];
+            if (rowData) {
+              const cellData = rowData[data.column.index];
+              if (cellData && cellData.imgSrc) {
+                try {
+                  const format = cellData.imgSrc.includes('png') ? 'PNG' : 
+                                 cellData.imgSrc.includes('webp') ? 'WEBP' : 'JPEG';
+                  doc.addImage(cellData.imgSrc, format, data.cell.x + 3, data.cell.y + 2, 10, 10);
+                } catch (e) {
+                  // Resim hatası durumunda sessiz kal
+                }
               }
             }
           }
         }
       });
-      doc.save("Export.pdf");
+
+      const fileName = exportTitle || (typeof dataSource === 'string' ? dataSource : 'Export');
+      doc.save(`${fileName}.pdf`);
       toast.success(selectedRows.size > 0 ? `${selectedRows.size} seçili kayıt PDF'e aktarıldı.` : "Tüm liste PDF'e aktarıldı.");
 
       // Log export activity

@@ -49,7 +49,7 @@ public class LanguageController : ControllerBase
             }
         }
         var result = await _mediator.Send(new GetLanguagesQuery());
-        return Ok(result);
+        return Ok(new { items = result });
     }
 
     [HttpPost]

@@ -61,13 +61,14 @@ public class AuditController : ControllerBase
                 l.AffectedColumns,
                 l.Details,
                 l.IpAddress,
+                l.UserAgent,
                 l.CreatedAt,
                 l.FullName,
                 Email = l.Email ?? "System"
             })
             .ToListAsync();
 
-        return Ok(logs);
+        return Ok(new { items = logs });
     }
 
     [HttpGet("stats")]

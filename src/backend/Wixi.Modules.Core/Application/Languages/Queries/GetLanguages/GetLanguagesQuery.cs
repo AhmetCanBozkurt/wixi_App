@@ -33,7 +33,11 @@ public class GetLanguagesQueryHandler : IRequestHandler<GetLanguagesQuery, List<
             IconBase64 = l.IconData != null && l.IconMimeType != null 
                 ? $"data:{l.IconMimeType};base64,{Convert.ToBase64String(l.IconData)}" 
                 : (l.IconData != null ? $"data:image/png;base64,{Convert.ToBase64String(l.IconData)}" : null),
-            IsActive = l.IsActive
+            IsActive = l.IsActive,
+            CreatedAt = l.CreatedAt,
+            CreatedByUser = l.CreatedByUser,
+            UpdatedAt = l.UpdatedAt,
+            UpdatedByUser = l.UpdatedByUser
         }).ToList();
     }
 }

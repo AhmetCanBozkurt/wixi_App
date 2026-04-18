@@ -1,3 +1,5 @@
+using Wixi.Shared.Application.Dto;
+
 namespace Wixi.Modules.Core.Application.Navigation.Dto;
 
 public class MenuTranslationDto
@@ -6,7 +8,7 @@ public class MenuTranslationDto
     public string Title { get; set; } = string.Empty;
 }
 
-public class MenuEditDto
+public class MenuEditDto : AuditableDto
 {
     public Guid? Id { get; set; }
     public Guid UserId { get; set; }

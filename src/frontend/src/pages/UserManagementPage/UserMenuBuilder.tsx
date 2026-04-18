@@ -32,6 +32,7 @@ const SYSTEM_PAGES = [
   { name: 'Dil Yönetimi', path: '/admin/languages' },
   { name: 'Uygulama Logları (App Logs)', path: '/admin/logs' },
   { name: 'Sistem Değişiklik Logları (Audit)', path: '/admin/audit' },
+  { name: 'Mail Yönetimi', path: '/admin/mailing' },
   { name: 'UI Tasarım Vitrini (Showcase)', path: '/admin/ui-showcase' },
 ];
 
@@ -66,9 +67,10 @@ export const UserMenuBuilder = forwardRef<{ syncHierarchy: () => void }, UserMen
 
   const fetchLanguages = useCallback(async () => {
     try {
-      const resp = await apiClient.get<Language[]>('language');
-      setLanguages(resp.data);
-      return resp.data;
+      const resp = await apiClient.get<{ items: Language[] }>('language');
+      const data = resp.data.items || [];
+      setLanguages(data);
+      return data;
     } catch {
       toast.error('Diller yüklenemedi');
       return [];
@@ -77,9 +79,10 @@ export const UserMenuBuilder = forwardRef<{ syncHierarchy: () => void }, UserMen
 
   const fetchUserMenus = useCallback(async (currentLangs: Language[]) => {
     try {
-      const menusRes = await apiClient.get<any[]>(`usermanagement/users/${userId}/menus`);
+      const menusRes = await apiClient.get<{ items: any[] }>(`usermanagement/users/${userId}/menus`);
+      const menus = menusRes.data.items || [];
       
-      const mapped = menusRes.data.map(m => {
+      const mapped = menus.map(m => {
         const displayTitles = m.titles || {};
         const displayTitle = displayTitles['tr-TR'] || displayTitles['tr'] || Object.values(displayTitles)[0] || m.path || 'İsimsiz';
         
@@ -414,7 +417,7 @@ export const UserMenuBuilder = forwardRef<{ syncHierarchy: () => void }, UserMen
 
       {/* --- ICON PICKER --- */}
       {isIconPickerOpen && (
-        <div className={styles.modalOverlay} style={{ zIndex: 1200 }} onClick={() => setIsIconPickerOpen(false)}>
+        <div className={styles.modalOverlay} style={{ zIndex: 12000 }} onClick={() => setIsIconPickerOpen(false)}>
            <div className={styles.pickerModal} onClick={e => e.stopPropagation()}>
               <div className={styles.modalHeader}>
                  <div className={styles.searchWrap}>

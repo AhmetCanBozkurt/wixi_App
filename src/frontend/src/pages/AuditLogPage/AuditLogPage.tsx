@@ -29,8 +29,8 @@ export const AuditLogPage = () => {
   const fetchLogs = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await apiClient.get<AuditLog[]>('audit');
-      setLogs(res.data);
+      const res = await apiClient.get<{ items: AuditLog[] }>('audit');
+      setLogs(res.data.items || []);
     } catch {
       toast.error('Girişler yüklenirken hata oluştu');
     } finally {
@@ -132,6 +132,7 @@ export const AuditLogPage = () => {
           reorderable={true}
           pageable={{ pageSize: 15 }}
           toolbar={['search', 'excel', 'pdf']}
+          exportTitle="Denetim_Gunlukleri"
           onDetail={(row) => setSelectedLog(row)}
         />
       </div>

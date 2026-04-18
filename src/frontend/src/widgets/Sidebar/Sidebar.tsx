@@ -59,8 +59,8 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse }: SidebarProps) => {
   // Fetch menus from API
   const fetchMenus = async () => {
     try {
-      const res = await apiClient.get<MenuItemDto[]>('menu/sidebar');
-      setMenus(res.data);
+      const res = await apiClient.get<{ items: MenuItemDto[] }>('menu/sidebar');
+      setMenus(res.data.items || []);
     } catch (error) {
       console.error('Menu fetch error:', error);
     } finally {

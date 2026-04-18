@@ -217,6 +217,7 @@ export const ApplicationLogsPage = () => {
       },
     },
     {
+      field: 'details',
       title: 'DETAY / DEĞİŞİM ÖZETİ',
       width: 380, // Reduced from 450
       template: (row: AuditLogItem) => <ChangeSummary item={row} />,
@@ -271,6 +272,7 @@ export const ApplicationLogsPage = () => {
           columns={columns}
           pageable={{ pageSize: 15 }}
           toolbar={['search', 'excel', 'pdf']}
+          exportTitle="Sistem_Loglari"
           resizable={true}
           sortable={true}
           groupable={true}

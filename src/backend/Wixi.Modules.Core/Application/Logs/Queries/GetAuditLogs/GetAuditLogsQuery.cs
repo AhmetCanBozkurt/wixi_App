@@ -28,5 +28,7 @@ public class AuditLogDto
     public string? EntityId { get; set; }
     public string? Email { get; set; }
     public string? IpAddress { get; set; }
+    public string? UserAgent { get; set; }
+    public string? TableName { get; set; }
     public DateTime CreatedAt { get; set; }
 }

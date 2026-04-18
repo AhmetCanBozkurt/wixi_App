@@ -97,7 +97,89 @@ public static class SeedData
             mSet.Translations.Add(new WixiMenuTranslation { LanguageId = tr.Id, Title = "Uygulama Ayarları" });
             mSet.Translations.Add(new WixiMenuTranslation { LanguageId = en.Id, Title = "App Settings" });
 
-            await context.Menus.AddRangeAsync(mDash, mMenu, mLogs, mChat, mDev, mSet);
+            // Mail Operations
+            var mMail = new WixiMenu { UserId = adminUser.Id, Path = "/admin/mailing", Icon = "FaMailBulk", IconColor = "#2563eb", SortOrder = 7 };
+            mMail.Translations.Add(new WixiMenuTranslation { LanguageId = tr.Id, Title = "Mail Yönetimi" });
+            mMail.Translations.Add(new WixiMenuTranslation { LanguageId = en.Id, Title = "Mail Management" });
+
+            await context.Menus.AddRangeAsync(mDash, mMenu, mLogs, mChat, mDev, mSet, mMail);
+            await context.SaveChangesAsync();
+        }
+        else
+        {
+            // Ensure Mailing menu exists even if other menus are present
+            var adminUser = await userManager.FindByEmailAsync(adminEmail);
+            if (adminUser != null && !await context.Menus.AnyAsync(m => m.Path == "/admin/mailing"))
+            {
+                var tr = await context.Languages.FirstAsync(l => l.Code == "tr-TR");
+                var en = await context.Languages.FirstAsync(l => l.Code == "en-US");
+
+                var mMail = new WixiMenu { UserId = adminUser.Id, Path = "/admin/mailing", Icon = "FaMailBulk", IconColor = "#2563eb", SortOrder = 7 };
+                mMail.Translations.Add(new WixiMenuTranslation { LanguageId = tr.Id, Title = "Mail Yönetimi" });
+                mMail.Translations.Add(new WixiMenuTranslation { LanguageId = en.Id, Title = "Mail Management" });
+
+                await context.Menus.AddAsync(mMail);
+                await context.SaveChangesAsync();
+            }
+        }
+
+        // 5. Mail Templates
+        if (!await context.MailTemplates.AnyAsync())
+        {
+            var welcomeTemplate = new WixiMailTemplate
+            {
+                Code = "WELCOME_EMAIL",
+                Subject = "Wixi'ye Hoş Geldiniz! 🚀",
+                Body = @"<div style=""font-family: sans-serif; padding: 20px; color: #333;"">
+                            <h2 style=""color: #2563eb;"">Merhaba {{ fullName }},</h2>
+                            <p>Wixi platformuna hoş geldiniz. Hesabınız başarıyla oluşturulmuştur.</p>
+                            <p>Giriş e-posta adresiniz: <strong>{{ email }}</strong></p>
+                            <p>Platformumuzu güvenle ve keyifle kullanmanızı dileriz.</p>
+                            <br/>
+                            <p style=""font-size: 0.9em; color: #666;"">Saygılarımızla,<br/><strong>Wixi Ekibi</strong></p>
+                        </div>",
+                Category = "System, Auth",
+                IsActive = true
+            };
+
+            var resetPasswordTemplate = new WixiMailTemplate
+            {
+                Code = "PASSWORD_RESET",
+                Subject = "Wixi Şifre Sıfırlama Talebi",
+                Body = @"<div style=""font-family: sans-serif; padding: 20px; color: #333;"">
+                            <h2>Merhaba {{ fullName }},</h2>
+                            <p>Hesabınız için bir şifre sıfırlama talebi aldık.</p>
+                            <p>Şifrenizi güvenli bir şekilde sıfırlamak için lütfen aşağıdaki butona tıklayın:</p>
+                            <p style=""margin: 20px 0;"">
+                                <a href=""{{ resetLink }}"" style=""display: inline-block; padding: 12px 24px; background-color: #2563eb; color: #fff; text-decoration: none; border-radius: 6px; font-weight: bold;"">Şifremi Sıfırla</a>
+                            </p>
+                            <p style=""font-size: 0.9em; color: #666;"">Eğer bu talebi siz yapmadıysanız, hesabınız güvendedir ve bu e-postayı dikkate almayabilirsiniz.</p>
+                            <br/>
+                            <p style=""font-size: 0.9em; color: #666;"">Saygılarımızla,<br/><strong>Wixi Ekibi</strong></p>
+                        </div>",
+                Category = "Auth",
+                IsActive = true
+            };
+
+            var twoFactorAuthTemplate = new WixiMailTemplate
+            {
+                Code = "TWO_FACTOR_AUTH",
+                Subject = "Wixi İki Aşamalı Doğrulama (2FA) Kodunuz",
+                Body = @"<div style=""font-family: sans-serif; padding: 20px; color: #333;"">
+                            <h2>Merhaba {{ fullName }},</h2>
+                            <p>Hesabınıza giriş yapmak için güvenlik kodunuz oluşturulmuştur. Lütfen aşağıdaki tek kullanımlık kodu doğrulama ekranına girin:</p>
+                            <div style=""margin: 20px 0; text-align: center;"">
+                                <h1 style=""letter-spacing: 8px; color: #10b981; background: #f0fdf4; padding: 20px; border-radius: 8px; display: inline-block; border: 1px solid #bbf7d0; margin: 0;"">{{ code }}</h1>
+                            </div>
+                            <p style=""color: #ef4444; font-size: 0.9em;""><strong>Dikkat:</strong> Bu kod 5 dakika boyunca geçerlidir. Güvenliğiniz için bu kodu şirket çalışanları dahil kimseyle paylaşmayınız.</p>
+                            <br/>
+                            <p style=""font-size: 0.9em; color: #666;"">Saygılarımızla,<br/><strong>Wixi Ekibi</strong></p>
+                        </div>",
+                Category = "Auth, Security",
+                IsActive = true
+            };
+
+            await context.MailTemplates.AddRangeAsync(welcomeTemplate, resetPasswordTemplate, twoFactorAuthTemplate);
             await context.SaveChangesAsync();
         }
     }

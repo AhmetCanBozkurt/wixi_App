@@ -10,7 +10,7 @@
   border: 1px solid var(--border-glass);
   border-radius: var(--radius-lg);
   overflow: hidden;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-sm);
 }
 
 /* ── Toolbar ──────────────────────────────────────────── */

@@ -503,6 +503,7 @@ export const ComponentShowcasePage: React.FC = () => {
                         selectable={true}
                         pageable={{ pageSize: 10 }}
                         toolbar={['search', 'excel', 'pdf']}
+                        exportTitle="Showcase_Export"
                     />
                 </Card>
             </section>

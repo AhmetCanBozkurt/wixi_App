@@ -1,0 +1,37 @@
+[
+  {
+    "id": "TC001",
+    "title": "post api v1 auth login with valid credentials",
+    "description": "Test POST /api/v1/Auth/login with valid user credentials to verify successful authentication, receiving a 200 status, a JWT access token in the response body, and a secure HTTP-Only refresh token cookie set."
+  },
+  {
+    "id": "TC002",
+    "title": "post api v1 auth register with valid new user",
+    "description": "Test POST /api/v1/Auth/register with a valid new user payload to verify user creation, receiving a 201 Created response with the created user id, and subsequent login with these credentials returns a 200 with JWT token."
+  },
+  {
+    "id": "TC003",
+    "title": "get api v1 auth me with valid token",
+    "description": "Test GET /api/v1/Auth/me with a valid Authorization Bearer token to verify retrieval of the current authenticated user details with a 200 response."
+  },
+  {
+    "id": "TC004",
+    "title": "get api v1 menu sidebar with valid authorization",
+    "description": "Test GET /api/v1/Menu/sidebar with a valid Authorization Bearer token to verify the response returns a 200 status and sidebar menu JSON filtered by the user's roles and permissions."
+  },
+  {
+    "id": "TC005",
+    "title": "get api v1 menu all with admin authorization",
+    "description": "Test GET /api/v1/Menu/all with a valid admin Authorization Bearer token to verify the response returns a 200 status and the full list of menus for administrative management and export."
+  },
+  {
+    "id": "TC006",
+    "title": "get api v1 usermanagement users with admin authorization",
+    "description": "Test GET /api/v1/UserManagement/users with a valid admin Authorization Bearer token to verify the response returns a 200 status with a paged list of users including role and menu assignment metadata."
+  },
+  {
+    "id": "TC007",
+    "title": "get api v1 audit with valid filters and admin authorization",
+    "description": "Test GET /api/v1/Audit with valid start and end date filters and a valid admin Authorization Bearer token to verify the response returns a 200 status with filtered audit entries including IP address, user-agent, action, and timestamps."
+  }
+]
