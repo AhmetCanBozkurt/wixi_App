@@ -58,7 +58,7 @@ public class UserManagementController : ControllerBase
     public async Task<IActionResult> GetUserMenus(Guid id)
     {
         var result = await _mediator.Send(new GetUserMenusQuery(id));
-        return Ok(result);
+        return Ok(new { items = result });
     }
 
     [HttpPost("users/{id}/menus/sync")]

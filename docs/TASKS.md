@@ -42,7 +42,13 @@ Buradaki görevler otonom asistan (Antigravity) tarafından projenin fazlarına 
 *Amacımız; diğer tüm modüllerin kullanacağı Loglama, Dosya yükleme ve E-Posta atma gibi standart servisleri projeye entegre etmektir.*
 
 - `[ ]` **Backend:** Kurumsal Loglama altyapısının (Serilog) kurulması, DB Log sink entegrasyonu. [[WIX-25](https://linear.app/wixisoftware/issue/WIX-25/faz-3-serilog-ve-db-log-sink-entegrasyonu)]
-- `[ ]` **Backend:** Merkezi Mail Servisi (`WIXI_MAIL_QUEUE`) altyapısının oluşturulması. [[WIX-26](https://linear.app/wixisoftware/issue/WIX-26/faz-3-merkezi-mail-servisi-altyapisi)]
+- `[ ]` **Backend:** Dinamik Mail Servisi ve Şablon Yönetimi Altyapısı.
+    - `[ ]` `WIXI_MAIL_TEMPLATES` ve `WIXI_MAIL_LOGS` tablolarının modellenmesi.
+    - `[ ]` `Scriban` template engine entegrasyonu ve dinamik yer tutucu (placeholder) sistemi.
+    - `[ ]` Arkaplan mail kuyruğu (Background Worker) ve SMTP entegrasyonu.
+- `[ ]` **Frontend:** Mail Şablon Yönetimi Sayfası.
+    - `[ ]` Şablon listeleme ve "Rich Text / HTML Editor" entegrasyonu.
+    - `[ ]` Dinamik placeholder yardımcısı ve önizleme (preview) modu.
 - `[ ]` **Backend:** Merkezi Dosya Servisi (`WIXI_FILES`) - (Azure Blob / S3 veya local storage). [[WIX-27](https://linear.app/wixisoftware/issue/WIX-27/faz-3-merkezi-dosya-servisi-file-storage)]
 - `[x]` **Frontend:** Resim yükleme, Cropper ve Drag&Drop bileşenlerinin eklenmesi. [[WIX-28](https://linear.app/wixisoftware/issue/WIX-28/faz-3-imageupload-cropper-ve-draganddrop-ui-bilesenleri)]
 

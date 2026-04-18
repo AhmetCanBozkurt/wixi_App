@@ -66,9 +66,10 @@ export const UserMenuBuilder = forwardRef<{ syncHierarchy: () => void }, UserMen
 
   const fetchLanguages = useCallback(async () => {
     try {
-      const resp = await apiClient.get<Language[]>('language');
-      setLanguages(resp.data);
-      return resp.data;
+      const resp = await apiClient.get<{ items: Language[] }>('language');
+      const data = resp.data.items || [];
+      setLanguages(data);
+      return data;
     } catch {
       toast.error('Diller yüklenemedi');
       return [];
@@ -77,9 +78,10 @@ export const UserMenuBuilder = forwardRef<{ syncHierarchy: () => void }, UserMen
 
   const fetchUserMenus = useCallback(async (currentLangs: Language[]) => {
     try {
-      const menusRes = await apiClient.get<any[]>(`usermanagement/users/${userId}/menus`);
+      const menusRes = await apiClient.get<{ items: any[] }>(`usermanagement/users/${userId}/menus`);
+      const menus = menusRes.data.items || [];
       
-      const mapped = menusRes.data.map(m => {
+      const mapped = menus.map(m => {
         const displayTitles = m.titles || {};
         const displayTitle = displayTitles['tr-TR'] || displayTitles['tr'] || Object.values(displayTitles)[0] || m.path || 'İsimsiz';
         
