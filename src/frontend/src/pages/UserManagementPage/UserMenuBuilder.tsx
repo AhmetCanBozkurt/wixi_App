@@ -32,6 +32,7 @@ const SYSTEM_PAGES = [
   { name: 'Dil Yönetimi', path: '/admin/languages' },
   { name: 'Uygulama Logları (App Logs)', path: '/admin/logs' },
   { name: 'Sistem Değişiklik Logları (Audit)', path: '/admin/audit' },
+  { name: 'Mail Yönetimi', path: '/admin/mailing' },
   { name: 'UI Tasarım Vitrini (Showcase)', path: '/admin/ui-showcase' },
 ];
 

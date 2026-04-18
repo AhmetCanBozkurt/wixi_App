@@ -22,6 +22,9 @@ public class WixiCoreDbContext : IdentityDbContext<WixiUser, WixiRole, Guid>
     public DbSet<WixiLanguage> Languages { get; set; }
     public DbSet<WixiMenu> Menus { get; set; }
     public DbSet<WixiMenuTranslation> MenuTranslations { get; set; }
+    public DbSet<WixiMailTemplate> MailTemplates { get; set; }
+    public DbSet<WixiMailLog> MailLogs { get; set; }
+    public DbSet<WixiSmtpSetting> SmtpSettings { get; set; }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
@@ -263,6 +266,37 @@ public class WixiCoreDbContext : IdentityDbContext<WixiUser, WixiRole, Guid>
             entity.HasOne(e => e.Language)
                   .WithMany()
                   .HasForeignKey(e => e.LanguageId);
+        });
+
+        // Mail Templates Mapping
+        builder.Entity<WixiMailTemplate>(entity =>
+        {
+            entity.ToTable("WIXI_MAIL_TEMPLATES");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Code).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.Subject).IsRequired().HasMaxLength(500);
+            entity.Property(e => e.Category).HasMaxLength(100);
+        });
+
+        // Mail Logs Mapping
+        builder.Entity<WixiMailLog>(entity =>
+        {
+            entity.ToTable("WIXI_MAIL_LOGS");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Recipient).IsRequired().HasMaxLength(255);
+            entity.Property(e => e.Subject).HasMaxLength(500);
+            entity.Property(e => e.TemplateCode).HasMaxLength(100);
+        });
+
+        // SMTP Settings Mapping
+        builder.Entity<WixiSmtpSetting>(entity =>
+        {
+            entity.ToTable("WIXI_SMTP_SETTINGS");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Server).IsRequired().HasMaxLength(255);
+            entity.Property(e => e.Username).HasMaxLength(255);
+            entity.Property(e => e.SenderName).HasMaxLength(255);
+            entity.Property(e => e.SenderEmail).IsRequired().HasMaxLength(255);
         });
     }
 

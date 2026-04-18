@@ -9,6 +9,7 @@ import { MenuManagementPage } from '../pages/MenuManagementPage/MenuManagementPa
 import { UserManagementPage } from '../pages/UserManagementPage/UserManagementPage';
 import { AuditLogPage } from '../pages/AuditLogPage/AuditLogPage';
 import { ComponentShowcasePage } from '../pages/ComponentShowcasePage/ComponentShowcasePage';
+import { MailingManagementPage } from '../features/MailingManagement/pages/MailingManagementPage';
 import { useAuthStore } from '../entities/User/model/store';
 
 const DashboardHome = () => {
@@ -47,6 +48,7 @@ const App = () => {
               <Route path="admin/menus" element={<MenuManagementPage />} />
                <Route path="admin/users" element={<UserManagementPage />} />
               <Route path="admin/audit" element={<AuditLogPage />} />
+              <Route path="admin/mailing" element={<MailingManagementPage />} />
               <Route path="admin/ui-showcase" element={<ComponentShowcasePage />} />
             </Route>
           </Route>

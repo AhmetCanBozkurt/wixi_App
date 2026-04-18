@@ -1,0 +1,297 @@
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+  backdrop-filter: blur(2px);
+}
+
+.standardModal {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-glass);
+  width: 100%;
+  max-width: 900px;
+  border-radius: 8px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+  animation: modalFade 0.2s ease-out;
+}
+
+@keyframes modalFade {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.modalHeader {
+  padding: 20px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-glass);
+  background: var(--surface-glass);
+}
+
+.modalHeader h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: color 0.2s;
+  padding: 8px;
+  border-radius: 50%;
+}
+
+.closeBtn:hover {
+  color: var(--text-main);
+  background: var(--surface-glass-hover);
+}
+
+.modalBody {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.formLabel {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.formInput {
+  width: 100%;
+  border: 1px solid var(--border-glass);
+  border-radius: 6px;
+  padding: 10px 12px;
+  background: var(--bg-primary);
+  color: var(--text-main);
+  font-size: 0.875rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.formInput:focus {
+  border-color: var(--color-primary);
+}
+
+.editorTabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+  background: var(--bg-secondary);
+  padding: 4px;
+  border-radius: 8px;
+  border: 1px solid var(--border-glass);
+}
+
+.editorTab {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.editorTab:hover {
+  color: var(--text-main);
+  background: var(--surface-glass-hover);
+}
+
+.editorTab.active {
+  background: var(--surface);
+  color: var(--color-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.quillWrapper {
+  border: 1px solid var(--border-glass);
+  border-radius: 6px;
+  overflow: hidden;
+  background: #fff; /* Ensure quill editor has a white background for readability */
+  color: #000;
+}
+
+/* Ensure quill editor has proper height */
+.quillWrapper > div:last-child {
+  height: 300px;
+}
+
+.sourceWrapper {
+  border: 1px solid var(--border-glass);
+  border-radius: 6px;
+  overflow: hidden;
+  height: 342px; /* Similar height to Quill with toolbar */
+}
+
+.sourceCodeArea {
+  width: 100%;
+  height: 100%;
+  padding: 16px;
+  font-family: monospace;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  background: #1e1e1e;
+  color: #d4d4d4;
+  border: none;
+  resize: none;
+  outline: none;
+}
+
+.previewWrapper {
+  border: 1px solid var(--border-glass);
+  border-radius: 6px;
+  height: 342px;
+  overflow-y: auto;
+  background: #ffffff; /* Typically mail backgrounds are white */
+  color: #000000;
+  padding: 20px;
+}
+
+.checkboxRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 10px 0;
+}
+
+.switchContainer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.switchText {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-main);
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-glass);
+  transition: .3s;
+  border-radius: 24px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 2px;
+  bottom: 2px;
+  background-color: var(--text-muted);
+  transition: .3s;
+  border-radius: 50%;
+  box-shadow: var(--shadow-sm);
+}
+
+input:checked + .slider {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+input:checked + .slider:before {
+  transform: translateX(20px);
+  background-color: #ffffff;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px var(--color-primary);
+}
+
+.modalFooter {
+  padding: 16px 24px;
+  border-top: 1px solid var(--border-glass);
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  background: var(--surface-glass);
+}
+
+.btnCancel {
+  padding: 8px 20px;
+  border-radius: 6px;
+  background: transparent;
+  border: 1px solid var(--border-glass);
+  color: var(--text-main);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btnCancel:hover { background: var(--surface-glass-hover); }
+
+.btnSave {
+  padding: 8px 20px;
+  border-radius: 6px;
+  background: var(--color-primary);
+  border: none;
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.2s;
+}
+.btnSave:hover { background: #2563eb; }

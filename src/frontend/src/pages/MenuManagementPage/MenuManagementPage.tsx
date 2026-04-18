@@ -36,6 +36,7 @@ const SYSTEM_PAGES = [
   { name: 'Kullanıcı Yönetimi', path: '/admin/users' },
   { name: 'Dil Yönetimi', path: '/admin/languages' },
   { name: 'Uygulama Logları', path: '/admin/logs' },
+  { name: 'Mail Yönetimi', path: '/admin/mailing' },
   { name: 'Chat İşlemleri', path: '/chat' },
   { name: 'Bağlı Cihazlar', path: '/devices' },
   { name: 'Ayarlar', path: '/settings' },
@@ -333,9 +334,12 @@ export const MenuManagementPage = () => {
               </div>
 
               <div className={styles.checkboxRow}>
-                <label className={styles.customCheckbox}>
-                  <input type="checkbox" checked={formData.isVisible} onChange={e => setFormData({...formData, isVisible: e.target.checked})} />
-                  <span>Bu menü sol barda listelenmeye uygun (Aktif)</span>
+                <label className={styles.switchContainer}>
+                  <div className={styles.switch}>
+                    <input type="checkbox" checked={formData.isVisible} onChange={e => setFormData({...formData, isVisible: e.target.checked})} />
+                    <span className={styles.slider}></span>
+                  </div>
+                  <span className={styles.switchText}>Bu menü sol barda listelenmeye uygun (Aktif)</span>
                 </label>
               </div>
 

@@ -42,6 +42,15 @@ builder.Services.AddDbContext<WixiCoreDbContext>(options =>
 
 // Services
 builder.Services.AddScoped<Wixi.Modules.Core.Application.Common.Interfaces.ICurrentUserService, Wixi.Modules.Core.Infrastructure.Services.CurrentUserService>();
+builder.Services.AddSingleton<Wixi.Modules.Core.Application.Common.Interfaces.IMailTemplateEngine, Wixi.Modules.Core.Infrastructure.Services.MailTemplateEngine>();
+builder.Services.AddScoped<Wixi.Modules.Core.Application.Common.Interfaces.IMailService, Wixi.Modules.Core.Infrastructure.Services.MailService>();
+builder.Services.AddSingleton<Wixi.Modules.Core.Application.Common.Interfaces.IMailQueue, Wixi.Modules.Core.Application.Common.Interfaces.MailQueue>();
+
+// Background Workers
+builder.Services.AddHostedService<Wixi.Modules.Core.Infrastructure.Services.MailingBackgroundWorker>();
+
+// Mail Configuration
+builder.Services.Configure<MailOptions>(builder.Configuration.GetSection(MailOptions.SectionName));
 
 // Configure Identity
 builder.Services.AddIdentity<WixiUser, WixiRole>(options => {

@@ -42,13 +42,15 @@ Buradaki görevler otonom asistan (Antigravity) tarafından projenin fazlarına 
 *Amacımız; diğer tüm modüllerin kullanacağı Loglama, Dosya yükleme ve E-Posta atma gibi standart servisleri projeye entegre etmektir.*
 
 - `[ ]` **Backend:** Kurumsal Loglama altyapısının (Serilog) kurulması, DB Log sink entegrasyonu. [[WIX-25](https://linear.app/wixisoftware/issue/WIX-25/faz-3-serilog-ve-db-log-sink-entegrasyonu)]
-- `[ ]` **Backend:** Dinamik Mail Servisi ve Şablon Yönetimi Altyapısı.
-    - `[ ]` `WIXI_MAIL_TEMPLATES` ve `WIXI_MAIL_LOGS` tablolarının modellenmesi.
-    - `[ ]` `Scriban` template engine entegrasyonu ve dinamik yer tutucu (placeholder) sistemi.
-    - `[ ]` Arkaplan mail kuyruğu (Background Worker) ve SMTP entegrasyonu.
-- `[ ]` **Frontend:** Mail Şablon Yönetimi Sayfası.
-    - `[ ]` Şablon listeleme ve "Rich Text / HTML Editor" entegrasyonu.
-    - `[ ]` Dinamik placeholder yardımcısı ve önizleme (preview) modu.
+- `[x]` **Backend:** Dinamik Mail Servisi ve Şablon Yönetimi Altyapısı.
+    - `[x]` `WIXI_MAIL_TEMPLATES` ve `WIXI_MAIL_LOGS` tablolarının modellenmesi. [[WIX-44](https://linear.app/wixisoftware/issue/WIX-44/backend-mailing-db-schema-and-auditable-entities)]
+    - `[x]` `Scriban` template engine entegrasyonu ve dinamik yer tutucu (placeholder) sistemi. [[WIX-45](https://linear.app/wixisoftware/issue/WIX-45/backend-scriban-template-engine-integration)]
+    - `[x]` Arkaplan mail kuyruğu (Background Worker) ve SMTP entegrasyonu. [[WIX-46](https://linear.app/wixisoftware/issue/WIX-46/backend-mail-dispatch-service-and-background-queue)]
+- `[x]` **Frontend:** Mail Şablon Yönetimi Sayfası.
+    - `[x]` Mail modülü mimarisi ve rotalama kurulumu. [[WIX-47](https://linear.app/wixisoftware/issue/WIX-47/frontend-mailing-module-architecture-and)]
+    - `[x]` Şablon listeleme ve "Rich Text / HTML Editor" entegrasyonu. [[WIX-48](https://linear.app/wixisoftware/issue/WIX-48/frontend-template-editor-and-html)]
+    - `[x]` Dinamik placeholder yardımcısı ve önizleme (preview) modu.
+    - `[x]` Mail Logları ve İzleme Dashboard'u. [[WIX-49](https://linear.app/wixisoftware/issue/WIX-49/frontend-mailing-logs-and-monitoring-dashboard)]
 - `[ ]` **Backend:** Merkezi Dosya Servisi (`WIXI_FILES`) - (Azure Blob / S3 veya local storage). [[WIX-27](https://linear.app/wixisoftware/issue/WIX-27/faz-3-merkezi-dosya-servisi-file-storage)]
 - `[x]` **Frontend:** Resim yükleme, Cropper ve Drag&Drop bileşenlerinin eklenmesi. [[WIX-28](https://linear.app/wixisoftware/issue/WIX-28/faz-3-imageupload-cropper-ve-draganddrop-ui-bilesenleri)]
 
