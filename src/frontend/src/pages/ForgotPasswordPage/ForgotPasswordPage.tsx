@@ -24,9 +24,12 @@ export const ForgotPasswordPage = () => {
   const onSubmit = async (data: FormData) => {
     setIsLoading(true);
     try {
-      await apiClient.post('/Auth/forgot-password', data);
+      const res = await apiClient.post<{ message?: string }>('/Auth/forgot-password', data);
       setSent(true);
-      toast.success('Eğer bu e-posta ile bir hesap varsa, sıfırlama bağlantısı gönderildi.');
+      toast.success(
+        res.data?.message ??
+          'Eğer bu e-posta ile bir hesap varsa, sıfırlama bağlantısı gönderildi.'
+      );
     } catch {
       toast.error('İşlem sırasında hata oluştu.');
     } finally {

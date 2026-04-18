@@ -23,6 +23,23 @@ export const MailingManagementPage: React.FC = () => {
     loadData();
   }, []);
 
+  useEffect(() => {
+    // Keep logs fresh when user opens the tab
+    const refreshLogs = async () => {
+      if (activeTab !== 'logs') return;
+      try {
+        setIsLoading(true);
+        const lData = await mailingApi.getLogs();
+        setLogs(lData);
+      } catch {
+        toast.error('Gönderim geçmişi alınamadı');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    refreshLogs();
+  }, [activeTab]);
+
   const loadData = async () => {
     setIsLoading(true);
     try {

@@ -102,7 +102,12 @@ public static class SeedData
             mMail.Translations.Add(new WixiMenuTranslation { LanguageId = tr.Id, Title = "Mail Yönetimi" });
             mMail.Translations.Add(new WixiMenuTranslation { LanguageId = en.Id, Title = "Mail Management" });
 
-            await context.Menus.AddRangeAsync(mDash, mMenu, mLogs, mChat, mDev, mSet, mMail);
+            // Role Management
+            var mRole = new WixiMenu { UserId = adminUser.Id, Path = "/admin/roles", Icon = "FaUserShield", IconColor = "#ef4444", SortOrder = 8 };
+            mRole.Translations.Add(new WixiMenuTranslation { LanguageId = tr.Id, Title = "Rol Yönetimi" });
+            mRole.Translations.Add(new WixiMenuTranslation { LanguageId = en.Id, Title = "Role Management" });
+
+            await context.Menus.AddRangeAsync(mDash, mMenu, mLogs, mChat, mDev, mSet, mMail, mRole);
             await context.SaveChangesAsync();
         }
         else
@@ -119,6 +124,19 @@ public static class SeedData
                 mMail.Translations.Add(new WixiMenuTranslation { LanguageId = en.Id, Title = "Mail Management" });
 
                 await context.Menus.AddAsync(mMail);
+                await context.SaveChangesAsync();
+            }
+
+            if (adminUser != null && !await context.Menus.AnyAsync(m => m.Path == "/admin/roles"))
+            {
+                var tr = await context.Languages.FirstAsync(l => l.Code == "tr-TR");
+                var en = await context.Languages.FirstAsync(l => l.Code == "en-US");
+
+                var mRole = new WixiMenu { UserId = adminUser.Id, Path = "/admin/roles", Icon = "FaUserShield", IconColor = "#ef4444", SortOrder = 8 };
+                mRole.Translations.Add(new WixiMenuTranslation { LanguageId = tr.Id, Title = "Rol Yönetimi" });
+                mRole.Translations.Add(new WixiMenuTranslation { LanguageId = en.Id, Title = "Role Management" });
+
+                await context.Menus.AddAsync(mRole);
                 await context.SaveChangesAsync();
             }
         }

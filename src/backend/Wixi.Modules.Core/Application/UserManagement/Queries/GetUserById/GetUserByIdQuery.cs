@@ -21,6 +21,8 @@ public class GetUserByIdQueryHandler : IRequestHandler<GetUserByIdQuery, UserDet
         var user = await _userManager.FindByIdAsync(request.Id.ToString());
         if (user == null) return null;
 
+        var roles = await _userManager.GetRolesAsync(user);
+
         return new UserDetailDto
         {
             Id = user.Id,
@@ -31,7 +33,8 @@ public class GetUserByIdQueryHandler : IRequestHandler<GetUserByIdQuery, UserDet
             IsActive = user.IsActive,
             ProfilePicture = user.ProfilePicture,
             PhoneNumber = user.PhoneNumber,
-            TwoFactorEnabled = user.TwoFactorEnabled
+            TwoFactorEnabled = user.TwoFactorEnabled,
+            Roles = roles.ToList()
         };
     }
 }

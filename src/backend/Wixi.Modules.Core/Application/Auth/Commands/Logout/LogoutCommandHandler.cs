@@ -1,7 +1,7 @@
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Wixi.Modules.Core.Application.Auth.Dto;
+using Wixi.Modules.Core.Application.Common.Interfaces;
 using Wixi.Modules.Core.Infrastructure.Data;
 
 namespace Wixi.Modules.Core.Application.Auth.Commands.Logout;
@@ -9,18 +9,19 @@ namespace Wixi.Modules.Core.Application.Auth.Commands.Logout;
 public class LogoutCommandHandler : IRequestHandler<LogoutCommand, AuthResult>
 {
     private readonly WixiCoreDbContext _dbContext;
-    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IRefreshTokenCookieService _refreshCookie;
 
-    public LogoutCommandHandler(WixiCoreDbContext dbContext, IHttpContextAccessor httpContextAccessor)
+    public LogoutCommandHandler(
+        WixiCoreDbContext dbContext,
+        IRefreshTokenCookieService refreshCookie)
     {
         _dbContext = dbContext;
-        _httpContextAccessor = httpContextAccessor;
+        _refreshCookie = refreshCookie;
     }
 
     public async Task<AuthResult> Handle(LogoutCommand request, CancellationToken cancellationToken)
     {
-        var context = _httpContextAccessor.HttpContext;
-        var rt = context?.Request.Cookies["wixi_rt"];
+        var rt = _refreshCookie.GetRefreshTokenFromRequest();
 
         if (!string.IsNullOrWhiteSpace(rt))
         {
@@ -31,18 +32,9 @@ public class LogoutCommandHandler : IRequestHandler<LogoutCommand, AuthResult>
                 await _dbContext.SaveChangesAsync(cancellationToken);
             }
 
-            if (context != null)
-            {
-                context.Response.Cookies.Delete("wixi_rt", new CookieOptions
-                {
-                    Secure = true,
-                    SameSite = SameSiteMode.None,
-                    HttpOnly = true
-                });
-            }
+            _refreshCookie.DeleteRefreshCookie();
         }
 
         return new AuthResult { Success = true };
     }
 }
-

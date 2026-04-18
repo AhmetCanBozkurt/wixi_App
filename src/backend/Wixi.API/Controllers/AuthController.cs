@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.RateLimiting;
 using Wixi.Modules.Core.Application.Auth.Commands.Login;
 using Wixi.Modules.Core.Application.Auth.Commands.Register;
 using Wixi.Modules.Core.Infrastructure.Data;
@@ -12,6 +13,7 @@ using Wixi.Modules.Core.Application.Auth.Commands.RefreshToken;
 using Wixi.Modules.Core.Application.Auth.Commands.ForgotPassword;
 using Wixi.Modules.Core.Application.Auth.Commands.ResetPassword;
 using Wixi.Modules.Core.Application.Auth.Commands.Logout;
+using Wixi.Modules.Core.Application.Auth.Commands.LogoutAll;
 
 namespace Wixi.API.Controllers;
 
@@ -34,9 +36,21 @@ public class AuthController : ControllerBase
     {
         var result = await _mediator.Send(new LogoutCommand());
         if (!result.Success) return BadRequest(new { error = result.ErrorMessage });
-        
+
         await _context.LogActivityAsync("LOGOUT", null, null, "Kullanıcı oturumu sonlandırdı.", LogType.Security);
         return Ok(new { message = "Oturum başarıyla kapatıldı." });
+    }
+
+    [Authorize]
+    [HttpPost("logout-all")]
+    [EnableRateLimiting("auth_logout_all")]
+    public async Task<IActionResult> LogoutAllDevices()
+    {
+        var result = await _mediator.Send(new LogoutAllCommand());
+        if (!result.Success) return BadRequest(new { error = result.ErrorMessage });
+
+        await _context.LogActivityAsync("LOGOUT_ALL", null, null, "Kullanıcı tüm cihazlardan çıkış yaptı.", LogType.Security);
+        return Ok(new { message = "Tüm oturumlar sonlandırıldı." });
     }
 
     [Authorize]
@@ -48,6 +62,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("login")]
+    [EnableRateLimiting("auth_login")]
     public async Task<IActionResult> Login([FromBody] LoginCommand command)
     {
         var result = await _mediator.Send(command);
@@ -55,7 +70,7 @@ public class AuthController : ControllerBase
         {
             return Unauthorized(new { error = result.ErrorMessage });
         }
-        
+
         if (result.RequiresTwoFactor)
         {
             return Ok(new
@@ -75,11 +90,12 @@ public class AuthController : ControllerBase
 
     [AllowAnonymous]
     [HttpPost("verify-2fa")]
+    [EnableRateLimiting("auth_verify_2fa")]
     public async Task<IActionResult> VerifyTwoFactor([FromBody] VerifyTwoFactorCommand command)
     {
         var result = await _mediator.Send(command);
         if (!result.Success) return Unauthorized(new { error = result.ErrorMessage });
-        
+
         return Ok(new
         {
             token = result.Token,
@@ -89,6 +105,7 @@ public class AuthController : ControllerBase
 
     [AllowAnonymous]
     [HttpPost("resend-2fa")]
+    [EnableRateLimiting("auth_resend_2fa")]
     public async Task<IActionResult> ResendTwoFactor([FromBody] ResendTwoFactorCommand command)
     {
         var result = await _mediator.Send(command);
@@ -98,6 +115,7 @@ public class AuthController : ControllerBase
 
     [AllowAnonymous]
     [HttpPost("refresh")]
+    [EnableRateLimiting("auth_refresh")]
     public async Task<IActionResult> Refresh()
     {
         var result = await _mediator.Send(new RefreshTokenCommand());
@@ -112,15 +130,21 @@ public class AuthController : ControllerBase
 
     [AllowAnonymous]
     [HttpPost("forgot-password")]
+    [EnableRateLimiting("auth_forgot_password")]
     public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordCommand command)
     {
         var result = await _mediator.Send(command);
         if (!result.Success) return BadRequest(new { error = result.ErrorMessage });
-        return Ok(new { success = true });
+        return Ok(new
+        {
+            success = true,
+            message = "Eğer bu adres için bir hesap varsa, şifre sıfırlama bağlantısı gönderildi."
+        });
     }
 
     [AllowAnonymous]
     [HttpPost("reset-password")]
+    [EnableRateLimiting("auth_reset_password")]
     public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordCommand command)
     {
         var result = await _mediator.Send(command);
@@ -129,6 +153,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("register")]
+    [EnableRateLimiting("auth_register")]
     public async Task<IActionResult> Register([FromBody] RegisterCommand command)
     {
         var result = await _mediator.Send(command);

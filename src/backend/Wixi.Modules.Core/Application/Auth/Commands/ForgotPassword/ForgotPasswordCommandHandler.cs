@@ -1,4 +1,6 @@
 using System.Net;
+using System.Security.Cryptography;
+using System.Text;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -6,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Wixi.Modules.Core.Application.Auth.Dto;
 using Wixi.Modules.Core.Application.Common.Interfaces;
 using Wixi.Modules.Core.Domain.Entities;
+using Wixi.Modules.Core.Infrastructure.Data;
 
 namespace Wixi.Modules.Core.Application.Auth.Commands.ForgotPassword;
 
@@ -15,35 +18,54 @@ public class ForgotPasswordCommandHandler : IRequestHandler<ForgotPasswordComman
     private readonly IMailService _mailService;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IConfiguration _configuration;
+    private readonly WixiCoreDbContext _dbContext;
 
     public ForgotPasswordCommandHandler(
         UserManager<WixiUser> userManager,
         IMailService mailService,
         IHttpContextAccessor httpContextAccessor,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        WixiCoreDbContext dbContext)
     {
         _userManager = userManager;
         _mailService = mailService;
         _httpContextAccessor = httpContextAccessor;
         _configuration = configuration;
+        _dbContext = dbContext;
     }
 
     public async Task<AuthResult> Handle(ForgotPasswordCommand request, CancellationToken cancellationToken)
     {
+        var http = _httpContextAccessor.HttpContext;
+        var ip = http?.Connection.RemoteIpAddress?.ToString();
+        var ua = http?.Request.Headers["User-Agent"].ToString();
+
         if (string.IsNullOrWhiteSpace(request.Email))
             return new AuthResult { Success = false, ErrorMessage = "E-posta zorunludur." };
 
+        var normalized = request.Email.Trim().ToLowerInvariant();
+        var fingerprint = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(normalized)))[..16];
+
         var user = await _userManager.FindByEmailAsync(request.Email);
 
-        // Privacy: always return success even if user not found
         if (user == null)
+        {
+            await _dbContext.LogSecurityEventAsync(
+                "FORGOT_PASSWORD_REQUEST",
+                $"Talep alındı (hesap yok veya gizlendi). email_fp={fingerprint}",
+                null,
+                null,
+                null,
+                ip,
+                ua,
+                cancellationToken);
             return new AuthResult { Success = true };
+        }
 
         var token = await _userManager.GeneratePasswordResetTokenAsync(user);
         var encodedToken = WebUtility.UrlEncode(token);
         var encodedEmail = WebUtility.UrlEncode(user.Email);
 
-        // Some mail clients (and mobile) don't allow localhost links; prefer configured frontend base url
         var configuredBaseUrl = _configuration["AppUrls:FrontendBaseUrl"];
         var origin = _httpContextAccessor.HttpContext?.Request.Headers["Origin"].ToString();
         var baseUrl = !string.IsNullOrWhiteSpace(configuredBaseUrl)
@@ -52,8 +74,6 @@ public class ForgotPasswordCommandHandler : IRequestHandler<ForgotPasswordComman
 
         var resetLink = $"{baseUrl}/reset-password?token={encodedToken}&email={encodedEmail}";
 
-        // Some mail clients hide/disable styled buttons or code blocks.
-        // Send a robust HTML that always includes a plain, copyable URL.
         var fullName = $"{user.FirstName} {user.LastName}".Trim();
         var subject = "Wixi Şifre Sıfırlama Talebi";
         var body = $@"
@@ -81,7 +101,16 @@ public class ForgotPasswordCommandHandler : IRequestHandler<ForgotPasswordComman
 
         await _mailService.SendEmailAsync(user.Email!, subject, body, cancellationToken);
 
+        await _dbContext.LogSecurityEventAsync(
+            "FORGOT_PASSWORD_REQUEST",
+            $"Sıfırlama maili gönderildi. email_fp={fingerprint}",
+            user.Id.ToString(),
+            user.Email,
+            fullName,
+            ip,
+            ua,
+            cancellationToken);
+
         return new AuthResult { Success = true };
     }
 }
-

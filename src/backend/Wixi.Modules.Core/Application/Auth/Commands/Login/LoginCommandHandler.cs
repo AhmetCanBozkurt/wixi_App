@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Wixi.Modules.Core.Application.Auth.Dto;
+using Wixi.Modules.Core.Application.Auth.Services;
 using Wixi.Modules.Core.Application.Common.Interfaces;
 using Wixi.Modules.Core.Domain.Entities;
 using Wixi.Modules.Core.Infrastructure.Data;
@@ -19,52 +20,64 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, AuthResult>
 {
     private readonly UserManager<WixiUser> _userManager;
     private readonly JwtOptions _jwtOptions;
+    private readonly AuthSecurityOptions _authSecurity;
     private readonly WixiCoreDbContext _dbContext;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IMailService _mailService;
+    private readonly IOtpPepperProvider _otpPepper;
+    private readonly IRefreshTokenCookieService _refreshCookie;
 
     public LoginCommandHandler(
-        UserManager<WixiUser> userManager, 
+        UserManager<WixiUser> userManager,
         IOptions<JwtOptions> jwtOptions,
+        IOptions<AuthSecurityOptions> authSecurity,
         WixiCoreDbContext dbContext,
         IHttpContextAccessor httpContextAccessor,
-        IMailService mailService)
+        IMailService mailService,
+        IOtpPepperProvider otpPepper,
+        IRefreshTokenCookieService refreshCookie)
     {
         _userManager = userManager;
         _jwtOptions = jwtOptions.Value;
+        _authSecurity = authSecurity.Value;
         _dbContext = dbContext;
         _httpContextAccessor = httpContextAccessor;
         _mailService = mailService;
+        _otpPepper = otpPepper;
+        _refreshCookie = refreshCookie;
     }
 
     public async Task<AuthResult> Handle(LoginCommand request, CancellationToken cancellationToken)
     {
         var user = await _userManager.FindByEmailAsync(request.Email);
-        
+
         if (user == null || !await _userManager.CheckPasswordAsync(user, request.Password))
         {
-            await LogAuditAsync(user, request.Email, "LOGIN_FAILED", "Kullanıcı adı veya şifre hatalı.");
+            await LogAuditAsync(user, request.Email, "LOGIN_FAILED", "Kullanıcı adı veya şifre hatalı.", cancellationToken);
             return new AuthResult { Success = false, ErrorMessage = "E-posta veya şifre hatalı." };
         }
 
-        // 2FA: If enabled, return temp token and send OTP mail (no JWT yet)
         if (user.TwoFactorEnabled)
         {
             var (code, sessionToken, expiresAt) = GenerateOtp();
 
-            // Invalidate previous non-used sessions for safety
             var oldCodes = _dbContext.Set<WixiTwoFactorCode>()
                 .Where(x => x.UserId == user.Id && !x.IsUsed && x.ExpiresAt > DateTime.UtcNow);
             _dbContext.RemoveRange(oldCodes);
 
+            var salt = OtpHasher.CreateSalt();
+            var hash = OtpHasher.Hash(_otpPepper.Pepper, sessionToken, code, salt);
+
             _dbContext.Set<WixiTwoFactorCode>().Add(new WixiTwoFactorCode
             {
                 UserId = user.Id,
-                Code = code,
+                CodeHash = hash,
+                CodeSalt = salt,
                 SessionToken = sessionToken,
                 ExpiresAt = expiresAt,
                 IsUsed = false,
-                AttemptCount = 0
+                AttemptCount = 0,
+                LastResendAtUtc = null
             });
             await _dbContext.SaveChangesAsync(cancellationToken);
 
@@ -74,7 +87,7 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, AuthResult>
                 new { fullName = $"{user.FirstName} {user.LastName}", code },
                 cancellationToken);
 
-            await LogAuditAsync(user, user.Email, "LOGIN_2FA_REQUIRED", "2FA doğrulama gerekiyor, OTP mail ile gönderildi.");
+            await LogAuditAsync(user, user.Email, "LOGIN_2FA_REQUIRED", "2FA doğrulama gerekiyor, OTP mail ile gönderildi.", cancellationToken);
 
             return new AuthResult
             {
@@ -84,7 +97,24 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, AuthResult>
             };
         }
 
-        // Generate Token
+        var accessToken = await GenerateJwtToken(user);
+
+        if (request.RememberMe)
+        {
+            await IssueRefreshTokenCookieAsync(user.Id, cancellationToken);
+        }
+
+        await LogAuditAsync(user, user.Email, "LOGIN_SUCCESS", "Kullanıcı başarıyla giriş yaptı.", cancellationToken);
+
+        return new AuthResult
+        {
+            Success = true,
+            Token = accessToken
+        };
+    }
+
+    private async Task<string> GenerateJwtToken(WixiUser user)
+    {
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = Encoding.ASCII.GetBytes(_jwtOptions.SecretKey);
 
@@ -111,26 +141,11 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, AuthResult>
         };
 
         var token = tokenHandler.CreateToken(tokenDescriptor);
-        var accessToken = tokenHandler.WriteToken(token);
-
-        if (request.RememberMe)
-        {
-            await IssueRefreshTokenCookieAsync(user.Id, cancellationToken);
-        }
-
-        // Başarılı giriş logu
-        await LogAuditAsync(user, user.Email, "LOGIN_SUCCESS", "Kullanıcı başarıyla giriş yaptı.");
-
-        return new AuthResult
-        {
-            Success = true,
-            Token = accessToken
-        };
+        return tokenHandler.WriteToken(token);
     }
 
     private static (string code, string sessionToken, DateTime expiresAt) GenerateOtp()
     {
-        // 6-digit numeric code
         var code = RandomNumberGenerator.GetInt32(0, 1_000_000).ToString("D6");
         var sessionToken = Guid.NewGuid().ToString("N");
         var expiresAt = DateTime.UtcNow.AddMinutes(5);
@@ -142,8 +157,9 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, AuthResult>
         var context = _httpContextAccessor.HttpContext;
         if (context == null) return;
 
+        var days = _authSecurity.RefreshTokenLifetimeDays <= 0 ? 30 : _authSecurity.RefreshTokenLifetimeDays;
         var token = Guid.NewGuid().ToString("N");
-        var expiresAt = DateTime.UtcNow.AddDays(30);
+        var expiresAt = DateTime.UtcNow.AddDays(days);
 
         _dbContext.Set<WixiRefreshToken>().Add(new WixiRefreshToken
         {
@@ -157,35 +173,23 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, AuthResult>
 
         await _dbContext.SaveChangesAsync(cancellationToken);
 
-        context.Response.Cookies.Append("wixi_rt", token, new CookieOptions
-        {
-            HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.None,
-            Expires = expiresAt
-        });
+        _refreshCookie.AppendRefreshCookie(token, new DateTimeOffset(expiresAt, TimeSpan.Zero));
     }
 
-    private async Task LogAuditAsync(WixiUser? user, string? email, string action, string details)
+    private async Task LogAuditAsync(WixiUser? user, string? email, string action, string details, CancellationToken cancellationToken)
     {
         var context = _httpContextAccessor.HttpContext;
         var ipAddress = context?.Connection?.RemoteIpAddress?.ToString();
         var userAgent = context?.Request?.Headers["User-Agent"].ToString();
 
-        var log = new WixiAuditLog
-        {
-            Action = action,
-            Details = details,
-            LogType = LogType.Security,
-            UserId = user?.Id.ToString(),
-            Email = user?.Email ?? email,
-            FullName = user != null ? $"{user.FirstName} {user.LastName}" : null,
-            IpAddress = ipAddress,
-            UserAgent = userAgent,
-            CreatedAt = DateTime.UtcNow
-        };
-
-        _dbContext.AuditLogs.Add(log);
-        await _dbContext.SaveChangesAsync();
+        await _dbContext.LogSecurityEventAsync(
+            action,
+            details,
+            user?.Id.ToString(),
+            user?.Email ?? email,
+            user != null ? $"{user.FirstName} {user.LastName}" : null,
+            ipAddress,
+            userAgent,
+            cancellationToken);
     }
 }

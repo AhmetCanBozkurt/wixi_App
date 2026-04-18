@@ -10,3 +10,4 @@ export * from './DynamicIcon/DynamicIcon';
 export * from './ImageUpload/ImageUpload';
 export * from './ComboBox/ComboBox';
 export * from './Modal/Modal';
+export * from './MultiSelect/MultiSelect';

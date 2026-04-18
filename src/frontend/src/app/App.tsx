@@ -9,6 +9,7 @@ import { ApplicationLogsPage } from '../pages/ApplicationLogsPage/ApplicationLog
 import { LanguageManagementPage } from '../pages/LanguageManagementPage/LanguageManagementPage';
 import { MenuManagementPage } from '../pages/MenuManagementPage/MenuManagementPage';
 import { UserManagementPage } from '../pages/UserManagementPage/UserManagementPage';
+import { RoleManagementPage } from '../pages/RoleManagementPage/RoleManagementPage';
 import { AuditLogPage } from '../pages/AuditLogPage/AuditLogPage';
 import { ComponentShowcasePage } from '../pages/ComponentShowcasePage/ComponentShowcasePage';
 import { MailingManagementPage } from '../features/MailingManagement/pages/MailingManagementPage';
@@ -51,6 +52,7 @@ const App = () => {
               <Route path="admin/languages" element={<LanguageManagementPage />} />
               <Route path="admin/menus" element={<MenuManagementPage />} />
                <Route path="admin/users" element={<UserManagementPage />} />
+              <Route path="admin/roles" element={<RoleManagementPage />} />
               <Route path="admin/audit" element={<AuditLogPage />} />
               <Route path="admin/mailing" element={<MailingManagementPage />} />
               <Route path="admin/ui-showcase" element={<ComponentShowcasePage />} />

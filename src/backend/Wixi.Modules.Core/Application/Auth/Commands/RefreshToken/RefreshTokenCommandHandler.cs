@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Wixi.Modules.Core.Application.Auth.Dto;
+using Wixi.Modules.Core.Application.Common.Interfaces;
 using Wixi.Modules.Core.Domain.Entities;
 using Wixi.Modules.Core.Infrastructure.Data;
 using Wixi.Shared.Configuration;
@@ -19,43 +20,69 @@ public class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCommand, A
     private readonly WixiCoreDbContext _dbContext;
     private readonly UserManager<WixiUser> _userManager;
     private readonly JwtOptions _jwtOptions;
+    private readonly AuthSecurityOptions _authSecurity;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IRefreshTokenCookieService _refreshCookie;
 
     public RefreshTokenCommandHandler(
         WixiCoreDbContext dbContext,
         UserManager<WixiUser> userManager,
         IOptions<JwtOptions> jwtOptions,
-        IHttpContextAccessor httpContextAccessor)
+        IOptions<AuthSecurityOptions> authSecurity,
+        IHttpContextAccessor httpContextAccessor,
+        IRefreshTokenCookieService refreshCookie)
     {
         _dbContext = dbContext;
         _userManager = userManager;
         _jwtOptions = jwtOptions.Value;
+        _authSecurity = authSecurity.Value;
         _httpContextAccessor = httpContextAccessor;
+        _refreshCookie = refreshCookie;
     }
 
     public async Task<AuthResult> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
     {
         var context = _httpContextAccessor.HttpContext;
-        var rt = context?.Request.Cookies["wixi_rt"];
+        var ip = context?.Connection.RemoteIpAddress?.ToString();
+        var ua = context?.Request.Headers["User-Agent"].ToString();
+        var rt = _refreshCookie.GetRefreshTokenFromRequest();
 
         if (string.IsNullOrWhiteSpace(rt))
+        {
+            await _dbContext.LogSecurityEventAsync(
+                "REFRESH_FAILED",
+                "Refresh cookie yok.",
+                null, null, null, ip, ua, cancellationToken);
             return new AuthResult { Success = false, ErrorMessage = "Refresh token bulunamadı." };
+        }
 
         var record = await _dbContext.RefreshTokens
             .FirstOrDefaultAsync(x => x.Token == rt, cancellationToken);
 
         if (record == null || record.IsRevoked || record.ExpiresAt <= DateTime.UtcNow)
+        {
+            await _dbContext.LogSecurityEventAsync(
+                "REFRESH_FAILED",
+                "Geçersiz veya süresi dolmuş refresh token.",
+                null, null, null, ip, ua, cancellationToken);
             return new AuthResult { Success = false, ErrorMessage = "Refresh token geçersiz veya süresi dolmuş." };
+        }
 
         var user = await _userManager.FindByIdAsync(record.UserId.ToString());
         if (user == null)
+        {
+            await _dbContext.LogSecurityEventAsync(
+                "REFRESH_FAILED",
+                "Kullanıcı bulunamadı.",
+                record.UserId.ToString(), null, null, ip, ua, cancellationToken);
             return new AuthResult { Success = false, ErrorMessage = "Kullanıcı bulunamadı." };
+        }
 
-        // Rotate refresh token for better security
         record.IsRevoked = true;
 
         var newToken = Guid.NewGuid().ToString("N");
-        var expiresAt = DateTime.UtcNow.AddDays(30);
+        var days = _authSecurity.RefreshTokenLifetimeDays <= 0 ? 30 : _authSecurity.RefreshTokenLifetimeDays;
+        var expiresAt = DateTime.UtcNow.AddDays(days);
 
         _dbContext.RefreshTokens.Add(new WixiRefreshToken
         {
@@ -71,16 +98,20 @@ public class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCommand, A
 
         if (context != null)
         {
-            context.Response.Cookies.Append("wixi_rt", newToken, new CookieOptions
-            {
-                HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.None,
-                Expires = expiresAt
-            });
+            _refreshCookie.AppendRefreshCookie(newToken, new DateTimeOffset(expiresAt, TimeSpan.Zero));
         }
 
         var jwt = await GenerateJwtAsync(user);
+
+        await _dbContext.LogSecurityEventAsync(
+            "REFRESH_SUCCESS",
+            "Access token yenilendi.",
+            user.Id.ToString(),
+            user.Email,
+            $"{user.FirstName} {user.LastName}",
+            ip,
+            ua,
+            cancellationToken);
 
         return new AuthResult
         {
@@ -120,4 +151,3 @@ public class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCommand, A
         return tokenHandler.WriteToken(token);
     }
 }
-

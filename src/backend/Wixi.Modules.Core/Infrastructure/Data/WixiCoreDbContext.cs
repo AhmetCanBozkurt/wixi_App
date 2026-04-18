@@ -306,7 +306,8 @@ public class WixiCoreDbContext : IdentityDbContext<WixiUser, WixiRole, Guid>
         {
             entity.ToTable("WIXI_2FA_CODES");
             entity.HasKey(e => e.Id);
-            entity.Property(e => e.Code).IsRequired().HasMaxLength(10);
+            entity.Property(e => e.CodeHash).IsRequired().HasMaxLength(128);
+            entity.Property(e => e.CodeSalt).IsRequired().HasMaxLength(64);
             entity.Property(e => e.SessionToken).IsRequired().HasMaxLength(100);
             entity.HasIndex(e => e.SessionToken).IsUnique();
         });
@@ -340,5 +341,33 @@ public class WixiCoreDbContext : IdentityDbContext<WixiUser, WixiRole, Guid>
 
         await AuditLogs.AddAsync(auditLog);
         await base.SaveChangesAsync();
+    }
+
+    /// <summary>Anonymous veya JWT’li güvenlik olayları için (IP/UserAgent açıkça verilebilir).</summary>
+    public async Task LogSecurityEventAsync(
+        string action,
+        string details,
+        string? userId = null,
+        string? email = null,
+        string? fullName = null,
+        string? ipAddress = null,
+        string? userAgent = null,
+        CancellationToken cancellationToken = default)
+    {
+        var auditLog = new WixiAuditLog
+        {
+            LogType = LogType.Security,
+            Action = action,
+            Details = details,
+            UserId = userId ?? _currentUserService?.UserId,
+            Email = email ?? _currentUserService?.Email,
+            FullName = fullName ?? _currentUserService?.FullName,
+            IpAddress = ipAddress ?? _currentUserService?.IpAddress,
+            UserAgent = userAgent ?? _currentUserService?.UserAgent,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        await AuditLogs.AddAsync(auditLog, cancellationToken);
+        await base.SaveChangesAsync(cancellationToken);
     }
 }

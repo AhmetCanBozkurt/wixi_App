@@ -50,7 +50,13 @@ apiClient.interceptors.response.use(
       localStorage.removeItem('token');
       toast.error('Oturumunuz süresi doldu, lütfen tekrar giriş yapın.');
       window.location.href = '/login';
-    } 
+    }
+    else if (error.response?.status === 429) {
+      const msg =
+        (error.response?.data as { error?: string })?.error ??
+        'Çok fazla istek. Lütfen kısa bir süre sonra tekrar deneyin.';
+      toast.error(msg);
+    }
     else if (error.response?.status >= 500) {
       toast.error('Sunucu sunucu bağlantı hatası.');
     }
