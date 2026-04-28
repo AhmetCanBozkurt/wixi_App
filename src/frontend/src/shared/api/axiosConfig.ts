@@ -20,6 +20,12 @@ apiClient.interceptors.request.use((config) => {
   const lang = localStorage.getItem('lng') || 'tr-TR';
   config.headers['Accept-Language'] = lang;
   
+  // E-Ticaret için aktif mağaza seçimi
+  const tenantSlug = localStorage.getItem('wixi-active-tenant');
+  if (tenantSlug) {
+    config.headers['X-Tenant-Slug'] = tenantSlug;
+  }
+
   return config;
 });
 
@@ -27,6 +33,8 @@ apiClient.interceptors.request.use((config) => {
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
+    console.error("API Axios Hatası:", error); // Test sırasında görmek için eklendi
+    
     if (error.response?.status === 401) {
       const originalRequest = error.config as any;
 

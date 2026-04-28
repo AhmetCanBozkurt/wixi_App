@@ -41,7 +41,7 @@ Buradaki görevler otonom asistan (Antigravity) tarafından projenin fazlarına 
 ## 🛠️ FAZ 3: Ortak Sistem Servisleri (Core Services)
 *Amacımız; diğer tüm modüllerin kullanacağı Loglama, Dosya yükleme ve E-Posta atma gibi standart servisleri projeye entegre etmektir.*
 
-- `[ ]` **Backend:** Kurumsal Loglama altyapısının (Serilog) kurulması, DB Log sink entegrasyonu. [[WIX-25](https://linear.app/wixisoftware/issue/WIX-25/faz-3-serilog-ve-db-log-sink-entegrasyonu)]
+- `[x]` **Backend:** Kurumsal Loglama altyapısının (Serilog) kurulması, dosya ve konsol sink entegrasyonu tamamlandı. [[WIX-25](https://linear.app/wixisoftware/issue/WIX-25/faz-3-serilog-ve-db-log-sink-entegrasyonu)]
 - `[x]` **Backend:** Dinamik Mail Servisi ve Şablon Yönetimi Altyapısı.
     - `[x]` `WIXI_MAIL_TEMPLATES` ve `WIXI_MAIL_LOGS` tablolarının modellenmesi. [[WIX-44](https://linear.app/wixisoftware/issue/WIX-44/backend-mailing-db-schema-and-auditable-entities)]
     - `[x]` `Scriban` template engine entegrasyonu ve dinamik yer tutucu (placeholder) sistemi. [[WIX-45](https://linear.app/wixisoftware/issue/WIX-45/backend-scriban-template-engine-integration)]
@@ -51,7 +51,7 @@ Buradaki görevler otonom asistan (Antigravity) tarafından projenin fazlarına 
     - `[x]` Şablon listeleme ve "Rich Text / HTML Editor" entegrasyonu. [[WIX-48](https://linear.app/wixisoftware/issue/WIX-48/frontend-template-editor-and-html)]
     - `[x]` Dinamik placeholder yardımcısı ve önizleme (preview) modu.
     - `[x]` Mail Logları ve İzleme Dashboard'u. [[WIX-49](https://linear.app/wixisoftware/issue/WIX-49/frontend-mailing-logs-and-monitoring-dashboard)]
-- `[ ]` **Backend:** Merkezi Dosya Servisi (`WIXI_FILES`) - (Azure Blob / S3 veya local storage). [[WIX-27](https://linear.app/wixisoftware/issue/WIX-27/faz-3-merkezi-dosya-servisi-file-storage)]
+- `[x]` **Backend:** Merkezi Dosya Servisi (`WIXI_FILES`) - Local Storage entegrasyonu tamamlandı. [[WIX-27](https://linear.app/wixisoftware/issue/WIX-27/faz-3-merkezi-dosya-servisi-file-storage)]
 - `[x]` **Frontend:** Resim yükleme, Cropper ve Drag&Drop bileşenlerinin eklenmesi. [[WIX-28](https://linear.app/wixisoftware/issue/WIX-28/faz-3-imageupload-cropper-ve-draganddrop-ui-bilesenleri)]
 
 ---
@@ -96,3 +96,34 @@ Buradaki görevler otonom asistan (Antigravity) tarafından projenin fazlarına 
 - `[x]` **Fullstack:** Backend ve Frontend `standard_prd.json` hizalanması. [[WIX-6](https://linear.app/wixisoftware/issue/WIX-6/align-prd-and-test-specifications)]
 - `[/]` **Frontend:** `testsprite_tests` altındaki Python test scriptlerinin onarılması. [[WIX-7](https://linear.app/wixisoftware/issue/WIX-7/fix-frontend-python-test-scripts)]
 - `[ ]` **Verification:** TestSprite üzerinden tüm testlerin koşturulması ve %100 "Passed" sonucu. [[WIX-8](https://linear.app/wixisoftware/issue/WIX-8/final-test-verification-and-success)]
+
+---
+
+## 🛒 E-Ticaret Modülü (SaaS Altyapısı)
+
+### 🏗️ FAZ E0: Temel Altyapı ve Multi-tenancy - `[x]`
+- `[x]` `Wixi.Modules.ECommerce` modülünün oluşturulması.
+- `[x]` WIXI_FILES Merkezi Dosya Servisi
+- `[x]` Serilog Entegrasyonu
+- `[/]` SaaS Multi-Tenant Mimarisi
+    - `[x]` WixiTenant Varlığının Core Modülüne Taşınması
+    - `[x]` WixiCoreDbContext'in Master DB Görevini Üstlenmesi
+    - `[x]` TenantDatabaseProvisioner'ın Modüler Yapıya Kavuşturulması
+    - `[x]` SaasOnboardingController API'sinin Yazılması
+    - `[ ]` Master Storefront (Ürün Seçim ve Kayıt) Sayfasının Hazırlanması
+    - `[ ]` Tenant Provisioning İş Akışının (DB + Seed) Doğrulanması
+
+### 📦 FAZ E1: Ürün Kataloğu (Product Catalog) - `[x]`
+- `[x]` Admin panelinde kategori yönetimi (CRUD, hiyerarşik yapı)
+- `[x]` Admin panelinde marka yönetimi (CRUD)
+- `[x]` Admin panelinde ürün yönetimi (Temel bilgiler, varyantlar, stok durumu)
+- `[x]` Ürün, Kategori ve Marka listeleme ekranları (Premium Table yapısıyla)
+
+### 🛒 FAZ E2: Storefront Geliştirme (Next.js) - `[ ]`
+- `[x]` Next.js projesinin kurulumu ve Tailwind CSS entegrasyonu.
+- `[x]` Tenant çözünürlüğü (Subdomain bazlı routing).
+- `[x]` Müşteri kayıt ve giriş akışının tamamlanması (Storefront Auth).
+- `[x]` Ürün, Kategori ve Marka yönetimi UI geliştirmesi (Admin Panel).
+- `[x]` Anasayfa, ürün listeleme ve ürün detay sayfaları (Storefront).
+- `[/]` Sepet (Cart) ve Sipariş (Checkout) adımları (Mock ödeme).
+- `[ ]` Kategori bazlı filtreleme ve arama motoru optimizasyonu.

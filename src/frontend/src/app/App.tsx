@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthGuard } from './providers/AuthGuard';
 import { LoginPage } from '../pages/LoginPage/LoginPage';
@@ -13,6 +13,11 @@ import { RoleManagementPage } from '../pages/RoleManagementPage/RoleManagementPa
 import { AuditLogPage } from '../pages/AuditLogPage/AuditLogPage';
 import { ComponentShowcasePage } from '../pages/ComponentShowcasePage/ComponentShowcasePage';
 import { MailingManagementPage } from '../features/MailingManagement/pages/MailingManagementPage';
+import { ECommerceProductsPage } from '../pages/ECommerceProductsPage/ECommerceProductsPage';
+import { ECommerceCategoriesPage } from '../pages/ECommerceCategoriesPage/ECommerceCategoriesPage';
+import { ECommerceBrandsPage } from '../pages/ECommerceBrandsPage/ECommerceBrandsPage';
+import { ECommerceTenantsPage } from '../pages/ECommerceTenantsPage/ECommerceTenantsPage';
+import { MasterStorefrontPage } from '../pages/MasterStorefrontPage/MasterStorefrontPage';
 import { useAuthStore } from '../entities/User/model/store';
 
 const DashboardHome = () => {
@@ -27,6 +32,12 @@ const DashboardHome = () => {
 };
 
 const App = () => {
+  const isMasterDomain = () => {
+    const host = window.location.hostname;
+    // Localhost veya ana domain kontrolü
+    return host === 'localhost' || host === '127.0.0.1' || host === 'wixi.com';
+  };
+
   return (
     <>
       <Toaster 
@@ -42,20 +53,25 @@ const App = () => {
       />
       <BrowserRouter>
         <Routes>
+          <Route path="/" element={isMasterDomain() ? <MasterStorefrontPage /> : <Navigate to="/admin" replace />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route element={<AuthGuard />}>
-            <Route path="/" element={<DashboardPage />}>
+            <Route path="/admin" element={<DashboardPage />}>
               <Route index element={<DashboardHome />} />
-              <Route path="admin/logs" element={<ApplicationLogsPage />} />
-              <Route path="admin/languages" element={<LanguageManagementPage />} />
-              <Route path="admin/menus" element={<MenuManagementPage />} />
-               <Route path="admin/users" element={<UserManagementPage />} />
-              <Route path="admin/roles" element={<RoleManagementPage />} />
-              <Route path="admin/audit" element={<AuditLogPage />} />
-              <Route path="admin/mailing" element={<MailingManagementPage />} />
-              <Route path="admin/ui-showcase" element={<ComponentShowcasePage />} />
+              <Route path="logs" element={<ApplicationLogsPage />} />
+              <Route path="languages" element={<LanguageManagementPage />} />
+              <Route path="menus" element={<MenuManagementPage />} />
+              <Route path="users" element={<UserManagementPage />} />
+              <Route path="roles" element={<RoleManagementPage />} />
+              <Route path="audit" element={<AuditLogPage />} />
+              <Route path="mailing" element={<MailingManagementPage />} />
+              <Route path="ui-showcase" element={<ComponentShowcasePage />} />
+              <Route path="ecommerce/tenants" element={<ECommerceTenantsPage />} />
+              <Route path="ecommerce/products" element={<ECommerceProductsPage />} />
+              <Route path="ecommerce/categories" element={<ECommerceCategoriesPage />} />
+              <Route path="ecommerce/brands" element={<ECommerceBrandsPage />} />
             </Route>
           </Route>
         </Routes>

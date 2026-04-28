@@ -25,8 +25,10 @@ public class WixiCoreDbContext : IdentityDbContext<WixiUser, WixiRole, Guid>
     public DbSet<WixiMailTemplate> MailTemplates { get; set; }
     public DbSet<WixiMailLog> MailLogs { get; set; }
     public DbSet<WixiSmtpSetting> SmtpSettings { get; set; }
+    public DbSet<WixiFile> Files { get; set; }
     public DbSet<WixiTwoFactorCode> TwoFactorCodes { get; set; }
     public DbSet<WixiRefreshToken> RefreshTokens { get; set; }
+    public DbSet<WixiTenant> Tenants { get; set; }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
@@ -300,6 +302,8 @@ public class WixiCoreDbContext : IdentityDbContext<WixiUser, WixiRole, Guid>
             entity.Property(e => e.SenderName).HasMaxLength(255);
             entity.Property(e => e.SenderEmail).IsRequired().HasMaxLength(255);
         });
+        
+        builder.Entity<WixiFile>().ToTable("WIXI_FILES");
 
         // 2FA Codes Mapping
         builder.Entity<WixiTwoFactorCode>(entity =>
@@ -319,6 +323,20 @@ public class WixiCoreDbContext : IdentityDbContext<WixiUser, WixiRole, Guid>
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Token).IsRequired().HasMaxLength(100);
             entity.HasIndex(e => e.Token).IsUnique();
+        });
+
+        // Tenants Mapping
+        builder.Entity<WixiTenant>(entity =>
+        {
+            entity.ToTable("WIXI_TENANTS");
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.Slug).IsUnique();
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.Slug).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.DatabaseName).IsRequired().HasMaxLength(150);
+            entity.Property(e => e.ConnectionString).IsRequired().HasMaxLength(1000);
+            entity.Property(e => e.OwnerEmail).IsRequired().HasMaxLength(256);
+            entity.Property(e => e.EnabledModules).HasMaxLength(500);
         });
     }
 

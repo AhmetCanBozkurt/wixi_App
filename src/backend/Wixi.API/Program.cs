@@ -11,8 +11,21 @@ using System.Text;
 using Wixi.Modules.Core.Application.Auth.Services;
 using Wixi.Modules.Core.Application.Common.Interfaces;
 using Wixi.Modules.Core.Infrastructure.Services;
+using Wixi.Modules.ECommerce;
+using Serilog;
+using Serilog.Events;
 
 var builder = WebApplication.CreateBuilder(args);
+
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+    .Enrich.FromLogContext()
+    .WriteTo.Console()
+    .WriteTo.File("logs/log-.txt", rollingInterval: RollingInterval.Day, outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
+    .CreateLogger();
+
+builder.Host.UseSerilog();
 
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(JwtOptions.SectionName));
 builder.Services.Configure<AuthSecurityOptions>(builder.Configuration.GetSection(AuthSecurityOptions.SectionName));
@@ -26,7 +39,8 @@ if (corsOrigins is not { Length: > 0 })
     [
         "http://localhost:5173",
         "http://localhost:5174",
-        "http://127.0.0.1:5173"
+        "http://127.0.0.1:5173",
+        "http://localhost:3000"
     ];
 }
 
@@ -34,7 +48,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactApp", policy =>
     {
-        policy.WithOrigins(corsOrigins)
+        policy.SetIsOriginAllowed(_ => true)
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials();
@@ -103,9 +117,13 @@ builder.Services.AddScoped<Wixi.Modules.Core.Application.Common.Interfaces.ICurr
 builder.Services.AddSingleton<Wixi.Modules.Core.Application.Common.Interfaces.IMailTemplateEngine, Wixi.Modules.Core.Infrastructure.Services.MailTemplateEngine>();
 builder.Services.AddScoped<Wixi.Modules.Core.Application.Common.Interfaces.IMailService, Wixi.Modules.Core.Infrastructure.Services.MailService>();
 builder.Services.AddSingleton<Wixi.Modules.Core.Application.Common.Interfaces.IMailQueue, Wixi.Modules.Core.Application.Common.Interfaces.MailQueue>();
+builder.Services.AddScoped<Wixi.Modules.Core.Application.Common.Interfaces.IFileStorageService, Wixi.Modules.Core.Infrastructure.Services.LocalFileStorageService>();
 
 // Background Workers
 builder.Services.AddHostedService<Wixi.Modules.Core.Infrastructure.Services.MailingBackgroundWorker>();
+
+// ── ECommerce Modülü ─────────────────────────────────────────────
+builder.Services.AddECommerceModule(builder.Configuration);
 
 // Mail Configuration
 builder.Services.Configure<MailOptions>(builder.Configuration.GetSection(MailOptions.SectionName));
@@ -220,13 +238,25 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// ── Global Request Logger ─────────────────────────────────────────
+app.Use(async (context, next) =>
+{
+    Console.WriteLine($"[GLOBAL LOG] {context.Request.Method} {context.Request.Path}");
+    await next();
+});
+
+app.UseStaticFiles();
+// app.UseHttpsRedirection();
 app.UseCors("AllowReactApp");
 
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseRateLimiter();
+
+// ── ECommerce Tenant Middleware ───────────────────────────────────
+// Auth ve Authorization'dan sonra gelmelidir
+app.UseECommerceModule();
 
 // Localization Middleware
 var supportedCultures = new[] { "tr-TR", "en-US", "de-DE", "fr-FR", "es-ES", "ru-RU", "it-IT", "pt-PT" };
@@ -239,6 +269,17 @@ localizationOptions.RequestCultureProviders.Insert(0, new Microsoft.AspNetCore.L
 
 app.UseRequestLocalization(localizationOptions);
 
+// ── ECommerce Master & Tenant DB Migrations ───────────────────────
+await app.MigrateECommerceMasterDbAsync();
+await app.MigrateAllTenantDbsAsync();
+
 app.MapControllers();
 
-app.Run();
+try
+{
+    app.Run();
+}
+finally
+{
+    Log.CloseAndFlush();
+}
