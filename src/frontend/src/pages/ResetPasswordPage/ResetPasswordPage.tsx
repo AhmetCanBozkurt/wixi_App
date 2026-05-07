@@ -42,8 +42,8 @@ export const ResetPasswordPage = () => {
       });
       toast.success('Şifreniz güncellendi. Giriş yapabilirsiniz.');
       navigate('/login');
-    } catch (e: any) {
-      toast.error(e?.response?.data?.error || 'Şifre sıfırlama başarısız.');
+    } catch (e: unknown) {
+      toast.error((e as { response?: { data?: { error?: string } } })?.response?.data?.error || 'Şifre sıfırlama başarısız.');
     } finally {
       setIsLoading(false);
     }

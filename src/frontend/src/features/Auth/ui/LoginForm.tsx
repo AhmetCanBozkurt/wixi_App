@@ -51,11 +51,12 @@ export const LoginForm = () => {
         });
         
         setTimeout(() => {
-            window.location.href = '/'; 
+            window.location.href = '/admin';
         }, 800);
       }
-    } catch (error: any) {
-      if (error.response?.status === 401) {
+    } catch (error: unknown) {
+      const status = (error as { response?: { status?: number } })?.response?.status;
+      if (status === 401) {
         toast.error("Girdiğiniz e-posta veya şifre hatalı.", {
             style: { background: 'var(--bg-secondary)', color: 'var(--text-main)', border: '1px solid var(--color-danger)' }
         });

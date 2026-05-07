@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Save } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Swal from 'sweetalert2';
@@ -6,6 +6,15 @@ import styles from './SmtpSettingsForm.module.css';
 import { mailingApi } from '../api/mailing';
 import type { SmtpSettings } from '../types';
 import axios from 'axios';
+
+interface SmtpApiResponse {
+  server?: string;
+  port?: number;
+  username?: string;
+  senderName?: string;
+  senderEmail?: string;
+  enableSsl?: boolean;
+}
 
 export const SmtpSettingsForm: React.FC = () => {
   const [loading, setLoading] = useState(true);
@@ -20,35 +29,35 @@ export const SmtpSettingsForm: React.FC = () => {
     enableSsl: true,
   });
 
-  useEffect(() => {
-    fetchSettings();
-  }, []);
-
-  const fetchSettings = async () => {
+  const fetchSettings = useCallback(async () => {
     try {
       const data = await mailingApi.getSmtpSettings();
       // Backend may respond with {} when no settings exist yet.
       // Still update form state so the UI doesn't look "stuck".
-      const next: SmtpSettings = {
-        server: (data as any)?.server ?? formData.server ?? '',
-        port: (data as any)?.port ?? formData.port ?? 587,
-        username: (data as any)?.username ?? formData.username ?? '',
+      const d = data as SmtpApiResponse;
+      setFormData(prev => ({
+        server: d?.server ?? prev.server ?? '',
+        port: d?.port ?? prev.port ?? 587,
+        username: d?.username ?? prev.username ?? '',
         password: '', // never hydrate password into the input
-        senderName: (data as any)?.senderName ?? formData.senderName ?? '',
-        senderEmail: (data as any)?.senderEmail ?? formData.senderEmail ?? '',
-        enableSsl: (data as any)?.enableSsl ?? formData.enableSsl ?? true,
-      };
-      setFormData(next);
+        senderName: d?.senderName ?? prev.senderName ?? '',
+        senderEmail: d?.senderEmail ?? prev.senderEmail ?? '',
+        enableSsl: d?.enableSsl ?? prev.enableSsl ?? true,
+      }));
     } catch (error) {
-      console.error('Failed to fetch SMTP settings:', error);
       const ax = axios.isAxiosError(error) ? error : undefined;
       const status = ax?.response?.status;
-      const msg = (ax?.response?.data as any)?.error || (ax?.response?.data as any)?.message;
+      const responseData = ax?.response?.data as { error?: string; message?: string } | undefined;
+      const msg = responseData?.error || responseData?.message;
       toast.error(`Ayarlar yüklenirken bir hata oluştu${status ? ` (HTTP ${status})` : ''}${msg ? `: ${msg}` : ''}`);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchSettings();
+  }, [fetchSettings]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
@@ -80,10 +89,10 @@ export const SmtpSettingsForm: React.FC = () => {
       });
       
     } catch (error) {
-      console.error('Failed to update SMTP settings:', error);
       const ax = axios.isAxiosError(error) ? error : undefined;
       const status = ax?.response?.status;
-      const msg = (ax?.response?.data as any)?.error || (ax?.response?.data as any)?.message;
+      const responseData = ax?.response?.data as { error?: string; message?: string } | undefined;
+      const msg = responseData?.error || responseData?.message;
       toast.error(`SMTP Ayarları güncellenemedi${status ? ` (HTTP ${status})` : ''}${msg ? `: ${msg}` : ''}`);
     } finally {
       setSaving(false);
@@ -190,7 +199,10 @@ export const SmtpSettingsForm: React.FC = () => {
                   type="checkbox"
                   name="enableSsl"
                   checked={formData.enableSsl}
-                  onChange={e => handleChange({ target: { name: 'enableSsl', type: 'checkbox', checked: e.target.checked } } as any)}
+                  onChange={e => {
+                  const syntheticEvent = { target: { name: 'enableSsl', type: 'checkbox', checked: e.target.checked, value: '' } } as React.ChangeEvent<HTMLInputElement>;
+                  handleChange(syntheticEvent);
+                }}
                 />
                 <span className={styles.slider}></span>
               </div>

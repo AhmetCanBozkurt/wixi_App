@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
-import { FaStore, FaPlus, FaCheck, FaTimes, FaInfoCircle, FaDatabase, FaEnvelope, FaGlobe } from 'react-icons/fa';
+import { useState, useEffect } from 'react';
+import { FaStore, FaPlus, FaTimes, FaInfoCircle, FaDatabase, FaEnvelope, FaGlobe } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
+import Swal from 'sweetalert2';
 import { apiClient } from '../../shared/api/axiosConfig';
 import { AdvancedDataTable, Badge, Button, Modal, Input } from '../../shared/ui';
 import styles from './ECommerceTenantsPage.module.css';
@@ -20,10 +21,10 @@ interface TenantDto {
 
 export const ECommerceTenantsPage = () => {
   const [tenants, setTenants] = useState<TenantDto[]>([]);
-  const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const doRefresh = () => setRefreshKey(k => k + 1);
 
-  // Modal Form State
   const [formData, setFormData] = useState({
     name: '',
     slug: '',
@@ -32,22 +33,22 @@ export const ECommerceTenantsPage = () => {
     currencyCode: 'TRY'
   });
 
-  const fetchTenants = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res = await apiClient.get<{ items: TenantDto[] }>('admin/tenants');
-      const data = (res.data as any).items?.items || (res.data as any).items || [];
-      setTenants(data);
-    } catch {
-      toast.error('Mağaza listesi alınamadı.');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
   useEffect(() => {
-    fetchTenants();
-  }, [fetchTenants]);
+    const load = async () => {
+      try {
+        interface TenantsResponse { items?: TenantDto[] | { items?: TenantDto[] } }
+        const res = await apiClient.get<TenantsResponse>('admin/tenants');
+        const rawItems = res.data.items;
+        const data: TenantDto[] = Array.isArray(rawItems)
+          ? rawItems
+          : ((rawItems as { items?: TenantDto[] })?.items ?? []);
+        setTenants(data);
+      } catch {
+        toast.error('Mağaza listesi alınamadı.');
+      }
+    };
+    void load();
+  }, [refreshKey]);
 
   const handleCreateTenant = async () => {
     if (!formData.name || !formData.slug || !formData.ownerEmail) {
@@ -61,10 +62,51 @@ export const ECommerceTenantsPage = () => {
       toast.success('Mağaza başarıyla oluşturuldu!', { id: 'createTenant' });
       setIsModalOpen(false);
       setFormData({ name: '', slug: '', ownerEmail: '', plan: 0, currencyCode: 'TRY' });
-      fetchTenants();
-    } catch (err: any) {
-      const errMsg = err.response?.data?.error || 'Mağaza oluşturulurken hata oluştu.';
+      doRefresh();
+    } catch (err: unknown) {
+      const errMsg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error || 'Mağaza oluşturulurken hata oluştu.';
       toast.error(errMsg, { id: 'createTenant' });
+    }
+  };
+
+  const handleDeleteTenant = async (tenant: TenantDto) => {
+    const result = await Swal.fire({
+      title: 'Mağazayı Sil?',
+      html: `<b>${tenant.name}</b> mağazası ve tüm veritabanı (<code>${tenant.databaseName}</code>) kalıcı olarak silinecektir.<br><br><span style="color:#ef4444;font-weight:bold">Bu işlem geri alınamaz.</span>`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonText: 'İptal',
+      confirmButtonText: 'Evet, kalıcı olarak sil',
+      background: 'var(--surface)',
+      color: 'var(--text-main)',
+    });
+
+    if (!result.isConfirmed) return;
+
+    // İkinci onay
+    const confirm2 = await Swal.fire({
+      title: 'Emin misiniz?',
+      text: `"${tenant.name}" mağazasına ait tüm ürünler, siparişler ve müşteriler silinecek.`,
+      icon: 'error',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonText: 'Hayır, iptal et',
+      confirmButtonText: 'Evet, veritabanını sil',
+      background: 'var(--surface)',
+      color: 'var(--text-main)',
+    });
+
+    if (!confirm2.isConfirmed) return;
+
+    try {
+      toast.loading('Mağaza siliniyor...', { id: 'deleteTenant' });
+      await apiClient.delete(`admin/tenants/${tenant.id}`);
+      toast.success('Mağaza ve veritabanı başarıyla silindi.', { id: 'deleteTenant' });
+      doRefresh();
+    } catch (err: unknown) {
+      const errMsg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error || 'Silme işlemi başarısız.';
+      toast.error(errMsg, { id: 'deleteTenant' });
     }
   };
 
@@ -122,7 +164,7 @@ export const ECommerceTenantsPage = () => {
             }
           ]}
           pageable={{ pageSize: 10 }}
-          onDetail={(row) => console.log('Detail:', row)}
+          onDelete={handleDeleteTenant}
           detailModal={(row, onClose) => (
             <div className={styles.detailContainer}>
               <div className={styles.detailHeader}>

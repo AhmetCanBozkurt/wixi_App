@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
 type Theme = 'light' | 'dark';
@@ -11,21 +12,14 @@ interface ThemeContextProps {
 const ThemeContext = createContext<ThemeContextProps | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [theme, setThemeState] = useState<Theme>('light');
+  const [theme, setThemeState] = useState<Theme>(() => {
+    const savedTheme = localStorage.getItem('wixi-theme');
+    return (savedTheme === 'light' || savedTheme === 'dark') ? savedTheme : 'light';
+  });
 
   useEffect(() => {
-    // 1. Tarayıcı önbelleğini kontrol et
-    const savedTheme = localStorage.getItem('wixi-theme');
-    
-    // 2. Sistem temasını yükle (Aksi halde default light ayarlıyoruz)
-    if (savedTheme === 'light' || savedTheme === 'dark') {
-      setThemeState(savedTheme);
-      document.documentElement.setAttribute('data-theme', savedTheme);
-    } else {
-      setThemeState('light');
-      document.documentElement.setAttribute('data-theme', 'light');
-    }
-  }, []);
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
 
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme);

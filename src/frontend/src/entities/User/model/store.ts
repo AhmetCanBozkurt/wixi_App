@@ -20,21 +20,21 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   login: async (token: string) => {
     localStorage.setItem('token', token);
     try {
-      const decoded: any = jwtDecode(token);
-      
+      const decoded = jwtDecode<{ nameid?: string; sub?: string; email?: string; role?: string | string[] }>(token);
+
       const user: User = {
         id: decoded.nameid || decoded.sub || '',
         email: decoded.email || '',
-        firstName: '', 
+        firstName: '',
         lastName: '',
         roles: Array.isArray(decoded.role) ? decoded.role : (decoded.role ? [decoded.role] : [])
       };
 
       set({ token, user, isAuthenticated: true });
-      
+
       // Perform full profile hydration
       await get().fetchMe();
-    } catch (e) {
+    } catch {
       set({ token, user: null, isAuthenticated: true });
     }
   },
@@ -42,7 +42,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   fetchMe: async () => {
     if (!get().token) return;
     try {
-      const res = await apiClient.get<any>('auth/me');
+      const res = await apiClient.get<{ firstName: string; lastName: string; profilePicture?: string }>('auth/me');
       const currentUser = get().user;
       if (currentUser) {
         set({ 
@@ -54,8 +54,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           } 
         });
       }
-    } catch (e) {
-      console.error("Failed to fetch user profile", e);
+    } catch {
+      // silent — profile hydration failure is non-critical
     }
   },
 

@@ -14,10 +14,12 @@ namespace Wixi.API.Controllers;
 public class TenantsController : ControllerBase
 {
     private readonly WixiCoreDbContext _coreDb;
+    private readonly ILogger<TenantsController> _logger;
 
-    public TenantsController(WixiCoreDbContext coreDb)
+    public TenantsController(WixiCoreDbContext coreDb, ILogger<TenantsController> logger)
     {
         _coreDb = coreDb;
+        _logger = logger;
     }
 
     [HttpGet]
@@ -55,5 +57,55 @@ public class TenantsController : ControllerBase
         await _coreDb.SaveChangesAsync();
 
         return Ok(new { message = $"Tenant status updated: {tenant.IsActive}", isActive = tenant.IsActive });
+    }
+
+    /// <summary>
+    /// Tenant kaydını soft-delete yapar ve tenant DB'sini tamamen siler.
+    /// </summary>
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        var tenant = await _coreDb.Tenants.FindAsync(id);
+        if (tenant == null || tenant.IsDeleted) return NotFound();
+
+        // Tenant DB'sini drop et
+        if (!string.IsNullOrWhiteSpace(tenant.DatabaseName))
+        {
+            try
+            {
+                var masterConnStr = new Microsoft.Data.SqlClient.SqlConnectionStringBuilder(
+                    _coreDb.Database.GetConnectionString()!)
+                {
+                    InitialCatalog = "master"
+                }.ConnectionString;
+
+                using var conn = new Microsoft.Data.SqlClient.SqlConnection(masterConnStr);
+                await conn.OpenAsync();
+
+                var safeName = tenant.DatabaseName.Replace("]", "]]");
+                var safeNameLiteral = tenant.DatabaseName.Replace("'", "''");
+                using var cmd = conn.CreateCommand();
+                cmd.CommandText = $"""
+                    IF DB_ID(N'{safeNameLiteral}') IS NOT NULL
+                    BEGIN
+                        ALTER DATABASE [{safeName}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+                        DROP DATABASE [{safeName}];
+                    END
+                    """;
+                await cmd.ExecuteNonQueryAsync();
+                _logger.LogInformation("Tenant DB dropped: {DbName}", tenant.DatabaseName);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning("Could not drop tenant DB {DbName}: {Message}", tenant.DatabaseName, ex.Message);
+                // DB drop başarısız olsa bile kaydı silmeye devam et
+            }
+        }
+
+        tenant.IsDeleted = true;
+        tenant.IsActive = false;
+        await _coreDb.SaveChangesAsync();
+
+        return NoContent();
     }
 }

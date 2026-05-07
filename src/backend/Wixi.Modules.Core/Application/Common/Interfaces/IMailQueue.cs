@@ -16,9 +16,7 @@ public class MailQueue : IMailQueue
 
     public MailQueue()
     {
-        // Unbounded channel: memory bounded by app usage. 
-        // For production, a Bounded channel with logic for overflow is better.
-        _queue = Channel.CreateUnbounded<MailRequest>();
+        _queue = Channel.CreateBounded<MailRequest>(new BoundedChannelOptions(500) { FullMode = BoundedChannelFullMode.Wait });
     }
 
     public async ValueTask QueueEmailAsync(MailRequest request)

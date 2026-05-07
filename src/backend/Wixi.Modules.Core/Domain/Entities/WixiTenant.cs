@@ -37,8 +37,21 @@ public class WixiTenant : IAuditable
     /// <summary>Logo URL.</summary>
     public string? LogoUrl { get; set; }
 
+    /// <summary>Bu tenant'ı oluşturan WixiUser'ın ID'si.</summary>
+    public Guid? OwnerUserId { get; set; }
+
+    // Özelleştirme alanları
+    public string? ThemeColorPrimary { get; set; }
+    public string? CustomDomain { get; set; }
+    public string? BannerImageUrl { get; set; }
+    public string? SeoTitle { get; set; }
+    public string? SeoDescription { get; set; }
+
     /// <summary>Veritabanı en son ne zaman migrate edildi?</summary>
     public bool IsMigrated { get; set; } = false;
+
+    /// <summary>Provisioning sırasında oluşan son hata mesajı.</summary>
+    public string? LastMigrationError { get; set; }
 
     // IAuditable
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

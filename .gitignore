@@ -18,3 +18,7 @@ src/frontend/.vite/
 *.dll
 *.exe
 
+# Sensitive configuration
+appsettings.Development.json
+src/frontend/.env
+

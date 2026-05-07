@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { FaPlus, FaEdit, FaTrash, FaThList, FaGlobe, FaTimes, FaSearch, FaSave } from 'react-icons/fa';
+import { FaPlus, FaThList, FaGlobe, FaTimes, FaSearch, FaSave } from 'react-icons/fa';
 import * as FaIconsList from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 import Swal from 'sweetalert2';
@@ -28,6 +28,10 @@ interface MenuEdit {
   sortOrder: number;
   isVisible: boolean;
   translations: MenuTranslation[];
+  createdAt?: string;
+  createdByUser?: string;
+  updatedAt?: string;
+  updatedByUser?: string;
 }
 
 const SYSTEM_PAGES = [
@@ -68,7 +72,7 @@ export const MenuManagementPage = () => {
     try {
       const [langsRes, menusRes] = await Promise.all([
         apiClient.get<{ items: Language[] }>('language'),
-        apiClient.get<{ items: any[] }>('menu/all')
+        apiClient.get<{ items: MenuEdit[] }>('menu/all')
       ]);
       setLanguages(langsRes.data.items || []);
       
@@ -80,7 +84,11 @@ export const MenuManagementPage = () => {
         iconColor: m.iconColor,
         sortOrder: m.sortOrder,
         isVisible: m.isVisible,
-        translations: m.translations || m.Translations || []
+        translations: m.translations || [],
+        createdAt: m.createdAt,
+        createdByUser: m.createdByUser,
+        updatedAt: m.updatedAt,
+        updatedByUser: m.updatedByUser
       }));
       
       setMenus(mappedMenus);
@@ -93,12 +101,12 @@ export const MenuManagementPage = () => {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  const handleOpenModal = (menu?: any) => {
+  const handleOpenModal = (menu?: MenuEdit) => {
     if (menu) {
       setEditingMenu(menu);
-      setFormData({ 
+      setFormData({
         ...menu,
-        translations: menu.translations || menu.Translations || []
+        translations: menu.translations || []
       });
     } else {
       setEditingMenu(null);
@@ -238,9 +246,9 @@ export const MenuManagementPage = () => {
         </span>
       )
     },
-    { field: 'createdAt', title: 'Oluşturma', hidden: true, template: (row: any) => row.createdAt ? new Date(row.createdAt).toLocaleString() : '-' },
+    { field: 'createdAt', title: 'Oluşturma', hidden: true, template: (row) => row.createdAt ? new Date(row.createdAt).toLocaleString() : '-' },
     { field: 'createdByUser', title: 'Oluşturan', hidden: true },
-    { field: 'updatedAt', title: 'Güncelleme', hidden: true, template: (row: any) => row.updatedAt ? new Date(row.updatedAt).toLocaleString() : '-' },
+    { field: 'updatedAt', title: 'Güncelleme', hidden: true, template: (row) => row.updatedAt ? new Date(row.updatedAt).toLocaleString() : '-' },
     { field: 'updatedByUser', title: 'Güncelleyen', hidden: true }
   ];
 

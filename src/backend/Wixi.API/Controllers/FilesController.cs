@@ -9,7 +9,7 @@ namespace Wixi.API.Controllers;
 
 [ApiController]
 [Route("api/v1/[controller]")]
-// [Authorize] // Temporarily disabled for testing or enable if auth is ready
+[Authorize]
 public class FilesController : ControllerBase
 {
     private readonly IFileStorageService _fileStorage;

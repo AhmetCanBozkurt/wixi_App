@@ -5,11 +5,11 @@ import { createPortal } from 'react-dom';
 import {
   FaSearch, FaTimes, FaColumns, FaFileExcel, FaFilePdf,
   FaGripVertical, FaEllipsisH, FaLayerGroup, FaSort,
-  FaSortUp, FaSortDown, FaFilter, FaChevronLeft, FaChevronRight,
+  FaSortUp, FaSortDown, FaChevronLeft, FaChevronRight,
   FaAngleRight, FaAngleDown, FaEye, FaEdit, FaTrashAlt,
 } from 'react-icons/fa';
 import {
-  DndContext, closestCenter, PointerSensor, useSensor, useSensors, DragOverlay,
+  DndContext, closestCenter, PointerSensor, useSensor, useSensors,
 } from '@dnd-kit/core';
 import type { DragStartEvent, DragEndEvent } from '@dnd-kit/core';
 import {
@@ -26,7 +26,7 @@ import { Modal } from '../Modal/Modal';
 import { Button } from '../Button/Button';
 
 // ─── Types ─────────────────────────────────────────────────────────────────
-export interface ColumnConfig<T = any> {
+export interface ColumnConfig<T = Record<string, unknown>> {
   field: string;
   title: string;
   width?: number;
@@ -40,7 +40,7 @@ export interface ColumnConfig<T = any> {
   attributes?: React.HTMLAttributes<HTMLTableCellElement>;
 }
 
-export interface GridOptions<T = any> {
+export interface GridOptions<T = Record<string, unknown>> {
   dataSource: T[] | string;
   columns: ColumnConfig<T>[];
   pageable?: boolean | { pageSize?: number; pageSizes?: number[] };
@@ -63,9 +63,9 @@ export interface GridOptions<T = any> {
 }
 
 // ─── Utility ───────────────────────────────────────────────────────────────
-function getNestedValue(obj: any, path: string): any {
+function getNestedValue(obj: Record<string, unknown>, path: string): unknown {
   if (!path) return undefined;
-  return path.split('.').reduce((acc, p) => acc?.[p], obj);
+  return path.split('.').reduce((acc: unknown, p: string) => (acc as Record<string, unknown>)?.[p], obj);
 }
 
 // ─── Sortable Header ────────────────────────────────────────────────────────
@@ -137,7 +137,7 @@ function SortableHeaderCell({
 }
 
 // ─── Main Component ─────────────────────────────────────────────────────────
-export function AdvancedDataTable<T extends Record<string, any>>(options: GridOptions<T>) {
+export function AdvancedDataTable<T extends Record<string, unknown>>(options: GridOptions<T>) {
   const {
     dataSource, columns: initialCols, pageable, sortable = true, filterable = false,
     groupable = false, reorderable = true, resizable = true, selectable = false,
@@ -267,7 +267,7 @@ export function AdvancedDataTable<T extends Record<string, any>>(options: GridOp
     if (!isRemote) return;
     setLoading(true);
     try {
-      const params: any = {
+      const params: Record<string, unknown> = {
         page, pageSize,
         ...(debouncedSearch ? { search: debouncedSearch } : {}),
         ...(sortField ? { sortBy: sortField, sortOrder: sortDir } : {}),
@@ -280,7 +280,7 @@ export function AdvancedDataTable<T extends Record<string, any>>(options: GridOp
       setRemoteData(items);
       setTotal(result.totalCount ?? result.total ?? items.length);
       onDataBound?.(items);
-    } catch (e: any) { toast.error(e.message); } finally { setLoading(false); }
+    } catch (e: unknown) { toast.error((e as Error).message || 'Veri yüklenemedi'); } finally { setLoading(false); }
   }, [isRemote, dataSource, page, pageSize, debouncedSearch, sortField, sortDir, JSON.stringify(columnFilters), JSON.stringify(searchParams)]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
@@ -293,8 +293,8 @@ export function AdvancedDataTable<T extends Record<string, any>>(options: GridOp
     let d = Array.isArray(dataSource) ? [...dataSource] : [];
     
     // Safety check: if data source is empty but was supposed to be there
-    if (d.length === 0 && dataSource && (dataSource as any).length > 0) {
-       d = [...(dataSource as any)];
+    if (d.length === 0 && dataSource && (dataSource as T[]).length > 0) {
+       d = [...(dataSource as T[])];
     }
 
     const q = debouncedSearch.trim().toLowerCase();
@@ -322,8 +322,9 @@ export function AdvancedDataTable<T extends Record<string, any>>(options: GridOp
 
 
 
-  const applyGrouping = (items: T[], gFields: string[]): any[] => {
-    const grouped = (data: T[], level: number, parentKey: string): any[] => {
+  type GroupRow = { __group: true; level: number; field: string; value: string; count: number; groupKey: string };
+  const applyGrouping = (items: T[], gFields: string[]): (T | GroupRow)[] => {
+    const grouped = (data: T[], level: number, parentKey: string): (T | GroupRow)[] => {
       if (level >= gFields.length) return data;
       const field = gFields[level];
       const map = new Map<string, T[]>();
@@ -332,7 +333,7 @@ export function AdvancedDataTable<T extends Record<string, any>>(options: GridOp
         if (!map.has(val)) map.set(val, []);
         map.get(val)!.push(item);
       });
-      const res: any[] = [];
+      const res: (T | GroupRow)[] = [];
       map.forEach((rows, val) => {
         const groupKey = `${parentKey}::${val}`;
         res.push({ __group: true, level, field, value: val, count: rows.length, groupKey });
@@ -396,7 +397,7 @@ export function AdvancedDataTable<T extends Record<string, any>>(options: GridOp
     const id = row.id ?? JSON.stringify(row); // fallback for rows without id
     setSelectedRows(prev => {
       const n = new Set(prev);
-      n.has(id) ? n.delete(id) : n.add(id);
+      if (n.has(id)) { n.delete(id); } else { n.add(id); }
       return n;
     });
   };
@@ -415,21 +416,6 @@ export function AdvancedDataTable<T extends Record<string, any>>(options: GridOp
     });
   };
 
-  const getExportData = () => {
-    // Selection has priority
-    const baseData = selectedRows.size > 0 
-      ? processedData.filter(row => selectedRows.has(row.id ?? JSON.stringify(row)))
-      : processedData;
-
-    return baseData.map(row => {
-      const entry: any = {};
-      activeCols.forEach(col => {
-        entry[col.title] = getNestedValue(row, col.field);
-      });
-      return entry;
-    });
-  };
-
   const handleExportExcel = () => {
     try {
       // Selection has priority
@@ -442,7 +428,7 @@ export function AdvancedDataTable<T extends Record<string, any>>(options: GridOp
         return;
       }
 
-      const getImgSrc = (val: any) => {
+      const getImgSrc = (val: unknown) => {
         if (!val || typeof val !== 'string') return null;
         if (val.startsWith('data:image')) return val;
         if (val.length > 100 && /^[A-Za-z0-9+/=]+$/.test(val)) return `data:image/jpeg;base64,${val}`;
@@ -450,7 +436,7 @@ export function AdvancedDataTable<T extends Record<string, any>>(options: GridOp
       };
 
       const exportData = baseData.map(row => {
-        const entry: any = {};
+        const entry: Record<string, unknown> = {};
         activeCols.forEach(col => {
           if (!col.field) return;
           const val = getNestedValue(row, col.field);

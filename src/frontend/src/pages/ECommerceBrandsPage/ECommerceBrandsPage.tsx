@@ -17,7 +17,6 @@ interface BrandDto {
 
 export const ECommerceBrandsPage = () => {
   const [brands, setBrands] = useState<BrandDto[]>([]);
-  const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -34,16 +33,13 @@ export const ECommerceBrandsPage = () => {
       setBrands([]);
       return;
     }
-    setLoading(true);
     try {
-      const res = await apiClient.get<any>('admin/ecommerce/brands');
-      const data = res.data?.items || res.data || [];
+      const res = await apiClient.get<{ items?: BrandDto[] } | BrandDto[]>('admin/ecommerce/brands');
+      const data = (res.data as { items?: BrandDto[] })?.items || (Array.isArray(res.data) ? res.data : []);
       setBrands(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("Marka listesi hatası:", err);
       toast.error('Marka listesi alınamadı.');
-    } finally {
-      setLoading(false);
     }
   }, [activeTenant]);
 

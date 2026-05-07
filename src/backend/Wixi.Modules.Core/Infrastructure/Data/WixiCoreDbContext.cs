@@ -30,6 +30,16 @@ public class WixiCoreDbContext : IdentityDbContext<WixiUser, WixiRole, Guid>
     public DbSet<WixiRefreshToken> RefreshTokens { get; set; }
     public DbSet<WixiTenant> Tenants { get; set; }
 
+    // Subscription & Billing
+    public DbSet<WixiSubscriptionPlan> SubscriptionPlans { get; set; }
+    public DbSet<WixiTenantSubscription> TenantSubscriptions { get; set; }
+    public DbSet<WixiPaymentTransaction> PaymentTransactions { get; set; }
+
+    // Currency Management
+    public DbSet<WixiCurrency> Currencies { get; set; }
+    public DbSet<WixiExchangeRate> ExchangeRates { get; set; }
+    public DbSet<WixiCurrencySetting> CurrencySettings { get; set; }
+
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         // 1. Handle IAuditable timestamps
@@ -176,8 +186,19 @@ public class WixiCoreDbContext : IdentityDbContext<WixiUser, WixiRole, Guid>
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
-        
-        // ... (rest of the mapping code kept as is)
+
+        foreach (var entityType in builder.Model.GetEntityTypes())
+        {
+            if (typeof(Wixi.Shared.Domain.Entities.IAuditable).IsAssignableFrom(entityType.ClrType))
+            {
+                var parameter = System.Linq.Expressions.Expression.Parameter(entityType.ClrType, "e");
+                var property = System.Linq.Expressions.Expression.Property(parameter, "IsDeleted");
+                var falseConst = System.Linq.Expressions.Expression.Constant(false);
+                var body = System.Linq.Expressions.Expression.Equal(property, falseConst);
+                var lambda = System.Linq.Expressions.Expression.Lambda(body, parameter);
+                builder.Entity(entityType.ClrType).HasQueryFilter(lambda);
+            }
+        }
 
         // Naming standard applied for Modular Enterprise App
         builder.Entity<WixiUser>(b =>
@@ -337,6 +358,106 @@ public class WixiCoreDbContext : IdentityDbContext<WixiUser, WixiRole, Guid>
             entity.Property(e => e.ConnectionString).IsRequired().HasMaxLength(1000);
             entity.Property(e => e.OwnerEmail).IsRequired().HasMaxLength(256);
             entity.Property(e => e.EnabledModules).HasMaxLength(500);
+            entity.Property(e => e.ThemeColorPrimary).HasMaxLength(20);
+            entity.Property(e => e.CustomDomain).HasMaxLength(255);
+            entity.Property(e => e.SeoTitle).HasMaxLength(200);
+            entity.Property(e => e.SeoDescription).HasMaxLength(500);
+            entity.Property(e => e.LastMigrationError).HasMaxLength(2000);
+        });
+
+        // Subscription Plans Mapping
+        builder.Entity<WixiSubscriptionPlan>(entity =>
+        {
+            entity.ToTable("WIXI_SUBSCRIPTION_PLANS");
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.Code).IsUnique();
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.Code).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.PriceMonthly).HasColumnType("decimal(10,2)");
+            entity.Property(e => e.PriceYearly).HasColumnType("decimal(10,2)");
+            entity.Property(e => e.StripePriceIdMonthly).HasMaxLength(100);
+            entity.Property(e => e.StripePriceIdYearly).HasMaxLength(100);
+        });
+
+        // Tenant Subscriptions Mapping
+        builder.Entity<WixiTenantSubscription>(entity =>
+        {
+            entity.ToTable("WIXI_TENANT_SUBSCRIPTIONS");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Status).IsRequired().HasMaxLength(30);
+            entity.Property(e => e.BillingInterval).IsRequired().HasMaxLength(20);
+            entity.Property(e => e.StripeCustomerId).HasMaxLength(100);
+            entity.Property(e => e.StripeSubscriptionId).HasMaxLength(100);
+            entity.Property(e => e.PaymentMethod).HasMaxLength(30);
+
+            entity.HasOne(e => e.Tenant)
+                  .WithMany()
+                  .HasForeignKey(e => e.TenantId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(e => e.Plan)
+                  .WithMany()
+                  .HasForeignKey(e => e.PlanId)
+                  .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // Payment Transactions Mapping
+        builder.Entity<WixiPaymentTransaction>(entity =>
+        {
+            entity.ToTable("WIXI_PAYMENT_TRANSACTIONS");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Amount).HasColumnType("decimal(14,2)");
+            entity.Property(e => e.Currency).IsRequired().HasMaxLength(10);
+            entity.Property(e => e.Status).IsRequired().HasMaxLength(30);
+            entity.Property(e => e.Gateway).IsRequired().HasMaxLength(30);
+            entity.Property(e => e.ExternalId).HasMaxLength(200);
+            entity.Property(e => e.ExternalSubscriptionId).HasMaxLength(200);
+            entity.Property(e => e.FailureReason).HasMaxLength(500);
+
+            entity.HasOne(e => e.Tenant)
+                  .WithMany()
+                  .HasForeignKey(e => e.TenantId)
+                  .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // Currencies Mapping
+        builder.Entity<WixiCurrency>(entity =>
+        {
+            entity.ToTable("WIXI_CURRENCIES");
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.Code).IsUnique();
+            entity.Property(e => e.Code).IsRequired().HasMaxLength(10);
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.NameEn).HasMaxLength(100);
+            entity.Property(e => e.Symbol).HasMaxLength(10);
+        });
+
+        // Exchange Rates Mapping
+        builder.Entity<WixiExchangeRate>(entity =>
+        {
+            entity.ToTable("WIXI_EXCHANGE_RATES");
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => new { e.RateDate, e.CurrencyId }).IsUnique();
+            entity.Property(e => e.CurrencyCode).IsRequired().HasMaxLength(10);
+            entity.Property(e => e.Source).HasMaxLength(20);
+            entity.Property(e => e.ForexBuying).HasColumnType("decimal(18,6)");
+            entity.Property(e => e.ForexSelling).HasColumnType("decimal(18,6)");
+            entity.Property(e => e.BanknoteBuying).HasColumnType("decimal(18,6)");
+            entity.Property(e => e.BanknoteSelling).HasColumnType("decimal(18,6)");
+
+            entity.HasOne(e => e.Currency)
+                  .WithMany(c => c.ExchangeRates)
+                  .HasForeignKey(e => e.CurrencyId)
+                  .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // Currency Settings Mapping
+        builder.Entity<WixiCurrencySetting>(entity =>
+        {
+            entity.ToTable("WIXI_CURRENCY_SETTINGS");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.BaseCurrencyCode).IsRequired().HasMaxLength(10);
+            entity.Property(e => e.LastSyncStatus).HasMaxLength(500);
         });
     }
 

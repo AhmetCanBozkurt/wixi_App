@@ -200,8 +200,8 @@ export const MailingManagementPage: React.FC = () => {
             toast.success('Test e-postası gönderildi.');
             setTestingTemplate(null);
             await loadData();
-          } catch (error: any) {
-            const msg = error?.response?.data?.error || 'Test maili gönderilemedi. Lütfen SMTP ayarlarınızı kontrol edin.';
+          } catch (error: unknown) {
+            const msg = (error as { response?: { data?: { error?: string } } })?.response?.data?.error || 'Test maili gönderilemedi. Lütfen SMTP ayarlarınızı kontrol edin.';
             toast.error(msg);
           } finally {
             setIsSendingTest(false);

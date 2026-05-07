@@ -182,7 +182,7 @@ export const ApplicationLogsPage = () => {
 
   const endpoint = 'audit';
 
-  const columns = useMemo<any>(() => [
+  const columns = useMemo(() => [
     {
       field: 'action',
       title: 'AKSİYON / OLAY',

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
-import { FaSave, FaCamera, FaTrashAlt, FaInfoCircle, FaUser, FaEnvelope, FaIdCard, FaPhone, FaShieldAlt } from 'react-icons/fa';
+import { FaCamera, FaTrashAlt, FaUser, FaEnvelope, FaIdCard, FaPhone, FaShieldAlt } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 import { apiClient } from '../../shared/api/axiosConfig';
 import { Input } from '../../shared/ui/Input/Input';
@@ -7,7 +7,7 @@ import { MultiSelect } from '../../shared/ui';
 import styles from './UserManagementPage.module.css';
 
 interface UserDetail {
-  id: string;
+  id?: string;
   firstName: string;
   lastName: string;
   email: string;
@@ -17,6 +17,7 @@ interface UserDetail {
   phoneNumber: string | null;
   twoFactorEnabled: boolean;
   roles?: string[];
+  password?: string;
 }
 
 interface UserDetailFormProps {
@@ -25,7 +26,7 @@ interface UserDetailFormProps {
   onNext: () => void;
 }
 
-export const UserDetailForm = forwardRef<{ handleSave: () => void }, UserDetailFormProps>(({ userId, onUserUpdated, onNext }, ref) => {
+export const UserDetailForm = forwardRef<{ handleSave: () => void }, UserDetailFormProps>(({ userId, onUserUpdated, onNext: _onNext }, ref) => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [allRoles, setAllRoles] = useState<{ id: string; name: string; description?: string | null }[]>([]);
@@ -39,7 +40,7 @@ export const UserDetailForm = forwardRef<{ handleSave: () => void }, UserDetailF
     profilePicture: null,
     phoneNumber: '',
     twoFactorEnabled: false
-  } as any);
+  });
   const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   useImperativeHandle(ref, () => ({
@@ -91,7 +92,7 @@ export const UserDetailForm = forwardRef<{ handleSave: () => void }, UserDetailF
         setPreviewImage(base64String);
         // Remove prefix like "data:image/jpeg;base64,"
         const binary = base64String.split(',')[1];
-        setUser(prev => prev ? { ...prev, profilePicture: binary } : { profilePicture: binary } as any);
+        setUser(prev => prev ? { ...prev, profilePicture: binary } : { firstName: '', lastName: '', email: '', username: '', isActive: true, profilePicture: binary, phoneNumber: null, twoFactorEnabled: false });
       };
       reader.readAsDataURL(file);
     }
@@ -99,7 +100,7 @@ export const UserDetailForm = forwardRef<{ handleSave: () => void }, UserDetailF
 
   const handleRemoveImage = () => {
     setPreviewImage(null);
-    setUser(prev => prev ? { ...prev, profilePicture: null } : { profilePicture: null } as any);
+    setUser(prev => prev ? { ...prev, profilePicture: null } : { firstName: '', lastName: '', email: '', username: '', isActive: true, profilePicture: null, phoneNumber: null, twoFactorEnabled: false });
   };
 
   const handleSave = async (e: React.FormEvent) => {
@@ -195,7 +196,7 @@ export const UserDetailForm = forwardRef<{ handleSave: () => void }, UserDetailF
             leftIcon={<FaUser />}
             placeholder="Ad giriniz..."
             value={displayUser.firstName} 
-            onChange={e => setUser({...displayUser, firstName: e.target.value} as any)} 
+            onChange={e => setUser({...displayUser, firstName: e.target.value})}
             required
           />
           <Input 
@@ -203,7 +204,7 @@ export const UserDetailForm = forwardRef<{ handleSave: () => void }, UserDetailF
             leftIcon={<FaUser />}
             placeholder="Soyad giriniz..."
             value={displayUser.lastName} 
-            onChange={e => setUser({...displayUser, lastName: e.target.value} as any)} 
+            onChange={e => setUser({...displayUser, lastName: e.target.value})}
             required
           />
           <Input 
@@ -211,7 +212,7 @@ export const UserDetailForm = forwardRef<{ handleSave: () => void }, UserDetailF
             leftIcon={<FaIdCard />}
             placeholder="Kullanıcı adı..."
             value={displayUser.username} 
-            onChange={e => setUser({...displayUser, username: e.target.value} as any)} 
+            onChange={e => setUser({...displayUser, username: e.target.value})}
             required
           />
           <Input 
@@ -220,7 +221,7 @@ export const UserDetailForm = forwardRef<{ handleSave: () => void }, UserDetailF
             leftIcon={<FaEnvelope />}
             placeholder="ornek@wixi.com"
             value={displayUser.email} 
-            onChange={e => setUser({...displayUser, email: e.target.value} as any)} 
+            onChange={e => setUser({...displayUser, email: e.target.value})}
             required
           />
           {!userId && (
@@ -229,8 +230,8 @@ export const UserDetailForm = forwardRef<{ handleSave: () => void }, UserDetailF
               type="password"
               leftIcon={<FaShieldAlt />}
               placeholder="Giriş şifresi..."
-              value={(displayUser as any).password || ''} 
-              onChange={e => setUser({...displayUser, password: e.target.value} as any)} 
+              value={displayUser.password || ''}
+              onChange={e => setUser({...displayUser, password: e.target.value})}
               required
             />
           )}
@@ -242,7 +243,7 @@ export const UserDetailForm = forwardRef<{ handleSave: () => void }, UserDetailF
             maxLength={19}
             onChange={e => {
               const formatted = formatPhoneNumber(e.target.value);
-              setUser({...displayUser, phoneNumber: formatted} as any);
+              setUser({...displayUser, phoneNumber: formatted});
             }} 
           />
           <div className={styles.formGroup}>
@@ -251,7 +252,7 @@ export const UserDetailForm = forwardRef<{ handleSave: () => void }, UserDetailF
               <input 
                 type="checkbox" 
                 checked={displayUser.twoFactorEnabled} 
-                onChange={e => setUser({...displayUser, twoFactorEnabled: e.target.checked} as any)} 
+                onChange={e => setUser({...displayUser, twoFactorEnabled: e.target.checked})}
               />
               <span className={styles.slider}></span>
               <span className={styles.switchLabel}>
@@ -281,7 +282,7 @@ export const UserDetailForm = forwardRef<{ handleSave: () => void }, UserDetailF
               <input 
                 type="checkbox" 
                 checked={displayUser.isActive} 
-                onChange={e => setUser({...displayUser, isActive: e.target.checked} as any)} 
+                onChange={e => setUser({...displayUser, isActive: e.target.checked})}
               />
               <span className={styles.slider}></span>
               <span className={styles.switchLabel}>{displayUser.isActive ? 'Aktif Hesap' : 'Pasif Hesap'}</span>

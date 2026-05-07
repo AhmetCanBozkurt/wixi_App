@@ -52,8 +52,8 @@ export const TwoFactorModal = ({ isOpen, twoFactorToken, rememberMe, onClose, on
       });
       const token = res.data?.token || res.data?.accessToken;
       if (token) await onSuccess(token);
-    } catch (e: any) {
-      const msg = e?.response?.data?.error || 'Doğrulama başarısız.';
+    } catch (e: unknown) {
+      const msg = (e as { response?: { data?: { error?: string } } })?.response?.data?.error || 'Doğrulama başarısız.';
       setErrorText(msg);
       setShake(true);
       window.setTimeout(() => setShake(false), 450);
@@ -70,8 +70,8 @@ export const TwoFactorModal = ({ isOpen, twoFactorToken, rememberMe, onClose, on
       await apiClient.post('/Auth/resend-2fa', { twoFactorToken });
       setSecondsLeft(5 * 60);
       setDigits(['', '', '', '', '', '']);
-    } catch (e: any) {
-      const msg = e?.response?.data?.error || 'Kod yeniden gönderilemedi.';
+    } catch (e: unknown) {
+      const msg = (e as { response?: { data?: { error?: string } } })?.response?.data?.error || 'Kod yeniden gönderilemedi.';
       setErrorText(msg);
       setShake(true);
       window.setTimeout(() => setShake(false), 450);

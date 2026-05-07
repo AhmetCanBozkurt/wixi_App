@@ -14,10 +14,15 @@ export const TenantSelector: React.FC<TenantSelectorProps> = ({ onTenantChange }
   useEffect(() => {
     const fetchTenants = async () => {
       try {
-        const res = await apiClient.get<{ items: any[] }>('admin/tenants');
-        const data = (res.data as any).items?.items || (res.data as any).items || [];
-        
-        const dropdownOptions = data.map((t: any) => ({
+        interface TenantItem { name: string; slug: string; }
+        interface TenantsResponse { items?: TenantItem[] | { items?: TenantItem[] } }
+        const res = await apiClient.get<TenantsResponse>('admin/tenants');
+        const rawItems = res.data.items;
+        const data: TenantItem[] = Array.isArray(rawItems)
+          ? rawItems
+          : ((rawItems as { items?: TenantItem[] })?.items ?? []);
+
+        const dropdownOptions = data.map((t) => ({
           label: `${t.name} (${t.slug})`,
           value: t.slug
         }));

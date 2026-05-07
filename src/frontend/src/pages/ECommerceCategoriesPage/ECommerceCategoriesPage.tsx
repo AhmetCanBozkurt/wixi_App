@@ -17,7 +17,6 @@ interface CategoryDto {
 
 export const ECommerceCategoriesPage = () => {
   const [categories, setCategories] = useState<CategoryDto[]>([]);
-  const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -33,16 +32,13 @@ export const ECommerceCategoriesPage = () => {
       setCategories([]);
       return;
     }
-    setLoading(true);
     try {
-      const res = await apiClient.get<any>('admin/ecommerce/categories');
-      const data = res.data?.items || res.data || [];
+      const res = await apiClient.get<{ items?: CategoryDto[] } | CategoryDto[]>('admin/ecommerce/categories');
+      const data = (res.data as { items?: CategoryDto[] })?.items || (Array.isArray(res.data) ? res.data : []);
       setCategories(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("Kategori listesi hatası:", err);
       toast.error('Kategori listesi alınamadı.');
-    } finally {
-      setLoading(false);
     }
   }, [activeTenant]);
 

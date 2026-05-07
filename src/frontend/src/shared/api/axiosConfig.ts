@@ -1,8 +1,8 @@
-import axios from 'axios';
+import axios, { type InternalAxiosRequestConfig } from 'axios';
 import toast from 'react-hot-toast';
 
 export const apiClient = axios.create({
-  baseURL: 'http://localhost:5181/api/v1', // Backend API adresi
+  baseURL: import.meta.env.VITE_API_URL ?? 'http://localhost:5182/api/v1',
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
@@ -33,10 +33,8 @@ apiClient.interceptors.request.use((config) => {
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
-    console.error("API Axios Hatası:", error); // Test sırasında görmek için eklendi
-    
     if (error.response?.status === 401) {
-      const originalRequest = error.config as any;
+      const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
       // Try a single refresh before forcing logout
       if (!originalRequest?._retry) {

@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
-import { FaPlus, FaEdit, FaTrash, FaCheck, FaTimes, FaGlobe } from 'react-icons/fa';
+import { useState } from 'react';
+import { FaPlus, FaCheck, FaGlobe } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 import Swal from 'sweetalert2';
 import { apiClient } from '../../shared/api/axiosConfig';
@@ -30,11 +30,6 @@ export const LanguageManagementPage = () => {
     flagCode: '',
     iconBase64: ''
   });
-
-  const fetchLanguages = useCallback(async () => {
-    const res = await apiClient.get<{ items: Language[] }>('language');
-    return res.data.items || [];
-  }, []);
 
   const handleOpenModal = (lang?: Language) => {
     if (lang) {

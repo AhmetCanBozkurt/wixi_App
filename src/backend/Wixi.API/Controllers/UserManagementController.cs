@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Wixi.Modules.Core.Application.UserManagement.Queries.GetUsers;
 using Wixi.Modules.Core.Application.UserManagement.Queries.GetUserById;
@@ -24,6 +25,7 @@ namespace Wixi.API.Controllers;
 
 [ApiController]
 [Route("api/v1/[controller]")]
+[Authorize(Roles = "SuperAdmin,Admin")]
 public class UserManagementController : ControllerBase
 {
     private readonly IMediator _mediator;

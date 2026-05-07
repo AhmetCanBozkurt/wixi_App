@@ -1,16 +1,10 @@
-using System.Threading.RateLimiting;
-using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Wixi.Modules.Core.Infrastructure.Data;
-using Wixi.Modules.Core.Domain.Entities;
-using Microsoft.AspNetCore.Identity;
 using Wixi.Shared.Configuration;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
 using Wixi.Modules.Core.Application.Auth.Services;
 using Wixi.Modules.Core.Application.Common.Interfaces;
 using Wixi.Modules.Core.Infrastructure.Services;
+using Wixi.API.Extensions;
 using Wixi.Modules.ECommerce;
 using Serilog;
 using Serilog.Events;
@@ -31,29 +25,12 @@ builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(JwtOptio
 builder.Services.Configure<AuthSecurityOptions>(builder.Configuration.GetSection(AuthSecurityOptions.SectionName));
 builder.Services.Configure<AppCorsOptions>(builder.Configuration.GetSection(AppCorsOptions.SectionName));
 builder.Services.Configure<AuthRateLimitOptions>(builder.Configuration.GetSection(AuthRateLimitOptions.SectionName));
+builder.Services.Configure<MailOptions>(builder.Configuration.GetSection(MailOptions.SectionName));
+builder.Services.Configure<StripeOptions>(builder.Configuration.GetSection(StripeOptions.SectionName));
 
-var corsOrigins = builder.Configuration.GetSection(AppCorsOptions.SectionName).Get<AppCorsOptions>()?.Origins;
-if (corsOrigins is not { Length: > 0 })
-{
-    corsOrigins =
-    [
-        "http://localhost:5173",
-        "http://localhost:5174",
-        "http://127.0.0.1:5173",
-        "http://localhost:3000"
-    ];
-}
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowReactApp", policy =>
-    {
-        policy.SetIsOriginAllowed(_ => true)
-            .AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowCredentials();
-    });
-});
+builder.Services.AddWixiCors(builder.Configuration);
+builder.Services.AddWixiRateLimiting(builder.Configuration);
+builder.Services.AddWixiAuth(builder.Configuration);
 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -67,44 +44,9 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IRefreshTokenCookieService, RefreshTokenCookieService>();
 builder.Services.AddSingleton<IOtpPepperProvider, OtpPepperProvider>();
 
-var rateOpts = builder.Configuration.GetSection(AuthRateLimitOptions.SectionName).Get<AuthRateLimitOptions>() ?? new AuthRateLimitOptions();
-builder.Services.AddRateLimiter(options =>
-{
-    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
-    options.OnRejected = async (context, token) =>
-    {
-        context.HttpContext.Response.ContentType = "application/json";
-        await context.HttpContext.Response.WriteAsJsonAsync(
-            new { error = "Çok fazla istek. Lütfen kısa bir süre sonra tekrar deneyin." },
-            cancellationToken: token);
-    };
-
-    void AddFixedWindow(string name, int permitPerMinute)
-    {
-        options.AddPolicy(name, httpContext =>
-            RateLimitPartition.GetFixedWindowLimiter(
-                httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
-                _ => new FixedWindowRateLimiterOptions
-                {
-                    PermitLimit = permitPerMinute,
-                    Window = TimeSpan.FromMinutes(1),
-                    AutoReplenishment = true,
-                    QueueLimit = 0
-                }));
-    }
-
-    AddFixedWindow("auth_login", rateOpts.LoginPermitPerMinute);
-    AddFixedWindow("auth_verify_2fa", rateOpts.VerifyTwoFactorPermitPerMinute);
-    AddFixedWindow("auth_resend_2fa", rateOpts.ResendTwoFactorPermitPerMinute);
-    AddFixedWindow("auth_refresh", rateOpts.RefreshPermitPerMinute);
-    AddFixedWindow("auth_forgot_password", rateOpts.ForgotPasswordPermitPerMinute);
-    AddFixedWindow("auth_reset_password", rateOpts.ResetPasswordPermitPerMinute);
-    AddFixedWindow("auth_register", rateOpts.RegisterPermitPerMinute);
-    AddFixedWindow("auth_logout_all", rateOpts.LogoutAllPermitPerMinute);
-});
-
 // CQRS / MediatR
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(Wixi.Modules.Core.Application.Auth.Commands.Login.LoginCommand).Assembly));
+builder.Services.AddWixiValidation();
 
 // Configure Enterprise Database
 builder.Services.AddDbContext<WixiCoreDbContext>(options =>
@@ -121,50 +63,41 @@ builder.Services.AddScoped<Wixi.Modules.Core.Application.Common.Interfaces.IFile
 
 // Background Workers
 builder.Services.AddHostedService<Wixi.Modules.Core.Infrastructure.Services.MailingBackgroundWorker>();
+builder.Services.AddHostedService<Wixi.Modules.Core.Infrastructure.Services.TcmbSyncBackgroundWorker>();
+builder.Services.AddHostedService<Wixi.Modules.Core.Infrastructure.Services.SubscriptionExpiryBackgroundWorker>();
+
+// Stripe
+builder.Services.AddScoped<Wixi.Modules.Core.Application.Common.Interfaces.IStripeService, Wixi.Modules.Core.Infrastructure.Services.StripeService>();
+
+// TCMB Exchange Rate Service
+builder.Services.AddHttpClient<Wixi.Modules.Core.Application.Common.Interfaces.ITcmbExchangeRateService,
+    Wixi.Modules.Core.Infrastructure.Services.TcmbExchangeRateService>(c =>
+{
+    c.BaseAddress = new Uri("https://www.tcmb.gov.tr/");
+    c.Timeout = TimeSpan.FromSeconds(15);
+});
 
 // ── ECommerce Modülü ─────────────────────────────────────────────
 builder.Services.AddECommerceModule(builder.Configuration);
 
-// Mail Configuration
-builder.Services.Configure<MailOptions>(builder.Configuration.GetSection(MailOptions.SectionName));
-
-// Configure Identity
-builder.Services.AddIdentity<WixiUser, WixiRole>(options => {
-    options.User.RequireUniqueEmail = true;
-    options.Password.RequireDigit = true;
-    options.Password.RequireNonAlphanumeric = false;
-    options.Password.RequiredLength = 6;
-})
-.AddEntityFrameworkStores<WixiCoreDbContext>()
-.AddDefaultTokenProviders();
-
-// Configure JWT Authentication
-var jwtOptions = builder.Configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>();
-var key = Encoding.ASCII.GetBytes(jwtOptions?.SecretKey ?? "DefaultSecretKeyPlaceholder12345");
-
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.RequireHttpsMetadata = false;
-    options.SaveToken = true;
-    options.TokenValidationParameters = new TokenValidationParameters
+builder.Services.AddHealthChecks()
+    .AddCheck("database", () =>
     {
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(key),
-        ValidateIssuer = true,
-        ValidIssuer = jwtOptions?.Issuer,
-        ValidateAudience = true,
-        ValidAudience = jwtOptions?.Audience,
-        ValidateLifetime = true,
-        ClockSkew = TimeSpan.Zero
-    };
-});
-
-builder.Services.AddAuthorization();
+        try
+        {
+            using var conn = new Microsoft.Data.SqlClient.SqlConnection(
+                builder.Configuration.GetConnectionString("DefaultConnection"));
+            conn.Open();
+            using var cmd = conn.CreateCommand();
+            cmd.CommandText = "SELECT 1";
+            cmd.ExecuteScalar();
+            return Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Healthy();
+        }
+        catch (Exception ex)
+        {
+            return Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Unhealthy(ex.Message);
+        }
+    });
 
 var app = builder.Build();
 
@@ -231,32 +164,13 @@ END
     }
 }
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-// ── Global Request Logger ─────────────────────────────────────────
-app.Use(async (context, next) =>
-{
-    Console.WriteLine($"[GLOBAL LOG] {context.Request.Method} {context.Request.Path}");
-    await next();
-});
-
-app.UseStaticFiles();
-// app.UseHttpsRedirection();
-app.UseCors("AllowReactApp");
-
-app.UseAuthentication();
-app.UseAuthorization();
-
-app.UseRateLimiter();
-
-// ── ECommerce Tenant Middleware ───────────────────────────────────
-// Auth ve Authorization'dan sonra gelmelidir
-app.UseECommerceModule();
+app.UseWixiMiddleware();
 
 // Localization Middleware
 var supportedCultures = new[] { "tr-TR", "en-US", "de-DE", "fr-FR", "es-ES", "ru-RU", "it-IT", "pt-PT" };
@@ -269,10 +183,14 @@ localizationOptions.RequestCultureProviders.Insert(0, new Microsoft.AspNetCore.L
 
 app.UseRequestLocalization(localizationOptions);
 
+// ── ECommerce Tenant Middleware ───────────────────────────────────
+app.UseECommerceModule();
+
 // ── ECommerce Master & Tenant DB Migrations ───────────────────────
 await app.MigrateECommerceMasterDbAsync();
 await app.MigrateAllTenantDbsAsync();
 
+app.MapHealthChecks("/health");
 app.MapControllers();
 
 try

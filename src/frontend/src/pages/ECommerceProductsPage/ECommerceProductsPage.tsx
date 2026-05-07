@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { FaBoxOpen, FaPlus } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 import Swal from 'sweetalert2';
@@ -17,6 +17,7 @@ interface ProductDto {
   isActive: boolean;
   trackInventory: boolean;
   mainImageUrl?: string;
+  galleryUrls?: string[];
   createdAt: string;
 }
 
@@ -24,11 +25,12 @@ export const ECommerceProductsPage = () => {
   const [products, setProducts] = useState<ProductDto[]>([]);
   const [categories, setCategories] = useState<{id: string, name: string}[]>([]);
   const [brands, setBrands] = useState<{id: string, name: string}[]>([]);
-  const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingProduct, setEditingProduct] = useState<ProductListDto | null>(null);
+  const [editingProduct, setEditingProduct] = useState<ProductDto | null>(null);
   const [isQuickCatModalOpen, setIsQuickCatModalOpen] = useState(false);
   const [isQuickBrandModalOpen, setIsQuickBrandModalOpen] = useState(false);
+  const [quickCatForm, setQuickCatForm] = useState({ name: '', slug: '' });
+  const [quickBrandForm, setQuickBrandForm] = useState({ name: '', slug: '' });
   
   const [formData, setFormData] = useState({
     name: '',
@@ -46,53 +48,50 @@ export const ECommerceProductsPage = () => {
   });
 
   const [activeTenant, setActiveTenant] = useState(() => localStorage.getItem('wixi-active-tenant') || '');
-
-  const fetchProducts = useCallback(async () => {
-    if (!activeTenant) {
-      setProducts([]);
-      return;
-    }
-    setLoading(true);
-    try {
-      const res = await apiClient.get<any>('admin/ecommerce/products');
-      // Backend'den GetProductsResult (items, totalCount vb.) dönüyor.
-      // res.data.items bizim asıl ürün listemiz.
-      let data = [];
-      if (res.data && Array.isArray(res.data.items)) {
-        data = res.data.items;
-      } else if (Array.isArray(res.data)) {
-        data = res.data;
-      } else if (res.data?.items?.items) {
-        data = res.data.items.items;
-      }
-      
-      setProducts(data);
-    } catch (err) {
-      console.error("Ürün listesi hatası:", err);
-      toast.error('Ürün listesi alınamadı.');
-    } finally {
-      setLoading(false);
-    }
-  }, [activeTenant]);
-
-  const fetchLookups = useCallback(async () => {
-    if (!activeTenant) return;
-    try {
-      const [catRes, brandRes] = await Promise.all([
-        apiClient.get('admin/ecommerce/categories'),
-        apiClient.get('admin/ecommerce/brands')
-      ]);
-      setCategories((catRes.data as any).items || []);
-      setBrands((brandRes.data as any).items || []);
-    } catch (err) {
-      // Sessiz hata, loglar silindi
-    }
-  }, [activeTenant]);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const doRefresh = () => setRefreshKey(k => k + 1);
 
   useEffect(() => {
-    fetchProducts();
-    fetchLookups();
-  }, [fetchProducts, fetchLookups]);
+    if (!activeTenant) return;
+
+    type ProductsResponse = { items?: ProductDto[] | { items?: ProductDto[] } } | ProductDto[];
+    interface LookupItem { id: string; name: string; }
+    interface LookupResponse { items?: LookupItem[] }
+
+    const loadProducts = async () => {
+      try {
+        const res = await apiClient.get<ProductsResponse>('admin/ecommerce/products');
+        let data: ProductDto[] = [];
+        const d = res.data as { items?: ProductDto[] | { items?: ProductDto[] } };
+        if (d && Array.isArray(d.items)) {
+          data = d.items as ProductDto[];
+        } else if (Array.isArray(res.data)) {
+          data = res.data as ProductDto[];
+        } else if (d?.items && !Array.isArray(d.items) && Array.isArray((d.items as { items?: ProductDto[] }).items)) {
+          data = (d.items as { items: ProductDto[] }).items;
+        }
+        setProducts(data);
+      } catch {
+        toast.error('Ürün listesi alınamadı.');
+      }
+    };
+
+    const loadLookups = async () => {
+      try {
+        const [catRes, brandRes] = await Promise.all([
+          apiClient.get<LookupResponse>('admin/ecommerce/categories'),
+          apiClient.get<LookupResponse>('admin/ecommerce/brands')
+        ]);
+        setCategories(catRes.data.items || []);
+        setBrands(brandRes.data.items || []);
+      } catch {
+        // sessiz hata
+      }
+    };
+
+    void loadProducts();
+    void loadLookups();
+  }, [activeTenant, refreshKey]);
 
   const handleDeleteProduct = async (product: ProductDto) => {
     const result = await Swal.fire({
@@ -111,9 +110,8 @@ export const ECommerceProductsPage = () => {
       try {
         await apiClient.delete(`admin/ecommerce/products/${product.id}`);
         toast.success('Ürün başarıyla silindi.');
-        fetchProducts();
-      } catch (err) {
-        console.error("Ürün silme hatası:", err);
+        doRefresh();
+      } catch {
         toast.error('Silme işlemi başarısız.');
       }
     }
@@ -134,9 +132,9 @@ export const ECommerceProductsPage = () => {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       
-      setFormData(prev => ({ ...prev, mainImageUrl: res.data.url }));
+      setFormData(prev => ({ ...prev, mainImageUrl: (res.data as { url: string }).url }));
       toast.success('Resim yüklendi.', { id: toastId });
-    } catch (err) {
+    } catch {
       toast.error('Resim yüklenemedi.', { id: toastId });
     }
   };
@@ -148,17 +146,17 @@ export const ECommerceProductsPage = () => {
     try {
       const uploadData = new FormData();
       uploadData.append('file', file);
-      
+
       const res = await apiClient.post('Files/upload', uploadData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
-      
-      setFormData(prev => ({ 
-        ...prev, 
-        galleryUrls: [...prev.galleryUrls, res.data.url] 
+
+      setFormData(prev => ({
+        ...prev,
+        galleryUrls: [...prev.galleryUrls, (res.data as { url: string }).url]
       }));
       toast.success('Resim eklendi.', { id: toastId });
-    } catch (err) {
+    } catch {
       toast.error('Resim eklenemedi.', { id: toastId });
     }
   };
@@ -190,10 +188,10 @@ export const ECommerceProductsPage = () => {
                   toast.loading('Örnek veriler yükleniyor...', { id: 'seed' });
                   await apiClient.post('admin/ecommerce/seed');
                   toast.success('Örnek veriler başarıyla yüklendi!', { id: 'seed' });
-                  fetchProducts();
-                  fetchLookups();
-                } catch (err: any) {
-                  toast.error(err.response?.data?.message || 'Hata oluştu.', { id: 'seed' });
+                  doRefresh();
+                } catch (err: unknown) {
+                  const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Hata oluştu.';
+                  toast.error(msg, { id: 'seed' });
                 }
               }}
             >
@@ -341,7 +339,7 @@ export const ECommerceProductsPage = () => {
                 toast.success('Ürün eklendi.');
               }
               setIsModalOpen(false);
-              fetchProducts();
+              doRefresh();
             } catch {
               toast.error('İşlem sırasında hata oluştu.');
             }
@@ -352,23 +350,24 @@ export const ECommerceProductsPage = () => {
       {/* Quick Add Category Modal */}
       <Modal isOpen={isQuickCatModalOpen} onClose={() => setIsQuickCatModalOpen(false)} title="Hızlı Kategori Ekle">
         <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-          <Input 
-            label="Kategori Adı" 
+          <Input
+            label="Kategori Adı"
             placeholder="Örn: Elektronik"
+            value={quickCatForm.name}
             onChange={e => {
               const val = e.target.value;
-              (window as any)._quickCat = { name: val, slug: val.toLowerCase().replace(/[^a-z0-9]/g, '-') };
+              setQuickCatForm({ name: val, slug: val.toLowerCase().replace(/[^a-z0-9]/g, '-') });
             }}
           />
           <Button variant="primary" onClick={async () => {
-            const data = (window as any)._quickCat;
-            if (!data?.name) return toast.error('Ad gereklidir');
+            if (!quickCatForm.name) return toast.error('Ad gereklidir');
             try {
-              const payload = { ...data, parentId: null };
+              const payload = { ...quickCatForm, parentId: null };
               await apiClient.post('admin/ecommerce/categories', payload);
               toast.success('Kategori eklendi');
               setIsQuickCatModalOpen(false);
-              fetchLookups();
+              setQuickCatForm({ name: '', slug: '' });
+              void fetchLookups();
             } catch { toast.error('Hata oluştu'); }
           }}>Ekle</Button>
         </div>
@@ -377,22 +376,23 @@ export const ECommerceProductsPage = () => {
       {/* Quick Add Brand Modal */}
       <Modal isOpen={isQuickBrandModalOpen} onClose={() => setIsQuickBrandModalOpen(false)} title="Hızlı Marka Ekle">
         <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-          <Input 
-            label="Marka Adı" 
+          <Input
+            label="Marka Adı"
             placeholder="Örn: Wixi"
+            value={quickBrandForm.name}
             onChange={e => {
               const val = e.target.value;
-              (window as any)._quickBrand = { name: val, slug: val.toLowerCase().replace(/[^a-z0-9]/g, '-') };
+              setQuickBrandForm({ name: val, slug: val.toLowerCase().replace(/[^a-z0-9]/g, '-') });
             }}
           />
           <Button variant="primary" onClick={async () => {
-            const data = (window as any)._quickBrand;
-            if (!data?.name) return toast.error('Ad gereklidir');
+            if (!quickBrandForm.name) return toast.error('Ad gereklidir');
             try {
-              await apiClient.post('admin/ecommerce/brands', data);
+              await apiClient.post('admin/ecommerce/brands', quickBrandForm);
               toast.success('Marka eklendi');
               setIsQuickBrandModalOpen(false);
-              fetchLookups();
+              setQuickBrandForm({ name: '', slug: '' });
+              void fetchLookups();
             } catch { toast.error('Hata oluştu'); }
           }}>Ekle</Button>
         </div>
@@ -461,7 +461,7 @@ export const ECommerceProductsPage = () => {
               metaTitle: '',
               metaDescription: '',
               mainImageUrl: row.mainImageUrl || '',
-              galleryUrls: (row as any).galleryUrls || [], 
+              galleryUrls: row.galleryUrls || [],
               trackInventory: row.trackInventory
             });
             setIsModalOpen(true);

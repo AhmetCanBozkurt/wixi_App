@@ -13,7 +13,6 @@ interface RoleDto {
 
 export const RoleManagementPage = () => {
   const [roles, setRoles] = useState<RoleDto[]>([]);
-  const [loading, setLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
   const [isUpsertOpen, setIsUpsertOpen] = useState(false);
@@ -26,14 +25,11 @@ export const RoleManagementPage = () => {
   const [deletingRole, setDeletingRole] = useState<RoleDto | null>(null);
 
   const fetchRoles = useCallback(async () => {
-    setLoading(true);
     try {
       const res = await apiClient.get<{ items: RoleDto[] }>('usermanagement/roles');
       setRoles(res.data.items || []);
     } catch {
       toast.error('Rol listesi alınamadı.');
-    } finally {
-      setLoading(false);
     }
   }, []);
 
