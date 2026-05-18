@@ -1,6 +1,5 @@
 # Production ortamı — dış SQL Server kullanır, restart always
-# Kullanım: docker compose -f docker-compose.prod.yml up -d
-# UYARI: Önce migration'ı ayrıca çalıştır, bu compose sadece uygulamayı ayağa kaldırır
+# Reverse proxy: mevcut nginx (host makinede) -> 5181 (backend) ve 3000 (frontend)
 
 services:
   backend:
@@ -33,26 +32,10 @@ services:
   frontend:
     image: wixi-frontend:${APP_VERSION:-latest}
     restart: always
-    expose:
-      - "80"
-    depends_on:
-      - backend
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
-
-  nginx:
-    image: nginx:alpine
-    restart: always
     ports:
-      - "80:80"
-    volumes:
-      - ./nginx/prod.conf:/etc/nginx/conf.d/default.conf:ro
+      - "3000:80"
     depends_on:
       - backend
-      - frontend
     logging:
       driver: "json-file"
       options:
