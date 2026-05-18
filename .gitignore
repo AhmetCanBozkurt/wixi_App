@@ -1,3 +1,6 @@
+# GitHub Actions self-hosted runner
+actions-runner/
+
 # Build outputs
 **/bin/
 **/obj/
