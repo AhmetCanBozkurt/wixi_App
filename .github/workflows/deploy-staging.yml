@@ -1,0 +1,62 @@
+name: Deploy — Staging
+
+on:
+  push:
+    branches: [develop]
+
+# Aynı anda iki staging deploy çakışmasın
+concurrency:
+  group: deploy-staging
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Staging Deploy
+    runs-on: self-hosted        # Sunucundaki runner
+    environment: staging        # GitHub Environments'da tanımlı
+
+    steps:
+      - name: Checkout develop
+        uses: actions/checkout@v4
+        with:
+          ref: develop
+
+      - name: Write staging env file
+        # GitHub Secret'lardan .env.staging dosyasını oluşturur
+        # Bu dosya sunucuda kalıcı değil — her deploy'da yeniden yazılır
+        run: |
+          @"
+          STAGING_DB_CONNECTION=${{ secrets.STAGING_DB_CONNECTION }}
+          STAGING_JWT_SECRET=${{ secrets.STAGING_JWT_SECRET }}
+          STAGING_API_URL=${{ secrets.STAGING_API_URL }}
+          MAIL_HOST=${{ secrets.MAIL_HOST }}
+          MAIL_PORT=${{ secrets.MAIL_PORT }}
+          MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}
+          MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
+          "@ | Out-File -FilePath .env.staging -Encoding utf8
+
+      - name: Run DB migrations
+        run: |
+          docker build -t wixi-backend:migrate -f src/backend/Wixi.API/Dockerfile src/backend
+          docker run --rm `
+            -e "ConnectionStrings__DefaultConnection=${{ secrets.STAGING_DB_CONNECTION }}" `
+            -e "ASPNETCORE_ENVIRONMENT=Staging" `
+            wixi-backend:migrate `
+            dotnet ef database update `
+              --project Wixi.Modules.Core/Wixi.Modules.Core.csproj `
+              --startup-project Wixi.API/Wixi.API.csproj
+
+      - name: Build & start containers
+        run: |
+          docker compose -f docker-compose.staging.yml --env-file .env.staging up --build -d
+
+      - name: Health check
+        run: |
+          Start-Sleep -Seconds 15
+          $response = Invoke-WebRequest -Uri "http://localhost:5182/health" -UseBasicParsing
+          if ($response.StatusCode -ne 200) { exit 1 }
+          Write-Host "Staging healthy ✓"
+
+      - name: Cleanup env file
+        if: always()
+        run: Remove-Item -Force .env.staging -ErrorAction SilentlyContinue
