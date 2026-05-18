@@ -8,7 +8,7 @@ COPY Wixi.API/Wixi.API.csproj                         Wixi.API/
 COPY Wixi.Modules.Core/Wixi.Modules.Core.csproj       Wixi.Modules.Core/
 COPY Wixi.Modules.ECommerce/Wixi.Modules.ECommerce.csproj Wixi.Modules.ECommerce/
 COPY Wixi.Shared/Wixi.Shared.csproj                   Wixi.Shared/
-RUN dotnet restore Wixi.Platform.sln
+RUN dotnet restore Wixi.API/Wixi.API.csproj
 
 COPY . .
 RUN dotnet publish Wixi.API/Wixi.API.csproj -c Release -o /app/publish --no-restore
