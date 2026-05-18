@@ -21,4 +21,11 @@ src/frontend/.vite/
 # Sensitive configuration
 appsettings.Development.json
 src/frontend/.env
+src/frontend/.env.local
+
+# Docker env files (şablonlar .env.example olarak commit edilir)
+.env
+.env.local
+.env.staging
+.env.prod
 

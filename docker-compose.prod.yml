@@ -1,0 +1,48 @@
+# Production ortamı — dış SQL Server kullanır, restart always
+# Kullanım: docker compose -f docker-compose.prod.yml up -d
+# UYARI: Önce migration'ı ayrıca çalıştır, bu compose sadece uygulamayı ayağa kaldırır
+
+services:
+  backend:
+    image: wixi-backend:${APP_VERSION:-latest}
+    restart: always
+    ports:
+      - "5181:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: "${PROD_DB_CONNECTION}"
+      JwtSettings__Secret: "${PROD_JWT_SECRET}"
+      JwtSettings__Issuer: "wixi"
+      JwtSettings__Audience: "wixi"
+      JwtSettings__ExpiryMinutes: "60"
+      Stripe__SecretKey: "${PROD_STRIPE_SECRET_KEY}"
+      Stripe__PublishableKey: "${PROD_STRIPE_PUBLISHABLE_KEY}"
+      Mail__Host: "${MAIL_HOST}"
+      Mail__Port: "${MAIL_PORT}"
+      Mail__Username: "${MAIL_USERNAME}"
+      Mail__Password: "${MAIL_PASSWORD}"
+    volumes:
+      - prod_uploads:/app/wwwroot/uploads
+      - prod_logs:/app/logs
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+
+  frontend:
+    image: wixi-frontend:${APP_VERSION:-latest}
+    restart: always
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  prod_uploads:
+  prod_logs:
