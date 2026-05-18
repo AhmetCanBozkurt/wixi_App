@@ -21,8 +21,6 @@ services:
       Mail__Port: "${MAIL_PORT}"
       Mail__Username: "${MAIL_USERNAME}"
       Mail__Password: "${MAIL_PASSWORD}"
-      AppCors__Origins__0: "https://app-test.wixisoftware.com"
-      AppCors__Origins__1: "http://app-test.wixisoftware.com"
     volumes:
       - staging_uploads:/app/wwwroot/uploads
       - staging_logs:/app/logs
