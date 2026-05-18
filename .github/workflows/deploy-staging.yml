@@ -34,7 +34,7 @@ jobs:
 
       - name: Build & start containers
         run: |
-          docker compose -f docker-compose.staging.yml --env-file .env.staging up --build -d
+          docker compose -f docker-compose.staging.yml --env-file .env.staging up --build -d --remove-orphans
 
       - name: Health check
         run: |
