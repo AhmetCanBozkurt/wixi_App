@@ -59,18 +59,12 @@ public static class ServiceExtensions
 
     public static IServiceCollection AddWixiCors(this IServiceCollection services, IConfiguration configuration)
     {
-        var corsOrigins = configuration.GetSection(AppCorsOptions.SectionName).Get<AppCorsOptions>()?.Origins;
-
         services.AddCors(options =>
         {
             options.AddPolicy("AllowReactApp", policy =>
             {
-                if (corsOrigins is { Length: > 0 })
-                    policy.WithOrigins(corsOrigins);
-                else
-                    policy.SetIsOriginAllowed(_ => true);
-
-                policy.AllowAnyHeader()
+                policy.SetIsOriginAllowed(_ => true)
+                      .AllowAnyHeader()
                       .AllowAnyMethod()
                       .AllowCredentials();
             });
