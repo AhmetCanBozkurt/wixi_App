@@ -32,8 +32,12 @@ jobs:
           MINOR=$(echo $LATEST | cut -d. -f2)
           PATCH=$(echo $LATEST | cut -d. -f3)
 
-          # Check commit messages since last tag
-          COMMITS=$(git log ${LATEST}..HEAD --pretty=format:"%s")
+          # Check commit messages since last tag (or all commits if no tag exists)
+          if [ "$LATEST" = "v0.0.0" ]; then
+            COMMITS=$(git log HEAD --pretty=format:"%s")
+          else
+            COMMITS=$(git log ${LATEST}..HEAD --pretty=format:"%s")
+          fi
 
           if echo "$COMMITS" | grep -qiE "^(feat|feature)(\(.+\))?!:|BREAKING CHANGE"; then
             NEW="v$((MAJOR+1)).0.0"
