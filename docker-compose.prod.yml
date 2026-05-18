@@ -20,6 +20,8 @@ services:
       Mail__Port: "${MAIL_PORT}"
       Mail__Username: "${MAIL_USERNAME}"
       Mail__Password: "${MAIL_PASSWORD}"
+      AppCors__Origins__0: "https://app.wixisoftware.com"
+      AppCors__Origins__1: "http://app.wixisoftware.com"
     volumes:
       - prod_uploads:/app/wwwroot/uploads
       - prod_logs:/app/logs
