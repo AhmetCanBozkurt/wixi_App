@@ -13,7 +13,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
-    .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+    .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
     .Enrich.FromLogContext()
     .WriteTo.Console()
     .WriteTo.File("logs/log-.txt", rollingInterval: RollingInterval.Day, outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
@@ -33,9 +33,11 @@ builder.Services.AddWixiRateLimiting(builder.Configuration);
 builder.Services.AddWixiAuth(builder.Configuration);
 
 builder.Services.AddControllers()
+    .AddApplicationPart(typeof(Wixi.Modules.ECommerce.ECommerceModuleExtensions).Assembly)
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+        options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
     });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -107,6 +109,7 @@ using (var scope = app.Services.CreateScope())
     var services = scope.ServiceProvider;
     try {
         var db = services.GetRequiredService<WixiCoreDbContext>();
+        await db.Database.MigrateAsync();
         await db.Database.ExecuteSqlRawAsync(@"
 IF OBJECT_ID(N'dbo.WIXI_2FA_CODES', N'U') IS NULL
 BEGIN
@@ -158,7 +161,9 @@ BEGIN
 END
 ");
 
+        Console.WriteLine(">>> CALLING SeedData.InitializeAsync...");
         await SeedData.InitializeAsync(services);
+        Console.WriteLine(">>> SeedData.InitializeAsync COMPLETED.");
     } catch (Exception ex) {
         Console.WriteLine($"An error occurred seeding the DB: {ex.Message}");
     }
@@ -169,6 +174,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseStaticFiles();
 
 app.UseWixiMiddleware();
 
