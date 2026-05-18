@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "WorktreeCreate": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '{\"continue\": false, \"stopReason\": \"Worktree yasak: isolation: worktree kullanma, dogrudan mevcut branch uzerinde calis.\"}'",
+            "shell": "powershell"
+          }
+        ]
+      }
+    ]
+  }
+}
