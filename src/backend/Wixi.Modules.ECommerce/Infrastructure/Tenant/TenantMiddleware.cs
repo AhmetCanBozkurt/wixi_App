@@ -71,8 +71,11 @@ public class TenantMiddleware
     {
         return path.StartsWith("/swagger", StringComparison.OrdinalIgnoreCase)
             || path.StartsWith("/health", StringComparison.OrdinalIgnoreCase)
+            || path.StartsWith("/api/v1/auth", StringComparison.OrdinalIgnoreCase)
             || path.StartsWith("/api/v1/admin/tenants", StringComparison.OrdinalIgnoreCase)
-            || path.StartsWith("/api/v1/admin/auth", StringComparison.OrdinalIgnoreCase);
+            || path.StartsWith("/api/v1/admin/auth", StringComparison.OrdinalIgnoreCase)
+            || path.StartsWith("/api/v1/store-admin/auth", StringComparison.OrdinalIgnoreCase)
+            || path.StartsWith("/api/v1/saas/onboarding", StringComparison.OrdinalIgnoreCase);
     }
 
     private static string? ExtractSlugFromSubdomain(string host)
