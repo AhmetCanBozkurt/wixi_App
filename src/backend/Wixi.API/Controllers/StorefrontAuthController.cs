@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using Wixi.Modules.ECommerce.Application.Customers.Commands.ForgotPassword;
 using Wixi.Modules.ECommerce.Application.Customers.Commands.Register;
 using Wixi.Modules.ECommerce.Application.Customers.Commands.ResetPassword;
+using Wixi.Modules.ECommerce.Application.Customers.Commands.UpdateCustomerProfile;
 using Wixi.Modules.ECommerce.Application.Customers.Queries.GetCurrentCustomer;
 using Wixi.Modules.ECommerce.Application.Customers.Queries.Login;
 
@@ -87,6 +88,23 @@ public class StorefrontAuthController : ControllerBase
         }
     }
 
+    [HttpPatch("profile")]
+    [Authorize(AuthenticationSchemes = "Bearer")]
+    public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileRequest req, CancellationToken ct)
+    {
+        var customerIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (customerIdStr == null || !Guid.TryParse(customerIdStr, out var customerId))
+            return Unauthorized(new { error = "Geçersiz token." });
+
+        try
+        {
+            await _mediator.Send(new UpdateCustomerProfileCommand(customerId, req.FirstName, req.LastName, req.PhoneNumber), ct);
+            return Ok(new { message = "Profil güncellendi." });
+        }
+        catch (ArgumentException ex) { return BadRequest(new { error = ex.Message }); }
+        catch (InvalidOperationException ex) { return NotFound(new { error = ex.Message }); }
+    }
+
     [HttpGet("me")]
     [Authorize(AuthenticationSchemes = "Bearer")]
     public async Task<IActionResult> Me(CancellationToken ct)
@@ -105,3 +123,4 @@ public class StorefrontAuthController : ControllerBase
 
 public record ForgotPasswordCustomerRequest(string Email);
 public record ResetPasswordCustomerRequest(string Token, string NewPassword);
+public record UpdateProfileRequest(string FirstName, string LastName, string? PhoneNumber);

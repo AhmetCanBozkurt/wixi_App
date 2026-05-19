@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import sfClient, { setSfTenant } from '../../shared/api/storefrontApiClient';
 import { useCustomerStore } from '../../entities/Customer/model/store';
+import { customerApi } from '../../entities/Customer/api/customerApi';
 import styles from './StorefrontAccountPage.module.css';
 
 interface OrderSummary {
@@ -16,8 +17,16 @@ interface OrderSummary {
 export const StorefrontAccountPage = () => {
   const { tenantSlug } = useParams<{ tenantSlug: string }>();
   const navigate = useNavigate();
-  const { customer, logout } = useCustomerStore();
+  const { customer, logout, updateCustomer } = useCustomerStore();
   const [orders, setOrders] = useState<OrderSummary[]>([]);
+
+  // Profile edit state
+  const [isEditing, setIsEditing] = useState(false);
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!tenantSlug) return;
@@ -31,6 +40,44 @@ export const StorefrontAccountPage = () => {
     if (tenantSlug) {
       logout(tenantSlug);
       navigate(`/store/${tenantSlug}/login`);
+    }
+  };
+
+  const handleEditStart = () => {
+    if (customer) {
+      setFirstName(customer.firstName);
+      setLastName(customer.lastName);
+      setPhoneNumber(customer.phoneNumber ?? '');
+    }
+    setSaveError(null);
+    setIsEditing(true);
+  };
+
+  const handleEditCancel = () => {
+    setIsEditing(false);
+    setSaveError(null);
+  };
+
+  const handleSave = async () => {
+    if (!tenantSlug) return;
+    setSaveError(null);
+    setIsSaving(true);
+    try {
+      await customerApi.updateProfile(tenantSlug, {
+        firstName,
+        lastName,
+        phoneNumber: phoneNumber.trim() || undefined,
+      });
+      updateCustomer(
+        { firstName, lastName, phoneNumber: phoneNumber.trim() || undefined },
+        tenantSlug
+      );
+      setIsEditing(false);
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { error?: string } } };
+      setSaveError(axiosErr?.response?.data?.error ?? 'Bir hata oluştu.');
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -63,20 +110,94 @@ export const StorefrontAccountPage = () => {
         </div>
 
         <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>Profil Bilgileri</h2>
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>Profil Bilgileri</h2>
+            {!isEditing && (
+              <button className={styles.editBtn} onClick={handleEditStart}>
+                Düzenle
+              </button>
+            )}
+          </div>
+
           {customer && (
-            <div className={styles.profileGrid}>
-              <div>
-                <span className={styles.fieldLabel}>E-posta</span>
-                <span className={styles.fieldValue}>{customer.email}</span>
-              </div>
-              {customer.phoneNumber && (
-                <div>
-                  <span className={styles.fieldLabel}>Telefon</span>
-                  <span className={styles.fieldValue}>{customer.phoneNumber}</span>
+            isEditing ? (
+              <div className={styles.editForm}>
+                <div className={styles.formField}>
+                  <label className={styles.fieldLabel}>Ad</label>
+                  <input
+                    className={styles.formInput}
+                    type="text"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    placeholder="Adınız"
+                  />
                 </div>
-              )}
-            </div>
+                <div className={styles.formField}>
+                  <label className={styles.fieldLabel}>Soyad</label>
+                  <input
+                    className={styles.formInput}
+                    type="text"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    placeholder="Soyadınız"
+                  />
+                </div>
+                <div className={styles.formField}>
+                  <label className={styles.fieldLabel}>E-posta</label>
+                  <input
+                    className={styles.formInput}
+                    type="text"
+                    value={customer.email}
+                    disabled
+                    style={{ opacity: 0.6, cursor: 'not-allowed' }}
+                  />
+                </div>
+                <div className={styles.formField}>
+                  <label className={styles.fieldLabel}>Telefon</label>
+                  <input
+                    className={styles.formInput}
+                    type="tel"
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    placeholder="Telefon numaranız (isteğe bağlı)"
+                  />
+                </div>
+                {saveError && <p className={styles.saveError}>{saveError}</p>}
+                <div className={styles.formActions}>
+                  <button
+                    className={styles.saveBtn}
+                    onClick={handleSave}
+                    disabled={isSaving}
+                  >
+                    {isSaving ? 'Kaydediliyor...' : 'Kaydet'}
+                  </button>
+                  <button
+                    className={styles.cancelBtn}
+                    onClick={handleEditCancel}
+                    disabled={isSaving}
+                  >
+                    İptal
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className={styles.profileGrid}>
+                <div>
+                  <span className={styles.fieldLabel}>Ad Soyad</span>
+                  <span className={styles.fieldValue}>{customer.firstName} {customer.lastName}</span>
+                </div>
+                <div>
+                  <span className={styles.fieldLabel}>E-posta</span>
+                  <span className={styles.fieldValue}>{customer.email}</span>
+                </div>
+                {customer.phoneNumber && (
+                  <div>
+                    <span className={styles.fieldLabel}>Telefon</span>
+                    <span className={styles.fieldValue}>{customer.phoneNumber}</span>
+                  </div>
+                )}
+              </div>
+            )
           )}
         </section>
 

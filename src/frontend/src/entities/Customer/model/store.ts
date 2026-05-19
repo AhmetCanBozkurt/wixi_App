@@ -8,6 +8,7 @@ interface CustomerState {
   login: (token: string, customer: Customer, tenantSlug: string) => void;
   logout: (tenantSlug: string) => void;
   hydrate: (tenantSlug: string) => void;
+  updateCustomer: (data: Pick<Customer, 'firstName' | 'lastName' | 'phoneNumber'>, tenantSlug: string) => void;
 }
 
 export const useCustomerStore = create<CustomerState>((set) => ({
@@ -25,6 +26,15 @@ export const useCustomerStore = create<CustomerState>((set) => ({
     localStorage.removeItem(`sf-customer-token-${tenantSlug}`);
     localStorage.removeItem(`sf-customer-data-${tenantSlug}`);
     set({ customer: null, token: null, isAuthenticated: false });
+  },
+
+  updateCustomer: (data, tenantSlug) => {
+    set((state) => {
+      if (!state.customer) return state;
+      const updated: Customer = { ...state.customer, ...data };
+      localStorage.setItem(`sf-customer-data-${tenantSlug}`, JSON.stringify(updated));
+      return { customer: updated };
+    });
   },
 
   hydrate: (tenantSlug) => {

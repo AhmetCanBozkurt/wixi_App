@@ -40,4 +40,9 @@ export const customerApi = {
     setSfTenant(tenantSlug);
     return sfClient.post('/public/storefront/auth/reset-password', data);
   },
+
+  updateProfile: (tenantSlug: string, data: { firstName: string; lastName: string; phoneNumber?: string }) => {
+    setSfTenant(tenantSlug);
+    return sfClient.patch('/public/storefront/auth/profile', data);
+  },
 };
