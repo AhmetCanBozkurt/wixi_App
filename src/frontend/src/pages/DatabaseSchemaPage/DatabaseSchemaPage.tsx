@@ -148,7 +148,7 @@ export const DatabaseSchemaPage = () => {
           setVisibleTables(initialVis);
           toast.success('Veritabanı şeması yüklendi.');
         }
-      } catch (err: unknown) {
+      } catch {
         toast.error('Şema yüklenirken hata oluştu.');
       } finally {
         setLoading(false);
@@ -310,8 +310,8 @@ export const DatabaseSchemaPage = () => {
       const toOffset = getColumnVerticalOffset(toTbl, toColumn);
 
       const cardWidth = 290;
-      let x1 = 0, y1 = fromPos.y + fromOffset;
-      let x2 = 0, y2 = toPos.y + toOffset;
+      let x1 = 0; const y1 = fromPos.y + fromOffset;
+      let x2 = 0; const y2 = toPos.y + toOffset;
 
       // Determine left/right connector anchor point based on relative positions
       if (fromPos.x + cardWidth / 2 < toPos.x + cardWidth / 2) {
@@ -370,7 +370,7 @@ export const DatabaseSchemaPage = () => {
         layoutJson: JSON.stringify(layoutData)
       });
       toast.success('Mevcut şema yerleşimi başarıyla kaydedildi!');
-    } catch (error) {
+    } catch {
       toast.error('Şema yerleşimi kaydedilirken bir hata oluştu.');
     } finally {
       setSavingLayout(false);

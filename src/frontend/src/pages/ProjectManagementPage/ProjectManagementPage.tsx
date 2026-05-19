@@ -11,7 +11,6 @@ import {
   useSensors,
   useDraggable,
   useDroppable,
-  defaultDropAnimationSideEffects
 } from '@dnd-kit/core';
 import styles from './ProjectManagementPage.module.css';
 

@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
 import { FaLayerGroup, FaPlus, FaSave, FaSearch, FaTimes } from 'react-icons/fa';
 import * as FaIconsList from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
@@ -21,7 +20,6 @@ const AdminModulesPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'details' | 'menu'>('details');
   const [isIconPickerOpen, setIsIconPickerOpen] = useState(false);
   const [iconSearch, setIconSearch] = useState('');
-  const navigate = useNavigate();
 
   const POPULAR_ICONS = useMemo(() => 
     Object.keys(FaIconsList).filter(key => key.startsWith('Fa')).slice(0, 100)

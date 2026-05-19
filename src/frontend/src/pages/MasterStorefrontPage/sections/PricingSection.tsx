@@ -21,7 +21,7 @@ export const PricingSection: React.FC<PricingProps> = ({ onRegisterClick }) => {
       try {
         const data = await moduleService.getPublicModules();
         setModules(data);
-      } catch (err) {
+      } catch {
         // Fallback or error handled silently
       } finally {
         setLoading(false);

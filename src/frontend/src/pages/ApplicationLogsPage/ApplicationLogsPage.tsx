@@ -117,7 +117,7 @@ const toLocalDate = (iso: string) =>
 const getDefaultStart = () => new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 const getDefaultEnd = () => new Date().toISOString().split('T')[0];
 
-const LogDetailView = ({ item, onClose }: { item: AuditLogItem, onClose: () => void }) => {
+const LogDetailView = ({ item, onClose: _onClose }: { item: AuditLogItem, onClose: () => void }) => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>

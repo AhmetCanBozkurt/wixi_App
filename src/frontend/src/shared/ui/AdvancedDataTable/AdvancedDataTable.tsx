@@ -460,7 +460,7 @@ export function AdvancedDataTable<T extends Record<string, unknown>>(options: Gr
         tableName: isRemote ? String(dataSource) : 'ClientData',
         details: `Kullanıcı ${baseData.length} kaydı Excel'e aktardı.`
       }).catch(() => {});
-    } catch (error) {
+    } catch {
       toast.error("Excel dışa aktarma hatası!");
     }
   };
@@ -560,7 +560,7 @@ export function AdvancedDataTable<T extends Record<string, unknown>>(options: Gr
                   const format = cellData.imgSrc.includes('png') ? 'PNG' : 
                                  cellData.imgSrc.includes('webp') ? 'WEBP' : 'JPEG';
                   doc.addImage(cellData.imgSrc, format, data.cell.x + 3, data.cell.y + 2, 10, 10);
-                } catch (e) {
+                } catch {
                   // Resim hatası durumunda sessiz kal
                 }
               }
@@ -579,7 +579,7 @@ export function AdvancedDataTable<T extends Record<string, unknown>>(options: Gr
         tableName: isRemote ? String(dataSource) : 'ClientData',
         details: `Kullanıcı ${baseData.length} kaydı PDF'e aktardı.`
       }).catch(() => {});
-    } catch (error) {
+    } catch {
       toast.error("PDF dışa aktarma hatası!");
     }
   };

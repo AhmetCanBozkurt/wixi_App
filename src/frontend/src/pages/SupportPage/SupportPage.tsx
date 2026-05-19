@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaTicketAlt, FaFilter, FaReply, FaCheck, FaExclamationTriangle } from 'react-icons/fa';
+import { FaTicketAlt, FaFilter, FaReply, FaCheck } from 'react-icons/fa';
 import styles from './SupportPage.module.css';
 
 export const SupportPage: React.FC = () => {

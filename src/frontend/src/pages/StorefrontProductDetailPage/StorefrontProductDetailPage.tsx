@@ -299,7 +299,6 @@ export const StorefrontProductDetailPage = () => {
             {product.description && (
               <div
                 className={styles.description}
-                // eslint-disable-next-line react/no-danger
                 dangerouslySetInnerHTML={{ __html: product.description }}
               />
             )}

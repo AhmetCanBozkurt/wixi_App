@@ -36,7 +36,7 @@ export const Header = () => {
     const paths = location.pathname.split('/').filter(p => p && p !== 'admin' && p !== 'tenant');
     if (paths.length === 0) return [];
     
-    return paths.map((p, index) => {
+    return paths.map((p, _index) => {
       // Gerçek URL'i oluştururken 'admin'i silmiyoruz ki linkler bozulmasın
       const originalPaths = location.pathname.split('/').filter(p => p);
       const url = `/${originalPaths.slice(0, originalPaths.indexOf(p) + 1).join('/')}`;

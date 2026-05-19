@@ -1,10 +1,9 @@
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { FaCheckCircle } from 'react-icons/fa';
 import styles from './CheckoutSuccessPage.module.css';
 
 export const CheckoutSuccessPage = () => {
   const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
 
   const tenant = searchParams.get('tenant') ?? '';
 

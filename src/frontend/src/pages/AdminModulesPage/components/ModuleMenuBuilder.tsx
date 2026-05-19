@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { Tree, DndProvider, getBackendOptions, MultiBackend } from '@minoru/react-dnd-treeview';
 import type { NodeModel } from '@minoru/react-dnd-treeview';
-import { 
-  FaPlus, FaTrash, FaSave, FaChevronRight, 
-  FaGlobe, FaSearch, FaTimes, FaLink 
+import {
+  FaPlus, FaTrash, FaSave,
+  FaGlobe, FaSearch, FaTimes
 } from "react-icons/fa";
 import * as FaIconsList from 'react-icons/fa';
 import { toast } from "react-hot-toast";
@@ -95,7 +95,7 @@ export const ModuleMenuBuilder: React.FC<ModuleMenuBuilderProps> = ({ moduleId }
       flatten(menuData);
       setTreeData(mapped);
       
-    } catch (error) {
+    } catch {
       toast.error("Veriler yüklenemedi.");
     } finally {
       setLoading(false);

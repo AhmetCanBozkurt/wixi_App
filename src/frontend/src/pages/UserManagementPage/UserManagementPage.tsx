@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { FaUsers, FaSitemap, FaPlus } from 'react-icons/fa';
+import { FaUsers, FaPlus } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
-import Swal from 'sweetalert2';
 import { apiClient } from '../../shared/api/axiosConfig';
 import { AdvancedDataTable, Badge, Button } from '../../shared/ui';
 import { UserEditorModal } from './UserEditorModal';
@@ -22,7 +21,7 @@ interface UserListDto {
 
 export const UserManagementPage = () => {
   const [users, setUsers] = useState<UserListDto[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [_loading, setLoading] = useState(true);
   
   // Dnd Modal State
   // Modal State
@@ -49,24 +48,6 @@ export const UserManagementPage = () => {
 
   const handleManageMenus = (user: UserListDto) => {
     setActiveUser(user);
-  };
-
-  const handleDeleteUser = async (user: UserListDto) => {
-    const result = await Swal.fire({
-      title: 'Kullanıcıyı Sil?',
-      text: `${user.firstName} ${user.lastName} sistemden silinecektir.`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: 'var(--color-danger)',
-      cancelButtonText: 'İptal',
-      confirmButtonText: 'Evet, Sil!',
-      background: 'var(--surface)',
-      color: 'var(--text-main)'
-    });
-
-    if (result.isConfirmed) {
-      toast.error('Bu sadece bir gösterim. Silme endpointi Role mimarisinde eklenecektir.');
-    }
   };
 
   return (

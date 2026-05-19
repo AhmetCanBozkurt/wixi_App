@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Select } from '../../shared/ui';
 import { apiClient } from '../../shared/api/axiosConfig';
-import { toast } from 'react-hot-toast';
 
 interface TenantSelectorProps {
   onTenantChange: (slug: string) => void;
