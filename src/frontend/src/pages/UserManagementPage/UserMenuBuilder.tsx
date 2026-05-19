@@ -34,7 +34,7 @@ export interface UserMenuBuilderProps {
 
 const SYSTEM_PAGES = [
   { name: '[ GRUP / BAŞLIK / KLASÖR ]', path: 'folder' },
-  { name: 'Dashboard (Ana Sayfa)', path: '/' },
+  { name: 'Dashboard (Ana Sayfa)', path: '/admin' },
   { name: 'Modül Yönetimi', path: '/admin/modules' },
   { name: 'Modül Menü Şablonları', path: '/admin/modules/menus' },
   { name: 'Menü Yönetimi', path: '/admin/menus' },
