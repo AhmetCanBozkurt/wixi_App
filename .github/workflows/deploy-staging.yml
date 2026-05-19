@@ -33,9 +33,16 @@ jobs:
           MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
           "@ | Out-File -FilePath .env.staging -Encoding utf8
 
-      - name: Build & start containers
+      - name: Build images (with layer cache)
         run: |
-          docker compose -f docker-compose.staging.yml --env-file .env.staging up --build -d --remove-orphans
+          $env:DOCKER_BUILDKIT = "1"
+          $env:COMPOSE_DOCKER_CLI_BUILD = "1"
+          docker compose -f docker-compose.staging.yml --env-file .env.staging build `
+            --build-arg BUILDKIT_INLINE_CACHE=1
+
+      - name: Start containers
+        run: |
+          docker compose -f docker-compose.staging.yml --env-file .env.staging up -d --remove-orphans
 
       - name: Smoke tests
         run: |
