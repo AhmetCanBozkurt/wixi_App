@@ -1,6 +1,6 @@
 import { apiClient } from "../axiosConfig";
 
-export interface ModuleDto {
+export interface ModuleDto extends Record<string, unknown> {
   id: string;
   code: string;
   name: string;

@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { FaExchangeAlt, FaSync, FaFilter, FaCalculator } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 import { apiClient } from '../../shared/api/axiosConfig';
 import { AdvancedDataTable, Badge, Card, Input, Button, DateInput, Select, MultiSelect } from '../../shared/ui';
 import styles from './ExchangeRatePage.module.css';
 
-interface ExchangeRate {
+interface ExchangeRate extends Record<string, unknown> {
   id: string;
   rateDate: string;
   currencyCode: string;

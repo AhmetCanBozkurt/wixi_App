@@ -246,7 +246,7 @@ export const ModuleMenuBuilder: React.FC<ModuleMenuBuilderProps> = ({ moduleId }
                   <div className={styles.formGroup}>
                     <label className={styles.formLabel}>İkon ve Renk</label>
                     <div className={styles.iconRow}>
-                      <div className={styles.iconDisplay} style={{ color: formData.iconColor }}>
+                      <div className={styles.iconDisplay} style={{ color: formData.iconColor ?? undefined }}>
                         <DynamicIcon name={formData.icon || 'FaLink'} />
                       </div>
                       <button 

@@ -246,7 +246,7 @@ export const ProjectManagementPage: React.FC = () => {
           )}
         </div>
 
-        <DragOverlay container={containerRef.current}>
+        <DragOverlay>
           {activeTask ? <TaskCardUI task={activeTask} isOverlay /> : null}
         </DragOverlay>
       </DndContext>

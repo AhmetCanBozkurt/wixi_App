@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+﻿import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   FaExclamationTriangle, FaInfoCircle, FaCheckCircle,
   FaChartBar
@@ -8,7 +8,7 @@ import { AdvancedDataTable, DateInput, Card, Badge, Input } from '../../shared/u
 import styles from './ApplicationLogsPage.module.css';
 
 // ─── Types ───────────────────────────────────────────────
-interface AuditLogItem {
+interface AuditLogItem extends Record<string, unknown> {
   id: string;
   action: string;
   logType: number;

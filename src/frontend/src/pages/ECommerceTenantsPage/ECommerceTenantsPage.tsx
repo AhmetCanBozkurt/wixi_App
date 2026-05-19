@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { FaStore, FaPlus, FaTimes, FaInfoCircle, FaDatabase, FaEnvelope, FaGlobe } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 import Swal from 'sweetalert2';
@@ -6,12 +6,12 @@ import { apiClient } from '../../shared/api/axiosConfig';
 import { AdvancedDataTable, Badge, Button, Modal, Input } from '../../shared/ui';
 import styles from './ECommerceTenantsPage.module.css';
 
-interface TenantDto {
+interface TenantDto extends Record<string, unknown> {
   id: string;
   name: string;
   slug: string;
   databaseName: string;
-  plan: string;
+  plan: number;
   ownerEmail: string;
   currencyCode: string;
   isMigrated: boolean;
@@ -140,7 +140,7 @@ export const ECommerceTenantsPage = () => {
               template: (row) => {
                 const isActive = row.enabledModules?.includes('ecommerce');
                 return (
-                  <Badge variant={isActive ? 'success' : 'secondary'} size="sm">
+                  <Badge variant={isActive ? 'success' : 'default'} size="sm">
                     {isActive ? (row.isMigrated ? 'Aktif (DB Hazır)' : 'Kuruluyor') : 'Kapalı'}
                   </Badge>
                 );
@@ -153,7 +153,7 @@ export const ECommerceTenantsPage = () => {
               template: (row) => {
                 const isActive = row.enabledModules?.includes('crm');
                 return (
-                  <Badge variant={isActive ? 'success' : 'secondary'} size="sm">
+                  <Badge variant={isActive ? 'success' : 'default'} size="sm">
                     {isActive ? 'Aktif' : 'Kapalı'}
                   </Badge>
                 );
@@ -166,7 +166,7 @@ export const ECommerceTenantsPage = () => {
               template: (row) => {
                 const isActive = row.enabledModules?.includes('hr');
                 return (
-                  <Badge variant={isActive ? 'success' : 'secondary'} size="sm">
+                  <Badge variant={isActive ? 'success' : 'default'} size="sm">
                     {isActive ? 'Aktif' : 'Kapalı'}
                   </Badge>
                 );
@@ -272,7 +272,6 @@ export const ECommerceTenantsPage = () => {
             value={formData.slug}
             onChange={(e) => setFormData({...formData, slug: e.target.value})}
             required
-            hint="Subdomain olarak kullanılacaktır."
           />
           <Input 
             label="Mağaza Sahibi Email"

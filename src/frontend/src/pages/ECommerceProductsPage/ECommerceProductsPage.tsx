@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { FaBoxOpen, FaPlus } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 import Swal from 'sweetalert2';
@@ -6,7 +6,7 @@ import { apiClient } from '../../shared/api/axiosConfig';
 import { AdvancedDataTable, Badge, Button, Modal, Input, Select, ImageUpload } from '../../shared/ui';
 import { TenantSelector } from '../../features/TenantSelector/TenantSelector';
 
-interface ProductDto {
+interface ProductDto extends Record<string, unknown> {
   id: string;
   name: string;
   slug: string;
@@ -203,7 +203,7 @@ export const ECommerceProductsPage = () => {
             setFormData({
               name: '', slug: '', basePrice: 0, categoryId: '', brandId: '',
               shortDescription: '', description: '', metaTitle: '', metaDescription: '',
-              mainImageUrl: '', trackInventory: true
+              mainImageUrl: '', galleryUrls: [], trackInventory: true
             });
             setIsModalOpen(true);
           }} leftIcon={<FaPlus />} disabled={!activeTenant}>
@@ -367,7 +367,7 @@ export const ECommerceProductsPage = () => {
               toast.success('Kategori eklendi');
               setIsQuickCatModalOpen(false);
               setQuickCatForm({ name: '', slug: '' });
-              void fetchLookups();
+              doRefresh();
             } catch { toast.error('Hata oluştu'); }
           }}>Ekle</Button>
         </div>
@@ -392,7 +392,7 @@ export const ECommerceProductsPage = () => {
               toast.success('Marka eklendi');
               setIsQuickBrandModalOpen(false);
               setQuickBrandForm({ name: '', slug: '' });
-              void fetchLookups();
+              doRefresh();
             } catch { toast.error('Hata oluştu'); }
           }}>Ekle</Button>
         </div>
@@ -443,11 +443,8 @@ export const ECommerceProductsPage = () => {
           ]}
           pageable={{ pageSize: 10 }}
           selectable={true}
-          exportable={{
-            fileName: 'urun_katalogu',
-            pdf: true,
-            excel: true
-          }}
+          toolbar={['search', 'excel', 'pdf']}
+          exportTitle="Urun_Katalogu"
           onEdit={(row) => {
             setEditingProduct(row);
             setFormData({

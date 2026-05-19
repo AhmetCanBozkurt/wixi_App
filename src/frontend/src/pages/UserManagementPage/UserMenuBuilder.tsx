@@ -179,7 +179,7 @@ export const UserMenuBuilder = forwardRef<{ syncHierarchy: () => void }, UserMen
         await fetchUserMenus(langs);
         await fetchUsers();
         // Initialize translations for the "Add New" state if nothing is selected
-        setFormData(prev => ({
+        setFormData((prev: any) => ({
           ...prev,
           translations: langs.map(l => ({ languageId: l.id, title: '' }))
         }));

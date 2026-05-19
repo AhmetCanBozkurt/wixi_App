@@ -1,4 +1,4 @@
-export interface MailTemplate {
+export interface MailTemplate extends Record<string, unknown> {
   id: string;
   code: string;
   subject: string;
@@ -11,7 +11,7 @@ export interface MailTemplate {
   updatedByUser?: string;
 }
 
-export interface MailLog {
+export interface MailLog extends Record<string, unknown> {
   id: string;
   templateCode?: string;
   recipient: string;

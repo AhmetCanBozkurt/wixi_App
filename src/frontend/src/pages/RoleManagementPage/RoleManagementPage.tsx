@@ -1,11 +1,11 @@
-import { useCallback, useEffect, useState } from 'react';
+﻿import { useCallback, useEffect, useState } from 'react';
 import { FaPlus, FaShieldAlt } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 import { apiClient } from '../../shared/api/axiosConfig';
 import { AdvancedDataTable, Button, Input, Modal } from '../../shared/ui';
 import styles from '../UserManagementPage/UserManagementPage.module.css';
 
-interface RoleDto {
+interface RoleDto extends Record<string, unknown> {
   id: string;
   name: string;
   description?: string | null;

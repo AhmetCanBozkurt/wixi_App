@@ -438,7 +438,7 @@ export const DatabaseSchemaPage = () => {
       {/* ─── SIDEBAR CONTROL PANEL ──────────────────────── */}
       <div className={`${styles.sidebar} ${!sidebarOpen ? styles.sidebarCollapsed : ''}`}>
         <div className={styles.sidebarHeader}>
-          <div style={{ display: 'flex', alignItems: 'center', justifycontent: 'space-between', width: '100%', gap: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', gap: '8px' }}>
             <h2><FaDatabase /> Wixi Schema ERD</h2>
             <button 
               className={styles.toggleShowBtn} 

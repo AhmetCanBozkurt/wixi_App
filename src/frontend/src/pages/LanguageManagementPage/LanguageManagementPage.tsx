@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { FaPlus, FaCheck, FaGlobe } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 import Swal from 'sweetalert2';
@@ -6,7 +6,7 @@ import { apiClient } from '../../shared/api/axiosConfig';
 import { AdvancedDataTable, Badge, Card, Input, Button, Modal, Switch, ImageUpload } from '../../shared/ui';
 import styles from './LanguageManagementPage.module.css';
 
-interface Language {
+interface Language extends Record<string, unknown> {
   id: string;
   code: string;
   name: string;
@@ -139,9 +139,9 @@ export const LanguageManagementPage = () => {
               width: 120,
               template: (row) => row.isDefault ? <Badge variant="primary" size="sm" outline><FaCheck style={{ marginRight: '4px' }} /> Ana Dil</Badge> : null
             },
-            { field: 'createdAt', title: 'Oluşturma', hidden: true, template: (row) => row.createdAt ? new Date(row.createdAt).toLocaleString() : '-' },
+            { field: 'createdAt', title: 'Oluşturma', hidden: true, template: (row) => row.createdAt ? new Date(row.createdAt as string).toLocaleString() : '-' },
             { field: 'createdByUser', title: 'Oluşturan', hidden: true },
-            { field: 'updatedAt', title: 'Güncelleme', hidden: true, template: (row) => row.updatedAt ? new Date(row.updatedAt).toLocaleString() : '-' },
+            { field: 'updatedAt', title: 'Güncelleme', hidden: true, template: (row) => row.updatedAt ? new Date(row.updatedAt as string).toLocaleString() : '-' },
             { field: 'updatedByUser', title: 'Güncelleyen', hidden: true }
           ]}
           groupable={true}

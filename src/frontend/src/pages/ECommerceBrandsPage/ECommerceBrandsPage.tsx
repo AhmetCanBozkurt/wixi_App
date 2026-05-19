@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+﻿import { useState, useEffect, useCallback } from 'react';
 import { FaBuilding, FaPlus } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 import Swal from 'sweetalert2';
@@ -6,7 +6,7 @@ import { apiClient } from '../../shared/api/axiosConfig';
 import { AdvancedDataTable, Badge, Button, Modal, Input } from '../../shared/ui';
 import { TenantSelector } from '../../features/TenantSelector/TenantSelector';
 
-interface BrandDto {
+interface BrandDto extends Record<string, unknown> {
   id: string;
   name: string;
   slug: string;

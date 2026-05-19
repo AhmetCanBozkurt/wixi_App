@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+﻿import { useState, useEffect, useCallback } from 'react';
 import { FaUsers, FaPlus } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 import { apiClient } from '../../shared/api/axiosConfig';
@@ -6,7 +6,7 @@ import { AdvancedDataTable, Badge, Button } from '../../shared/ui';
 import { UserEditorModal } from './UserEditorModal';
 import styles from './UserManagementPage.module.css';
 
-interface UserListDto {
+interface UserListDto extends Record<string, unknown> {
   id: string;
   firstName: string;
   lastName: string;

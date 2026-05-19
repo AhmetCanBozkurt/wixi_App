@@ -1,11 +1,11 @@
-import { useState, useEffect, useCallback } from 'react';
+﻿import { useState, useEffect, useCallback } from 'react';
 import { FaHistory } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 import { apiClient } from '../../shared/api/axiosConfig';
 import { AdvancedDataTable, Badge, Modal, Card, Button } from '../../shared/ui';
 import styles from './AuditLogPage.module.css';
 
-interface AuditLog {
+interface AuditLog extends Record<string, unknown> {
   id: string;
   action: string;
   tableName: string;
@@ -84,8 +84,8 @@ export const AuditLogPage = () => {
               field: 'fullName',
               title: 'Kullanıcı',
               template: (row) => {
-                const userName = row.fullName || row.FullName || 'Sistem';
-                const userEmail = row.email || row.Email || '';
+                const userName = row.fullName || (row.FullName as string) || 'Sistem';
+                const userEmail = row.email || (row.Email as string) || '';
                 return (
                   <div style={{ display: 'flex', flexDirection: 'column' }}>
                     <strong>{userName}</strong>

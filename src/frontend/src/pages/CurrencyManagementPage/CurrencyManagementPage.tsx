@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { FaDollarSign, FaPlus, FaStar } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 import Swal from 'sweetalert2';
@@ -6,7 +6,7 @@ import { apiClient } from '../../shared/api/axiosConfig';
 import { AdvancedDataTable, Badge, Card, Input, Button, Modal, Switch } from '../../shared/ui';
 import styles from './CurrencyManagementPage.module.css';
 
-interface Currency {
+interface Currency extends Record<string, unknown> {
   id: string;
   code: string;
   name: string;

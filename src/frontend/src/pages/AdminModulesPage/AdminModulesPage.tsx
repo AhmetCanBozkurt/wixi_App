@@ -243,7 +243,7 @@ const AdminModulesPage: React.FC = () => {
         footer={activeTab === 'details' ? (
           <div className={styles.formActions}>
             <Button variant="ghost" onClick={() => setIsModalOpen(false)}>İptal</Button>
-            <Button onClick={() => handleSubmit()} icon={<FaSave />}>
+            <Button onClick={() => handleSubmit()} leftIcon={<FaSave />}>
               {editingModule ? 'Değişiklikleri Kaydet' : 'Modülü Oluştur'}
             </Button>
           </div>
@@ -349,7 +349,7 @@ const AdminModulesPage: React.FC = () => {
                     <label className={styles.formLabel}>Özellikler (Virgülle ayırın)</label>
                     <textarea 
                       className={`${styles.formInput} ${styles.formTextarea}`}
-                      value={formData.featuresJson}
+                      value={formData.featuresJson ?? ''}
                       onChange={e => setFormData({...formData, featuresJson: e.target.value})}
                       placeholder="Ürün kataloğu, Stok takibi, Ödeme entegrasyonu"
                     />

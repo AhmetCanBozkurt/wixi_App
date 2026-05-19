@@ -8,6 +8,7 @@ interface CardProps {
   headerAction?: React.ReactNode;
   footer?: React.ReactNode;
   className?: string;
+  style?: React.CSSProperties;
   onClick?: () => void;
   hoverable?: boolean;
   padding?: 'none' | 'sm' | 'md' | 'lg';
@@ -20,6 +21,7 @@ export const Card: React.FC<CardProps> = ({
   headerAction,
   footer,
   className = '',
+  style,
   onClick,
   hoverable = false,
   padding = 'md',
@@ -32,7 +34,7 @@ export const Card: React.FC<CardProps> = ({
   ].join(' ').trim();
 
   return (
-    <div className={cardClasses} onClick={onClick}>
+    <div className={cardClasses} style={style} onClick={onClick}>
       {(title || subtitle || headerAction) && (
         <div className={styles.header}>
           <div className={styles.titleSection}>
