@@ -42,7 +42,7 @@ jobs:
           Start-Sleep -Seconds 30
           $response = Invoke-WebRequest -Uri "http://localhost:5182/health" -UseBasicParsing
           if ($response.StatusCode -ne 200) { exit 1 }
-          Write-Host "Staging healthy — OK"
+          Write-Host "Staging healthy - OK"
 
       - name: Cleanup env file
         if: always()
