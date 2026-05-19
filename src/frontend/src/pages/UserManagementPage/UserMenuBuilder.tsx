@@ -53,6 +53,7 @@ const SYSTEM_PAGES = [
   { name: 'Destek & Ticket Yönetimi', path: '/admin/support' },
   { name: 'Stok & Envanter Yönetimi', path: '/admin/inventory' },
   { name: 'UI Tasarım Vitrini (Showcase)', path: '/admin/ui-showcase' },
+  { name: 'Çıktı Tasarımcısı (Rapor/Fatura)', path: '/admin/cikti-tasarlama' },
 ];
 
 const POPULAR_ICONS = Object.keys(FaIconsList).filter(key => key.startsWith('Fa')).slice(0, 100);
