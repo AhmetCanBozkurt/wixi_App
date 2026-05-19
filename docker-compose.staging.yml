@@ -13,7 +13,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Staging
       ConnectionStrings__DefaultConnection: "${STAGING_DB_CONNECTION}"
-      JwtSettings__Secret: "${STAGING_JWT_SECRET}"
+      JwtSettings__SecretKey: "${STAGING_JWT_SECRET}"
       JwtSettings__Issuer: "wixi-staging"
       JwtSettings__Audience: "wixi-staging"
       JwtSettings__ExpiryMinutes: "60"

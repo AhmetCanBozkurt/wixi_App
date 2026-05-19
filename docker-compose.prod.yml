@@ -10,7 +10,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ConnectionStrings__DefaultConnection: "${PROD_DB_CONNECTION}"
-      JwtSettings__Secret: "${PROD_JWT_SECRET}"
+      JwtSettings__SecretKey: "${PROD_JWT_SECRET}"
       JwtSettings__Issuer: "wixi"
       JwtSettings__Audience: "wixi"
       JwtSettings__ExpiryMinutes: "60"
