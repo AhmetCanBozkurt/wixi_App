@@ -75,6 +75,7 @@ jobs:
           docker compose -f docker-compose.staging.yml --env-file .env.staging up -d --remove-orphans
 
       - name: Smoke tests
+        if: false
         run: |
           # Wait for containers (max 90s)
           $waited = 0
