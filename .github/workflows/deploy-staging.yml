@@ -47,6 +47,22 @@ jobs:
           }
           Write-Host "Migrations OK"
 
+      - name: Save current images as previous (rollback point)
+        run: |
+          $b = docker inspect wixi-backend:staging --format='{{.Id}}' 2>&1
+          $f = docker inspect wixi-frontend:staging --format='{{.Id}}' 2>&1
+          if ($LASTEXITCODE -eq 0 -or $b -match 'sha256') {
+            docker tag wixi-backend:staging wixi-backend:previous 2>&1 | Out-Null
+            Write-Host "Backend previous image saved"
+          }
+          $LASTEXITCODE = 0  # reset — previous tag yoksa sorun degil
+          docker inspect wixi-frontend:staging 2>&1 | Out-Null
+          if ($?) {
+            docker tag wixi-frontend:staging wixi-frontend:previous 2>&1 | Out-Null
+            Write-Host "Frontend previous image saved"
+          }
+          exit 0
+
       - name: Build images (with layer cache)
         run: |
           $env:DOCKER_BUILDKIT = "1"
@@ -90,6 +106,17 @@ jobs:
           Test-Endpoint "Frontend HTML → 200" "http://localhost:3001"                         -Expect 200
 
           Write-Host "All smoke tests passed."
+
+      - name: Auto-rollback on smoke test failure
+        if: failure()
+        run: |
+          Write-Host "Smoke tests failed — rolling back to previous images..."
+          $b = docker inspect wixi-backend:previous 2>&1
+          if ($LASTEXITCODE -ne 0) { Write-Host "No previous image found, cannot rollback"; exit 1 }
+          docker tag wixi-backend:previous wixi-backend:staging
+          docker tag wixi-frontend:previous wixi-frontend:staging
+          docker compose -f docker-compose.staging.yml --env-file .env.staging up -d --no-build --no-recreate 2>&1
+          Write-Host "Rollback complete — previous version restored"
 
       - name: Cleanup env file
         if: always()

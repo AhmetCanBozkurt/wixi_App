@@ -1,0 +1,75 @@
+name: Rollback — Staging
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Geri alma işlemini onaylamak için "rollback" yazın'
+        required: true
+
+jobs:
+  rollback:
+    name: Staging Rollback
+    runs-on: self-hosted
+    environment: staging
+
+    steps:
+      - name: Validate confirmation
+        run: |
+          if ("${{ github.event.inputs.confirm }}" -ne "rollback") {
+            Write-Host "FAIL: Onay metni yanlis. 'rollback' yazin."; exit 1
+          }
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: develop
+
+      - name: Write staging env file
+        run: |
+          @"
+          STAGING_DB_CONNECTION=${{ secrets.STAGING_DB_CONNECTION }}
+          STAGING_JWT_SECRET=${{ secrets.STAGING_JWT_SECRET }}
+          STAGING_API_URL=${{ secrets.STAGING_API_URL }}
+          STAGING_FRONTEND_URL=${{ secrets.STAGING_FRONTEND_URL }}
+          MAIL_HOST=${{ secrets.MAIL_HOST }}
+          MAIL_PORT=${{ secrets.MAIL_PORT }}
+          MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}
+          MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
+          "@ | Out-File -FilePath .env.staging -Encoding utf8
+
+      - name: Check previous images exist
+        run: |
+          docker inspect wixi-backend:previous 2>&1 | Out-Null
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "FAIL: wixi-backend:previous bulunamadi. Rollback yapilamiyor."; exit 1
+          }
+          docker inspect wixi-frontend:previous 2>&1 | Out-Null
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "FAIL: wixi-frontend:previous bulunamadi. Rollback yapilamiyor."; exit 1
+          }
+          Write-Host "Previous images confirmed."
+
+      - name: Retag previous → staging
+        run: |
+          docker tag wixi-backend:previous wixi-backend:staging
+          docker tag wixi-frontend:previous wixi-frontend:staging
+          Write-Host "Images retagged."
+
+      - name: Restart containers with previous images
+        run: |
+          docker compose -f docker-compose.staging.yml --env-file .env.staging up -d --no-build --remove-orphans
+
+      - name: Verify rollback
+        run: |
+          $waited = 0
+          do {
+            Start-Sleep -Seconds 5; $waited += 5
+            try { $r = Invoke-WebRequest -Uri "http://localhost:5182/health" -UseBasicParsing -EA Stop; if ($r.StatusCode -eq 200) { break } } catch {}
+          } while ($waited -lt 60)
+          if ($waited -ge 60) { Write-Host "FAIL: Rollback sonrasi backend ayaga kalkmadi"; exit 1 }
+          Write-Host "Rollback basarili — onceki versiyon aktif."
+
+      - name: Cleanup env file
+        if: always()
+        run: Remove-Item -Force .env.staging -ErrorAction SilentlyContinue
