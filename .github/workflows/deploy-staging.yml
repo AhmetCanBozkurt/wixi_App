@@ -26,6 +26,7 @@ jobs:
           STAGING_DB_CONNECTION=${{ secrets.STAGING_DB_CONNECTION }}
           STAGING_JWT_SECRET=${{ secrets.STAGING_JWT_SECRET }}
           STAGING_API_URL=${{ secrets.STAGING_API_URL }}
+          STAGING_FRONTEND_URL=${{ secrets.STAGING_FRONTEND_URL }}
           MAIL_HOST=${{ secrets.MAIL_HOST }}
           MAIL_PORT=${{ secrets.MAIL_PORT }}
           MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}
