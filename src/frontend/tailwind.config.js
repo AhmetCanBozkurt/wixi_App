@@ -9,5 +9,9 @@ export default {
   theme: {
     extend: {},
   },
-  plugins: [],
+  plugins: [
+    ({ addVariant }) => {
+      addVariant('dark', '[data-theme="dark"] &');
+    },
+  ],
 };

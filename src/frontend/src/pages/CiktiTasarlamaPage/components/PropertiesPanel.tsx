@@ -41,6 +41,7 @@ const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
     <button
       onClick={() => toggleSection(id)}
       className="w-full flex items-center justify-between px-2 py-1 bg-gray-50 dark:bg-gray-700 rounded-md hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+      style={{ background: 'var(--surface-hover)' }}
     >
       <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{label}</span>
       <svg className={`w-4 h-4 text-gray-500 transition-transform ${collapsedSections.has(id) ? 'rotate-0' : 'rotate-180'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">

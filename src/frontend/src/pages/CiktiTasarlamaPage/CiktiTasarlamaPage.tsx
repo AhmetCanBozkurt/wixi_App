@@ -154,10 +154,10 @@ const CiktiTasarlamaPage: React.FC = () => {
     };
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999] p-4 overflow-auto">
-        <div className="bg-white p-4 rounded-lg max-w-full max-h-full overflow-auto relative">
+        <div style={{ background: 'var(--surface)', color: 'var(--text-main)' }} className="p-4 rounded-lg max-w-full max-h-full overflow-auto relative">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold text-gray-900">Önizleme</h2>
-            <button onClick={() => setShowPreview(false)} className="text-gray-500 hover:text-gray-700 p-2">✕</button>
+            <h2 className="text-xl font-bold" style={{ color: 'var(--text-main)' }}>Önizleme</h2>
+            <button onClick={() => setShowPreview(false)} className="p-2 hover:opacity-70" style={{ color: 'var(--text-muted)' }}>✕</button>
           </div>
           <div style={pageStyle}>
             {elements.map(element => (
@@ -178,18 +178,18 @@ const CiktiTasarlamaPage: React.FC = () => {
     const isUpdate = selectedTemplateForUpdate !== null;
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999]">
-        <div className="bg-white rounded-lg p-6 w-96 relative">
-          <h2 className="text-xl font-semibold mb-4 text-gray-900">{isUpdate ? 'Şablon Güncelle' : 'Şablon Kaydet'}</h2>
+        <div style={{ background: 'var(--surface)', color: 'var(--text-main)' }} className="rounded-lg p-6 w-96 relative">
+          <h2 className="text-xl font-semibold mb-4" style={{ color: 'var(--text-main)' }}>{isUpdate ? 'Şablon Güncelle' : 'Şablon Kaydet'}</h2>
           <div className="mb-4">
-            <label className="block text-sm text-gray-600 mb-2">Şablon Adı</label>
-            <input type="text" value={newTemplateName} onChange={(e) => setNewTemplateName(e.target.value)} placeholder="Şablon adını giriniz" className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" autoFocus />
+            <label className="block text-sm mb-2" style={{ color: 'var(--text-secondary)' }}>Şablon Adı</label>
+            <input type="text" value={newTemplateName} onChange={(e) => setNewTemplateName(e.target.value)} placeholder="Şablon adını giriniz" className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" style={{ background: 'var(--surface)', color: 'var(--text-main)', borderColor: 'var(--border-glass)' }} autoFocus />
           </div>
           <div className="mb-4">
-            <label className="block text-sm text-gray-600 mb-2">Açıklama (Opsiyonel)</label>
-            <textarea value={newTemplateDescription} onChange={(e) => setNewTemplateDescription(e.target.value)} placeholder="Şablon açıklaması giriniz" className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" rows={3} />
+            <label className="block text-sm mb-2" style={{ color: 'var(--text-secondary)' }}>Açıklama (Opsiyonel)</label>
+            <textarea value={newTemplateDescription} onChange={(e) => setNewTemplateDescription(e.target.value)} placeholder="Şablon açıklaması giriniz" className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" style={{ background: 'var(--surface)', color: 'var(--text-main)', borderColor: 'var(--border-glass)' }} rows={3} />
           </div>
           <div className="flex justify-end gap-2">
-            <button onClick={() => { setShowSaveModal(false); setNewTemplateName(''); setNewTemplateDescription(''); }} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">İptal</button>
+            <button onClick={() => { setShowSaveModal(false); setNewTemplateName(''); setNewTemplateDescription(''); }} className="px-4 py-2 rounded-md transition-colors hover:opacity-80" style={{ color: 'var(--text-secondary)', background: 'var(--surface-hover)' }}>İptal</button>
             <button onClick={handleSaveTemplateConfirm} disabled={isUpdating} className={`px-4 py-2 text-white rounded-md transition-colors disabled:opacity-50 ${isUpdate ? 'bg-orange-500 hover:bg-orange-600' : 'bg-green-500 hover:bg-green-600'}`}>
               {isUpdating ? 'İşleniyor...' : isUpdate ? 'Güncelle' : 'Kaydet'}
             </button>
@@ -203,10 +203,10 @@ const CiktiTasarlamaPage: React.FC = () => {
     if (!showTemplateManager) return null;
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999]">
-        <div className="bg-white rounded-lg p-6 w-4/5 max-w-4xl max-h-[80vh] overflow-hidden flex flex-col">
+        <div style={{ background: 'var(--surface)', color: 'var(--text-main)' }} className="rounded-lg p-6 w-4/5 max-w-4xl max-h-[80vh] overflow-hidden flex flex-col">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold text-gray-900">Şablon Yöneticisi</h2>
-            <button onClick={() => setShowTemplateManager(false)} className="text-gray-500 hover:text-gray-700 p-2">✕</button>
+            <h2 className="text-xl font-semibold" style={{ color: 'var(--text-main)' }}>Şablon Yöneticisi</h2>
+            <button onClick={() => setShowTemplateManager(false)} className="p-2 hover:opacity-70" style={{ color: 'var(--text-muted)' }}>✕</button>
           </div>
           <div className="flex-1 overflow-auto">
             {templates.length === 0
@@ -214,13 +214,13 @@ const CiktiTasarlamaPage: React.FC = () => {
               : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {templates.map(template => (
-                    <div key={template.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                    <div key={template.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow" style={{ background: 'var(--surface-hover)', borderColor: 'var(--border-glass)', color: 'var(--text-main)' }}>
                       <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-semibold text-gray-900">{template.ad}</h3>
+                        <h3 className="font-semibold" style={{ color: 'var(--text-main)' }}>{template.ad}</h3>
                         {template.varsayilan && <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">Varsayılan</span>}
                       </div>
-                      {template.aciklama && <p className="text-sm text-gray-600 mb-3">{template.aciklama}</p>}
-                      <div className="text-xs text-gray-500 mb-3">
+                      {template.aciklama && <p className="text-sm mb-3" style={{ color: 'var(--text-secondary)' }}>{template.aciklama}</p>}
+                      <div className="text-xs mb-3" style={{ color: 'var(--text-muted)' }}>
                         <div>Tip: {template.tip}</div>
                         {template.olusturma_tarihi && <div>Oluşturma: {new Date(template.olusturma_tarihi).toLocaleDateString('tr-TR')}</div>}
                       </div>
@@ -240,9 +240,9 @@ const CiktiTasarlamaPage: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col bg-gray-100 dark:bg-gray-900" style={{ height: 'calc(100vh - 130px)' }}>
+    <div className="flex flex-col bg-gray-100 dark:bg-gray-900" style={{ height: 'calc(100vh - 114px)', background: 'var(--bg-secondary)' }}>
       {/* Navbar */}
-      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm z-40 flex-shrink-0">
+      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm z-40 flex-shrink-0" style={{ background: 'var(--surface)', borderColor: 'var(--border-glass)' }}>
         <div className="flex items-center justify-between px-4 py-2">
           <div className="flex items-center gap-4">
             <h1 className="text-lg font-bold text-gray-900 dark:text-white">Çıktı Tasarımcısı</h1>
@@ -310,6 +310,20 @@ const CiktiTasarlamaPage: React.FC = () => {
           )}
         </div>
 
+        {/* Toolbox collapsed tab */}
+        {isToolboxCollapsed && (
+          <div
+            onClick={() => setIsToolboxCollapsed(false)}
+            className="flex items-center justify-center cursor-pointer bg-blue-500 hover:bg-blue-600 transition-colors z-20"
+            style={{ width: '24px', minWidth: '24px', writingMode: 'vertical-rl' }}
+            title="Araç Kutusunu Aç"
+          >
+            <span className="text-white text-xs font-medium py-3 select-none" style={{ letterSpacing: '0.05em' }}>
+              ◀ Araç Kutusu
+            </span>
+          </div>
+        )}
+
         {/* Canvas */}
         <div className="flex-1 relative z-0 overflow-hidden">
           <DesignCanvas
@@ -329,6 +343,20 @@ const CiktiTasarlamaPage: React.FC = () => {
             zoom={zoom}
           />
         </div>
+
+        {/* Properties collapsed tab */}
+        {isPropertiesCollapsed && (
+          <div
+            onClick={() => setIsPropertiesCollapsed(false)}
+            className="flex items-center justify-center cursor-pointer bg-blue-500 hover:bg-blue-600 transition-colors z-20"
+            style={{ width: '24px', minWidth: '24px', writingMode: 'vertical-rl' }}
+            title="Özellikler Paneli Aç"
+          >
+            <span className="text-white text-xs font-medium py-3 select-none" style={{ letterSpacing: '0.05em' }}>
+              Özellikler ▶
+            </span>
+          </div>
+        )}
 
         {/* Properties Panel */}
         <div className={`bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 relative z-20 transition-all duration-300 ease-in-out flex flex-col overflow-hidden ${isPropertiesCollapsed ? 'w-0' : 'w-96'}`}>
@@ -357,17 +385,6 @@ const CiktiTasarlamaPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Collapsed panel toggle buttons */}
-      {isToolboxCollapsed && (
-        <button onClick={() => setIsToolboxCollapsed(false)} className="fixed left-4 top-1/2 -translate-y-1/2 bg-blue-500 text-white p-3 rounded-full shadow-lg hover:bg-blue-600 hover:scale-110 transition-all duration-200 z-30" title="Araç Kutusunu Aç">
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
-        </button>
-      )}
-      {isPropertiesCollapsed && (
-        <button onClick={() => setIsPropertiesCollapsed(false)} className="fixed right-4 top-1/2 -translate-y-1/2 bg-blue-500 text-white p-3 rounded-full shadow-lg hover:bg-blue-600 hover:scale-110 transition-all duration-200 z-30" title="Özellikler Paneli Aç">
-          <SettingsIcon className="w-5 h-5" />
-        </button>
-      )}
 
       <PreviewModal />
       <SaveTemplateModal />
