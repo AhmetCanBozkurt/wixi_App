@@ -103,13 +103,19 @@ builder.Services.AddHealthChecks()
 
 var app = builder.Build();
 
-// Seed Default Admin (Development or Safe Mode)
+// Migration — try/catch dışında: başarısız olursa container durmalı
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<WixiCoreDbContext>();
+    await db.Database.MigrateAsync();
+}
+
+// Seed & schema fixup — hata tolere edilir (idempotent operasyonlar)
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     try {
         var db = services.GetRequiredService<WixiCoreDbContext>();
-        await db.Database.MigrateAsync();
         await db.Database.ExecuteSqlRawAsync(@"
 IF OBJECT_ID(N'dbo.WIXI_2FA_CODES', N'U') IS NULL
 BEGIN

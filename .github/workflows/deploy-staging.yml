@@ -33,6 +33,20 @@ jobs:
           MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
           "@ | Out-File -FilePath .env.staging -Encoding utf8
 
+      - name: Run EF Core migrations
+        run: |
+          dotnet tool install --global dotnet-ef --version 9.* 2>&1 | Out-Null
+          $env:PATH = "$env:PATH;$env:USERPROFILE\.dotnet\tools"
+          $env:ConnectionStrings__DefaultConnection = "${{ secrets.STAGING_DB_CONNECTION }}"
+          dotnet ef database update `
+            --project src/backend/Wixi.Modules.Core/Wixi.Modules.Core.csproj `
+            --startup-project src/backend/Wixi.API/Wixi.API.csproj `
+            2>&1 | Tee-Object -Variable migOut
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "FAIL: Migration failed"; Write-Host $migOut; exit 1
+          }
+          Write-Host "Migrations OK"
+
       - name: Build images (with layer cache)
         run: |
           $env:DOCKER_BUILDKIT = "1"
