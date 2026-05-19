@@ -16,7 +16,12 @@ public class CreateCheckpointCommandHandler : IRequestHandler<CreateCheckpointCo
     public async Task<int> Handle(CreateCheckpointCommand request, CancellationToken ct)
     {
         var settings = await _db.StoreSettings.FirstOrDefaultAsync(ct);
-        if (settings == null) return 0;
+        if (settings == null)
+        {
+            settings = new WixiStoreSettings { Id = Guid.NewGuid() };
+            _db.StoreSettings.Add(settings);
+            await _db.SaveChangesAsync(ct);
+        }
 
         // Önceki published versiyonu kaldır
         await _db.ThemeVersions

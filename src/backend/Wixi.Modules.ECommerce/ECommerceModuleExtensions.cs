@@ -92,7 +92,9 @@ public static class ECommerceModuleExtensions
             {
                 Console.WriteLine($"[TENANT MIGRATION] Migrating {tenant.Slug} ({tenant.DatabaseName})...");
                 // Provision all enabled modules for this tenant
-                var enabledModules = tenant.EnabledModules?.Split(',') ?? new[] { "ecommerce" };
+                var enabledModules = string.IsNullOrWhiteSpace(tenant.EnabledModules)
+                    ? new[] { "ecommerce" }
+                    : tenant.EnabledModules.Split(',', StringSplitOptions.RemoveEmptyEntries);
                 foreach (var prov in provisioners)
                 {
                     if (enabledModules.Contains(prov.ModuleName))
