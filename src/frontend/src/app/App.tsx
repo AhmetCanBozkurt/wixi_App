@@ -69,6 +69,7 @@ import { DatabaseSchemaPage } from '../pages/DatabaseSchemaPage/DatabaseSchemaPa
 import { AdminThemeManagementPage } from '../pages/AdminThemeManagementPage/AdminThemeManagementPage';
 import { AdminTenantThemePage } from '../pages/AdminThemeManagementPage/AdminTenantThemePage';
 import { AdminThemeTemplatesPage } from '../pages/AdminThemeManagementPage/AdminThemeTemplatesPage';
+import CiktiTasarlamaPage from '../pages/CiktiTasarlamaPage/CiktiTasarlamaPage';
 
 const App = () => {
   return (
@@ -157,6 +158,7 @@ const App = () => {
               <Route path="theme-management" element={<AdminThemeManagementPage />} />
               <Route path="theme-management/stores/:tenantId" element={<AdminTenantThemePage />} />
               <Route path="theme-management/templates" element={<AdminThemeTemplatesPage />} />
+              <Route path="cikti-tasarlama" element={<CiktiTasarlamaPage />} />
             </Route>
           </Route>
         </Routes>
