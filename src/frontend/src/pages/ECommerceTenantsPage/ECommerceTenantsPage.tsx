@@ -16,6 +16,7 @@ interface TenantDto {
   currencyCode: string;
   isMigrated: boolean;
   isActive: boolean;
+  enabledModules: string;
   createdAt: string;
 }
 
@@ -136,31 +137,40 @@ export const ECommerceTenantsPage = () => {
               field: 'isMigrated', 
               title: 'E-Ticaret Modülü',
               width: 150,
-              template: (row) => (
-                <Badge variant={row.isMigrated ? 'success' : 'warning'} size="sm">
-                  {row.isMigrated ? 'Aktif (DB Hazır)' : 'Kuruluyor'}
-                </Badge>
-              )
+              template: (row) => {
+                const isActive = row.enabledModules?.includes('ecommerce');
+                return (
+                  <Badge variant={isActive ? 'success' : 'secondary'} size="sm">
+                    {isActive ? (row.isMigrated ? 'Aktif (DB Hazır)' : 'Kuruluyor') : 'Kapalı'}
+                  </Badge>
+                );
+              }
             },
             { 
-              field: 'crm_status', 
+              field: 'enabledModules', 
               title: 'CRM Modülü',
               width: 130,
-              template: () => (
-                <Badge variant="secondary" size="sm">
-                  Kapalı
-                </Badge>
-              )
+              template: (row) => {
+                const isActive = row.enabledModules?.includes('crm');
+                return (
+                  <Badge variant={isActive ? 'success' : 'secondary'} size="sm">
+                    {isActive ? 'Aktif' : 'Kapalı'}
+                  </Badge>
+                );
+              }
             },
             { 
-              field: 'hr_status', 
+              field: 'enabledModules', 
               title: 'İnsan Kaynakları',
               width: 150,
-              template: () => (
-                <Badge variant="secondary" size="sm">
-                  Kapalı
-                </Badge>
-              )
+              template: (row) => {
+                const isActive = row.enabledModules?.includes('hr');
+                return (
+                  <Badge variant={isActive ? 'success' : 'secondary'} size="sm">
+                    {isActive ? 'Aktif' : 'Kapalı'}
+                  </Badge>
+                );
+              }
             }
           ]}
           pageable={{ pageSize: 10 }}
@@ -208,15 +218,24 @@ export const ECommerceTenantsPage = () => {
 
               <div className={styles.detailStatus}>
                 <div className={styles.statusBox}>
-                  <label>E-Ticaret Modülü</label>
+                  <label>Satın Alınan Modüller</label>
+                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '8px' }}>
+                    {row.enabledModules?.split(',').map(m => (
+                      <Badge key={m} variant="success" size="sm">{m.toUpperCase()}</Badge>
+                    ))}
+                    {(!row.enabledModules || row.enabledModules.length === 0) && <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>Modül bulunamadı</span>}
+                  </div>
+                </div>
+                <div className={styles.statusBox}>
+                  <label>E-Ticaret Durumu</label>
                   <Badge variant={row.isMigrated ? 'success' : 'warning'}>
-                    {row.isMigrated ? 'Aktif ve Hazır' : 'Kurulum Aşamasında'}
+                    {row.isMigrated ? 'DB Aktif ve Hazır' : 'DB Kurulum Aşamasında'}
                   </Badge>
                 </div>
                 <div className={styles.statusBox}>
-                  <label>Genel Durum</label>
+                  <label>Hesap Durumu</label>
                   <Badge variant={row.isActive ? 'success' : 'danger'}>
-                    {row.isActive ? 'Hesap Aktif' : 'Hesap Askıda'}
+                    {row.isActive ? 'Aktif' : 'Askıda'}
                   </Badge>
                 </div>
               </div>

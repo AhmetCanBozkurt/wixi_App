@@ -78,7 +78,7 @@ public class SyncTcmbRatesCommandHandler : IRequestHandler<SyncTcmbRatesCommand,
             {
                 Code = code,
                 Name = string.IsNullOrWhiteSpace(rate.Isim) ? code : rate.Isim,
-                NameEn = string.IsNullOrWhiteSpace(rate.CurrencyName) ? null : rate.CurrencyName,
+                NameEn = string.IsNullOrWhiteSpace(rate.CurrencyName) ? string.Empty : rate.CurrencyName,
                 Unit = rate.Unit > 0 ? rate.Unit : 1,
                 IsBase = false,
                 IsTcmbTracked = true,

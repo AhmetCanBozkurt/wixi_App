@@ -20,7 +20,7 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({ onRegisterClick })
           <a href="#pricing">Fiyatlandırma</a>
           <a href="#how-it-works">Nasıl Çalışır?</a>
           <a href="#faq">SSS</a>
-          <Link to="/store-login" className="landing-btn-ghost">
+          <Link to="/login" className="landing-btn-ghost">
             Giriş Yap
           </Link>
           <button className="landing-btn-cta" onClick={onRegisterClick}>
@@ -49,7 +49,7 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({ onRegisterClick })
         <a href="#how-it-works" onClick={() => setMobileOpen(false)}>Nasıl Çalışır?</a>
         <a href="#faq" onClick={() => setMobileOpen(false)}>SSS</a>
         <Link
-          to="/store-login"
+          to="/login"
           className="landing-btn-ghost"
           onClick={() => setMobileOpen(false)}
         >

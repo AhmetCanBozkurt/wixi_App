@@ -35,6 +35,12 @@ public class WixiProduct : IAuditable
     /// <summary>İndirimli fiyat (varyantsız ürünlerde).</summary>
     public decimal? CompareAtPrice { get; set; }
 
+    /// <summary>KDV oranı (%). Geçerli değerler: 0, 1, 8, 10, 18, 20</summary>
+    public int VatRate { get; set; } = 20;
+
+    /// <summary>Alış/maliyet fiyatı (iç kullanım, müşteriye gösterilmez).</summary>
+    public decimal? CostPrice { get; set; }
+
     /// <summary>Stok takip edilsin mi?</summary>
     public bool TrackInventory { get; set; } = true;
 
@@ -49,6 +55,9 @@ public class WixiProduct : IAuditable
 
     /// <summary>SEO meta description.</summary>
     public string? MetaDescription { get; set; }
+
+    /// <summary>Öne çıkan ürün — homepage/featured blocks için.</summary>
+    public bool IsFeatured { get; set; } = false;
 
     // IAuditable
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

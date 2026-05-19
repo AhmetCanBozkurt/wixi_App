@@ -35,12 +35,23 @@ export interface UserMenuBuilderProps {
 const SYSTEM_PAGES = [
   { name: '[ GRUP / BAŞLIK / KLASÖR ]', path: 'folder' },
   { name: 'Dashboard (Ana Sayfa)', path: '/' },
+  { name: 'Modül Yönetimi', path: '/admin/modules' },
+  { name: 'Modül Menü Şablonları', path: '/admin/modules/menus' },
   { name: 'Menü Yönetimi', path: '/admin/menus' },
   { name: 'Kullanıcı Yönetimi', path: '/admin/users' },
   { name: 'Dil Yönetimi', path: '/admin/languages' },
   { name: 'Uygulama Logları (App Logs)', path: '/admin/logs' },
   { name: 'Sistem Değişiklik Logları (Audit)', path: '/admin/audit' },
   { name: 'Mail Yönetimi', path: '/admin/mailing' },
+  { name: 'Döviz Yönetimi', path: '/admin/currencies' },
+  { name: 'Döviz Kurları (TCMB)', path: '/admin/exchange-rates' },
+  { name: 'E-Ticaret Müşterileri', path: '/admin/ecommerce/tenants' },
+  { name: 'E-Ticaret Ürünleri (Master)', path: '/admin/ecommerce/products' },
+  { name: 'CRM & Cari Yönetimi', path: '/admin/crm' },
+  { name: 'Ziyaret & Randevu Yönetimi', path: '/admin/visits' },
+  { name: 'Proje & Görev Yönetimi', path: '/admin/projects' },
+  { name: 'Destek & Ticket Yönetimi', path: '/admin/support' },
+  { name: 'Stok & Envanter Yönetimi', path: '/admin/inventory' },
   { name: 'UI Tasarım Vitrini (Showcase)', path: '/admin/ui-showcase' },
 ];
 

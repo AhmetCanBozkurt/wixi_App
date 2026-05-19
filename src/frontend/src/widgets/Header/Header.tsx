@@ -21,6 +21,7 @@ export const Header = () => {
   // Breadcrumb mapping
   const pathMap: Record<string, string> = {
     'admin': 'Yönetim',
+    'tenant': 'Mağaza Yönetim',
     'logs': 'Uygulama Logları',
     'languages': 'Dil Yönetimi',
     'menus': 'Menü Yönetimi',
@@ -32,7 +33,7 @@ export const Header = () => {
 
   const getBreadcrumbs = () => {
     // 'admin' gibi ara yolları filtrele, sadece Dashboard ve son sayfa kalsın isteniyor
-    const paths = location.pathname.split('/').filter(p => p && p !== 'admin');
+    const paths = location.pathname.split('/').filter(p => p && p !== 'admin' && p !== 'tenant');
     if (paths.length === 0) return [];
     
     return paths.map((p, index) => {
@@ -50,7 +51,6 @@ export const Header = () => {
   const breadcrumbs = getBreadcrumbs();
   
   const [languages, setLanguages] = useState<Language[]>([]);
-  // ... rest of state stays same ...
   const [showLangs, setShowLangs] = useState(false);
   const [currentLang, setCurrentLang] = useState(localStorage.getItem('lng') || 'tr-TR');
   const langMenuRef = useRef<HTMLDivElement>(null);
@@ -90,10 +90,13 @@ export const Header = () => {
     if (user?.email) {
       return user.email.substring(0, 2).toUpperCase();
     }
+    if (user?.tenantName) {
+      return user.tenantName.substring(0, 2).toUpperCase();
+    }
     return 'WX';
   };
 
-  const displayName = user?.firstName ? `${user.firstName} ${user.lastName}` : (user?.email?.split('@')[0] || 'Kullanıcı');
+  const displayName = user?.firstName ? `${user.firstName} ${user.lastName}` : (user?.tenantName || user?.email?.split('@')[0] || 'Kullanıcı');
 
   const activeLang = languages?.find(l => l.code === currentLang);
 

@@ -32,3 +32,20 @@ src/frontend/.env.local
 .env.staging
 .env.prod
 
+# Runtime logs and uploads
+src/backend/Wixi.API/logs/
+src/backend/Wixi.API/wwwroot/uploads/
+src/backend/Wixi.API/Diagnostics/
+
+# Claude Code internals
+.claude/
+graphify-out/
+api-err.txt
+api-log.txt
+api_err.txt
+api_out.txt
+backend_startup.log.err
+frontend-err.txt
+frontend-log.txt
+get-pip.py
+

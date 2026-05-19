@@ -10,6 +10,7 @@ using Wixi.Modules.Core.Application.UserManagement.Commands.CreateUser;
 using Wixi.Modules.Core.Application.UserManagement.Commands.ImportUserMenus;
 using Wixi.Modules.Core.Application.UserManagement.Commands.ImportSelectedUserMenus;
 using Wixi.Modules.Core.Application.UserManagement.Commands.UpdateUserRoles;
+using Wixi.Modules.Core.Application.UserManagement.Commands.ResetUserPassword;
 using Wixi.Modules.Core.Application.UserManagement.Commands.CreateRole;
 using Wixi.Modules.Core.Application.UserManagement.Commands.UpdateRole;
 using Wixi.Modules.Core.Application.UserManagement.Commands.DeleteRole;
@@ -106,6 +107,18 @@ public class UserManagementController : ControllerBase
     {
         var roles = await _mediator.Send(new GetUserRolesQuery(id));
         return Ok(new { items = roles });
+    }
+
+    public record ResetPasswordRequest(string NewPassword);
+
+    [HttpPost("users/{id}/reset-password")]
+    public async Task<IActionResult> ResetPassword(Guid id, [FromBody] ResetPasswordRequest body)
+    {
+        if (string.IsNullOrWhiteSpace(body?.NewPassword) || body.NewPassword.Length < 6)
+            return BadRequest(new { error = "Şifre en az 6 karakter olmalıdır." });
+
+        var ok = await _mediator.Send(new ResetUserPasswordCommand(id, body.NewPassword));
+        return ok ? Ok(new { success = true }) : BadRequest(new { error = "Şifre sıfırlama başarısız." });
     }
 
     public record UpdateUserRolesRequest(List<string> Roles);

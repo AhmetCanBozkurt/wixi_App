@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useParams } from 'react-router-dom';
 import { FaArrowUp, FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
-import { useStoreAuthStore } from '../../../entities/StoreAdmin/model/store';
 import styles from './StoreBillingPage.module.css';
 
 interface SubscriptionInfo {
@@ -22,7 +22,7 @@ const formatDate = (dateStr: string | null): string => {
 };
 
 export const StoreBillingPage = () => {
-  const { tenantSlug } = useStoreAuthStore();
+  const { tenantSlug } = useParams<{ tenantSlug: string }>();
   const [subscription, setSubscription] = useState<SubscriptionInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -32,7 +32,7 @@ export const StoreBillingPage = () => {
       setIsLoading(true);
       setError(null);
       try {
-        const storeToken = localStorage.getItem('wixi-store-token');
+        const storeToken = localStorage.getItem('token');
         const res = await storeApiClient.get<SubscriptionInfo>('/saas/subscription', {
           headers: {
             Authorization: storeToken ? `Bearer ${storeToken}` : undefined,

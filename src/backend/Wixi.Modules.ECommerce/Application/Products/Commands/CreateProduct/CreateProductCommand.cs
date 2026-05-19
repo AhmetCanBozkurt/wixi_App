@@ -17,7 +17,9 @@ public record CreateProductCommand(
     string? MetaDescription,
     string? MainImageUrl = null,
     IReadOnlyList<string>? GalleryUrls = null,
-    bool TrackInventory = true
+    bool TrackInventory = true,
+    int VatRate = 20,
+    decimal? CostPrice = null
 ) : IRequest<Guid>;
 
 public class CreateProductCommandHandler : IRequestHandler<CreateProductCommand, Guid>
@@ -39,7 +41,9 @@ public class CreateProductCommandHandler : IRequestHandler<CreateProductCommand,
             Description = request.Description,
             MetaTitle = request.MetaTitle,
             MetaDescription = request.MetaDescription,
-            TrackInventory = request.TrackInventory
+            TrackInventory = request.TrackInventory,
+            VatRate = request.VatRate,
+            CostPrice = request.CostPrice
         };
 
         // Add Main Image

@@ -1,6 +1,10 @@
+using System.Security.Claims;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Wixi.Modules.ECommerce.Application.Customers.Commands.Register;
+using Wixi.Modules.ECommerce.Application.Customers.Queries.GetCurrentCustomer;
 using Wixi.Modules.ECommerce.Application.Customers.Queries.Login;
 
 namespace Wixi.API.Controllers;
@@ -17,24 +21,22 @@ public class StorefrontAuthController : ControllerBase
     }
 
     [HttpPost("register")]
+    [EnableRateLimiting("storefront-auth")]
     public async Task<IActionResult> Register([FromBody] RegisterCustomerCommand command)
     {
-        Console.WriteLine($"[AUTH] Register request received for: {command.Email}");
         try
         {
             var customerId = await _mediator.Send(command);
-            Console.WriteLine($"[AUTH] Register success for: {command.Email}, ID: {customerId}");
             return StatusCode(201, new { message = "Hesabınız başarıyla oluşturuldu.", id = customerId });
         }
-        catch (Exception ex)
+        catch (InvalidOperationException ex)
         {
-            Console.WriteLine($"[AUTH ERROR] Register failed: {ex.Message}");
-            if (ex.InnerException != null) Console.WriteLine($"[INNER ERROR] {ex.InnerException.Message}");
-            return BadRequest(new { error = ex.Message });
+            return Conflict(new { error = ex.Message });
         }
     }
 
     [HttpPost("login")]
+    [EnableRateLimiting("storefront-auth")]
     public async Task<IActionResult> Login([FromBody] LoginCustomerQuery query)
     {
         var result = await _mediator.Send(query);
@@ -54,5 +56,20 @@ public class StorefrontAuthController : ControllerBase
                 email = result.Email
             }
         });
+    }
+
+    [HttpGet("me")]
+    [Authorize(AuthenticationSchemes = "Bearer")]
+    public async Task<IActionResult> Me(CancellationToken ct)
+    {
+        var customerIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (customerIdStr == null || !Guid.TryParse(customerIdStr, out var customerId))
+            return Unauthorized(new { error = "Geçersiz token." });
+
+        var customer = await _mediator.Send(new GetCurrentCustomerQuery(customerId), ct);
+        if (customer == null)
+            return NotFound(new { error = "Müşteri bulunamadı." });
+
+        return Ok(customer);
     }
 }

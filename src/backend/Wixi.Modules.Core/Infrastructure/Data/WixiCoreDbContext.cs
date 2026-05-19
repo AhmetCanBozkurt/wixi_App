@@ -38,7 +38,12 @@ public class WixiCoreDbContext : IdentityDbContext<WixiUser, WixiRole, Guid>
     // Currency Management
     public DbSet<WixiCurrency> Currencies { get; set; }
     public DbSet<WixiExchangeRate> ExchangeRates { get; set; }
-    public DbSet<WixiCurrencySetting> CurrencySettings { get; set; }
+    public DbSet<WixiCurrencySetting> CurrencySettings => Set<WixiCurrencySetting>();
+    public DbSet<WixiModule> Modules => Set<WixiModule>();
+    public DbSet<WixiModuleMenu> ModuleMenus => Set<WixiModuleMenu>();
+    public DbSet<WixiModuleMenuTranslation> ModuleMenuTranslations => Set<WixiModuleMenuTranslation>();
+    public DbSet<WixiThemeTemplate> ThemeTemplates => Set<WixiThemeTemplate>();
+    public DbSet<WixiDbSchemaLayout> DbSchemaLayouts => Set<WixiDbSchemaLayout>();
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
@@ -255,6 +260,21 @@ public class WixiCoreDbContext : IdentityDbContext<WixiUser, WixiRole, Guid>
             entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
         });
 
+        // Modules Mapping
+        builder.Entity<WixiModule>(entity =>
+        {
+            entity.ToTable("WIXI_MODULES");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Code).HasMaxLength(50).IsRequired();
+            entity.HasIndex(e => e.Code).IsUnique();
+            entity.Property(e => e.Name).HasMaxLength(100).IsRequired();
+            entity.Property(e => e.IsPublic).HasDefaultValue(true);
+            entity.Property(e => e.PriceMonthly).HasColumnType("decimal(10,2)");
+            entity.Property(e => e.PriceYearly).HasColumnType("decimal(10,2)");
+            entity.Property(e => e.FeaturesJson).HasMaxLength(2000);
+            entity.Property(e => e.ColorAccent).HasMaxLength(50);
+        });
+
         // Menus Mapping
         builder.Entity<WixiMenu>(entity =>
         {
@@ -275,6 +295,44 @@ public class WixiCoreDbContext : IdentityDbContext<WixiUser, WixiRole, Guid>
                   .WithMany(e => e.Children)
                   .HasForeignKey(e => e.ParentId)
                   .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // Module Menus Mapping (Templates)
+        builder.Entity<WixiModuleMenu>(entity =>
+        {
+            entity.ToTable("WIXI_MODULE_MENUS");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Path).HasMaxLength(255);
+            entity.Property(e => e.Icon).HasMaxLength(100);
+            entity.Property(e => e.IconColor).HasMaxLength(50);
+
+            entity.HasOne(e => e.Module)
+                  .WithMany()
+                  .HasForeignKey(e => e.ModuleId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.Parent)
+                  .WithMany(e => e.Children)
+                  .HasForeignKey(e => e.ParentId)
+                  .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // Module Menu Translations
+        builder.Entity<WixiModuleMenuTranslation>(entity =>
+        {
+            entity.ToTable("WIXI_MODULE_MENU_TRANSLATIONS");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Title).IsRequired().HasMaxLength(200);
+
+            entity.HasOne(e => e.ModuleMenu)
+                  .WithMany(m => m.Translations)
+                  .HasForeignKey(e => e.ModuleMenuId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.Language)
+                  .WithMany()
+                  .HasForeignKey(e => e.LanguageId)
+                  .OnDelete(DeleteBehavior.Cascade);
         });
 
         // Menu Translations Mapping
@@ -458,6 +516,25 @@ public class WixiCoreDbContext : IdentityDbContext<WixiUser, WixiRole, Guid>
             entity.HasKey(e => e.Id);
             entity.Property(e => e.BaseCurrencyCode).IsRequired().HasMaxLength(10);
             entity.Property(e => e.LastSyncStatus).HasMaxLength(500);
+        });
+
+        // Theme Templates Mapping
+        builder.Entity<WixiThemeTemplate>(entity =>
+        {
+            entity.ToTable("WIXI_THEME_TEMPLATES");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).HasMaxLength(200).IsRequired();
+            entity.Property(e => e.Description).HasMaxLength(500);
+            entity.Property(e => e.PreviewImageUrl).HasMaxLength(1000);
+        });
+
+        // DB Schema Layouts Mapping
+        builder.Entity<WixiDbSchemaLayout>(entity =>
+        {
+            entity.ToTable("WIXI_DB_SCHEMA_LAYOUTS");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.LayoutJson).IsRequired();
+            entity.HasIndex(e => e.UserId).IsUnique();
         });
     }
 

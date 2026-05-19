@@ -5,4 +5,6 @@ export interface User {
   lastName: string;
   roles: string[];
   profilePicture?: string | null;
+  tenantSlug?: string;
+  tenantName?: string;
 }

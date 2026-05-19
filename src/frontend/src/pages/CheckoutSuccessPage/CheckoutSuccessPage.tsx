@@ -8,11 +8,11 @@ export const CheckoutSuccessPage = () => {
 
   const tenant = searchParams.get('tenant') ?? '';
 
-  const handleGoToStore = () => {
-    const target = tenant
-      ? `/store-login?tenant=${encodeURIComponent(tenant)}`
-      : '/store-login';
-    navigate(target);
+  const handleLoginClick = () => {
+    const loginUrl = tenant 
+      ? `/login?tenant=${encodeURIComponent(tenant)}` 
+      : '/login';
+    window.location.href = loginUrl;
   };
 
   return (
@@ -34,7 +34,7 @@ export const CheckoutSuccessPage = () => {
           <span className={styles.tenantBadge}>{tenant}</span>
         )}
 
-        <button className={styles.button} onClick={handleGoToStore}>
+        <button className={styles.button} onClick={handleLoginClick}>
           Mağaza Panelinize Giriş Yapın
         </button>
       </div>

@@ -35,6 +35,13 @@ apiClient.interceptors.response.use(
   async (error) => {
     if (error.response?.status === 401) {
       const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+      
+      // Don't try to refresh if the request itself was a refresh request
+      if (originalRequest?.url?.includes('/Auth/refresh')) {
+        localStorage.removeItem('token');
+        window.location.href = '/login';
+        return Promise.reject(error);
+      }
 
       // Try a single refresh before forcing logout
       if (!originalRequest?._retry) {
@@ -69,5 +76,14 @@ apiClient.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+export const uploadStoreImage = async (file: File): Promise<string> => {
+  const fd = new FormData();
+  fd.append('file', file);
+  const res = await apiClient.post<{ url: string }>('/store-admin/upload', fd, {
+    headers: { 'Content-Type': null as unknown as string },
+  });
+  return res.data.url;
+};
 
 export default apiClient;

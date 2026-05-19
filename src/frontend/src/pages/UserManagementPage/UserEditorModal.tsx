@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
-import { FaUserEdit, FaSitemap, FaArrowRight, FaArrowLeft, FaSave } from 'react-icons/fa';
+import { FaUserEdit, FaSitemap, FaArrowRight, FaArrowLeft, FaSave, FaKey } from 'react-icons/fa';
+import { toast } from 'react-hot-toast';
+import Swal from 'sweetalert2';
+import { apiClient } from '../../shared/api/axiosConfig';
 import { UserMenuBuilder } from './UserMenuBuilder';
 import { UserDetailForm } from './UserDetailForm';
 import { Modal, Button } from '../../shared/ui';
@@ -20,6 +23,35 @@ export const UserEditorModal: React.FC<UserEditorModalProps> = ({ userId, userNa
   const userFormRef = React.useRef<{ handleSave: () => void } | null>(null);
 
   const isNew = !currentUserId;
+
+  const handleResetPassword = async () => {
+    const result = await Swal.fire({
+      title: 'Şifre Sıfırla',
+      html: `<b>${localUserName}</b> kullanıcısı için yeni şifre belirleyin.`,
+      input: 'password',
+      inputLabel: 'Yeni Şifre',
+      inputPlaceholder: 'En az 6 karakter...',
+      inputAttributes: { autocomplete: 'new-password', minlength: '6' },
+      showCancelButton: true,
+      confirmButtonText: 'Şifreyi Sıfırla',
+      cancelButtonText: 'İptal',
+      confirmButtonColor: 'var(--color-primary)',
+      background: 'var(--surface)',
+      color: 'var(--text-main)',
+      inputValidator: (value) => {
+        if (!value || value.length < 6) return 'Şifre en az 6 karakter olmalıdır.';
+      }
+    });
+
+    if (!result.isConfirmed || !result.value) return;
+
+    try {
+      await apiClient.post(`usermanagement/users/${currentUserId}/reset-password`, { newPassword: result.value });
+      toast.success('Şifre başarıyla sıfırlandı.');
+    } catch {
+      toast.error('Şifre sıfırlama başarısız.');
+    }
+  };
 
   const handleSaveInfo = () => {
     userFormRef.current?.handleSave();
@@ -45,6 +77,11 @@ export const UserEditorModal: React.FC<UserEditorModalProps> = ({ userId, userNa
           <div style={{ flex: 1 }} />
           {step === 1 ? (
             <div style={{ display: 'flex', gap: '12px' }}>
+               {!isNew && (
+                 <Button variant="ghost" onClick={handleResetPassword} leftIcon={<FaKey />}>
+                    Şifre Sıfırla
+                 </Button>
+               )}
                <Button variant="primary" onClick={handleSaveInfo} leftIcon={<FaSave />}>
                   {isNew ? 'Kullanıcıyı Oluştur' : 'Bilgileri Kaydet'}
                </Button>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
-import { FaCamera, FaTrashAlt, FaUser, FaEnvelope, FaIdCard, FaPhone, FaShieldAlt } from 'react-icons/fa';
+import { FaCamera, FaTrashAlt, FaUser, FaEnvelope, FaIdCard, FaPhone, FaShieldAlt, FaStore } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 import { apiClient } from '../../shared/api/axiosConfig';
 import { Input } from '../../shared/ui/Input/Input';
@@ -18,6 +18,7 @@ interface UserDetail {
   twoFactorEnabled: boolean;
   roles?: string[];
   password?: string;
+  tenantId?: string | null;
 }
 
 interface UserDetailFormProps {
@@ -39,8 +40,10 @@ export const UserDetailForm = forwardRef<{ handleSave: () => void }, UserDetailF
     isActive: true,
     profilePicture: null,
     phoneNumber: '',
-    twoFactorEnabled: false
+    twoFactorEnabled: false,
+    tenantId: null
   });
+  const [tenants, setTenants] = useState<{ id: string; name: string }[]>([]);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   useImperativeHandle(ref, () => ({
@@ -74,8 +77,20 @@ export const UserDetailForm = forwardRef<{ handleSave: () => void }, UserDetailF
       }
     };
 
+    const fetchTenants = async () => {
+      try {
+        const res = await apiClient.get<{ items: { id: string; name: string }[] }>('admin/tenants');
+        const rawItems = res.data.items;
+        const data = Array.isArray(rawItems) ? rawItems : ((rawItems as any)?.items ?? []);
+        setTenants(data);
+      } catch {
+        // Silent
+      }
+    };
+
     if (userId) fetchUser();
     fetchRoles();
+    fetchTenants();
   }, [userId]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -246,6 +261,23 @@ export const UserDetailForm = forwardRef<{ handleSave: () => void }, UserDetailF
               setUser({...displayUser, phoneNumber: formatted});
             }} 
           />
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>Bağlı Olduğu Mağaza (Tenant)</label>
+            <div className={styles.selectWrapper}>
+               <FaStore className={styles.inputIcon} />
+               <select 
+                 className={styles.selectInput}
+                 value={displayUser.tenantId || ''}
+                 onChange={e => setUser({...displayUser, tenantId: e.target.value || null})}
+               >
+                 <option value="">Global / Mağaza Yok</option>
+                 {tenants.map(t => (
+                   <option key={t.id} value={t.id}>{t.name}</option>
+                 ))}
+               </select>
+            </div>
+            <p className={styles.inputHint}>Müşteri veya Mağaza Yöneticisi ise bir mağaza seçilmelidir.</p>
+          </div>
           <div className={styles.formGroup}>
             <label className={styles.formLabel}>Güvenlik</label>
             <label className={styles.switch}>

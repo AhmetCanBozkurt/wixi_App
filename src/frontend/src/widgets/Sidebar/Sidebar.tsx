@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import {
   FaBars, FaTimes, FaChevronDown, FaChevronRight,
   FaStar, FaSearch, FaEllipsisH, FaSignOutAlt
@@ -35,7 +35,9 @@ interface SidebarProps {
 export const Sidebar = ({ isCollapsed, onToggleCollapse }: SidebarProps) => {
   const [menus, setMenus] = useState<MenuItemDto[]>([]);
   const [loading, setLoading] = useState(true);
-  const { logout: storeLogout } = useAuthStore();
+  const { logout: storeLogout, user } = useAuthStore();
+  const location = useLocation();
+  const isTenantMode = location.pathname.startsWith('/tenant/');
 
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>(() => {
     try {
@@ -56,11 +58,17 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse }: SidebarProps) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // Fetch menus from API
+  // Fetch menus from API — tenant mode uses the store-admin endpoint
   const fetchMenus = async () => {
     try {
-      const res = await apiClient.get<{ items: MenuItemDto[] }>('menu/sidebar');
-      setMenus(res.data.items || []);
+      if (isTenantMode) {
+        const res = await apiClient.get<MenuItemDto[] | { items?: MenuItemDto[] }>('store-admin/menus');
+        const data = Array.isArray(res.data) ? res.data : (res.data.items ?? []);
+        setMenus(data);
+      } else {
+        const res = await apiClient.get<{ items: MenuItemDto[] }>('menu/sidebar');
+        setMenus(res.data.items || []);
+      }
     } catch (error) {
       console.error('Menu fetch error:', error);
     } finally {
@@ -222,7 +230,7 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse }: SidebarProps) => {
             </span>
             <span className={styles.menuText}>{item.title}</span>
           </NavLink>
-          {!isCollapsed && item.path !== '#' && (
+          {!isCollapsed && item.path !== '#' && !isTenantMode && (
             <button
               className={`${styles.favStarBtn} ${favorites.includes(item.path) ? styles.isFav : ''}`}
               onClick={() => toggleFavorite(item.path)}
@@ -269,8 +277,17 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse }: SidebarProps) => {
           <img src={logoImg} alt="Wixi Logo" className={styles.logoImage} />
           {!isCollapsed && (
             <div className={styles.titleBox}>
-              <h1>Wixisoftware</h1>
-              <p>Admin Panel</p>
+              {isTenantMode ? (
+                <>
+                  <h1>{user?.tenantName || 'Mağaza'}</h1>
+                  <p>Yönetim Paneli</p>
+                </>
+              ) : (
+                <>
+                  <h1>Wixisoftware</h1>
+                  <p>Admin Panel</p>
+                </>
+              )}
             </div>
           )}
         </div>
@@ -282,7 +299,7 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse }: SidebarProps) => {
       <nav className={styles.navArea}>
         {loading && !isCollapsed && <div style={{ padding: '20px', color: '#fff', opacity: 0.5 }}>Yükleniyor...</div>}
 
-        {favoriteItems.length > 0 && !searchQuery && (
+        {favoriteItems.length > 0 && !searchQuery && !isTenantMode && (
           <div className={styles.favoritesSection}>
             {!isCollapsed && (
               <div className={styles.sectionLabel}>
@@ -310,7 +327,7 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse }: SidebarProps) => {
           </div>
         )}
 
-        {!isCollapsed && menus.length > 0 && (
+        {!isCollapsed && menus.length > 0 && !isTenantMode && (
           <>
             <div className={styles.sectionControls}>
               <span className={styles.sectionControlsTitle}>BÖLÜMLER</span>

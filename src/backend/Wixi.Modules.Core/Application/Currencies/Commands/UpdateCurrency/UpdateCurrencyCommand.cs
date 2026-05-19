@@ -42,8 +42,8 @@ public class UpdateCurrencyCommandHandler : IRequestHandler<UpdateCurrencyComman
 
         currency.Code = request.Code.ToUpperInvariant();
         currency.Name = request.Name;
-        currency.NameEn = request.NameEn;
-        currency.Symbol = request.Symbol;
+        currency.NameEn = request.NameEn ?? string.Empty;
+        currency.Symbol = request.Symbol ?? string.Empty;
         currency.Unit = request.Unit > 0 ? request.Unit : 1;
         currency.IsTcmbTracked = request.IsTcmbTracked;
         currency.IsActive = request.IsActive;

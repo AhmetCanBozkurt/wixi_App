@@ -15,5 +15,6 @@ public class WixiUser : IdentityUser<Guid>, IAuditable
     public string? UpdatedByUser { get; set; }
     public bool IsActive { get; set; } = true;
     public bool IsDeleted { get; set; } = false;
+    public Guid? TenantId { get; set; }
     public byte[]? ProfilePicture { get; set; }
 }

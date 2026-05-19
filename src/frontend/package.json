@@ -16,6 +16,7 @@
     "@dnd-kit/utilities": "^3.2.2",
     "@hookform/resolvers": "^5.2.2",
     "@minoru/react-dnd-treeview": "^3.5.3",
+    "@monaco-editor/react": "^4.7.0",
     "axios": "^1.15.0",
     "jspdf": "^4.2.1",
     "jspdf-autotable": "^5.0.7",

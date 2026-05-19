@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Serilog;
 using Wixi.Modules.Core.Domain.Entities;
 
 namespace Wixi.Modules.Core.Infrastructure.Data;
@@ -9,7 +10,13 @@ public static class SeedData
 {
     public static async Task InitializeAsync(IServiceProvider serviceProvider)
     {
+        Console.WriteLine(">>> INSIDE SeedData.InitializeAsync");
+        Log.Information("[DEBUG] SeedData.InitializeAsync started.");
         var context = serviceProvider.GetRequiredService<WixiCoreDbContext>();
+        
+        // 0. Sync existing TenantAdmin users
+        await SyncTenantIdsAsync(context);
+
         var roleManager = serviceProvider.GetRequiredService<RoleManager<WixiRole>>();
         var userManager = serviceProvider.GetRequiredService<UserManager<WixiUser>>();
 
@@ -236,6 +243,15 @@ public static class SeedData
                         mBrands.Translations.Add(new WixiMenuTranslation { LanguageId = tr.Id, Title = "Markalar" });
                         mBrands.Translations.Add(new WixiMenuTranslation { LanguageId = en.Id, Title = "Brands" });
                         await context.Menus.AddAsync(mBrands);
+                        await context.SaveChangesAsync();
+                    }
+
+                    if (!await context.Menus.AnyAsync(m => m.Path == "/admin/db-schema"))
+                    {
+                        var mSchema = new WixiMenu { UserId = adminUser.Id, Path = "/admin/db-schema", Icon = "FaDatabase", IconColor = "#06b6d4", SortOrder = 40 };
+                        mSchema.Translations.Add(new WixiMenuTranslation { LanguageId = tr.Id, Title = "Veritabanı Şeması" });
+                        mSchema.Translations.Add(new WixiMenuTranslation { LanguageId = en.Id, Title = "Database Schema" });
+                        await context.Menus.AddAsync(mSchema);
                         await context.SaveChangesAsync();
                     }
                 }
@@ -473,6 +489,181 @@ public static class SeedData
 
             await context.SubscriptionPlans.AddRangeAsync(freePlan, starterPlan, proPlan);
             await context.SaveChangesAsync();
+        }
+
+        // 8. Public Modules (pricing / feature showcase)
+        if (!await context.Modules.AnyAsync())
+        {
+            var ecommerce = new WixiModule
+            {
+                Code = "ecommerce",
+                Name = "E-Ticaret",
+                Description = "Tam kapsamlı e-ticaret yönetimi. Ürünler, siparişler, stok ve müşteri yönetimi tek panelde.",
+                IsPublic = true,
+                PriceMonthly = 0,
+                PriceYearly = 0,
+                IsPopular = false,
+                SortOrder = 1,
+                ColorAccent = "#38bdf8",
+                FeaturesJson = """["Ürün kataloğu","Stok takibi","Varyant yönetimi","Kategori & marka","Müşteri kayıtları","Sipariş yönetimi"]"""
+            };
+
+            var crm = new WixiModule
+            {
+                Code = "crm",
+                Name = "CRM",
+                Description = "Müşteri ilişkilerini güçlendirin. Satış süreçlerini izleyin, fırsatları takip edin.",
+                IsPublic = true,
+                PriceMonthly = 299,
+                PriceYearly = 239,
+                IsPopular = true,
+                SortOrder = 2,
+                ColorAccent = "#818cf8",
+                FeaturesJson = """["Müşteri profilleri","Satış pipeline (kanban)","İletişim geçmişi","Görev atama","Raporlar & analizler","E-posta entegrasyonu"]"""
+            };
+
+            var notes = new WixiModule
+            {
+                Code = "notes",
+                Name = "Notlar & Dokümanlar",
+                Description = "Ekibinizle birlikte not alın, döküman hazırlayın ve bilgi bankası oluşturun.",
+                IsPublic = true,
+                PriceMonthly = 149,
+                PriceYearly = 119,
+                IsPopular = false,
+                SortOrder = 3,
+                ColorAccent = "#34d399",
+                FeaturesJson = """["Zengin metin editörü","Gerçek zamanlı işbirliği","Etiketleme & arama","Dosya ekleri","Versiyon geçmişi","Şablonlar"]"""
+            };
+
+            var tasks = new WixiModule
+            {
+                Code = "tasks",
+                Name = "Görev Takibi",
+                Description = "Projelerinizi ve görevlerinizi yönetin. Kanban panolar, sprint'ler ve detaylı raporlar.",
+                IsPublic = true,
+                PriceMonthly = 199,
+                PriceYearly = 159,
+                IsPopular = false,
+                SortOrder = 4,
+                ColorAccent = "#fb923c",
+                FeaturesJson = """["Kanban & liste görünümü","Görev atama & son tarih","Sprint yönetimi","Öncelik seviyeleri","İlerleme raporları","Zaman takibi"]"""
+            };
+
+            await context.Modules.AddRangeAsync(ecommerce, crm, notes, tasks);
+            await context.SaveChangesAsync();
+        }
+
+        // 9. Sync existing TenantAdmin users
+        await SyncTenantIdsAsync(context);
+
+        // 10. Seed ecommerce module tenant menus (stock & warehouse pages)
+        await SeedEcommerceModuleMenusAsync(context);
+    }
+
+    private static async Task SeedEcommerceModuleMenusAsync(WixiCoreDbContext context)
+    {
+        var ecommerceModule = await context.Modules
+            .FirstOrDefaultAsync(m => m.Code == "ecommerce" && m.IsActive);
+        if (ecommerceModule is null) return;
+
+        var trLang = await context.Languages
+            .FirstOrDefaultAsync(l => l.Code == "tr-TR");
+        if (trLang is null) return;
+
+        var newMenus = new[]
+        {
+            new { Path = "/tenant/{tenantSlug}/stock",        Icon = "FaBoxOpen",      Color = "#10b981", Sort = 25, Title = "Stok Yönetimi" },
+            new { Path = "/tenant/{tenantSlug}/stock/report", Icon = "FaWarehouse",    Color = "#6366f1", Sort = 26, Title = "Depo Raporu"    },
+            new { Path = "/tenant/{tenantSlug}/cari",         Icon = "FaAddressBook",  Color = "#f59e0b", Sort = 27, Title = "Cari Hesaplar"  },
+            new { Path = "/tenant/{tenantSlug}/discounts",    Icon = "FaTag",          Color = "#ec4899", Sort = 28, Title = "Kampanyalar"    },
+            new { Path = "/tenant/{tenantSlug}/analytics",    Icon = "FaChartBar",     Color = "#3b82f6", Sort = 29, Title = "Analitik"       },
+            new { Path = "/tenant/{tenantSlug}/media",        Icon = "FaImages",       Color = "#8b5cf6", Sort = 30, Title = "Medya"          },
+        };
+
+        foreach (var def in newMenus)
+        {
+            if (await context.ModuleMenus.AnyAsync(m => m.Path == def.Path && m.ModuleId == ecommerceModule.Id))
+                continue;
+
+            var menu = new WixiModuleMenu
+            {
+                ModuleId       = ecommerceModule.Id,
+                Path           = def.Path,
+                Icon           = def.Icon,
+                IconColor      = def.Color,
+                SortOrder      = def.Sort,
+                VisibleToTenant = true,
+            };
+            menu.Translations.Add(new WixiModuleMenuTranslation
+            {
+                LanguageId = trLang.Id,
+                Title      = def.Title,
+            });
+            context.ModuleMenus.Add(menu);
+        }
+
+        await context.SaveChangesAsync();
+    }
+
+    public static async Task SyncTenantIdsAsync(WixiCoreDbContext context)
+    {
+        Log.Information("[DEBUG] Starting TenantId Synchronization...");
+        
+        // 1. Sync TenantAdmin users by their owned tenants
+        var tenants = await context.Tenants
+            .Where(t => t.OwnerUserId != Guid.Empty && !t.IsDeleted)
+            .ToListAsync();
+
+        Log.Information("[DEBUG] Found {Count} active tenants.", tenants.Count);
+
+        bool hasChanges = false;
+        foreach (var tenant in tenants)
+        {
+            var user = await context.Users.FirstOrDefaultAsync(u => u.Id == tenant.OwnerUserId);
+            if (user != null)
+            {
+                if (user.TenantId == null)
+                {
+                    Log.Information("[DEBUG] Syncing User {Email} to Tenant {Slug}", user.Email, tenant.Slug);
+                    user.TenantId = tenant.Id;
+                    hasChanges = true;
+                }
+                else
+                {
+                    Log.Information("[DEBUG] User {Email} already has TenantId: {TenantId}", user.Email, user.TenantId);
+                }
+            }
+            else
+            {
+                Log.Information("[DEBUG] Owner User ID {OwnerUserId} not found for Tenant {Slug}", tenant.OwnerUserId, tenant.Slug);
+            }
+        }
+
+        // 2. Link orphaned "Normal" users to the first available tenant (Healing)
+        var firstTenant = tenants.FirstOrDefault();
+        if (firstTenant != null)
+        {
+            var orphanUsers = await context.Users
+                .Where(u => u.TenantId == null && u.Email != "admin@wixi.com") // Don't heal master admin
+                .ToListAsync();
+
+            foreach (var orphan in orphanUsers)
+            {
+                Log.Information("[DEBUG] Healing Orphan User {Email} -> Linking to Tenant {Slug}", orphan.Email, firstTenant.Slug);
+                orphan.TenantId = firstTenant.Id;
+                hasChanges = true;
+            }
+        }
+
+        if (hasChanges)
+        {
+            await context.SaveChangesAsync();
+            Log.Information("[DEBUG] TenantId Synchronization completed with changes.");
+        }
+        else
+        {
+            Log.Information("[DEBUG] No changes needed for TenantId Synchronization.");
         }
     }
 }

@@ -20,7 +20,9 @@ public record ProductListDto(
     DateTime CreatedAt,
     string? CreatedByUser,
     DateTime? UpdatedAt,
-    string? UpdatedByUser
+    string? UpdatedByUser,
+    int VatRate,
+    decimal? CostPrice
 );
 
 // ── Query ──────────────────────────────────────────────────────────
@@ -30,7 +32,11 @@ public record GetProductsQuery(
     string? Search = null,
     Guid? CategoryId = null,
     Guid? BrandId = null,
-    bool? IsActive = null
+    bool? IsActive = null,
+    bool? IsFeatured = null,
+    string? SortBy = null,
+    decimal? MinPrice = null,
+    decimal? MaxPrice = null
 ) : IRequest<GetProductsResult>;
 
 public record GetProductsResult(
@@ -69,10 +75,25 @@ public class GetProductsQueryHandler : IRequestHandler<GetProductsQuery, GetProd
         if (request.IsActive.HasValue)
             query = query.Where(p => p.IsActive == request.IsActive);
 
+        if (request.IsFeatured.HasValue)
+            query = query.Where(p => p.IsFeatured == request.IsFeatured);
+
+        if (request.MinPrice.HasValue)
+            query = query.Where(p => p.BasePrice >= request.MinPrice.Value);
+        if (request.MaxPrice.HasValue)
+            query = query.Where(p => p.BasePrice <= request.MaxPrice.Value);
+
         var total = await query.CountAsync(ct);
 
-        var items = await query
-            .OrderByDescending(p => p.CreatedAt)
+        IQueryable<Wixi.Modules.ECommerce.Domain.Entities.WixiProduct> sortedQuery = request.SortBy switch
+        {
+            "price_asc"     => query.OrderBy(p => p.BasePrice),
+            "price_desc"    => query.OrderByDescending(p => p.BasePrice),
+            "recommended"   => query.OrderByDescending(p => p.IsFeatured).ThenByDescending(p => p.CreatedAt),
+            _               => query.OrderByDescending(p => p.CreatedAt)
+        };
+
+        var items = await sortedQuery
             .Skip((request.Page - 1) * request.PageSize)
             .Take(request.PageSize)
             .Select(p => new ProductListDto(
@@ -84,7 +105,8 @@ public class GetProductsQueryHandler : IRequestHandler<GetProductsQuery, GetProd
                 p.Media.OrderBy(m => m.SortOrder).Select(m => m.Url).FirstOrDefault(),
                 p.Media.OrderBy(m => m.SortOrder).Select(m => m.Url).ToList(),
                 p.CreatedAt, p.CreatedByUser,
-                p.UpdatedAt, p.UpdatedByUser
+                p.UpdatedAt, p.UpdatedByUser,
+                p.VatRate, p.CostPrice
             ))
             .ToListAsync(ct);
 

@@ -28,7 +28,7 @@ public class RegisterCustomerCommandHandler : IRequestHandler<RegisterCustomerCo
         var exists = await _db.Customers.AnyAsync(c => c.Email.ToLower() == request.Email.ToLower(), ct);
         if (exists)
         {
-            throw new Exception("Bu e-posta adresi ile zaten bir hesap mevcut."); // TODO: Use proper custom exception
+            throw new InvalidOperationException("Bu e-posta adresi ile zaten bir hesap mevcut.");
         }
 
         // 2. Hash password (using simple BCrypt for this example)

@@ -10,6 +10,9 @@ public class WixiTenant : IAuditable
 {
     public Guid Id { get; set; } = Guid.NewGuid();
 
+    /// <summary>Format: YYYYXXX (Örn: 2026001)</summary>
+    public string TenantCode { get; set; } = string.Empty;
+
     /// <summary>Müşteri/Firma adı.</summary>
     public string Name { get; set; } = string.Empty;
 

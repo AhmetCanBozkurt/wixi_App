@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Wixi.Modules.ECommerce.Application.Cargo;
+using Wixi.Modules.ECommerce.Infrastructure.Cargo;
 using Wixi.Modules.ECommerce.Infrastructure.Data;
 using Wixi.Modules.ECommerce.Infrastructure.Tenant;
 using Wixi.Modules.Core.Infrastructure.Services;
@@ -41,6 +43,10 @@ public static class ECommerceModuleExtensions
 
         // Tenant Provisioner — yeni mağaza DB'si oluşturma
         services.AddScoped<Wixi.Modules.Core.Application.Common.Interfaces.ITenantProvisioner, Wixi.Modules.ECommerce.Infrastructure.Services.ECommerceTenantProvisioner>();
+
+        // Cargo Providers — IEnumerable<ICargoProvider> ile çözümlenir
+        services.AddSingleton<ICargoProvider, ArasCargoProvider>();
+        services.AddSingleton<ICargoProvider, YurticiCargoProvider>();
 
         // MediatR — ECommerce Assembly handler'ları kaydet
         services.AddMediatR(cfg =>

@@ -39,17 +39,25 @@ public class StoreAdminAuthController : ControllerBase
         if (user == null || !await _userManager.CheckPasswordAsync(user, req.Password))
             return Unauthorized(new { error = "E-posta veya şifre hatalı." });
 
-        var roles = await _userManager.GetRolesAsync(user);
-        if (!roles.Contains("TenantAdmin"))
-            return Forbid();
-
-        // Bu kullanıcının sahibi olduğu tenant'ı bul
+        // Tenant sahipliğini kontrol et — OwnerUserId veya OwnerEmail ile eşleş
         var tenant = await _db.Tenants
-            .Where(t => t.OwnerUserId == user.Id && t.IsActive && !t.IsDeleted)
+            .Where(t => (t.OwnerUserId == user.Id || t.OwnerEmail == user.Email) && t.IsActive && !t.IsDeleted)
             .FirstOrDefaultAsync(ct);
 
         if (tenant is null)
             return NotFound(new { error = "Bu hesaba bağlı aktif bir mağaza bulunamadı." });
+
+        // OwnerUserId henüz set edilmediyse şimdi bağla
+        if (tenant.OwnerUserId != user.Id)
+        {
+            tenant.OwnerUserId = user.Id;
+            await _db.SaveChangesAsync(ct);
+        }
+
+        // TenantAdmin rolü yoksa lazy olarak ata
+        var roles = await _userManager.GetRolesAsync(user);
+        if (!roles.Contains("TenantAdmin"))
+            await _userManager.AddToRoleAsync(user, "TenantAdmin");
 
         var token = GenerateToken(user, tenant.Slug, tenant.Name);
         return Ok(new
@@ -70,8 +78,8 @@ public class StoreAdminAuthController : ControllerBase
             new(ClaimTypes.Email, user.Email!),
             new(ClaimTypes.Name, $"{user.FirstName} {user.LastName}"),
             new(ClaimTypes.Role, "TenantAdmin"),
-            new("tenantSlug", tenantSlug),
-            new("tenantName", tenantName)
+            new("tenant_slug", tenantSlug),
+            new("tenant_name", tenantName)
         };
 
         var descriptor = new SecurityTokenDescriptor

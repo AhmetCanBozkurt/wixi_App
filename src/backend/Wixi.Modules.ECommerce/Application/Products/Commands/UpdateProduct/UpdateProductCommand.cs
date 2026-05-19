@@ -1,9 +1,5 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Wixi.Modules.Core.Application.Common.Interfaces;
-using Wixi.Modules.Core.Infrastructure.Data;
-using Wixi.Modules.ECommerce.Domain.Entities;
 using Wixi.Modules.ECommerce.Infrastructure.Data;
 
 namespace Wixi.Modules.ECommerce.Application.Products.Commands.UpdateProduct;
@@ -22,70 +18,71 @@ public record UpdateProductCommand(
     string? MainImageUrl,
     IReadOnlyList<string>? GalleryUrls,
     bool TrackInventory,
-    bool IsActive
+    bool IsActive,
+    int VatRate,
+    decimal? CostPrice
 ) : IRequest<bool>;
 
 public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand, bool>
 {
     private readonly ECommerceDbContext _db;
-    private readonly IServiceScopeFactory _scopeFactory;
 
-    public UpdateProductCommandHandler(ECommerceDbContext db, IServiceScopeFactory scopeFactory)
+    public UpdateProductCommandHandler(ECommerceDbContext db)
     {
         _db = db;
-        _scopeFactory = scopeFactory;
     }
 
     public async Task<bool> Handle(UpdateProductCommand request, CancellationToken ct)
     {
-        var product = await _db.Products
-            .Include(p => p.Media)
-            .FirstOrDefaultAsync(p => p.Id == request.Id && !p.IsDeleted, ct);
-            
-        if (product is null) return false;
+        var exists = await _db.Products
+            .AnyAsync(p => p.Id == request.Id && !p.IsDeleted, ct);
+        if (!exists) return false;
 
-        product.Name = request.Name;
-        product.Slug = request.Slug;
-        product.BasePrice = request.BasePrice;
-        product.CategoryId = request.CategoryId;
-        product.BrandId = request.BrandId;
-        product.ShortDescription = request.ShortDescription;
-        product.Description = request.Description;
-        product.MetaTitle = request.MetaTitle;
-        product.MetaDescription = request.MetaDescription;
-        product.TrackInventory = request.TrackInventory;
-        product.IsActive = request.IsActive;
-        product.UpdatedAt = DateTime.UtcNow;
+        await _db.Products
+            .Where(p => p.Id == request.Id)
+            .ExecuteUpdateAsync(s => s
+                .SetProperty(p => p.Name, request.Name)
+                .SetProperty(p => p.Slug, request.Slug)
+                .SetProperty(p => p.BasePrice, request.BasePrice)
+                .SetProperty(p => p.CategoryId, request.CategoryId)
+                .SetProperty(p => p.BrandId, request.BrandId)
+                .SetProperty(p => p.ShortDescription, request.ShortDescription)
+                .SetProperty(p => p.Description, request.Description)
+                .SetProperty(p => p.MetaTitle, request.MetaTitle)
+                .SetProperty(p => p.MetaDescription, request.MetaDescription)
+                .SetProperty(p => p.TrackInventory, request.TrackInventory)
+                .SetProperty(p => p.IsActive, request.IsActive)
+                .SetProperty(p => p.VatRate, request.VatRate)
+                .SetProperty(p => p.CostPrice, request.CostPrice)
+                .SetProperty(p => p.UpdatedAt, DateTime.UtcNow),
+                ct);
 
-        // Update Media (Clear and Re-add for simplicity)
-        product.Media.Clear();
+        await _db.ProductMedia
+            .Where(m => m.ProductId == request.Id)
+            .ExecuteDeleteAsync(ct);
 
         if (!string.IsNullOrWhiteSpace(request.MainImageUrl))
         {
-            product.Media.Add(new WixiProductMedia
-            {
-                Url = request.MainImageUrl,
-                SortOrder = 0,
-                AltText = request.Name
-            });
-        }
+            var now = DateTime.UtcNow;
+            var mainId = Guid.NewGuid();
+            await _db.Database.ExecuteSqlAsync(
+                $"INSERT INTO WIXI_EC_PRODUCT_MEDIA (Id, ProductId, Url, AltText, SortOrder, MediaType, CreatedAt, IsActive, IsDeleted) VALUES ({mainId}, {request.Id}, {request.MainImageUrl}, {request.Name}, {0}, {0}, {now}, {true}, {false})",
+                ct);
 
-        if (request.GalleryUrls != null)
-        {
-            int order = 1;
-            foreach (var url in request.GalleryUrls)
+            if (request.GalleryUrls != null)
             {
-                if (url == request.MainImageUrl) continue;
-                product.Media.Add(new WixiProductMedia
+                int order = 1;
+                foreach (var url in request.GalleryUrls)
                 {
-                    Url = url,
-                    SortOrder = order++,
-                    AltText = request.Name
-                });
+                    if (url == request.MainImageUrl) continue;
+                    var galleryId = Guid.NewGuid();
+                    await _db.Database.ExecuteSqlAsync(
+                        $"INSERT INTO WIXI_EC_PRODUCT_MEDIA (Id, ProductId, Url, AltText, SortOrder, MediaType, CreatedAt, IsActive, IsDeleted) VALUES ({galleryId}, {request.Id}, {url}, {request.Name}, {order++}, {0}, {now}, {true}, {false})",
+                        ct);
+                }
             }
         }
 
-        await _db.SaveChangesAsync(ct);
         return true;
     }
 }

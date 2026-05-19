@@ -18,7 +18,7 @@ public class WixiCustomer : IAuditable
     public bool IsEmailVerified { get; set; } = false;
 
     // A customer can have multiple addresses, orders, etc.
-    // public ICollection<WixiAddress> Addresses { get; set; } = new List<WixiAddress>();
+    public ICollection<WixiAddress> Addresses { get; set; } = [];
     // public ICollection<WixiOrder> Orders { get; set; } = new List<WixiOrder>();
     
     // IAuditable

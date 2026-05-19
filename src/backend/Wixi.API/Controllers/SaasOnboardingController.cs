@@ -42,13 +42,19 @@ public class SaasOnboardingController : ControllerBase
         if (await _userManager.FindByEmailAsync(request.OwnerEmail) != null)
             return BadRequest(new { error = "Bu e-posta adresi zaten kayıtlı." });
 
+        var yearStr = DateTime.UtcNow.Year.ToString();
+        var count = await _coreDb.Tenants.CountAsync(t => t.TenantCode.StartsWith(yearStr)) + 1;
+        var tenantCode = $"{yearStr}{count:D3}";
+        var safeStoreName = System.Text.RegularExpressions.Regex.Replace(request.StoreName, "[^a-zA-Z0-9]", "");
+
         // 1. Tenant kaydı
         var tenant = new WixiTenant
         {
+            TenantCode = tenantCode,
             Name = request.StoreName,
             Slug = request.Slug,
             OwnerEmail = request.OwnerEmail,
-            DatabaseName = $"wixi_store_{request.Slug.Replace("-", "_")}",
+            DatabaseName = $"wixi_t_{tenantCode}_{safeStoreName}",
             EnabledModules = string.Join(",", request.SelectedModules ?? ["ecommerce"]),
             Plan = "Trial"
         };
