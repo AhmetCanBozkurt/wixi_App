@@ -30,4 +30,14 @@ export const customerApi = {
   },
 
   me: () => sfClient.get<Customer>('/public/storefront/auth/me'),
+
+  forgotPassword: (tenantSlug: string, data: { email: string }) => {
+    setSfTenant(tenantSlug);
+    return sfClient.post('/public/storefront/auth/forgot-password', data);
+  },
+
+  resetPassword: (tenantSlug: string, data: { token: string; newPassword: string }) => {
+    setSfTenant(tenantSlug);
+    return sfClient.post('/public/storefront/auth/reset-password', data);
+  },
 };

@@ -53,6 +53,8 @@ import { StorefrontPage } from '../pages/StorefrontPage/StorefrontPage';
 import { StorefrontLayout } from '../pages/StorefrontPage/StorefrontLayout';
 import { StorefrontLoginPage } from '../pages/StorefrontAuthPage/StorefrontLoginPage';
 import { StorefrontRegisterPage } from '../pages/StorefrontAuthPage/StorefrontRegisterPage';
+import { StorefrontForgotPasswordPage } from '../pages/StorefrontAuthPage/StorefrontForgotPasswordPage';
+import { StorefrontResetPasswordPage } from '../pages/StorefrontAuthPage/StorefrontResetPasswordPage';
 import { StorefrontCartPage } from '../pages/StorefrontCartPage/StorefrontCartPage';
 import { StorefrontCheckoutPage } from '../pages/StorefrontCheckoutPage/StorefrontCheckoutPage';
 import { StorefrontOrderSuccessPage } from '../pages/StorefrontOrderSuccessPage/StorefrontOrderSuccessPage';
@@ -102,6 +104,8 @@ const App = () => {
             <Route path="cart" element={<StorefrontCartPage />} />
             <Route path="login" element={<StorefrontLoginPage />} />
             <Route path="register" element={<StorefrontRegisterPage />} />
+            <Route path="forgot-password" element={<StorefrontForgotPasswordPage />} />
+            <Route path="reset-password" element={<StorefrontResetPasswordPage />} />
             <Route path="checkout" element={<StorefrontAuthGuard><StorefrontCheckoutPage /></StorefrontAuthGuard>} />
             <Route path="order-success/:orderNumber" element={<StorefrontOrderSuccessPage />} />
             <Route path="account" element={<StorefrontAuthGuard><StorefrontAccountPage /></StorefrontAuthGuard>} />

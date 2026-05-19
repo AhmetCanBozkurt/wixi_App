@@ -60,6 +60,9 @@ public class ECommerceDbContext : DbContext
     public DbSet<WixiFaqItem> FaqItems => Set<WixiFaqItem>();
     public DbSet<WixiContactFormSubmission> ContactSubmissions => Set<WixiContactFormSubmission>();
 
+    // Müşteri Şifre Sıfırlama
+    public DbSet<WixiCustomerResetToken> CustomerResetTokens => Set<WixiCustomerResetToken>();
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         // TenantContext doldurulmuşsa tenant DB'sine bağlan
@@ -502,6 +505,21 @@ public class ECommerceDbContext : DbContext
                 .WithMany(c => c.Addresses)
                 .HasForeignKey(e => e.CustomerId)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // ── WixiCustomerResetToken ────────────────────────────────────
+        modelBuilder.Entity<WixiCustomerResetToken>(entity =>
+        {
+            entity.ToTable("WIXI_EC_CUSTOMER_RESET_TOKENS");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.TokenHash).HasMaxLength(64).IsRequired();
+            entity.HasIndex(e => e.TokenHash).IsUnique();
+            entity.HasIndex(e => e.CustomerId);
+            entity.Property(e => e.IpAddress).HasMaxLength(50);
+            entity.HasOne(e => e.Customer)
+                  .WithMany()
+                  .HasForeignKey(e => e.CustomerId)
+                  .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

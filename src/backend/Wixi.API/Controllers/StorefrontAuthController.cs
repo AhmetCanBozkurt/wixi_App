@@ -3,7 +3,9 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Wixi.Modules.ECommerce.Application.Customers.Commands.ForgotPassword;
 using Wixi.Modules.ECommerce.Application.Customers.Commands.Register;
+using Wixi.Modules.ECommerce.Application.Customers.Commands.ResetPassword;
 using Wixi.Modules.ECommerce.Application.Customers.Queries.GetCurrentCustomer;
 using Wixi.Modules.ECommerce.Application.Customers.Queries.Login;
 
@@ -58,6 +60,33 @@ public class StorefrontAuthController : ControllerBase
         });
     }
 
+    [HttpPost("forgot-password")]
+    [EnableRateLimiting("storefront-auth")]
+    public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordCustomerRequest req, CancellationToken ct)
+    {
+        await _mediator.Send(new ForgotPasswordCustomerCommand(req.Email), ct);
+        return Ok(new { message = "Eğer bu e-posta ile kayıtlı bir hesap varsa sıfırlama bağlantısı gönderildi." });
+    }
+
+    [HttpPost("reset-password")]
+    [EnableRateLimiting("storefront-auth")]
+    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordCustomerRequest req, CancellationToken ct)
+    {
+        try
+        {
+            await _mediator.Send(new ResetPasswordCustomerCommand(req.Token, req.NewPassword), ct);
+            return Ok(new { message = "Şifreniz başarıyla güncellendi." });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+    }
+
     [HttpGet("me")]
     [Authorize(AuthenticationSchemes = "Bearer")]
     public async Task<IActionResult> Me(CancellationToken ct)
@@ -73,3 +102,6 @@ public class StorefrontAuthController : ControllerBase
         return Ok(customer);
     }
 }
+
+public record ForgotPasswordCustomerRequest(string Email);
+public record ResetPasswordCustomerRequest(string Token, string NewPassword);

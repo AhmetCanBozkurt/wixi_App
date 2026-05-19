@@ -56,6 +56,11 @@ export const StorefrontLoginPage = () => {
               autoComplete="current-password"
             />
           </div>
+          <div style={{ textAlign: 'right', marginTop: '-8px' }}>
+            <Link to={`/store/${tenantSlug}/forgot-password`} className={styles.link}>
+              Şifremi Unuttum
+            </Link>
+          </div>
           <button type="submit" className={styles.btn} disabled={isLoading}>
             {isLoading ? 'Giriş yapılıyor...' : 'Giriş Yap'}
           </button>
