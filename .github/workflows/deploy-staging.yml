@@ -49,17 +49,19 @@ jobs:
 
       - name: Save current images as previous (rollback point)
         run: |
-          $b = docker inspect wixi-backend:staging --format='{{.Id}}' 2>&1
-          $f = docker inspect wixi-frontend:staging --format='{{.Id}}' 2>&1
-          if ($LASTEXITCODE -eq 0 -or $b -match 'sha256') {
-            docker tag wixi-backend:staging wixi-backend:previous 2>&1 | Out-Null
+          $b = docker inspect wixi-backend:staging --format='{{.Id}}' 2>$null
+          if ($b) {
+            docker tag wixi-backend:staging wixi-backend:previous 2>$null
             Write-Host "Backend previous image saved"
+          } else {
+            Write-Host "No existing backend image — skipping rollback save"
           }
-          $LASTEXITCODE = 0  # reset — previous tag yoksa sorun degil
-          docker inspect wixi-frontend:staging 2>&1 | Out-Null
-          if ($?) {
-            docker tag wixi-frontend:staging wixi-frontend:previous 2>&1 | Out-Null
+          $f = docker inspect wixi-frontend:staging --format='{{.Id}}' 2>$null
+          if ($f) {
+            docker tag wixi-frontend:staging wixi-frontend:previous 2>$null
             Write-Host "Frontend previous image saved"
+          } else {
+            Write-Host "No existing frontend image — skipping rollback save"
           }
           exit 0
 
