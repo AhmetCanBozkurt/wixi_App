@@ -445,3 +445,55 @@
 .arraySectionChevron { color: var(--editor-text-muted); font-size: 10px; flex-shrink: 0; }
 
 .arraySectionBody { padding: 10px; background: var(--editor-row-bg); }
+
+/* ── GlobalPanel code editor ─────────────────────────── */
+.codeToggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 6px 8px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 6px;
+  color: var(--text-muted, #9ca3af);
+  font-size: 12px;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background 0.15s;
+}
+.codeToggle:hover { background: rgba(255,255,255,0.1); }
+
+.codeSection {
+  margin-top: 6px;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.codeTabs {
+  display: flex;
+  background: #1e1e1e;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.codeTab {
+  padding: 5px 14px;
+  background: transparent;
+  border: none;
+  color: #9ca3af;
+  font-size: 12px;
+  cursor: pointer;
+}
+.codeTab:hover { color: #e5e7eb; }
+.codeTabActive { color: #60a5fa !important; border-bottom: 2px solid #60a5fa; }
+
+.codeLoading {
+  height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+  font-size: 13px;
+  background: #1e1e1e;
+}

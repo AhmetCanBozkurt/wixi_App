@@ -1,3 +1,5 @@
+import { lazy, Suspense, useState } from 'react';
+import { FaCode } from 'react-icons/fa';
 import { useEditor } from '../context/EditorContext';
 import { useThemeEditor } from '../hooks/useThemeEditor';
 import { Input } from '../../../../../shared/ui/Input/Input';
@@ -6,12 +8,19 @@ import { Switch } from '../../../../../shared/ui/Switch/Switch';
 import { Button } from '../../../../../shared/ui/Button/Button';
 import styles from './Panels.module.css';
 
+const MonacoEditor = lazy(() => import('@monaco-editor/react').then(m => ({ default: m.default })));
+
 interface Props { tenantSlug: string; }
 
 export function GlobalPanel({ tenantSlug }: Props) {
   const { state, dispatch } = useEditor();
   const { saveGlobalComponents } = useThemeEditor(tenantSlug);
   const { navbar, footer } = state.globalComponents;
+
+  const [navbarCodeTab, setNavbarCodeTab] = useState<'css' | 'js'>('css');
+  const [navbarCodeOpen, setNavbarCodeOpen] = useState(false);
+  const [footerCodeTab, setFooterCodeTab] = useState<'css' | 'js'>('css');
+  const [footerCodeOpen, setFooterCodeOpen] = useState(false);
 
   const updateNavbar = (key: string, value: unknown) =>
     dispatch({
@@ -69,6 +78,44 @@ export function GlobalPanel({ tenantSlug }: Props) {
           checked={navbar.showLanguagePicker}
           onChange={e => updateNavbar('showLanguagePicker', e.target.checked)}
         />
+
+        <button
+          type="button"
+          className={styles.codeToggle}
+          onClick={() => setNavbarCodeOpen(o => !o)}
+        >
+          <FaCode /> Özel Kod {navbarCodeOpen ? '▲' : '▼'}
+        </button>
+        {navbarCodeOpen && (
+          <div className={styles.codeSection}>
+            <div className={styles.codeTabs}>
+              <button
+                type="button"
+                className={`${styles.codeTab} ${navbarCodeTab === 'css' ? styles.codeTabActive : ''}`}
+                onClick={() => setNavbarCodeTab('css')}
+              >
+                CSS
+              </button>
+              <button
+                type="button"
+                className={`${styles.codeTab} ${navbarCodeTab === 'js' ? styles.codeTabActive : ''}`}
+                onClick={() => setNavbarCodeTab('js')}
+              >
+                JS
+              </button>
+            </div>
+            <Suspense fallback={<div className={styles.codeLoading}>Yükleniyor...</div>}>
+              <MonacoEditor
+                height="220px"
+                language={navbarCodeTab === 'css' ? 'css' : 'javascript'}
+                theme="vs-dark"
+                value={navbarCodeTab === 'css' ? (navbar.customCss ?? '') : (navbar.customJs ?? '')}
+                onChange={v => updateNavbar(navbarCodeTab === 'css' ? 'customCss' : 'customJs', v ?? '')}
+                options={{ minimap: { enabled: false }, fontSize: 12, wordWrap: 'on', scrollBeyondLastLine: false }}
+              />
+            </Suspense>
+          </div>
+        )}
       </div>
 
       <div className={styles.themeSection}>
@@ -100,6 +147,44 @@ export function GlobalPanel({ tenantSlug }: Props) {
           onChange={e => updateFooter('copyrightText', e.target.value)}
           placeholder="© 2026 Mağazam"
         />
+
+        <button
+          type="button"
+          className={styles.codeToggle}
+          onClick={() => setFooterCodeOpen(o => !o)}
+        >
+          <FaCode /> Özel Kod {footerCodeOpen ? '▲' : '▼'}
+        </button>
+        {footerCodeOpen && (
+          <div className={styles.codeSection}>
+            <div className={styles.codeTabs}>
+              <button
+                type="button"
+                className={`${styles.codeTab} ${footerCodeTab === 'css' ? styles.codeTabActive : ''}`}
+                onClick={() => setFooterCodeTab('css')}
+              >
+                CSS
+              </button>
+              <button
+                type="button"
+                className={`${styles.codeTab} ${footerCodeTab === 'js' ? styles.codeTabActive : ''}`}
+                onClick={() => setFooterCodeTab('js')}
+              >
+                JS
+              </button>
+            </div>
+            <Suspense fallback={<div className={styles.codeLoading}>Yükleniyor...</div>}>
+              <MonacoEditor
+                height="220px"
+                language={footerCodeTab === 'css' ? 'css' : 'javascript'}
+                theme="vs-dark"
+                value={footerCodeTab === 'css' ? (footer.customCss ?? '') : (footer.customJs ?? '')}
+                onChange={v => updateFooter(footerCodeTab === 'css' ? 'customCss' : 'customJs', v ?? '')}
+                options={{ minimap: { enabled: false }, fontSize: 12, wordWrap: 'on', scrollBeyondLastLine: false }}
+              />
+            </Suspense>
+          </div>
+        )}
       </div>
 
       <div className={styles.themeSection}>

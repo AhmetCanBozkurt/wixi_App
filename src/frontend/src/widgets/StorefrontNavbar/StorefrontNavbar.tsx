@@ -24,6 +24,8 @@ export const StorefrontNavbar = ({ settings, pages, tenantSlug }: StorefrontNavb
   }
   const isSticky = globalComponents?.navbar?.isSticky ?? true;
   const showLanguagePicker = globalComponents?.navbar?.showLanguagePicker ?? true;
+  const navbarCustomCss = globalComponents?.navbar?.customCss ?? '';
+  const navbarCustomJs = globalComponents?.navbar?.customJs ?? '';
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -60,6 +62,10 @@ export const StorefrontNavbar = ({ settings, pages, tenantSlug }: StorefrontNavb
   };
 
   return (
+    <>
+      {navbarCustomCss && (
+        <style dangerouslySetInnerHTML={{ __html: navbarCustomCss }} />
+      )}
     <header className={`${styles.navbar} ${isSticky ? '' : styles.stickyOff}`} ref={navRef}>
       <div className={styles.inner}>
         <Link to={`/store/${tenantSlug}`} className={styles.logo}>
@@ -149,5 +155,9 @@ export const StorefrontNavbar = ({ settings, pages, tenantSlug }: StorefrontNavb
         </div>
       </div>
     </header>
+      {navbarCustomJs && (
+        <script dangerouslySetInnerHTML={{ __html: navbarCustomJs }} />
+      )}
+    </>
   );
 };

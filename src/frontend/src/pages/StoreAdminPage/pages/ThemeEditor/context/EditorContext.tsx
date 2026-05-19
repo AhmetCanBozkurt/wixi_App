@@ -66,8 +66,8 @@ const initialState: EditorState = {
   backlinks: [],
   seo: { metaTitle: '', metaDescription: '', metaKeywords: '', openGraphImageUrl: '' },
   globalComponents: {
-    navbar: { layout: 'classic', logoPosition: 'left', isSticky: true, showSearch: true, showLanguagePicker: true },
-    footer: { columnCount: 3, showSocials: true, showNewsletter: false, copyrightText: '' },
+    navbar: { layout: 'classic', logoPosition: 'left', isSticky: true, showSearch: true, showLanguagePicker: true, customCss: '', customJs: '' },
+    footer: { columnCount: 3, showSocials: true, showNewsletter: false, copyrightText: '', customCss: '', customJs: '' },
   },
   customCss: '',
   customJs: '',

@@ -31,8 +31,8 @@ export function useThemeEditor(tenantSlug: string) {
         try {
           const parsed = JSON.parse(settingsRes.data.globalComponentsConfigJson) as Partial<GlobalComponentsConfig>;
           dispatch({ type: 'SET_GLOBAL_COMPONENTS', globalComponents: {
-            navbar: { layout: 'classic', logoPosition: 'left', isSticky: true, showSearch: true, showLanguagePicker: true, ...(parsed.navbar ?? {}) },
-            footer: { columnCount: 3, showSocials: true, showNewsletter: false, copyrightText: '', ...(parsed.footer ?? {}) },
+            navbar: { layout: 'classic', logoPosition: 'left', isSticky: true, showSearch: true, showLanguagePicker: true, customCss: '', customJs: '', ...(parsed.navbar ?? {}) },
+            footer: { columnCount: 3, showSocials: true, showNewsletter: false, copyrightText: '', customCss: '', customJs: '', ...(parsed.footer ?? {}) },
           }});
         } catch {
           // keep default

@@ -54,6 +54,8 @@ export interface NavbarConfig {
   isSticky: boolean;
   showSearch: boolean;
   showLanguagePicker: boolean;
+  customCss?: string;
+  customJs?: string;
 }
 
 export interface FooterConfig {
@@ -61,6 +63,8 @@ export interface FooterConfig {
   showSocials: boolean;
   showNewsletter: boolean;
   copyrightText: string;
+  customCss?: string;
+  customJs?: string;
 }
 
 export interface GlobalComponentsConfig {

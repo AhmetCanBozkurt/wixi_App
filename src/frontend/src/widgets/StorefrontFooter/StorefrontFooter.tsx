@@ -32,10 +32,16 @@ export const StorefrontFooter = ({ settings, pages }: StorefrontFooterProps) => 
   const colCount = globalComponents?.footer?.columnCount ?? 3;
   const showSocials = globalComponents?.footer?.showSocials ?? true;
   const copyrightText = globalComponents?.footer?.copyrightText || '';
+  const footerCustomCss = globalComponents?.footer?.customCss ?? '';
+  const footerCustomJs = globalComponents?.footer?.customJs ?? '';
 
   const footerPages = pages.filter((p) => p.isPublished);
 
   return (
+    <>
+      {footerCustomCss && (
+        <style dangerouslySetInnerHTML={{ __html: footerCustomCss }} />
+      )}
     <footer className={styles.footer}>
       <div className={styles.inner} style={{ '--footer-col-count': colCount } as React.CSSProperties}>
         <div className={styles.col}>
@@ -95,5 +101,9 @@ export const StorefrontFooter = ({ settings, pages }: StorefrontFooterProps) => 
         </p>
       </div>
     </footer>
+      {footerCustomJs && (
+        <script dangerouslySetInnerHTML={{ __html: footerCustomJs }} />
+      )}
+    </>
   );
 };
