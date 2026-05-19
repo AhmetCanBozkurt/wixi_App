@@ -65,7 +65,7 @@ public static class SeedData
             await context.SaveChangesAsync();
         }
 
-        // 4. Menus (Colored & Localized)
+        // 4. Menus — Full hierarchical structure
         if (!await context.Menus.AnyAsync())
         {
             var adminUser = await userManager.FindByEmailAsync(adminEmail);
@@ -74,78 +74,119 @@ public static class SeedData
             var tr = await context.Languages.FirstAsync(l => l.Code == "tr-TR");
             var en = await context.Languages.FirstAsync(l => l.Code == "en-US");
 
-            // Dashboard
-            var mDash = new WixiMenu { UserId = adminUser.Id, Path = "/", Icon = "FaTachometerAlt", IconColor = "#3b82f6", SortOrder = 1 };
-            mDash.Translations.Add(new WixiMenuTranslation { LanguageId = tr.Id, Title = "Gösterge Paneli" });
-            mDash.Translations.Add(new WixiMenuTranslation { LanguageId = en.Id, Title = "Dashboard" });
+            WixiMenu M(string path, string icon, string color, int sort, Guid? parentId = null)
+            {
+                var m = new WixiMenu { UserId = adminUser.Id, Path = path, Icon = icon, IconColor = color, SortOrder = sort, ParentId = parentId };
+                return m;
+            }
+            void T(WixiMenu m, string titleTr, string titleEn)
+            {
+                m.Translations.Add(new WixiMenuTranslation { LanguageId = tr.Id, Title = titleTr });
+                m.Translations.Add(new WixiMenuTranslation { LanguageId = en.Id, Title = titleEn });
+            }
 
-            // Menu Operations
-            var mMenu = new WixiMenu { UserId = adminUser.Id, Path = "/admin/menus", Icon = "FaTh", IconColor = "#7c3aed", SortOrder = 2 };
-            mMenu.Translations.Add(new WixiMenuTranslation { LanguageId = tr.Id, Title = "Menü İşlemleri" });
-            mMenu.Translations.Add(new WixiMenuTranslation { LanguageId = en.Id, Title = "Menu Operations" });
+            // ── Root: Dashboard ──────────────────────────────────────────
+            var mDash = M("/", "FaTachometerAlt", "#3b82f6", 18);
+            T(mDash, "Gösterge Paneli", "Dashboard");
+            await context.Menus.AddAsync(mDash);
 
-            // Logs
-            var mLogs = new WixiMenu { UserId = adminUser.Id, Path = "/admin/logs", Icon = "FaListAlt", IconColor = "#f59e0b", SortOrder = 3 };
-            mLogs.Translations.Add(new WixiMenuTranslation { LanguageId = tr.Id, Title = "Sistem Logları" });
-            mLogs.Translations.Add(new WixiMenuTranslation { LanguageId = en.Id, Title = "System Logs" });
-
-            // Chat Operations
-            var mChat = new WixiMenu { UserId = adminUser.Id, Path = "/admin/chat", Icon = "FaComments", IconColor = "#ec4899", SortOrder = 4 };
-            mChat.Translations.Add(new WixiMenuTranslation { LanguageId = tr.Id, Title = "Chat İşlemleri" });
-            mChat.Translations.Add(new WixiMenuTranslation { LanguageId = en.Id, Title = "Chat Operations" });
-
-            // Connected Devices
-            var mDev = new WixiMenu { UserId = adminUser.Id, Path = "/admin/devices", Icon = "FaMobileAlt", IconColor = "#10b981", SortOrder = 5 };
-            mDev.Translations.Add(new WixiMenuTranslation { LanguageId = tr.Id, Title = "Bağlı Cihazlar" });
-            mDev.Translations.Add(new WixiMenuTranslation { LanguageId = en.Id, Title = "Connected Devices" });
-
-            // App Settings
-            var mSet = new WixiMenu { UserId = adminUser.Id, Path = "/admin/settings", Icon = "FaCog", IconColor = "#6366f1", SortOrder = 6 };
-            mSet.Translations.Add(new WixiMenuTranslation { LanguageId = tr.Id, Title = "Uygulama Ayarları" });
-            mSet.Translations.Add(new WixiMenuTranslation { LanguageId = en.Id, Title = "App Settings" });
-
-            // Mail Operations
-            var mMail = new WixiMenu { UserId = adminUser.Id, Path = "/admin/mailing", Icon = "FaMailBulk", IconColor = "#2563eb", SortOrder = 7 };
-            mMail.Translations.Add(new WixiMenuTranslation { LanguageId = tr.Id, Title = "Mail Yönetimi" });
-            mMail.Translations.Add(new WixiMenuTranslation { LanguageId = en.Id, Title = "Mail Management" });
-
-            // Role Management
-            var mRole = new WixiMenu { UserId = adminUser.Id, Path = "/admin/roles", Icon = "FaUserShield", IconColor = "#ef4444", SortOrder = 8 };
-            mRole.Translations.Add(new WixiMenuTranslation { LanguageId = tr.Id, Title = "Rol Yönetimi" });
-            mRole.Translations.Add(new WixiMenuTranslation { LanguageId = en.Id, Title = "Role Management" });
-
-            await context.Menus.AddRangeAsync(mDash, mMenu, mLogs, mChat, mDev, mSet, mMail, mRole);
+            // ── Folder: Sistem Tanımlama Kartları ────────────────────────
+            var fSistem = M("folder", "FaArrowRight", "#1a9801", 24);
+            T(fSistem, "Sistem Tanımlama Kartları", "System Management");
+            await context.Menus.AddAsync(fSistem);
             await context.SaveChangesAsync();
-        }
-        else
-        {
-            // Ensure Mailing menu exists even if other menus are present
-            var adminUser = await userManager.FindByEmailAsync(adminEmail);
-            if (adminUser != null && !await context.Menus.AnyAsync(m => m.Path == "/admin/mailing"))
+
+            var sistemChildren = new[]
             {
-                var tr = await context.Languages.FirstAsync(l => l.Code == "tr-TR");
-                var en = await context.Languages.FirstAsync(l => l.Code == "en-US");
-
-                var mMail = new WixiMenu { UserId = adminUser.Id, Path = "/admin/mailing", Icon = "FaMailBulk", IconColor = "#2563eb", SortOrder = 7 };
-                mMail.Translations.Add(new WixiMenuTranslation { LanguageId = tr.Id, Title = "Mail Yönetimi" });
-                mMail.Translations.Add(new WixiMenuTranslation { LanguageId = en.Id, Title = "Mail Management" });
-
-                await context.Menus.AddAsync(mMail);
-                await context.SaveChangesAsync();
+                (Path: "/admin/mailing",   Icon: "FaMailBulk",    Color: "#2563eb", Sort: 3,  Tr: "Mail Yönetimi",    En: "Mail Management"),
+                (Path: "/admin/roles",     Icon: "FaUserShield",  Color: "#ef4444", Sort: 4,  Tr: "Rol Yönetimi",     En: "Role Management"),
+                (Path: "/admin/users",     Icon: "FaUsers",       Color: "#6366f1", Sort: 5,  Tr: "Kullanıcılar",     En: "Users"),
+                (Path: "/admin/modules",   Icon: "FaPuzzlePiece", Color: "#8b5cf6", Sort: 6,  Tr: "Modüller",         En: "Modules"),
+                (Path: "/admin/db-schema", Icon: "FaDatabase",    Color: "#06b6d4", Sort: 7,  Tr: "Veritabanı Şeması",En: "Database Schema"),
+                (Path: "/admin/languages", Icon: "FaGlobe",       Color: "#0ea5e9", Sort: 8,  Tr: "Diller",           En: "Languages"),
+            };
+            foreach (var c in sistemChildren)
+            {
+                var m = M(c.Path, c.Icon, c.Color, c.Sort, fSistem.Id);
+                T(m, c.Tr, c.En);
+                await context.Menus.AddAsync(m);
             }
 
-            if (adminUser != null && !await context.Menus.AnyAsync(m => m.Path == "/admin/roles"))
+            // Sub-folder: Para Birimi Tanımlama (under Sistem Tanımlama Kartları)
+            var fCurrency = M("folder", "FaMoneyCheckAlt", "#22c002", 17, fSistem.Id);
+            T(fCurrency, "Para Birimi Tanımlama", "Currency Management");
+            await context.Menus.AddAsync(fCurrency);
+            await context.SaveChangesAsync();
+
+            var currencyChildren = new[]
             {
-                var tr = await context.Languages.FirstAsync(l => l.Code == "tr-TR");
-                var en = await context.Languages.FirstAsync(l => l.Code == "en-US");
-
-                var mRole = new WixiMenu { UserId = adminUser.Id, Path = "/admin/roles", Icon = "FaUserShield", IconColor = "#ef4444", SortOrder = 8 };
-                mRole.Translations.Add(new WixiMenuTranslation { LanguageId = tr.Id, Title = "Rol Yönetimi" });
-                mRole.Translations.Add(new WixiMenuTranslation { LanguageId = en.Id, Title = "Role Management" });
-
-                await context.Menus.AddAsync(mRole);
-                await context.SaveChangesAsync();
+                (Path: "/admin/currency-settings", Icon: "FaCog",         Color: "#6366f1", Sort: 14, Tr: "Kur Ayarları",   En: "Currency Settings"),
+                (Path: "/admin/currencies",        Icon: "FaDollarSign",  Color: "#f59e0b", Sort: 15, Tr: "Para Birimleri", En: "Currencies"),
+                (Path: "/admin/exchange-rates",    Icon: "FaExchangeAlt", Color: "#f97316", Sort: 16, Tr: "Döviz Kurları",  En: "Exchange Rates"),
+            };
+            foreach (var c in currencyChildren)
+            {
+                var m = M(c.Path, c.Icon, c.Color, c.Sort, fCurrency.Id);
+                T(m, c.Tr, c.En);
+                await context.Menus.AddAsync(m);
             }
+
+            // ── Folder: E-Ticaret ────────────────────────────────────────
+            var fECommerce = M("folder", "FaArtstation", "#0549b8", 25);
+            T(fECommerce, "E-Ticaret", "E-Commerce");
+            await context.Menus.AddAsync(fECommerce);
+            await context.SaveChangesAsync();
+
+            var ecommerceChildren = new[]
+            {
+                (Path: "/admin/theme-management",     Icon: "FaPaintBrush", Color: "#a855f7", Sort: 9,  Tr: "Tema Yönetimi", En: "Theme Management"),
+                (Path: "/admin/ecommerce/tenants",    Icon: "FaStore",      Color: "#8b5cf6", Sort: 10, Tr: "Mağazalar",     En: "Stores"),
+                (Path: "/admin/ecommerce/products",   Icon: "FaBoxOpen",    Color: "#0ea5e9", Sort: 11, Tr: "Ürünler",       En: "Products"),
+                (Path: "/admin/ecommerce/categories", Icon: "FaTags",       Color: "#f43f5e", Sort: 12, Tr: "Kategoriler",   En: "Categories"),
+                (Path: "/admin/ecommerce/brands",     Icon: "FaAward",      Color: "#f59e0b", Sort: 13, Tr: "Markalar",      En: "Brands"),
+            };
+            foreach (var c in ecommerceChildren)
+            {
+                var m = M(c.Path, c.Icon, c.Color, c.Sort, fECommerce.Id);
+                T(m, c.Tr, c.En);
+                await context.Menus.AddAsync(m);
+            }
+
+            // ── Folder: Log Yönetimi ─────────────────────────────────────
+            var fLogs = M("folder", "FaBacon", "#3b82f6", 26);
+            T(fLogs, "Log Yönetimi", "Log Management");
+            await context.Menus.AddAsync(fLogs);
+            await context.SaveChangesAsync();
+
+            var logChildren = new[]
+            {
+                (Path: "/admin/audit", Icon: "FaClipboardList", Color: "#f59e0b", Sort: 1, Tr: "Denetim Günlüğü", En: "Audit Log"),
+                (Path: "/admin/logs",  Icon: "FaListAlt",       Color: "#f59e0b", Sort: 2, Tr: "Sistem Logları",  En: "System Logs"),
+            };
+            foreach (var c in logChildren)
+            {
+                var m = M(c.Path, c.Icon, c.Color, c.Sort, fLogs.Id);
+                T(m, c.Tr, c.En);
+                await context.Menus.AddAsync(m);
+            }
+
+            // ── Root: Standalone items ───────────────────────────────────
+            var rootItems = new[]
+            {
+                (Path: "/admin/crm",       Icon: "FaHandshake",      Color: "#10b981", Sort: 19, Tr: "CRM",       En: "CRM"),
+                (Path: "/admin/visits",    Icon: "FaCalendarCheck",  Color: "#f43f5e", Sort: 20, Tr: "Ziyaretler", En: "Visits"),
+                (Path: "/admin/projects",  Icon: "FaProjectDiagram", Color: "#3b82f6", Sort: 21, Tr: "Projeler",   En: "Projects"),
+                (Path: "/admin/support",   Icon: "FaHeadset",        Color: "#ec4899", Sort: 22, Tr: "Destek",     En: "Support"),
+                (Path: "/admin/inventory", Icon: "FaWarehouse",      Color: "#78716c", Sort: 23, Tr: "Envanter",   En: "Inventory"),
+            };
+            foreach (var c in rootItems)
+            {
+                var m = M(c.Path, c.Icon, c.Color, c.Sort);
+                T(m, c.Tr, c.En);
+                await context.Menus.AddAsync(m);
+            }
+
+            await context.SaveChangesAsync();
         }
 
         // 5. Currencies
