@@ -169,6 +169,30 @@ END
     }
 }
 
+// Global exception handler — ValidationException → 400, diğerleri → 500
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        var feature = context.Features.Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerFeature>();
+        if (feature?.Error is FluentValidation.ValidationException validationEx)
+        {
+            context.Response.StatusCode = 400;
+            context.Response.ContentType = "application/json";
+            var errors = validationEx.Errors
+                .GroupBy(e => e.PropertyName)
+                .ToDictionary(g => g.Key, g => g.Select(e => e.ErrorMessage).ToArray());
+            await context.Response.WriteAsJsonAsync(new { errors });
+        }
+        else
+        {
+            context.Response.StatusCode = 500;
+            context.Response.ContentType = "application/json";
+            await context.Response.WriteAsJsonAsync(new { error = "Bir hata oluştu. Lütfen tekrar deneyin." });
+        }
+    });
+});
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

@@ -69,7 +69,7 @@ jobs:
           # Backend
           Test-Endpoint "Health"              "http://localhost:5182/health"                  -Expect 200
           Test-Endpoint "Auth/me → 401"       "http://localhost:5182/api/v1/Auth/me"          -Expect 401
-          Test-Endpoint "Auth/login → 400"    "http://localhost:5182/api/v1/Auth/login" POST '{}' -Expect 400,422
+          Test-Endpoint "Auth/login → 400"    "http://localhost:5182/api/v1/Auth/login" POST '{"email":"smoke@invalid","password":"x"}' -Expect 400,422
           Test-Endpoint "Module list → 401"   "http://localhost:5182/api/v1/Module"           -Expect 401
 
           # Frontend
