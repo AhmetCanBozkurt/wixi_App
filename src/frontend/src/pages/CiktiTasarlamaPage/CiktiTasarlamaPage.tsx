@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { ciktiSablonuApi, yaziciApi, type CiktiSablonu, type Yazici } from './mockData';
-import type { ReportElement } from './types';
+import type { ReportElement, DesignMode } from './types';
 import Toolbox from './components/Toolbox';
 import DesignCanvas from './components/DesignCanvas';
 import PropertiesPanel from './components/PropertiesPanel';
+import FormatToolbar from './components/FormatToolbar';
+import BandOverlay from './components/BandOverlay';
 import { SaveIcon, PreviewIcon, SettingsIcon } from './components/icons';
 import './tailwind.css';
 
@@ -32,6 +34,7 @@ const CiktiTasarlamaPage: React.FC = () => {
   const [gridSize, setGridSize] = useState(10);
   const [autoResize, setAutoResize] = useState(true);
   const [zoom, setZoom] = useState(100);
+  const [designMode, setDesignMode] = useState<DesignMode>('freeform');
 
   useEffect(() => {
     const loadData = async () => {
@@ -65,6 +68,13 @@ const CiktiTasarlamaPage: React.FC = () => {
       setSelectedElement(null);
       toast.success('Öğe silindi');
     }
+  };
+
+  const handleVisibilityToggle = (id: string) => {
+    setElements(prev => prev.map(el =>
+      el.id === id ? { ...el, style: { ...el.style, opacity: (el.style.opacity ?? 1) === 0 ? 1 : 0 } } : el,
+    ));
+    if (selectedElement?.id === id) setSelectedElement(null);
   };
 
   const handleLoadTemplate = async (templateId: number) => {
@@ -254,6 +264,30 @@ const CiktiTasarlamaPage: React.FC = () => {
           {/* Divider */}
           <div style={{ width: '1px', height: '20px', background: 'var(--border-glass)', flexShrink: 0 }} />
 
+          {/* Design mode toggle */}
+          <div style={{ display: 'flex', gap: 2, background: 'var(--bg-secondary)', border: '1px solid var(--border-glass)', borderRadius: 6, padding: 2 }}>
+            <button
+              onClick={() => setDesignMode('freeform')}
+              style={designMode === 'freeform'
+                ? { background: 'var(--color-primary)', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer' }
+                : { background: 'transparent', color: 'var(--text-muted)', border: 'none', cursor: 'pointer' }
+              }
+              className="px-2 py-1 rounded text-xs font-medium"
+            >
+              Serbest
+            </button>
+            <button
+              onClick={() => setDesignMode('banded')}
+              style={designMode === 'banded'
+                ? { background: 'var(--color-primary)', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer' }
+                : { background: 'transparent', color: 'var(--text-muted)', border: 'none', cursor: 'pointer' }
+              }
+              className="px-2 py-1 rounded text-xs font-medium"
+            >
+              Bantlı
+            </button>
+          </div>
+
           {/* Page setup pill */}
           <div className="flex items-center gap-1 px-2 py-1 rounded-md" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-glass)' }}>
             <select
@@ -351,6 +385,9 @@ const CiktiTasarlamaPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Format Toolbar */}
+      <FormatToolbar selectedElement={selectedElement} onElementUpdate={handleElementUpdate} />
+
       {/* Main Content */}
       <div className="flex flex-1 overflow-hidden">
         {/* Toolbox */}
@@ -363,7 +400,7 @@ const CiktiTasarlamaPage: React.FC = () => {
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                 </button>
               </div>
-              <div className="overflow-y-auto h-full pb-12">
+              <div className="overflow-y-auto" style={{ height: 'calc(100% - 48px)' }}>
                 <Toolbox onElementAdd={handleElementAdd} />
               </div>
             </>
@@ -386,7 +423,7 @@ const CiktiTasarlamaPage: React.FC = () => {
             title="Araç Kutusunu Aç"
           >
             <span className="text-xs font-semibold py-3 select-none" style={{ color: 'var(--text-muted)', letterSpacing: '0.06em' }}>
-              ◀ ARAÇLAR
+              ARAÇLAR
             </span>
           </div>
         )}
@@ -409,6 +446,7 @@ const CiktiTasarlamaPage: React.FC = () => {
             autoResize={autoResize}
             zoom={zoom}
           />
+          {designMode === 'banded' && <BandOverlay />}
         </div>
 
         {/* Properties collapsed tab */}
@@ -427,7 +465,7 @@ const CiktiTasarlamaPage: React.FC = () => {
             title="Özellikler Paneli Aç"
           >
             <span className="text-xs font-semibold py-3 select-none" style={{ color: 'var(--text-muted)', letterSpacing: '0.06em' }}>
-              ÖZELLİKLER ▶
+              ÖZELLİKLER
             </span>
           </div>
         )}
@@ -446,19 +484,21 @@ const CiktiTasarlamaPage: React.FC = () => {
                 <PropertiesPanel
                   selectedElement={selectedElement}
                   onElementUpdate={handleElementUpdate}
+                  onElementSelect={setSelectedElement}
                   showRulers={showRulers} setShowRulers={setShowRulers}
                   showAlignmentGuides={showAlignmentGuides} setShowAlignmentGuides={setShowAlignmentGuides}
                   snapToGrid={snapToGrid} setSnapToGrid={setSnapToGrid}
                   gridSize={gridSize} setGridSize={setGridSize}
                   autoResize={autoResize} setAutoResize={setAutoResize}
                   zoom={zoom} setZoom={setZoom}
+                  elements={elements}
+                  onVisibilityToggle={handleVisibilityToggle}
                 />
               </div>
             </>
           )}
         </div>
       </div>
-
 
       <PreviewModal />
       <SaveTemplateModal />

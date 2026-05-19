@@ -1,6 +1,41 @@
+export type ReportElementType =
+  | 'text' | 'table' | 'line' | 'logo' | 'barcode' | 'variable'
+  | 'image' | 'shape' | 'chart'
+  | 'checkbox' | 'panel' | 'pageInfo' | 'richText';
+
+export type BandType =
+  | 'reportHeader' | 'pageHeader' | 'groupHeader'
+  | 'detail'
+  | 'groupFooter' | 'pageFooter' | 'reportFooter';
+
+export type DesignMode = 'freeform' | 'banded';
+
+export interface ReportBand {
+  id: string;
+  type: BandType;
+  label: string;
+  height: number;   // px
+  visible: boolean;
+  color: string;    // band header accent color
+}
+
+export interface DataField {
+  entity: string;
+  field: string;
+  label: string;
+  type: 'string' | 'number' | 'date' | 'boolean' | 'currency';
+}
+
+export interface DataSchema {
+  entity: string;
+  label: string;
+  icon: string;
+  fields: DataField[];
+}
+
 export interface ReportElement {
   id: string;
-  type: 'text' | 'table' | 'line' | 'logo' | 'barcode' | 'variable' | 'image' | 'shape' | 'chart';
+  type: ReportElementType;
   content: string;
   position: { x: number; y: number };
   size: { width: number; height: number };
@@ -8,6 +43,7 @@ export interface ReportElement {
   properties: Record<string, unknown>;
   dataBinding?: string;
   expression?: string;
+  bandId?: string;
 }
 
 export interface ReportElementStyle {
@@ -15,7 +51,8 @@ export interface ReportElementStyle {
   fontSize?: number;
   fontWeight?: string;
   fontStyle?: string;
-  textDecoration?: string;
+  textDecoration?: 'none' | 'underline' | 'line-through';
+  lineHeight?: number;
   color?: string;
   backgroundColor?: string;
   borderColor?: string;
@@ -30,6 +67,7 @@ export interface ReportElementStyle {
   rotation?: number;
   zIndex?: number;
   imageUrl?: string;
+  checked?: boolean;
 }
 
 export interface ReportPage {
@@ -68,7 +106,7 @@ export interface ReportVariable {
 }
 
 export interface DesignTool {
-  type: ReportElement['type'];
+  type: ReportElementType;
   name: string;
   icon: string;
   category: 'basic' | 'advanced' | 'data' | 'shapes';

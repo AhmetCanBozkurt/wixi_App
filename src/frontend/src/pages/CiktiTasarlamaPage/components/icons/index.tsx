@@ -79,6 +79,104 @@ export const PropertiesIcon: React.FC<IconProps> = ({ className = 'w-5 h-5', siz
   </svg>
 );
 
+export const CheckboxIcon: React.FC<IconProps> = ({ className = 'w-5 h-5', size = 20 }) => (
+  <svg className={className} width={size} height={size} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4" />
+  </svg>
+);
+
+export const RichTextIcon: React.FC<IconProps> = ({ className = 'w-5 h-5', size = 20 }) => (
+  <svg className={className} width={size} height={size} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6M9 16h4M7 4h10a2 2 0 012 2v12a2 2 0 01-2 2H7a2 2 0 01-2-2V6a2 2 0 012-2z" />
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 8h6" />
+  </svg>
+);
+
+export const PageInfoIcon: React.FC<IconProps> = ({ className = 'w-5 h-5', size = 20 }) => (
+  <svg className={className} width={size} height={size} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 12h.01M12 16h.01" />
+  </svg>
+);
+
+export const PanelIcon: React.FC<IconProps> = ({ className = 'w-5 h-5', size = 20 }) => (
+  <svg className={className} width={size} height={size} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <rect x="2" y="2" width="20" height="20" rx="2" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+    <rect x="6" y="6" width="12" height="12" rx="1" strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} />
+  </svg>
+);
+
+export const BoldIcon: React.FC<IconProps> = ({ className = 'w-5 h-5', size = 20 }) => (
+  <svg className={className} width={size} height={size} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 12h8a4 4 0 000-8H6v8zm0 0h9a4 4 0 010 8H6v-8z" />
+  </svg>
+);
+
+export const ItalicIcon: React.FC<IconProps> = ({ className = 'w-5 h-5', size = 20 }) => (
+  <svg className={className} width={size} height={size} fill="currentColor" viewBox="0 0 24 24">
+    <text x="6" y="18" fontSize="18" fontStyle="italic" fontFamily="Georgia, serif">I</text>
+  </svg>
+);
+
+export const UnderlineIcon: React.FC<IconProps> = ({ className = 'w-5 h-5', size = 20 }) => (
+  <svg className={className} width={size} height={size} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 3v7a6 6 0 0012 0V3M4 21h16" />
+  </svg>
+);
+
+export const FieldListIcon: React.FC<IconProps> = ({ className = 'w-5 h-5', size = 20 }) => (
+  <svg className={className} width={size} height={size} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h8M4 18h6" />
+    <circle cx="19" cy="17" r="3" strokeWidth={2} />
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 19l1.5 1.5" />
+  </svg>
+);
+
+export const ExplorerIcon: React.FC<IconProps> = ({ className = 'w-5 h-5', size = 20 }) => (
+  <svg className={className} width={size} height={size} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7h4l2-3h10a1 1 0 011 1v13a1 1 0 01-1 1H4a1 1 0 01-1-1V7z" />
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4" />
+  </svg>
+);
+
+export const EyeIcon: React.FC<IconProps> = ({ className = 'w-5 h-5', size = 20 }) => (
+  <svg className={className} width={size} height={size} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+  </svg>
+);
+
+export const EyeOffIcon: React.FC<IconProps> = ({ className = 'w-5 h-5', size = 20 }) => (
+  <svg className={className} width={size} height={size} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+  </svg>
+);
+
+export const AlignLeftIcon: React.FC<IconProps> = ({ className = 'w-5 h-5', size = 20 }) => (
+  <svg className={className} width={size} height={size} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h10M4 14h16M4 18h10" />
+  </svg>
+);
+
+export const AlignCenterIcon: React.FC<IconProps> = ({ className = 'w-5 h-5', size = 20 }) => (
+  <svg className={className} width={size} height={size} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M7 10h10M4 14h16M7 18h10" />
+  </svg>
+);
+
+export const AlignRightIcon: React.FC<IconProps> = ({ className = 'w-5 h-5', size = 20 }) => (
+  <svg className={className} width={size} height={size} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M10 10h10M4 14h16M10 18h10" />
+  </svg>
+);
+
+export const AlignJustifyIcon: React.FC<IconProps> = ({ className = 'w-5 h-5', size = 20 }) => (
+  <svg className={className} width={size} height={size} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+  </svg>
+);
+
 export const getIconComponent = (iconName: string): React.FC<IconProps> => {
   const icons: Record<string, React.FC<IconProps>> = {
     text: TextIcon,
@@ -93,6 +191,17 @@ export const getIconComponent = (iconName: string): React.FC<IconProps> => {
     preview: PreviewIcon,
     settings: SettingsIcon,
     properties: PropertiesIcon,
+    checkbox: CheckboxIcon,
+    richtext: RichTextIcon,
+    pageinfo: PageInfoIcon,
+    panel: PanelIcon,
+    bold: BoldIcon,
+    italic: ItalicIcon,
+    underline: UnderlineIcon,
+    fieldlist: FieldListIcon,
+    explorer: ExplorerIcon,
+    eye: EyeIcon,
+    eyeoff: EyeOffIcon,
   };
   return icons[iconName] || TextIcon;
 };

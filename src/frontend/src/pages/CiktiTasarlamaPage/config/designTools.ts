@@ -73,7 +73,51 @@ export const designTools: DesignTool[] = [
     defaultSize: { width: 300, height: 200 },
     defaultStyle: { backgroundColor: '#ffffff', borderColor: '#cccccc', borderWidth: 1, borderRadius: 4 },
   },
+  {
+    type: 'checkbox',
+    name: 'Onay Kutusu',
+    icon: 'checkbox',
+    category: 'basic',
+    defaultSize: { width: 120, height: 24 },
+    defaultStyle: { fontFamily: 'Arial', fontSize: 12, color: '#000000' },
+  },
+  {
+    type: 'richText',
+    name: 'Zengin Metin',
+    icon: 'richtext',
+    category: 'basic',
+    defaultSize: { width: 200, height: 60 },
+    defaultStyle: { fontFamily: 'Arial', fontSize: 12, color: '#000000', backgroundColor: '#ffffff', borderColor: '#cccccc', borderWidth: 1 },
+  },
+  {
+    type: 'pageInfo',
+    name: 'Sayfa Bilgisi',
+    icon: 'pageinfo',
+    category: 'data',
+    defaultSize: { width: 120, height: 24 },
+    defaultStyle: { fontFamily: 'Arial', fontSize: 10, color: '#666666', textAlign: 'center' },
+  },
+  {
+    type: 'panel',
+    name: 'Panel',
+    icon: 'panel',
+    category: 'shapes',
+    defaultSize: { width: 200, height: 100 },
+    defaultStyle: { backgroundColor: '#f8f8f8', borderColor: '#cccccc', borderWidth: 1, borderRadius: 4 },
+  },
 ];
+
+const defaultContents: Partial<Record<string, string>> = {
+  text: 'Yeni Metin',
+  variable: '{{değişken}}',
+  checkbox: 'Onay Kutusu',
+  pageInfo: '{Sayfa} / {ToplamSayfa}',
+  richText: 'Zengin metin içeriği',
+  panel: '',
+};
+
+export const getDefaultContent = (type: string): string =>
+  defaultContents[type] ?? '';
 
 export const getDesignTool = (type: string): DesignTool | undefined =>
   designTools.find(tool => tool.type === type);

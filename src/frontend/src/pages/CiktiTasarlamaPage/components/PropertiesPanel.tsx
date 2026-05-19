@@ -1,11 +1,13 @@
 import React, { useRef, useState } from 'react';
 import type { ReportElement, ReportElementStyle } from '../types';
 import { PropertiesIcon } from './icons';
+import ReportExplorer from './ReportExplorer';
 import s from './propertiesPanel.module.css';
 
 interface PropertiesPanelProps {
   selectedElement: ReportElement | null;
   onElementUpdate: (element: ReportElement) => void;
+  onElementSelect: (element: ReportElement) => void;
   showRulers: boolean;
   setShowRulers: (show: boolean) => void;
   showAlignmentGuides: boolean;
@@ -18,6 +20,8 @@ interface PropertiesPanelProps {
   setAutoResize: (resize: boolean) => void;
   zoom: number;
   setZoom: (zoom: number) => void;
+  elements: ReportElement[];
+  onVisibilityToggle: (id: string) => void;
 }
 
 /* Reliable color picker: the native input is truly hidden (0×0, no pointer events)
@@ -87,12 +91,15 @@ const SectionHeader = ({
 const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
   selectedElement,
   onElementUpdate,
+  onElementSelect,
   showRulers, setShowRulers,
   showAlignmentGuides, setShowAlignmentGuides,
   snapToGrid, setSnapToGrid,
   gridSize, setGridSize,
   autoResize, setAutoResize,
   zoom, setZoom,
+  elements,
+  onVisibilityToggle,
 }) => {
   const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set());
 
@@ -101,6 +108,22 @@ const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
     if (next.has(id)) next.delete(id); else next.add(id);
     setCollapsedSections(next);
   };
+
+  const renderExplorer = () => (
+    <div className={s.section}>
+      <SectionHeader id="explorer" label="🗂️ Rapor Gezgini" collapsed={collapsedSections.has('explorer')} onToggle={toggleSection} />
+      {!collapsedSections.has('explorer') && (
+        <div className={s.sectionBody} style={{ paddingLeft: 0, paddingRight: 0 }}>
+          <ReportExplorer
+            elements={elements}
+            selectedElement={selectedElement}
+            onSelect={onElementSelect}
+            onVisibilityToggle={onVisibilityToggle}
+          />
+        </div>
+      )}
+    </div>
+  );
 
   const renderCanvasControls = () => (
     <div className={s.section}>
@@ -170,6 +193,8 @@ const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
   if (!selectedElement) {
     return (
       <div className={s.panel}>
+        {renderExplorer()}
+        <div className={s.divider} />
         {renderCanvasControls()}
         <div className={s.emptyState}>
           <div style={{ color: 'var(--text-muted)' }}>
@@ -270,6 +295,67 @@ const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
     </div>
   );
 
+  const renderCheckboxProperties = () => {
+    const isChecked = selectedElement.style.checked ?? false;
+    return (
+      <div className={s.fieldGroup}>
+        <div className={s.field}>
+          <label className={s.panelLabel}>Etiket</label>
+          <input type="text" value={selectedElement.content} onChange={(e) => handleContentChange(e.target.value)} className={s.panelInput} />
+        </div>
+        <div className={s.toggleRow}>
+          <span className={s.toggleLabel}>Varsayılan Durum</span>
+          <button
+            onClick={() => handleStyleChange('checked', !isChecked)}
+            className={s.toggleBtn}
+            style={
+              isChecked
+                ? { background: 'var(--color-primary)', color: '#fff' }
+                : { background: 'var(--surface-hover)', color: 'var(--text-muted)' }
+            }
+          >
+            {isChecked ? 'İşaretli' : 'Boş'}
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  const renderPageInfoProperties = () => (
+    <div className={s.fieldGroup}>
+      <div className={s.field}>
+        <label className={s.panelLabel}>Format</label>
+        <select
+          value={(selectedElement.properties.pageInfoFormat as string) || 'pageNumber'}
+          onChange={(e) => onElementUpdate({ ...selectedElement, properties: { ...selectedElement.properties, pageInfoFormat: e.target.value } })}
+          className={s.panelInput}
+        >
+          <option value="pageNumber">Sayfa Numarası</option>
+          <option value="totalPages">Toplam Sayfa</option>
+          <option value="date">Tarih</option>
+          <option value="datetime">Tarih ve Saat</option>
+          <option value="author">Yazar</option>
+          <option value="custom">Özel ({'{Sayfa}'} / {'{ToplamSayfa}'})</option>
+        </select>
+      </div>
+    </div>
+  );
+
+  const renderRichTextProperties = () => (
+    <div className={s.fieldGroup}>
+      <div className={s.field}>
+        <label className={s.panelLabel}>İçerik</label>
+        <textarea
+          value={selectedElement.content}
+          onChange={(e) => handleContentChange(e.target.value)}
+          className={s.panelInput}
+          rows={4}
+          style={{ resize: 'vertical' }}
+        />
+      </div>
+    </div>
+  );
+
   const renderCommonProperties = () => {
     const opacityPct = Math.round((selectedElement.style.opacity ?? 1) * 100);
     return (
@@ -318,6 +404,10 @@ const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
       case 'text': case 'variable': return renderTextProperties();
       case 'logo': case 'image': return renderImageProperties();
       case 'barcode': return renderBarcodeProperties();
+      case 'checkbox': return renderCheckboxProperties();
+      case 'pageInfo': return renderPageInfoProperties();
+      case 'richText': return renderRichTextProperties();
+      case 'panel': return null;
       default: return null;
     }
   };
@@ -330,10 +420,18 @@ const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
     selectedElement.type === 'variable' ? '🔤 Değişken' :
     selectedElement.type === 'table' ? '📋 Tablo' :
     selectedElement.type === 'line' ? '📏 Çizgi' :
-    selectedElement.type === 'shape' ? '⬜ Şekil' : '⚙️ Öğe';
+    selectedElement.type === 'shape' ? '⬜ Şekil' :
+    selectedElement.type === 'checkbox' ? '☑️ Onay Kutusu' :
+    selectedElement.type === 'pageInfo' ? '📄 Sayfa Bilgisi' :
+    selectedElement.type === 'richText' ? '📃 Zengin Metin' :
+    selectedElement.type === 'panel' ? '▭ Panel' : '⚙️ Öğe';
 
   return (
     <div className={s.panel}>
+      {renderExplorer()}
+
+      <div className={s.divider} />
+
       {renderCanvasControls()}
 
       <div className={s.divider} />
