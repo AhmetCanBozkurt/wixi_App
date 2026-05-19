@@ -253,14 +253,14 @@ const CiktiTasarlamaPage: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            <select className="px-2 py-1.5 text-xs border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" value={paperSize} onChange={(e) => setPaperSize(e.target.value as typeof paperSize)}>
-              {['A4', 'A5', 'Letter', 'Legal'].map(s => <option key={s} value={s}>{s}</option>)}
+            <select style={{ background: 'var(--surface)', color: 'var(--text-main)', borderColor: 'var(--border-glass)' }} className="px-2 py-1.5 text-xs border rounded-md" value={paperSize} onChange={(e) => setPaperSize(e.target.value as typeof paperSize)}>
+              {['A4', 'A5', 'Letter', 'Legal'].map(sz => <option key={sz} value={sz}>{sz}</option>)}
             </select>
-            <select className="px-2 py-1.5 text-xs border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" value={orientation} onChange={(e) => setOrientation(e.target.value as typeof orientation)}>
+            <select style={{ background: 'var(--surface)', color: 'var(--text-main)', borderColor: 'var(--border-glass)' }} className="px-2 py-1.5 text-xs border rounded-md" value={orientation} onChange={(e) => setOrientation(e.target.value as typeof orientation)}>
               <option value="portrait">Dikey</option>
               <option value="landscape">Yatay</option>
             </select>
-            <select className="px-2 py-1.5 text-xs border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" value={selectedPrinter} onChange={(e) => setSelectedPrinter(e.target.value)}>
+            <select style={{ background: 'var(--surface)', color: 'var(--text-main)', borderColor: 'var(--border-glass)' }} className="px-2 py-1.5 text-xs border rounded-md" value={selectedPrinter} onChange={(e) => setSelectedPrinter(e.target.value)}>
               <option value="">Yazıcı Seçin</option>
               {printers.map(p => <option key={p.id} value={p.id}>{p.ad}</option>)}
             </select>
@@ -294,12 +294,12 @@ const CiktiTasarlamaPage: React.FC = () => {
       {/* Main Content */}
       <div className="flex flex-1 overflow-hidden">
         {/* Toolbox */}
-        <div className={`bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 relative z-20 transition-all duration-300 ease-in-out overflow-hidden ${isToolboxCollapsed ? 'w-0' : 'w-64'}`}>
+        <div className={`relative z-20 transition-all duration-300 ease-in-out overflow-hidden ${isToolboxCollapsed ? 'w-0' : 'w-64'}`} style={{ background: 'var(--surface)', borderRight: '1px solid var(--border-glass)' }}>
           {!isToolboxCollapsed && (
             <>
-              <div className="flex items-center justify-between p-3 border-b border-gray-200 dark:border-gray-700">
-                <h3 className="font-semibold text-gray-900 dark:text-white text-sm">Araç Kutusu</h3>
-                <button onClick={() => setIsToolboxCollapsed(true)} className="text-gray-500 hover:text-gray-700 p-1 rounded-full hover:bg-gray-100 transition-colors">
+              <div className="flex items-center justify-between p-3" style={{ borderBottom: '1px solid var(--border-glass)' }}>
+                <h3 className="font-semibold text-sm" style={{ color: 'var(--text-main)' }}>Araç Kutusu</h3>
+                <button onClick={() => setIsToolboxCollapsed(true)} className="p-1 rounded-full transition-colors hover:opacity-70" style={{ color: 'var(--text-muted)' }}>
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                 </button>
               </div>
@@ -359,12 +359,12 @@ const CiktiTasarlamaPage: React.FC = () => {
         )}
 
         {/* Properties Panel */}
-        <div className={`bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 relative z-20 transition-all duration-300 ease-in-out flex flex-col overflow-hidden ${isPropertiesCollapsed ? 'w-0' : 'w-96'}`}>
+        <div className={`relative z-20 transition-all duration-300 ease-in-out flex flex-col overflow-hidden ${isPropertiesCollapsed ? 'w-0' : 'w-96'}`} style={{ background: 'var(--surface)', borderLeft: '1px solid var(--border-glass)' }}>
           {!isPropertiesCollapsed && (
             <>
-              <div className="flex-shrink-0 flex items-center justify-between p-3 border-b border-gray-200 dark:border-gray-700">
-                <h3 className="font-semibold text-gray-900 dark:text-white text-sm">Özellikler</h3>
-                <button onClick={() => setIsPropertiesCollapsed(true)} className="text-gray-500 hover:text-gray-700 p-1 rounded-full hover:bg-gray-100 transition-colors">
+              <div className="flex-shrink-0 flex items-center justify-between p-3" style={{ borderBottom: '1px solid var(--border-glass)' }}>
+                <h3 className="font-semibold text-sm" style={{ color: 'var(--text-main)' }}>Özellikler</h3>
+                <button onClick={() => setIsPropertiesCollapsed(true)} className="p-1 rounded-full transition-colors hover:opacity-70" style={{ color: 'var(--text-muted)' }}>
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                 </button>
               </div>
