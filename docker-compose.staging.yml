@@ -21,6 +21,7 @@ services:
       Mail__Port: "${MAIL_PORT}"
       Mail__Username: "${MAIL_USERNAME}"
       Mail__Password: "${MAIL_PASSWORD}"
+      AppUrls__FrontendBaseUrl: "${STAGING_FRONTEND_URL}"
     volumes:
       - staging_uploads:/app/wwwroot/uploads
       - staging_logs:/app/logs
