@@ -254,6 +254,96 @@ public static class SeedData
                         await context.Menus.AddAsync(mSchema);
                         await context.SaveChangesAsync();
                     }
+
+                    if (!await context.Menus.AnyAsync(m => m.Path == "/admin/users"))
+                    {
+                        var mUsers = new WixiMenu { UserId = adminUser.Id, Path = "/admin/users", Icon = "FaUsers", IconColor = "#6366f1", SortOrder = 11 };
+                        mUsers.Translations.Add(new WixiMenuTranslation { LanguageId = tr.Id, Title = "Kullanıcılar" });
+                        mUsers.Translations.Add(new WixiMenuTranslation { LanguageId = en.Id, Title = "Users" });
+                        await context.Menus.AddAsync(mUsers);
+                        await context.SaveChangesAsync();
+                    }
+
+                    if (!await context.Menus.AnyAsync(m => m.Path == "/admin/languages"))
+                    {
+                        var mLang = new WixiMenu { UserId = adminUser.Id, Path = "/admin/languages", Icon = "FaGlobe", IconColor = "#0ea5e9", SortOrder = 12 };
+                        mLang.Translations.Add(new WixiMenuTranslation { LanguageId = tr.Id, Title = "Diller" });
+                        mLang.Translations.Add(new WixiMenuTranslation { LanguageId = en.Id, Title = "Languages" });
+                        await context.Menus.AddAsync(mLang);
+                        await context.SaveChangesAsync();
+                    }
+
+                    if (!await context.Menus.AnyAsync(m => m.Path == "/admin/modules"))
+                    {
+                        var mMod = new WixiMenu { UserId = adminUser.Id, Path = "/admin/modules", Icon = "FaPuzzlePiece", IconColor = "#8b5cf6", SortOrder = 13 };
+                        mMod.Translations.Add(new WixiMenuTranslation { LanguageId = tr.Id, Title = "Modüller" });
+                        mMod.Translations.Add(new WixiMenuTranslation { LanguageId = en.Id, Title = "Modules" });
+                        await context.Menus.AddAsync(mMod);
+                        await context.SaveChangesAsync();
+                    }
+
+                    if (!await context.Menus.AnyAsync(m => m.Path == "/admin/audit"))
+                    {
+                        var mAudit = new WixiMenu { UserId = adminUser.Id, Path = "/admin/audit", Icon = "FaClipboardList", IconColor = "#f59e0b", SortOrder = 9 };
+                        mAudit.Translations.Add(new WixiMenuTranslation { LanguageId = tr.Id, Title = "Denetim Günlüğü" });
+                        mAudit.Translations.Add(new WixiMenuTranslation { LanguageId = en.Id, Title = "Audit Log" });
+                        await context.Menus.AddAsync(mAudit);
+                        await context.SaveChangesAsync();
+                    }
+
+                    if (!await context.Menus.AnyAsync(m => m.Path == "/admin/crm"))
+                    {
+                        var mCrm = new WixiMenu { UserId = adminUser.Id, Path = "/admin/crm", Icon = "FaHandshake", IconColor = "#10b981", SortOrder = 50 };
+                        mCrm.Translations.Add(new WixiMenuTranslation { LanguageId = tr.Id, Title = "CRM" });
+                        mCrm.Translations.Add(new WixiMenuTranslation { LanguageId = en.Id, Title = "CRM" });
+                        await context.Menus.AddAsync(mCrm);
+                        await context.SaveChangesAsync();
+                    }
+
+                    if (!await context.Menus.AnyAsync(m => m.Path == "/admin/visits"))
+                    {
+                        var mVisits = new WixiMenu { UserId = adminUser.Id, Path = "/admin/visits", Icon = "FaCalendarCheck", IconColor = "#f43f5e", SortOrder = 51 };
+                        mVisits.Translations.Add(new WixiMenuTranslation { LanguageId = tr.Id, Title = "Ziyaretler" });
+                        mVisits.Translations.Add(new WixiMenuTranslation { LanguageId = en.Id, Title = "Visits" });
+                        await context.Menus.AddAsync(mVisits);
+                        await context.SaveChangesAsync();
+                    }
+
+                    if (!await context.Menus.AnyAsync(m => m.Path == "/admin/projects"))
+                    {
+                        var mProj = new WixiMenu { UserId = adminUser.Id, Path = "/admin/projects", Icon = "FaProjectDiagram", IconColor = "#3b82f6", SortOrder = 52 };
+                        mProj.Translations.Add(new WixiMenuTranslation { LanguageId = tr.Id, Title = "Projeler" });
+                        mProj.Translations.Add(new WixiMenuTranslation { LanguageId = en.Id, Title = "Projects" });
+                        await context.Menus.AddAsync(mProj);
+                        await context.SaveChangesAsync();
+                    }
+
+                    if (!await context.Menus.AnyAsync(m => m.Path == "/admin/support"))
+                    {
+                        var mSupport = new WixiMenu { UserId = adminUser.Id, Path = "/admin/support", Icon = "FaHeadset", IconColor = "#ec4899", SortOrder = 53 };
+                        mSupport.Translations.Add(new WixiMenuTranslation { LanguageId = tr.Id, Title = "Destek" });
+                        mSupport.Translations.Add(new WixiMenuTranslation { LanguageId = en.Id, Title = "Support" });
+                        await context.Menus.AddAsync(mSupport);
+                        await context.SaveChangesAsync();
+                    }
+
+                    if (!await context.Menus.AnyAsync(m => m.Path == "/admin/inventory"))
+                    {
+                        var mInv = new WixiMenu { UserId = adminUser.Id, Path = "/admin/inventory", Icon = "FaWarehouse", IconColor = "#78716c", SortOrder = 54 };
+                        mInv.Translations.Add(new WixiMenuTranslation { LanguageId = tr.Id, Title = "Envanter" });
+                        mInv.Translations.Add(new WixiMenuTranslation { LanguageId = en.Id, Title = "Inventory" });
+                        await context.Menus.AddAsync(mInv);
+                        await context.SaveChangesAsync();
+                    }
+
+                    if (!await context.Menus.AnyAsync(m => m.Path == "/admin/theme-management"))
+                    {
+                        var mTheme = new WixiMenu { UserId = adminUser.Id, Path = "/admin/theme-management", Icon = "FaPaintBrush", IconColor = "#a855f7", SortOrder = 55 };
+                        mTheme.Translations.Add(new WixiMenuTranslation { LanguageId = tr.Id, Title = "Tema Yönetimi" });
+                        mTheme.Translations.Add(new WixiMenuTranslation { LanguageId = en.Id, Title = "Theme Management" });
+                        await context.Menus.AddAsync(mTheme);
+                        await context.SaveChangesAsync();
+                    }
                 }
             }
         }
