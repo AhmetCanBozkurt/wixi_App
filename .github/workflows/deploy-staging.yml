@@ -49,21 +49,20 @@ jobs:
 
       - name: Save current images as previous (rollback point)
         run: |
-          $b = docker inspect wixi-backend:staging --format='{{.Id}}' 2>$null
+          $b = docker images wixi-backend:staging --format "{{.ID}}"
           if ($b) {
-            docker tag wixi-backend:staging wixi-backend:previous 2>$null
+            docker tag wixi-backend:staging wixi-backend:previous
             Write-Host "Backend previous image saved"
           } else {
             Write-Host "No existing backend image — skipping rollback save"
           }
-          $f = docker inspect wixi-frontend:staging --format='{{.Id}}' 2>$null
+          $f = docker images wixi-frontend:staging --format "{{.ID}}"
           if ($f) {
-            docker tag wixi-frontend:staging wixi-frontend:previous 2>$null
+            docker tag wixi-frontend:staging wixi-frontend:previous
             Write-Host "Frontend previous image saved"
           } else {
             Write-Host "No existing frontend image — skipping rollback save"
           }
-          exit 0
 
       - name: Build images (with layer cache)
         run: |
