@@ -18,7 +18,7 @@ public class CreateCheckpointCommandHandler : IRequestHandler<CreateCheckpointCo
         var settings = await _db.StoreSettings.FirstOrDefaultAsync(ct);
         if (settings == null)
         {
-            settings = new WixiStoreSettings { Id = Guid.NewGuid() };
+            settings = new WixiStoreSettings { Id = Guid.NewGuid(), StoreName = "", CreatedAt = DateTime.UtcNow };
             _db.StoreSettings.Add(settings);
             await _db.SaveChangesAsync(ct);
         }
