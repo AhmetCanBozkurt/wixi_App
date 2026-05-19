@@ -57,7 +57,7 @@
   border-radius: 8px;
   box-shadow: 0 8px 40px rgba(0,0,0,0.25);
   min-height: 400px;
-  overflow: hidden;
+  overflow: visible;
   transition: max-width 0.3s ease;
 }
 

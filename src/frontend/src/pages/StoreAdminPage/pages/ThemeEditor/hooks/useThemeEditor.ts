@@ -238,7 +238,17 @@ export function useThemeEditor(tenantSlug: string) {
 
   const saveAll = useCallback(async () => {
     await Promise.all([saveLayout(), saveSeo(), saveBacklinks()]);
-  }, [saveLayout, saveSeo, saveBacklinks]);
+    // Auto-checkpoint on each save
+    try {
+      const time = new Date().toLocaleString('tr-TR', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' });
+      await storeAdminApi.createCheckpoint(tenantSlug, `Otomatik — ${time}`);
+      // Silently refresh versions in background
+      const res = await storeAdminApi.getThemeVersions(tenantSlug);
+      dispatch({ type: 'SET_THEME_VERSIONS', versions: res.data });
+    } catch {
+      // Auto-checkpoint failure is non-critical, don't show error
+    }
+  }, [saveLayout, saveSeo, saveBacklinks, tenantSlug, dispatch]);
 
   return { loadPages, loadPage, saveLayout, saveSeo, saveBacklinks, saveTheme, saveGlobalComponents, saveCustomCode, publishPage, deletePage, saveAll, loadThemeVersions, createCheckpoint, rollbackVersion };
 }

@@ -7,6 +7,41 @@
   overflow-y: auto;
 }
 
+/* Modal variant — no fixed height, modal handles scroll */
+.panelModal {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 200px;
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-glass);
+}
+
+.modalHeaderLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modalHeaderTitle {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.empty {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  padding: 24px;
+}
+
 .header {
   display: flex;
   justify-content: flex-end;
@@ -30,9 +65,10 @@
 
 .item {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 10px 12px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
   border-radius: 8px;
   background: var(--surface-glass, rgba(255,255,255,0.05));
   border: 1px solid var(--border-glass, rgba(255,255,255,0.08));
@@ -41,6 +77,42 @@
 
 .item:hover {
   background: var(--surface-glass-hover, rgba(255,255,255,0.08));
+}
+
+.itemBody {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.metaRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.publishBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(236,72,153,0.35);
+  background: rgba(236,72,153,0.08);
+  color: #ec4899;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.publishBtn:hover {
+  background: rgba(236,72,153,0.18);
+  border-color: #ec4899;
 }
 
 .published {

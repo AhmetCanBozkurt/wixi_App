@@ -4,7 +4,7 @@ import { DEFAULT_THEME } from '../../../../../entities/StorePage/model/defaultTh
 
 export type Viewport = 'desktop' | 'tablet' | 'mobile';
 export type LeftTab = 'pages' | 'components' | 'theme' | 'global' | 'code';
-export type RightTab = 'props' | 'seo' | 'backlinks' | 'versions';
+export type RightTab = 'props' | 'seo' | 'backlinks';
 
 export interface SeoState {
   metaTitle: string;

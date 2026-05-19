@@ -1,6 +1,6 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { FaPaintBrush, FaSave, FaExternalLinkAlt } from 'react-icons/fa';
+import { FaPaintBrush, FaSave, FaExternalLinkAlt, FaHistory } from 'react-icons/fa';
 
 import { EditorProvider, useEditor } from './context/EditorContext';
 import { useThemeEditor } from './hooks/useThemeEditor';
@@ -14,11 +14,13 @@ import { SeoPanel } from './panels/SeoPanel';
 import { BacklinksPanel } from './panels/BacklinksPanel';
 import { VersionHistoryPanel } from './panels/VersionHistoryPanel';
 import { EditorCanvas } from './canvas/EditorCanvas';
+import { Modal } from '../../../../shared/ui/Modal/Modal';
 import styles from './ThemeEditor.module.css';
 
 function ThemeEditorInner({ tenantSlug }: { tenantSlug: string }) {
   const { state, dispatch } = useEditor();
   const { loadPages, saveAll } = useThemeEditor(tenantSlug);
+  const [versionModalOpen, setVersionModalOpen] = useState(false);
 
   useEffect(() => {
     void loadPages();
@@ -40,6 +42,16 @@ function ThemeEditorInner({ tenantSlug }: { tenantSlug: string }) {
 
         <div className={styles.topActions}>
           {state.isDirty && <div className={styles.dirtyDot} title="Kaydedilmemiş değişiklikler" />}
+
+          <button
+            className={styles.historyBtn}
+            onClick={() => setVersionModalOpen(true)}
+            title="Versiyon geçmişi"
+            type="button"
+          >
+            <FaHistory /> Geçmiş
+          </button>
+
           <a
             className={styles.previewBtn}
             href={`/store/${tenantSlug}/${state.activePage?.slug ?? ''}`}
@@ -48,10 +60,12 @@ function ThemeEditorInner({ tenantSlug }: { tenantSlug: string }) {
           >
             <FaExternalLinkAlt /> Önizle
           </a>
+
           <button
             className={styles.saveBtn}
             onClick={() => void saveAll()}
             disabled={state.isSaving}
+            type="button"
           >
             <FaSave /> {state.isSaving ? 'Kaydediliyor...' : 'Kaydet'}
           </button>
@@ -68,6 +82,7 @@ function ThemeEditorInner({ tenantSlug }: { tenantSlug: string }) {
                 key={tab}
                 className={`${styles.leftTab} ${state.leftTab === tab ? styles.leftTabActive : ''}`}
                 onClick={() => dispatch({ type: 'SET_LEFT_TAB', tab })}
+                type="button"
               >
                 {label}
               </button>
@@ -85,14 +100,15 @@ function ThemeEditorInner({ tenantSlug }: { tenantSlug: string }) {
         {/* Center Canvas */}
         <EditorCanvas />
 
-        {/* Right Sidebar */}
+        {/* Right Sidebar — 3 tabs only */}
         <div className={styles.sidebarRight}>
           <div className={styles.rightTabBar}>
-            {([['props', 'Özellikler'], ['seo', 'SEO'], ['backlinks', 'Bağlantılar'], ['versions', 'Geçmiş']] as const).map(([tab, label]) => (
+            {([['props', 'Özellikler'], ['seo', 'SEO'], ['backlinks', 'Bağlantılar']] as const).map(([tab, label]) => (
               <button
                 key={tab}
                 className={`${styles.rightTab} ${state.rightTab === tab ? styles.rightTabActive : ''}`}
                 onClick={() => dispatch({ type: 'SET_RIGHT_TAB', tab })}
+                type="button"
               >
                 {label}
               </button>
@@ -102,10 +118,19 @@ function ThemeEditorInner({ tenantSlug }: { tenantSlug: string }) {
             {state.rightTab === 'props' && <PropertiesPanel />}
             {state.rightTab === 'seo' && <SeoPanel tenantSlug={tenantSlug} />}
             {state.rightTab === 'backlinks' && <BacklinksPanel tenantSlug={tenantSlug} />}
-            {state.rightTab === 'versions' && <VersionHistoryPanel tenantSlug={tenantSlug} />}
           </div>
         </div>
       </div>
+
+      {/* ── Version History Modal ────────────────────────────── */}
+      <Modal
+        isOpen={versionModalOpen}
+        onClose={() => setVersionModalOpen(false)}
+        title="Versiyon Geçmişi"
+        size="lg"
+      >
+        <VersionHistoryPanel tenantSlug={tenantSlug} onClose={() => setVersionModalOpen(false)} />
+      </Modal>
     </div>
   );
 }

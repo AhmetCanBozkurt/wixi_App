@@ -82,6 +82,23 @@
 .saveBtn:hover { background: #db2777; }
 .saveBtn:disabled { opacity: 0.6; cursor: not-allowed; }
 
+.historyBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  background: var(--editor-surface-2);
+  border: 1px solid var(--editor-border);
+  border-radius: 7px;
+  color: var(--editor-text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.historyBtn:hover { border-color: #ec4899; color: #ec4899; }
+
 /* ── 3-panel Layout ────────────────────────────────── */
 .mainArea {
   flex: 1;
