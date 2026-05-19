@@ -1,6 +1,0 @@
-@wixi.WebAPI_HostAddress = http://localhost:5114
-
-GET {{wixi.WebAPI_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###

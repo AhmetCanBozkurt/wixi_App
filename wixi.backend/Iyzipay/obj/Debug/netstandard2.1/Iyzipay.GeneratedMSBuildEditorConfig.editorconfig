@@ -1,8 +1,0 @@
-is_global = true
-build_property.RootNamespace = Iyzipay
-build_property.ProjectDir = C:\PROJECTS\wixi.ClientV0_1\wixi.backend\Iyzipay\
-build_property.EnableComHosting = 
-build_property.EnableGeneratedComInterfaceComImportInterop = 
-build_property.CsWinRTUseWindowsUIXamlProjections = false
-build_property.EffectiveAnalysisLevelStyle = 
-build_property.EnableCodeStyleSeverity = 
