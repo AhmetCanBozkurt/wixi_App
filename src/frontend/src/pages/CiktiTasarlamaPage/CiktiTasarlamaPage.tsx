@@ -242,48 +242,108 @@ const CiktiTasarlamaPage: React.FC = () => {
   return (
     <div className="flex flex-col bg-gray-100 dark:bg-gray-900" style={{ height: 'calc(100vh - 114px)', background: 'var(--bg-secondary)' }}>
       {/* Navbar */}
-      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm z-40 flex-shrink-0" style={{ background: 'var(--surface)', borderColor: 'var(--border-glass)' }}>
-        <div className="flex items-center justify-between px-4 py-2">
-          <div className="flex items-center gap-4">
-            <h1 className="text-lg font-bold text-gray-900 dark:text-white">Çıktı Tasarımcısı</h1>
-            <div className="flex items-center gap-2 text-gray-500">
-              <SettingsIcon className="w-4 h-4" />
-              <span className="text-xs">Rapor / Fatura Tasarımı</span>
-            </div>
+      <div className="z-40 flex-shrink-0" style={{ background: 'var(--surface)', borderBottom: '1px solid var(--border-glass)' }}>
+        <div className="flex items-center gap-3 px-4" style={{ height: '48px' }}>
+
+          {/* Title */}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <span style={{ color: 'var(--color-primary)' }}><SettingsIcon className="w-4 h-4" /></span>
+            <span className="font-bold text-sm" style={{ color: 'var(--text-main)' }}>Çıktı Tasarımcısı</span>
           </div>
 
-          <div className="flex items-center gap-2">
-            <select style={{ background: 'var(--surface)', color: 'var(--text-main)', borderColor: 'var(--border-glass)' }} className="px-2 py-1.5 text-xs border rounded-md" value={paperSize} onChange={(e) => setPaperSize(e.target.value as typeof paperSize)}>
+          {/* Divider */}
+          <div style={{ width: '1px', height: '20px', background: 'var(--border-glass)', flexShrink: 0 }} />
+
+          {/* Page setup pill */}
+          <div className="flex items-center gap-1 px-2 py-1 rounded-md" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-glass)' }}>
+            <select
+              style={{ background: 'transparent', color: 'var(--text-main)', border: 'none', outline: 'none', fontSize: '12px', cursor: 'pointer' }}
+              value={paperSize}
+              onChange={(e) => setPaperSize(e.target.value as typeof paperSize)}
+            >
               {['A4', 'A5', 'Letter', 'Legal'].map(sz => <option key={sz} value={sz}>{sz}</option>)}
             </select>
-            <select style={{ background: 'var(--surface)', color: 'var(--text-main)', borderColor: 'var(--border-glass)' }} className="px-2 py-1.5 text-xs border rounded-md" value={orientation} onChange={(e) => setOrientation(e.target.value as typeof orientation)}>
+            <span style={{ color: 'var(--border-glass)', fontSize: '14px' }}>│</span>
+            <select
+              style={{ background: 'transparent', color: 'var(--text-main)', border: 'none', outline: 'none', fontSize: '12px', cursor: 'pointer' }}
+              value={orientation}
+              onChange={(e) => setOrientation(e.target.value as typeof orientation)}
+            >
               <option value="portrait">Dikey</option>
               <option value="landscape">Yatay</option>
             </select>
-            <select style={{ background: 'var(--surface)', color: 'var(--text-main)', borderColor: 'var(--border-glass)' }} className="px-2 py-1.5 text-xs border rounded-md" value={selectedPrinter} onChange={(e) => setSelectedPrinter(e.target.value)}>
+            <span style={{ color: 'var(--border-glass)', fontSize: '14px' }}>│</span>
+            <select
+              style={{ background: 'transparent', color: 'var(--text-main)', border: 'none', outline: 'none', fontSize: '12px', cursor: 'pointer', maxWidth: '140px' }}
+              value={selectedPrinter}
+              onChange={(e) => setSelectedPrinter(e.target.value)}
+            >
               <option value="">Yazıcı Seçin</option>
               {printers.map(p => <option key={p.id} value={p.id}>{p.ad}</option>)}
             </select>
           </div>
 
-          <div className="flex items-center gap-2">
+          {/* Spacer */}
+          <div className="flex-1" />
+
+          {/* Actions */}
+          <div className="flex items-center gap-1.5">
             {selectedElement && (
-              <button onClick={handleElementDelete} className="flex items-center gap-1 px-3 py-1.5 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors text-xs">
-                <span>Sil</span>
+              <button
+                onClick={handleElementDelete}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-opacity hover:opacity-80"
+                style={{ background: '#ef4444', color: '#fff' }}
+              >
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                Sil
               </button>
             )}
-            <button onClick={handleNewTemplate} className="px-3 py-1.5 bg-indigo-500 text-white rounded-md hover:bg-indigo-600 transition-colors text-xs">+ Yeni</button>
-            <button onClick={() => setShowTemplateManager(true)} className="flex items-center gap-1 px-3 py-1.5 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors text-xs">
-              <SettingsIcon className="w-3 h-3" /> Şablonlar
+            <button
+              onClick={handleNewTemplate}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-opacity hover:opacity-80"
+              style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-glass)', color: 'var(--text-secondary)' }}
+            >
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
+              Yeni
             </button>
-            <button onClick={() => { if (selectedTemplateForUpdate) { setNewTemplateName(selectedTemplateForUpdate.ad); setNewTemplateDescription(selectedTemplateForUpdate.aciklama || ''); } else { setNewTemplateName(''); setNewTemplateDescription(''); } setShowSaveModal(true); }}
-              className={`flex items-center gap-1 px-3 py-1.5 text-white rounded-md transition-colors text-xs ${selectedTemplateForUpdate ? 'bg-orange-500 hover:bg-orange-600' : 'bg-green-500 hover:bg-green-600'}`}>
-              <SaveIcon className="w-3 h-3" /> {selectedTemplateForUpdate ? 'Güncelle' : 'Kaydet'}
+            <button
+              onClick={() => setShowTemplateManager(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-opacity hover:opacity-80"
+              style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-glass)', color: 'var(--text-secondary)' }}
+            >
+              <SettingsIcon className="w-3 h-3" />
+              Şablonlar
             </button>
-            <button onClick={() => setShowPreview(true)} className="flex items-center gap-1 px-3 py-1.5 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors text-xs">
-              <PreviewIcon className="w-3 h-3" /> Önizle
+            <button
+              onClick={() => {
+                if (selectedTemplateForUpdate) {
+                  setNewTemplateName(selectedTemplateForUpdate.ad);
+                  setNewTemplateDescription(selectedTemplateForUpdate.aciklama || '');
+                } else {
+                  setNewTemplateName('');
+                  setNewTemplateDescription('');
+                }
+                setShowSaveModal(true);
+              }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium text-white transition-opacity hover:opacity-80"
+              style={{ background: 'var(--color-primary, #3b82f6)' }}
+            >
+              <SaveIcon className="w-3 h-3" />
+              {selectedTemplateForUpdate ? 'Güncelle' : 'Kaydet'}
             </button>
-            <button onClick={() => toast('PDF indirme yakında eklenecek', { icon: '📄' })} className="flex items-center gap-1 px-3 py-1.5 bg-purple-500 text-white rounded-md hover:bg-purple-600 transition-colors text-xs">
+            <button
+              onClick={() => setShowPreview(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-opacity hover:opacity-80"
+              style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-glass)', color: 'var(--text-secondary)' }}
+            >
+              <PreviewIcon className="w-3 h-3" />
+              Önizle
+            </button>
+            <button
+              onClick={() => toast('PDF indirme yakında eklenecek', { icon: '📄' })}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-opacity hover:opacity-80"
+              style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-glass)', color: 'var(--text-secondary)' }}
+            >
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
               PDF
             </button>
@@ -314,12 +374,19 @@ const CiktiTasarlamaPage: React.FC = () => {
         {isToolboxCollapsed && (
           <div
             onClick={() => setIsToolboxCollapsed(false)}
-            className="flex items-center justify-center cursor-pointer bg-blue-500 hover:bg-blue-600 transition-colors z-20"
-            style={{ width: '24px', minWidth: '24px', writingMode: 'vertical-rl' }}
+            className="flex items-center justify-center cursor-pointer z-20 transition-opacity hover:opacity-70"
+            style={{
+              width: '24px',
+              minWidth: '24px',
+              writingMode: 'vertical-rl',
+              background: 'var(--surface)',
+              borderRight: '1px solid var(--border-glass)',
+              borderLeft: '3px solid var(--color-primary)',
+            }}
             title="Araç Kutusunu Aç"
           >
-            <span className="text-white text-xs font-medium py-3 select-none" style={{ letterSpacing: '0.05em' }}>
-              ◀ Araç Kutusu
+            <span className="text-xs font-semibold py-3 select-none" style={{ color: 'var(--text-muted)', letterSpacing: '0.06em' }}>
+              ◀ ARAÇLAR
             </span>
           </div>
         )}
@@ -348,12 +415,19 @@ const CiktiTasarlamaPage: React.FC = () => {
         {isPropertiesCollapsed && (
           <div
             onClick={() => setIsPropertiesCollapsed(false)}
-            className="flex items-center justify-center cursor-pointer bg-blue-500 hover:bg-blue-600 transition-colors z-20"
-            style={{ width: '24px', minWidth: '24px', writingMode: 'vertical-rl' }}
+            className="flex items-center justify-center cursor-pointer z-20 transition-opacity hover:opacity-70"
+            style={{
+              width: '24px',
+              minWidth: '24px',
+              writingMode: 'vertical-rl',
+              background: 'var(--surface)',
+              borderLeft: '1px solid var(--border-glass)',
+              borderRight: '3px solid var(--color-primary)',
+            }}
             title="Özellikler Paneli Aç"
           >
-            <span className="text-white text-xs font-medium py-3 select-none" style={{ letterSpacing: '0.05em' }}>
-              Özellikler ▶
+            <span className="text-xs font-semibold py-3 select-none" style={{ color: 'var(--text-muted)', letterSpacing: '0.06em' }}>
+              ÖZELLİKLER ▶
             </span>
           </div>
         )}

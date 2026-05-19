@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import type { ReportElement, ReportElementStyle } from '../types';
 import { PropertiesIcon } from './icons';
 import s from './propertiesPanel.module.css';
@@ -20,20 +20,68 @@ interface PropertiesPanelProps {
   setZoom: (zoom: number) => void;
 }
 
-const panelStyle: React.CSSProperties = {
-  background: 'var(--surface)',
-  color: 'var(--text-main)',
+/* Reliable color picker: the native input is truly hidden (0×0, no pointer events)
+   and we programmatically click it via a ref when the button is activated. */
+const ColorPicker = ({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+}) => {
+  const inputRef = useRef<HTMLInputElement>(null);
+  return (
+    <div>
+      <label className={s.panelLabel}>{label}</label>
+      <button
+        type="button"
+        onClick={() => inputRef.current?.click()}
+        className={s.colorWrapper}
+      >
+        <div className={s.colorSwatch} style={{ backgroundColor: value }} />
+        <span className={s.colorHex}>{value.toUpperCase()}</span>
+        <svg className={s.colorChevron} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+      <input
+        ref={inputRef}
+        type="color"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        style={{ position: 'absolute', opacity: 0, pointerEvents: 'none', width: 0, height: 0 }}
+      />
+    </div>
+  );
 };
 
-const ColorPicker = ({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) => (
-  <div>
-    <label className={s.panelLabel}>{label}</label>
-    <div className={s.colorWrapper}>
-      <div className={s.colorSwatch} style={{ backgroundColor: value }} />
-      <span className={s.colorLabel}>{value.toUpperCase()}</span>
-      <input type="color" value={value} onChange={(e) => onChange(e.target.value)} />
-    </div>
-  </div>
+const SectionHeader = ({
+  id,
+  label,
+  collapsed,
+  onToggle,
+}: {
+  id: string;
+  label: string;
+  collapsed: boolean;
+  onToggle: (id: string) => void;
+}) => (
+  <button
+    onClick={() => onToggle(id)}
+    className={s.sectionHeader}
+    style={{ borderLeft: `3px solid var(--color-primary)` }}
+  >
+    <span className={s.sectionLabel}>{label}</span>
+    <svg
+      className={s.sectionChevron}
+      style={{ transform: collapsed ? 'rotate(0deg)' : 'rotate(180deg)' }}
+      fill="none" stroke="currentColor" viewBox="0 0 24 24"
+    >
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+    </svg>
+  </button>
 );
 
 const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
@@ -54,70 +102,63 @@ const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
     setCollapsedSections(next);
   };
 
-  const SectionHeader = ({ id, label }: { id: string; label: string }) => (
-    <button
-      onClick={() => toggleSection(id)}
-      className="w-full flex items-center justify-between px-2 py-1.5 rounded-md transition-colors"
-      style={{ background: 'var(--surface-hover)', color: 'var(--text-secondary)' }}
-    >
-      <span className="text-sm font-medium">{label}</span>
-      <svg className={`w-4 h-4 transition-transform ${collapsedSections.has(id) ? 'rotate-0' : 'rotate-180'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: 'var(--text-muted)' }}>
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-      </svg>
-    </button>
-  );
-
   const renderCanvasControls = () => (
-    <div className="space-y-3 mb-5">
-      <SectionHeader id="canvas" label="🎛️ Canvas Kontrolleri" />
+    <div className={s.section}>
+      <SectionHeader id="canvas" label="🎛️ Canvas Kontrolleri" collapsed={collapsedSections.has('canvas')} onToggle={toggleSection} />
       {!collapsedSections.has('canvas') && (
-        <div className="space-y-3 pl-2">
-          {[
-            { label: 'Cetvel', state: showRulers, set: setShowRulers, color: 'bg-blue-500' },
-            { label: 'Hizalama', state: showAlignmentGuides, set: setShowAlignmentGuides, color: 'bg-purple-500' },
-            { label: 'Izgara Yapışması', state: snapToGrid, set: setSnapToGrid, color: 'bg-green-500' },
-            { label: 'Otomatik Boyut', state: autoResize, set: setAutoResize, color: 'bg-orange-500' },
-          ].map(({ label, state, set, color }) => (
-            <div key={label} className="flex items-center justify-between">
-              <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>{label}</span>
+        <div className={s.sectionBody}>
+          {([
+            ['Cetvel', showRulers, setShowRulers],
+            ['Hizalama', showAlignmentGuides, setShowAlignmentGuides],
+            ['Izgara Yapışması', snapToGrid, setSnapToGrid],
+            ['Otomatik Boyut', autoResize, setAutoResize],
+          ] as [string, boolean, (v: boolean) => void][]).map(([label, state, set]) => (
+            <div key={label} className={s.toggleRow}>
+              <span className={s.toggleLabel}>{label}</span>
               <button
                 onClick={() => set(!state)}
-                className={`px-3 py-1 text-xs rounded-md transition-colors ${state ? `${color} text-white` : ''}`}
-                style={!state ? { background: 'var(--surface-hover)', color: 'var(--text-secondary)' } : {}}
+                className={s.toggleBtn}
+                style={
+                  state
+                    ? { background: 'var(--color-primary)', color: '#fff' }
+                    : { background: 'var(--surface-hover)', color: 'var(--text-muted)' }
+                }
               >
                 {state ? 'Açık' : 'Kapalı'}
               </button>
             </div>
           ))}
+
           {snapToGrid && (
-            <div className="space-y-1.5">
-              <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>Izgara Boyutu</span>
-              <select
-                value={gridSize}
-                onChange={(e) => setGridSize(Number(e.target.value))}
-                className={s.panelInput}
-              >
+            <div className={s.field}>
+              <label className={s.panelLabel}>Izgara Boyutu</label>
+              <select value={gridSize} onChange={(e) => setGridSize(Number(e.target.value))} className={s.panelInput}>
                 {[5, 10, 20, 50].map(v => <option key={v} value={v}>{v}px</option>)}
               </select>
             </div>
           )}
-          <div className="space-y-1.5">
-            <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>Yakınlaştırma</span>
-            <div className="flex items-center gap-2">
+
+          <div className={s.field}>
+            <label className={s.panelLabel}>Yakınlaştırma</label>
+            <div className={s.zoomRow}>
               <button
                 onClick={() => setZoom(Math.max(25, zoom - 25))}
-                className="px-2 py-1 text-xs rounded-md transition-colors"
-                style={{ background: 'var(--surface-hover)', color: 'var(--text-secondary)' }}
+                className={s.zoomBtn}
+                title="Uzaklaştır"
               >
-                ➖
+                <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M20 12H4" />
+                </svg>
               </button>
-              <span className="text-xs flex-1 text-center" style={{ color: 'var(--text-secondary)' }}>{zoom}%</span>
+              <span className={s.zoomValue}>{zoom}%</span>
               <button
                 onClick={() => setZoom(Math.min(200, zoom + 25))}
-                className="px-2 py-1 text-xs rounded-md transition-colors"
-                style={{ background: 'var(--surface-hover)', color: 'var(--text-secondary)' }}
+                className={s.zoomBtn}
+                title="Yakınlaştır"
               >
-                ➕
+                <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+                </svg>
               </button>
             </div>
           </div>
@@ -128,71 +169,51 @@ const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
 
   if (!selectedElement) {
     return (
-      <div className="w-full h-full p-4 flex flex-col" style={panelStyle}>
+      <div className={s.panel}>
         {renderCanvasControls()}
-        <div className="text-center py-8" style={{ color: 'var(--text-muted)' }}>
-          <div style={{ color: 'var(--text-muted)' }}><PropertiesIcon className="w-12 h-12 mx-auto mb-2" /></div>
-          <p className="text-sm">Bir öğe seçin</p>
+        <div className={s.emptyState}>
+          <div style={{ color: 'var(--text-muted)' }}>
+            <PropertiesIcon className="w-10 h-10 mx-auto mb-2" />
+          </div>
+          <p className={s.emptyText}>Bir öğe seçin</p>
         </div>
       </div>
     );
   }
 
-  const handleStyleChange = (property: keyof ReportElementStyle, value: unknown) => {
+  const handleStyleChange = (property: keyof ReportElementStyle, value: unknown) =>
     onElementUpdate({ ...selectedElement, style: { ...selectedElement.style, [property]: value } });
-  };
 
-  const handleContentChange = (content: string) => onElementUpdate({ ...selectedElement, content });
+  const handleContentChange = (content: string) =>
+    onElementUpdate({ ...selectedElement, content });
+
   const handleSizeChange = (dim: 'width' | 'height', value: number) =>
     onElementUpdate({ ...selectedElement, size: { ...selectedElement.size, [dim]: value } });
 
   const renderTextProperties = () => (
-    <div className="space-y-4">
-      <div>
+    <div className={s.fieldGroup}>
+      <div className={s.field}>
         <label className={s.panelLabel}>İçerik</label>
-        <input
-          type="text"
-          value={selectedElement.content}
-          onChange={(e) => handleContentChange(e.target.value)}
-          className={s.panelInput}
-        />
+        <input type="text" value={selectedElement.content} onChange={(e) => handleContentChange(e.target.value)} className={s.panelInput} />
       </div>
-      <div className="grid grid-cols-2 gap-3">
-        <div>
+      <div className={s.gridTwo}>
+        <div className={s.field}>
           <label className={s.panelLabel}>Yazı Tipi</label>
-          <select
-            value={selectedElement.style.fontFamily || 'Arial'}
-            onChange={(e) => handleStyleChange('fontFamily', e.target.value)}
-            className={s.panelInput}
-          >
+          <select value={selectedElement.style.fontFamily || 'Arial'} onChange={(e) => handleStyleChange('fontFamily', e.target.value)} className={s.panelInput}>
             {['Arial', 'Times New Roman', 'Courier New', 'Verdana', 'Georgia'].map(f => (
               <option key={f} value={f}>{f}</option>
             ))}
           </select>
         </div>
-        <div>
+        <div className={s.field}>
           <label className={s.panelLabel}>Boyut (pt)</label>
-          <input
-            type="number"
-            value={selectedElement.style.fontSize || 12}
-            onChange={(e) => handleStyleChange('fontSize', Number(e.target.value))}
-            min="8" max="72"
-            className={s.panelInput}
-          />
+          <input type="number" value={selectedElement.style.fontSize || 12} onChange={(e) => handleStyleChange('fontSize', Number(e.target.value))} min="8" max="72" className={s.panelInput} />
         </div>
       </div>
-      <ColorPicker
-        label="Yazı Rengi"
-        value={selectedElement.style.color || '#000000'}
-        onChange={(v) => handleStyleChange('color', v)}
-      />
-      <div>
+      <ColorPicker label="Yazı Rengi" value={selectedElement.style.color || '#000000'} onChange={(v) => handleStyleChange('color', v)} />
+      <div className={s.field}>
         <label className={s.panelLabel}>Hizalama</label>
-        <select
-          value={selectedElement.style.textAlign || 'left'}
-          onChange={(e) => handleStyleChange('textAlign', e.target.value)}
-          className={s.panelInput}
-        >
+        <select value={selectedElement.style.textAlign || 'left'} onChange={(e) => handleStyleChange('textAlign', e.target.value)} className={s.panelInput}>
           <option value="left">Sol</option>
           <option value="center">Orta</option>
           <option value="right">Sağ</option>
@@ -203,8 +224,8 @@ const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
   );
 
   const renderImageProperties = () => (
-    <div className="space-y-4">
-      <div>
+    <div className={s.fieldGroup}>
+      <div className={s.field}>
         <label className={s.panelLabel}>Resim Yükle</label>
         <input
           type="file"
@@ -221,25 +242,20 @@ const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
         />
       </div>
       {selectedElement.style.imageUrl && (
-        <div className="rounded-md p-2" style={{ border: '1px solid var(--border-glass)' }}>
-          <img src={selectedElement.style.imageUrl} alt="Preview" className="w-full h-20 object-contain" />
+        <div className={s.imagePreview}>
+          <img src={selectedElement.style.imageUrl} alt="Önizleme" className="w-full h-20 object-contain" />
         </div>
       )}
     </div>
   );
 
   const renderBarcodeProperties = () => (
-    <div className="space-y-4">
-      <div>
+    <div className={s.fieldGroup}>
+      <div className={s.field}>
         <label className={s.panelLabel}>Barkod İçeriği</label>
-        <input
-          type="text"
-          value={selectedElement.content}
-          onChange={(e) => handleContentChange(e.target.value)}
-          className={s.panelInput}
-        />
+        <input type="text" value={selectedElement.content} onChange={(e) => handleContentChange(e.target.value)} className={s.panelInput} />
       </div>
-      <div>
+      <div className={s.field}>
         <label className={s.panelLabel}>Barkod Tipi</label>
         <select
           value={(selectedElement.properties.barcodeType as string) || 'code128'}
@@ -257,63 +273,33 @@ const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
   const renderCommonProperties = () => {
     const opacityPct = Math.round((selectedElement.style.opacity ?? 1) * 100);
     return (
-      <div className="space-y-4">
-        <div className="grid grid-cols-2 gap-3">
-          <div>
+      <div className={s.fieldGroup}>
+        <div className={s.gridTwo}>
+          <div className={s.field}>
             <label className={s.panelLabel}>Genişlik (px)</label>
-            <input
-              type="number"
-              value={selectedElement.size.width}
-              onChange={(e) => handleSizeChange('width', Number(e.target.value))}
-              className={s.panelInput}
-            />
+            <input type="number" value={selectedElement.size.width} onChange={(e) => handleSizeChange('width', Number(e.target.value))} className={s.panelInput} />
           </div>
-          <div>
+          <div className={s.field}>
             <label className={s.panelLabel}>Yükseklik (px)</label>
-            <input
-              type="number"
-              value={selectedElement.size.height}
-              onChange={(e) => handleSizeChange('height', Number(e.target.value))}
-              className={s.panelInput}
-            />
+            <input type="number" value={selectedElement.size.height} onChange={(e) => handleSizeChange('height', Number(e.target.value))} className={s.panelInput} />
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-3">
-          <ColorPicker
-            label="Arka Plan"
-            value={selectedElement.style.backgroundColor || '#ffffff'}
-            onChange={(v) => handleStyleChange('backgroundColor', v)}
-          />
-          <ColorPicker
-            label="Kenarlık Rengi"
-            value={selectedElement.style.borderColor || '#000000'}
-            onChange={(v) => handleStyleChange('borderColor', v)}
-          />
+        <div className={s.gridTwo}>
+          <ColorPicker label="Arka Plan" value={selectedElement.style.backgroundColor || '#ffffff'} onChange={(v) => handleStyleChange('backgroundColor', v)} />
+          <ColorPicker label="Kenarlık Rengi" value={selectedElement.style.borderColor || '#000000'} onChange={(v) => handleStyleChange('borderColor', v)} />
         </div>
-        <div>
+        <div className={s.field}>
           <label className={s.panelLabel}>Kenarlık Kalınlığı</label>
-          <input
-            type="number"
-            value={selectedElement.style.borderWidth ?? 0}
-            onChange={(e) => handleStyleChange('borderWidth', Number(e.target.value))}
-            min="0" max="10"
-            className={s.panelInput}
-          />
+          <input type="number" value={selectedElement.style.borderWidth ?? 0} onChange={(e) => handleStyleChange('borderWidth', Number(e.target.value))} min="0" max="10" className={s.panelInput} />
         </div>
-        <div>
+        <div className={s.field}>
           <label className={s.panelLabel}>Köşe Yuvarlaklığı</label>
-          <input
-            type="number"
-            value={selectedElement.style.borderRadius ?? 0}
-            onChange={(e) => handleStyleChange('borderRadius', Number(e.target.value))}
-            min="0" max="50"
-            className={s.panelInput}
-          />
+          <input type="number" value={selectedElement.style.borderRadius ?? 0} onChange={(e) => handleStyleChange('borderRadius', Number(e.target.value))} min="0" max="50" className={s.panelInput} />
         </div>
-        <div>
-          <div className="flex items-center justify-between mb-1.5">
+        <div className={s.field}>
+          <div className={s.opacityHeader}>
             <label className={s.panelLabel} style={{ marginBottom: 0 }}>Şeffaflık</label>
-            <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{opacityPct}%</span>
+            <span className={s.opacityValue}>{opacityPct}%</span>
           </div>
           <input
             type="range"
@@ -337,28 +323,33 @@ const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
   };
 
   const elementLabel =
-    selectedElement.type === 'text' ? '📝 Metin Özellikleri' :
-    selectedElement.type === 'logo' ? '🖼️ Logo Özellikleri' :
-    selectedElement.type === 'image' ? '🖼️ Resim Özellikleri' :
-    selectedElement.type === 'barcode' ? '📊 Barkod Özellikleri' :
-    selectedElement.type === 'variable' ? '🔤 Değişken Özellikleri' : '⚙️ Genel Özellikler';
+    selectedElement.type === 'text' ? '📝 Metin' :
+    selectedElement.type === 'logo' ? '🖼️ Logo' :
+    selectedElement.type === 'image' ? '🖼️ Resim' :
+    selectedElement.type === 'barcode' ? '📊 Barkod' :
+    selectedElement.type === 'variable' ? '🔤 Değişken' :
+    selectedElement.type === 'table' ? '📋 Tablo' :
+    selectedElement.type === 'line' ? '📏 Çizgi' :
+    selectedElement.type === 'shape' ? '⬜ Şekil' : '⚙️ Öğe';
 
   return (
-    <div className="w-full h-full p-4 flex flex-col" style={panelStyle}>
-      <div className="flex-shrink-0 mb-4">{renderCanvasControls()}</div>
-      <div className="flex-1 overflow-y-auto space-y-5">
-        <div className="space-y-3">
-          <SectionHeader id="element" label={elementLabel} />
-          {!collapsedSections.has('element') && (
-            <div className="pl-1">{renderSpecificProperties()}</div>
-          )}
-        </div>
-        <div className="space-y-3">
-          <SectionHeader id="appearance" label="🎨 Görünüm" />
-          {!collapsedSections.has('appearance') && (
-            <div className="pl-1">{renderCommonProperties()}</div>
-          )}
-        </div>
+    <div className={s.panel}>
+      {renderCanvasControls()}
+
+      <div className={s.divider} />
+
+      <div className={s.section}>
+        <SectionHeader id="element" label={elementLabel} collapsed={collapsedSections.has('element')} onToggle={toggleSection} />
+        {!collapsedSections.has('element') && (
+          <div className={s.sectionBody}>{renderSpecificProperties()}</div>
+        )}
+      </div>
+
+      <div className={s.section}>
+        <SectionHeader id="appearance" label="🎨 Görünüm" collapsed={collapsedSections.has('appearance')} onToggle={toggleSection} />
+        {!collapsedSections.has('appearance') && (
+          <div className={s.sectionBody}>{renderCommonProperties()}</div>
+        )}
       </div>
     </div>
   );
