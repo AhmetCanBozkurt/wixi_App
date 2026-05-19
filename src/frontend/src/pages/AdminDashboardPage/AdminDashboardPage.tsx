@@ -1,9 +1,15 @@
 import { useEffect, useState } from 'react';
-import { FaStore, FaCheckCircle, FaCalendarPlus, FaUsers } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
+import {
+  FaStore, FaCheckCircle, FaCalendarPlus, FaUsers,
+  FaExclamationTriangle, FaShieldAlt, FaChartLine,
+  FaCog, FaLanguage, FaBuilding, FaEnvelope, FaKey,
+  FaBolt,
+} from 'react-icons/fa';
 import apiClient from '../../shared/api/axiosConfig';
 import styles from './AdminDashboardPage.module.css';
 
-// ---- Types ----
+// ─── Types ───────────────────────────────────────────────────────────────────
 
 interface SubscriptionsByStatus {
   trial: number;
@@ -40,7 +46,15 @@ interface DashboardStats {
   recentTenants: RecentTenant[];
 }
 
-// ---- Helpers ----
+interface AuditStats {
+  total: number;
+  errors: number;
+  warnings: number;
+  info: number;
+  todayCount: number;
+}
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function formatCurrency(amount: number): string {
   return amount.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -48,257 +62,368 @@ function formatCurrency(amount: number): string {
 
 function formatDate(iso: string): string {
   const d = new Date(iso);
-  const day   = String(d.getDate()).padStart(2, '0');
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const year  = d.getFullYear();
-  return `${day}.${month}.${year}`;
+  return `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}.${d.getFullYear()}`;
 }
 
-function getProgressClass(code: string): string {
-  if (code === 'free')    return styles.free;
-  if (code === 'starter') return styles.starter;
-  if (code === 'pro')     return styles.pro;
-  return styles.default;
+function getInitials(name: string): string {
+  return name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
 }
 
-function getBadgeClass(status: string): string {
-  const normalized = status.toLowerCase();
-  if (normalized === 'trial')     return styles.trial;
-  if (normalized === 'active')    return styles.active;
-  if (normalized === 'cancelled') return styles.cancelled;
-  if (normalized === 'pastdue')   return styles.pastDue;
-  return styles.default;
+function getTodayLabel(): string {
+  return new Date().toLocaleDateString('tr-TR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 }
 
-// ---- Sub-components ----
+function getPlanColor(code: string): string {
+  if (code === 'free')     return '#6b7280';
+  if (code === 'starter')  return '#3b82f6';
+  if (code === 'pro')      return '#8b5cf6';
+  if (code === 'business') return '#f59e0b';
+  return '#6366f1';
+}
 
-interface StatCardProps {
+const STATUS_MAP: Record<string, { label: string; cls: string }> = {
+  trial:     { label: 'Trial',          cls: 'trial' },
+  active:    { label: 'Aktif',          cls: 'active' },
+  cancelled: { label: 'İptal',          cls: 'cancelled' },
+  pastdue:   { label: 'Vadesi Geçmiş',  cls: 'pastDue' },
+  '—':       { label: '—',              cls: 'default' },
+};
+
+function getBadgeInfo(status: string) {
+  return STATUS_MAP[status.toLowerCase()] ?? { label: status, cls: 'default' };
+}
+
+// ─── Sub-components ───────────────────────────────────────────────────────────
+
+interface KpiCardProps {
   icon: React.ReactNode;
-  iconVariant: 'blue' | 'green' | 'orange' | 'purple';
-  value: number;
+  accent: string;
+  value: number | string;
   label: string;
+  sub?: string;
 }
 
-const StatCard = ({ icon, iconVariant, value, label }: StatCardProps) => (
-  <div className={styles.statCard}>
-    <div className={`${styles.statIconBox} ${styles[iconVariant]}`}>{icon}</div>
-    <span className={styles.statValue}>{value.toLocaleString('tr-TR')}</span>
-    <span className={styles.statLabel}>{label}</span>
-  </div>
-);
-
-interface RevenueCardProps {
-  label: string;
-  amount: number;
-  subtitle?: string;
-}
-
-const RevenueCard = ({ label, amount, subtitle }: RevenueCardProps) => (
-  <div className={styles.revenueCard}>
-    <span className={styles.revenueLabel}>{label}</span>
-    <div className={styles.revenueAmount}>
-      <span className={styles.revenuePrefix}>₺</span>
-      {formatCurrency(amount)}
+const KpiCard = ({ icon, accent, value, label, sub }: KpiCardProps) => (
+  <div className={styles.kpiCard} style={{ '--kpi-accent': accent } as React.CSSProperties}>
+    <div className={styles.kpiTop}>
+      <div className={styles.kpiIcon} style={{ background: `${accent}1a`, color: accent }}>
+        {icon}
+      </div>
     </div>
-    {subtitle && <p className={styles.revenueSubtitle}>{subtitle}</p>}
+    <span className={styles.kpiValue}>{typeof value === 'number' ? value.toLocaleString('tr-TR') : value}</span>
+    <span className={styles.kpiLabel}>{label}</span>
+    {sub && <span className={styles.kpiSub}>{sub}</span>}
   </div>
 );
 
-// ---- Main Page ----
+interface QuickActionProps {
+  icon: React.ReactNode;
+  label: string;
+  desc: string;
+  accent: string;
+  onClick: () => void;
+}
+
+const QuickAction = ({ icon, label, desc, accent, onClick }: QuickActionProps) => (
+  <button className={styles.quickAction} onClick={onClick} type="button">
+    <div className={styles.qaIcon} style={{ background: `${accent}1a`, color: accent }}>{icon}</div>
+    <div className={styles.qaText}>
+      <span className={styles.qaLabel}>{label}</span>
+      <span className={styles.qaDesc}>{desc}</span>
+    </div>
+    <span className={styles.qaArrow}>→</span>
+  </button>
+);
+
+// ─── Skeleton ─────────────────────────────────────────────────────────────────
+
+const Skeleton = ({ h = 120, br = 12 }: { h?: number; br?: number }) => (
+  <div className={styles.skeleton} style={{ height: h, borderRadius: br }} />
+);
+
+// ─── Main Page ────────────────────────────────────────────────────────────────
 
 export const AdminDashboardPage = () => {
-  const [stats, setStats]       = useState<DashboardStats | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError]       = useState<string | null>(null);
+  const navigate = useNavigate();
+  const [stats, setStats]           = useState<DashboardStats | null>(null);
+  const [audit, setAudit]           = useState<AuditStats | null>(null);
+  const [isLoading, setIsLoading]   = useState(true);
+  const [error, setError]           = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchStats = async () => {
+    const load = async () => {
       setIsLoading(true);
       setError(null);
       try {
-        const res = await apiClient.get<DashboardStats>('/admin/dashboard/stats');
-        setStats(res.data);
-      } catch {
-        setError('Dashboard istatistikleri yüklenemedi. Lütfen sayfayı yenileyin.');
+        const [statsRes, auditRes] = await Promise.allSettled([
+          apiClient.get<DashboardStats>('/admin/dashboard/stats'),
+          apiClient.get<AuditStats>('/admin/logs/audit/stats'),
+        ]);
+        if (statsRes.status === 'fulfilled') setStats(statsRes.value.data);
+        else setError('Dashboard istatistikleri yüklenemedi.');
+        if (auditRes.status === 'fulfilled') setAudit(auditRes.value.data);
       } finally {
         setIsLoading(false);
       }
     };
-
-    void fetchStats();
+    void load();
   }, []);
+
+  const totalSubs = stats
+    ? Object.values(stats.subscriptionsByStatus).reduce((a, b) => a + b, 0)
+    : 0;
 
   return (
     <div className={styles.page}>
-      <div>
-        <h2 className={styles.pageTitle}>Platform Dashboard</h2>
-        <p className={styles.pageSubtitle}>Genel SaaS platform metrikleri</p>
+
+      {/* ── Hero Header ─────────────────────────────────────────── */}
+      <div className={styles.hero}>
+        <div className={styles.heroLeft}>
+          <div className={styles.heroPill}>
+            <span className={styles.heroPillDot} />
+            Platform Aktif
+          </div>
+          <h1 className={styles.heroTitle}>Platform Dashboard</h1>
+          <p className={styles.heroSub}>{getTodayLabel()}</p>
+        </div>
+        <div className={styles.heroRight}>
+          <div className={styles.heroStat}>
+            <span className={styles.heroStatNum}>{isLoading ? '—' : (stats?.activeTenants ?? 0)}</span>
+            <span className={styles.heroStatLabel}>Aktif Mağaza</span>
+          </div>
+          <div className={styles.heroStatDivider} />
+          <div className={styles.heroStat}>
+            <span className={styles.heroStatNum}>{isLoading ? '—' : (audit?.todayCount ?? 0)}</span>
+            <span className={styles.heroStatLabel}>Bugünkü İşlem</span>
+          </div>
+        </div>
       </div>
 
-      {isLoading && (
-        <div className={styles.loadingBox}>
-          <p className={styles.loadingText}>İstatistikler yükleniyor...</p>
-        </div>
-      )}
-
-      {!isLoading && error && (
+      {error && (
         <div className={styles.errorBox}>
-          <p className={styles.errorText}>{error}</p>
+          <FaExclamationTriangle />
+          <span>{error}</span>
         </div>
       )}
 
-      {!isLoading && !error && stats && (
-        <>
-          {/* Row 1 — 4 stat cards */}
-          <div className={styles.statsGrid}>
-            <StatCard
-              icon={<FaStore />}
-              iconVariant="blue"
-              value={stats.totalTenants}
-              label="Toplam Mağaza"
-            />
-            <StatCard
-              icon={<FaCheckCircle />}
-              iconVariant="green"
-              value={stats.activeTenants}
-              label="Aktif Mağaza"
-            />
-            <StatCard
-              icon={<FaCalendarPlus />}
-              iconVariant="orange"
-              value={stats.newTenantsThisMonth}
-              label="Bu Ay Yeni"
-            />
-            <StatCard
-              icon={<FaUsers />}
-              iconVariant="purple"
-              value={stats.totalUsers}
-              label="Toplam Kullanıcı"
-            />
-          </div>
+      {/* ── KPI Cards ───────────────────────────────────────────── */}
+      <div className={styles.kpiGrid}>
+        {isLoading ? (
+          Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} h={140} />)
+        ) : stats ? (
+          <>
+            <KpiCard icon={<FaBuilding />} accent="#6366f1" value={stats.totalTenants}        label="Toplam Mağaza"    sub={`${stats.activeTenants} aktif`} />
+            <KpiCard icon={<FaCheckCircle />} accent="#10b981" value={stats.activeTenants}     label="Aktif Mağaza"    sub="Şu an çalışıyor" />
+            <KpiCard icon={<FaCalendarPlus />} accent="#f59e0b" value={stats.newTenantsThisMonth} label="Bu Ay Kayıt"  sub="Yeni mağaza" />
+            <KpiCard icon={<FaUsers />} accent="#8b5cf6" value={stats.totalUsers}              label="Toplam Kullanıcı" sub="Tüm hesaplar" />
+          </>
+        ) : null}
+      </div>
 
-          {/* Row 2 — Revenue cards */}
-          <div className={styles.revenueGrid}>
-            <RevenueCard
-              label="Toplam Ciro"
-              amount={stats.totalRevenue}
-            />
-            <RevenueCard
-              label="Bu Ay Ciro"
-              amount={stats.revenueThisMonth}
-              subtitle="Başarılı ödemeler"
-            />
+      {/* ── Revenue + Abonelik Özeti ─────────────────────────────── */}
+      <div className={styles.revenueRow}>
+        {/* Total revenue */}
+        <div className={styles.revenueHero}>
+          <div className={styles.revenueBadge}>
+            <FaChartLine />
+            Toplam Ciro
           </div>
-
-          {/* Row 3 — Subscription status + Plan distribution */}
-          <div className={styles.splitGrid}>
-            {/* Left: Subscription status */}
-            <div className={styles.panelCard}>
-              <p className={styles.panelTitle}>Abonelik Durumu</p>
-              <div className={styles.statusList}>
-                <div className={styles.statusRow}>
-                  <span className={styles.statusLabel}>
-                    <span className={`${styles.statusDot} ${styles.trial}`} />
-                    Trial
-                  </span>
-                  <span className={styles.statusCount}>{stats.subscriptionsByStatus.trial}</span>
-                </div>
-                <div className={styles.statusRow}>
-                  <span className={styles.statusLabel}>
-                    <span className={`${styles.statusDot} ${styles.active}`} />
-                    Aktif
-                  </span>
-                  <span className={styles.statusCount}>{stats.subscriptionsByStatus.active}</span>
-                </div>
-                <div className={styles.statusRow}>
-                  <span className={styles.statusLabel}>
-                    <span className={`${styles.statusDot} ${styles.cancelled}`} />
-                    İptal
-                  </span>
-                  <span className={styles.statusCount}>{stats.subscriptionsByStatus.cancelled}</span>
-                </div>
-                <div className={styles.statusRow}>
-                  <span className={styles.statusLabel}>
-                    <span className={`${styles.statusDot} ${styles.pastDue}`} />
-                    Vadesi Geçmiş
-                  </span>
-                  <span className={styles.statusCount}>{stats.subscriptionsByStatus.pastDue}</span>
-                </div>
-              </div>
+          {isLoading ? (
+            <Skeleton h={56} br={8} />
+          ) : (
+            <div className={styles.revenueAmountBig}>
+              <span className={styles.revenueCurrency}>₺</span>
+              {stats ? formatCurrency(stats.totalRevenue) : '—'}
             </div>
+          )}
+          <div className={styles.revenueMonthRow}>
+            <span className={styles.revenueMonthLabel}>Bu ay</span>
+            <span className={styles.revenueMonthAmt}>
+              ₺{stats ? formatCurrency(stats.revenueThisMonth) : '—'}
+            </span>
+          </div>
+        </div>
 
-            {/* Right: Plan distribution */}
-            <div className={styles.panelCard}>
-              <p className={styles.panelTitle}>Plan Dağılımı</p>
-              {stats.planDistribution.length === 0 ? (
-                <p className={styles.placeholderText}>Henüz abonelik verisi yok.</p>
-              ) : (
-                <div className={styles.planList}>
-                  {stats.planDistribution.map((plan) => (
-                    <div key={plan.code} className={styles.planRow}>
-                      <div className={styles.planMeta}>
+        {/* Subscription breakdown */}
+        <div className={styles.subCard}>
+          <p className={styles.subTitle}>Abonelik Durumu</p>
+          <div className={styles.subList}>
+            {[
+              { key: 'trial',     label: 'Trial',          color: '#f97316', count: stats?.subscriptionsByStatus.trial ?? 0 },
+              { key: 'active',    label: 'Aktif',          color: '#10b981', count: stats?.subscriptionsByStatus.active ?? 0 },
+              { key: 'cancelled', label: 'İptal',          color: '#ef4444', count: stats?.subscriptionsByStatus.cancelled ?? 0 },
+              { key: 'pastDue',   label: 'Vadesi Geçmiş',  color: '#f59e0b', count: stats?.subscriptionsByStatus.pastDue ?? 0 },
+            ].map(item => {
+              const pct = totalSubs > 0 ? Math.round((item.count / totalSubs) * 100) : 0;
+              return (
+                <div key={item.key} className={styles.subRow}>
+                  <div className={styles.subRowTop}>
+                    <div className={styles.subRowLeft}>
+                      <span className={styles.subDot} style={{ background: item.color }} />
+                      <span className={styles.subLabel}>{item.label}</span>
+                    </div>
+                    <span className={styles.subCount}>{isLoading ? '—' : item.count}</span>
+                  </div>
+                  <div className={styles.subBar}>
+                    <div className={styles.subBarFill} style={{ width: `${pct}%`, background: item.color }} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* System health */}
+        <div className={styles.healthCard}>
+          <p className={styles.subTitle}>
+            <FaShieldAlt style={{ color: '#6366f1' }} />
+            Sistem Sağlığı
+          </p>
+          <div className={styles.healthGrid}>
+            <div className={styles.healthItem}>
+              <span className={styles.healthNum} style={{ color: '#10b981' }}>{isLoading ? '—' : (audit?.info ?? 0)}</span>
+              <span className={styles.healthItemLabel}>Bilgi</span>
+            </div>
+            <div className={styles.healthItem}>
+              <span className={styles.healthNum} style={{ color: '#f59e0b' }}>{isLoading ? '—' : (audit?.warnings ?? 0)}</span>
+              <span className={styles.healthItemLabel}>Uyarı</span>
+            </div>
+            <div className={styles.healthItem}>
+              <span className={styles.healthNum} style={{ color: '#ef4444' }}>{isLoading ? '—' : (audit?.errors ?? 0)}</span>
+              <span className={styles.healthItemLabel}>Hata</span>
+            </div>
+            <div className={styles.healthItem}>
+              <span className={styles.healthNum} style={{ color: '#6366f1' }}>{isLoading ? '—' : (audit?.total ?? 0)}</span>
+              <span className={styles.healthItemLabel}>Toplam</span>
+            </div>
+          </div>
+          <button className={styles.healthLink} onClick={() => navigate('/admin/audit')} type="button">
+            Audit loglarını görüntüle →
+          </button>
+        </div>
+      </div>
+
+      {/* ── Plan Dağılımı + Quick Actions ───────────────────────── */}
+      <div className={styles.midRow}>
+        {/* Plan distribution */}
+        <div className={styles.planCard}>
+          <p className={styles.panelTitle}>Plan Dağılımı</p>
+          {isLoading ? (
+            <div className={styles.planList}>
+              {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} h={44} br={6} />)}
+            </div>
+          ) : !stats || stats.planDistribution.length === 0 ? (
+            <p className={styles.empty}>Henüz abonelik verisi yok.</p>
+          ) : (
+            <div className={styles.planList}>
+              {stats.planDistribution.map(plan => {
+                const color = getPlanColor(plan.code);
+                return (
+                  <div key={plan.code} className={styles.planRow}>
+                    <div className={styles.planMeta}>
+                      <div className={styles.planLeft}>
+                        <span className={styles.planDot} style={{ background: color }} />
                         <span className={styles.planName}>{plan.planName}</span>
-                        <span className={styles.planCount}>
-                          {plan.count} mağaza · %{plan.percentage}
-                        </span>
                       </div>
-                      <div className={styles.progressBar}>
-                        <div
-                          className={`${styles.progressFill} ${getProgressClass(plan.code)}`}
-                          style={{ width: `${plan.percentage}%` }}
-                        />
+                      <div className={styles.planRight}>
+                        <span className={styles.planCount}>{plan.count}</span>
+                        <span className={styles.planPct}>%{plan.percentage}</span>
                       </div>
                     </div>
-                  ))}
-                </div>
-              )}
+                    <div className={styles.planBar}>
+                      <div
+                        className={styles.planFill}
+                        style={{ width: `${plan.percentage}%`, background: color }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-          </div>
+          )}
+        </div>
 
-          {/* Row 4 — Recent tenants table */}
-          <div className={styles.tableCard}>
+        {/* Quick actions */}
+        <div className={styles.quickCard}>
+          <p className={styles.panelTitle}>
+            <FaBolt style={{ color: '#f59e0b' }} />
+            Hızlı Erişim
+          </p>
+          <div className={styles.quickList}>
+            <QuickAction icon={<FaStore />}    accent="#6366f1" label="Mağazalar"   desc="Tenant yönetimi"   onClick={() => navigate('/admin/ecommerce/tenants')} />
+            <QuickAction icon={<FaUsers />}    accent="#10b981" label="Kullanıcılar" desc="Hesap yönetimi"   onClick={() => navigate('/admin/users')} />
+            <QuickAction icon={<FaEnvelope />} accent="#f97316" label="Mail Sistemi"  desc="SMTP & şablonlar" onClick={() => navigate('/admin/mailing')} />
+            <QuickAction icon={<FaLanguage />} accent="#8b5cf6" label="Diller"        desc="Lokalizasyon"     onClick={() => navigate('/admin/languages')} />
+            <QuickAction icon={<FaKey />}      accent="#ef4444" label="Roller"        desc="Yetki yönetimi"   onClick={() => navigate('/admin/roles')} />
+            <QuickAction icon={<FaCog />}      accent="#64748b" label="Modüller"      desc="Sistem modülleri" onClick={() => navigate('/admin/modules')} />
+          </div>
+        </div>
+      </div>
+
+      {/* ── Recent Tenants ───────────────────────────────────────── */}
+      <div className={styles.tableCard}>
+        <div className={styles.tableHeader}>
+          <div>
             <p className={styles.tableTitle}>Son Kayıt Olan Mağazalar</p>
-            {stats.recentTenants.length === 0 ? (
-              <div className={styles.placeholderCard}>
-                <p className={styles.placeholderText}>Henüz kayıtlı mağaza yok.</p>
-              </div>
-            ) : (
-              <table className={styles.table}>
-                <thead>
-                  <tr>
-                    <th>Mağaza Adı</th>
-                    <th>Slug</th>
-                    <th>Plan</th>
-                    <th>Durum</th>
-                    <th>Kayıt Tarihi</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {stats.recentTenants.map((t) => (
+            <p className={styles.tableSub}>En son 5 kayıt</p>
+          </div>
+          <button
+            className={styles.tableLink}
+            onClick={() => navigate('/admin/ecommerce/tenants')}
+            type="button"
+          >
+            Tümünü Gör →
+          </button>
+        </div>
+
+        {isLoading ? (
+          <div className={styles.tableBody}>
+            {Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} h={52} br={6} />)}
+          </div>
+        ) : !stats || stats.recentTenants.length === 0 ? (
+          <div className={styles.tableBody}>
+            <p className={styles.empty}>Henüz kayıtlı mağaza yok.</p>
+          </div>
+        ) : (
+          <div className={styles.tableWrap}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>Mağaza</th>
+                  <th>Slug</th>
+                  <th>Plan</th>
+                  <th>Durum</th>
+                  <th>Kayıt Tarihi</th>
+                </tr>
+              </thead>
+              <tbody>
+                {stats.recentTenants.map(t => {
+                  const badge = getBadgeInfo(t.status);
+                  return (
                     <tr key={t.id}>
-                      <td className={styles.tenantName}>{t.name}</td>
-                      <td className={styles.slugText}>{t.slug}</td>
-                      <td>{t.plan}</td>
                       <td>
-                        <span className={`${styles.badge} ${getBadgeClass(t.status)}`}>
-                          {t.status}
+                        <div className={styles.tenantCell}>
+                          <div className={styles.tenantAvatar}>{getInitials(t.name)}</div>
+                          <span className={styles.tenantName}>{t.name}</span>
+                        </div>
+                      </td>
+                      <td><code className={styles.slug}>{t.slug}</code></td>
+                      <td><span className={styles.planPill}>{t.plan}</span></td>
+                      <td>
+                        <span className={`${styles.badge} ${styles[badge.cls]}`}>
+                          {badge.label}
                         </span>
                       </td>
-                      <td className={styles.dateTxt}>{formatDate(t.createdAt)}</td>
+                      <td className={styles.dateCell}>{formatDate(t.createdAt)}</td>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
-        </>
-      )}
+        )}
+      </div>
 
-      {!isLoading && !error && !stats && (
-        <div className={styles.placeholderCard}>
-          <p className={styles.placeholderText}>Veri bulunamadı.</p>
-        </div>
-      )}
     </div>
   );
 };
