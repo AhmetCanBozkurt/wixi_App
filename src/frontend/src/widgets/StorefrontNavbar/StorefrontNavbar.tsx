@@ -46,7 +46,7 @@ export const StorefrontNavbar = ({ settings, pages, tenantSlug }: StorefrontNavb
   }, [menuOpen]);
 
   const navPages = pages.filter(
-    (p) => p.isPublished && p.pageType !== 'Home' && ['About', 'Contact', 'Custom'].includes(p.pageType)
+    (p) => p.isPublished && p.pageType !== 'Home' && p.pageType !== 'ProductDetail'
   );
 
   const supportedLangs = settings?.supportedLanguages
