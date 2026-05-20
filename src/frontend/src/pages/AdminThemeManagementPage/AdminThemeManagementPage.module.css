@@ -98,3 +98,10 @@
   color: var(--text-muted, #888);
   font-size: 12px;
 }
+
+.actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  white-space: nowrap;
+}

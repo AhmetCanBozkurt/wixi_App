@@ -162,6 +162,7 @@ const App = () => {
               <Route path="theme-management" element={<AdminThemeManagementPage />} />
               <Route path="theme-management/stores/:tenantId" element={<AdminTenantThemePage />} />
               <Route path="theme-management/templates" element={<AdminThemeTemplatesPage />} />
+              <Route path="theme-management/editor/:tenantSlug" element={<ThemeEditor />} />
               <Route path="cikti-tasarlama" element={<CiktiTasarlamaPage />} />
             </Route>
           </Route>

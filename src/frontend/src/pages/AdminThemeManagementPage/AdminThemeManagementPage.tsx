@@ -166,12 +166,18 @@ export const AdminThemeManagementPage = () => {
                     </span>
                   </td>
                   <td className={styles.date}>{formatDate(t.updatedAt)}</td>
-                  <td>
+                  <td className={styles.actions}>
                     <Button
                       variant="ghost"
                       onClick={() => navigate(`/admin/theme-management/stores/${t.id}`)}
                     >
-                      Geçmiş →
+                      Geçmiş
+                    </Button>
+                    <Button
+                      variant="primary"
+                      onClick={() => navigate(`/admin/theme-management/editor/${t.slug}`)}
+                    >
+                      Tasarım Editörü →
                     </Button>
                   </td>
                 </tr>
