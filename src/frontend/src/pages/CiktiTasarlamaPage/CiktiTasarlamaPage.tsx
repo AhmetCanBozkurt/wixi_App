@@ -6,7 +6,6 @@ import Toolbox from './components/Toolbox';
 import DesignCanvas from './components/DesignCanvas';
 import PropertiesPanel from './components/PropertiesPanel';
 import FormatToolbar from './components/FormatToolbar';
-import BandOverlay from './components/BandOverlay';
 import { SaveIcon, PreviewIcon, SettingsIcon } from './components/icons';
 import './tailwind.css';
 
@@ -445,8 +444,8 @@ const CiktiTasarlamaPage: React.FC = () => {
             gridSize={gridSize}
             autoResize={autoResize}
             zoom={zoom}
+            designMode={designMode}
           />
-          {designMode === 'banded' && <BandOverlay />}
         </div>
 
         {/* Properties collapsed tab */}

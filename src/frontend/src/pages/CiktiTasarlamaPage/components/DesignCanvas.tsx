@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import type { ReportElement } from '../types';
+import type { ReportElement, DesignMode } from '../types';
 import { getIconComponent } from './icons';
 
 interface DesignCanvasProps {
@@ -17,7 +17,16 @@ interface DesignCanvasProps {
   gridSize: number;
   autoResize: boolean;
   zoom: number;
+  designMode?: DesignMode;
 }
+
+const BANDS = [
+  { label: 'Rapor Başlığı', height: 70, color: '#6366f1' },
+  { label: 'Sayfa Başlığı', height: 50, color: '#0ea5e9' },
+  { label: 'Detay',         height: 160, color: '#10b981' },
+  { label: 'Sayfa Altbilgisi', height: 50, color: '#f59e0b' },
+  { label: 'Rapor Altbilgisi', height: 70, color: '#ef4444' },
+];
 
 const DesignCanvas: React.FC<DesignCanvasProps> = ({
   elements,
@@ -34,6 +43,7 @@ const DesignCanvas: React.FC<DesignCanvasProps> = ({
   gridSize,
   autoResize: _autoResize,
   zoom,
+  designMode = 'freeform',
 }) => {
   const canvasRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -217,17 +227,50 @@ const DesignCanvas: React.FC<DesignCanvasProps> = ({
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const elementType = e.dataTransfer.getData('elementType') as ReportElement['type'];
-    if (!elementType || !canvasRef.current) return;
+    if (!canvasRef.current) return;
     const rect = canvasRef.current.getBoundingClientRect();
+    const dropX = Math.max(0, e.clientX - rect.left);
+    const dropY = Math.max(0, e.clientY - rect.top);
+
+    // Field list drag — creates a bound text element
+    const fieldDataRaw = e.dataTransfer.getData('fieldData');
+    if (fieldDataRaw) {
+      try {
+        const field = JSON.parse(fieldDataRaw) as { entity: string; field: string; label: string };
+        const binding = `${field.entity}.${field.field}`;
+        const newElement: ReportElement = {
+          id: Math.random().toString(36).substr(2, 9),
+          type: 'variable',
+          content: `{${binding}}`,
+          position: { x: dropX, y: dropY },
+          size: { width: 140, height: 28 },
+          style: { fontFamily: 'Arial', fontSize: 11, color: '#0066cc', backgroundColor: '#f0f8ff', borderColor: '#0066cc', borderWidth: 1, borderRadius: 3 },
+          properties: {},
+          dataBinding: binding,
+        };
+        onElementAdd(newElement);
+        onElementSelect(newElement);
+        return;
+      } catch { /* fall through */ }
+    }
+
+    const elementType = e.dataTransfer.getData('elementType') as ReportElement['type'];
+    if (!elementType) return;
     let defaultData: { defaultSize: { width: number; height: number }; defaultStyle: Record<string, unknown> };
     try { defaultData = JSON.parse(e.dataTransfer.getData('elementData')); }
     catch { defaultData = { defaultSize: { width: 100, height: 30 }, defaultStyle: {} }; }
+
+    const contentMap: Partial<Record<ReportElement['type'], string>> = {
+      text: 'Yeni Metin', variable: '{{değişken}}', barcode: '123456789',
+      checkbox: 'Onay Kutusu', richText: 'Zengin metin içeriği',
+      pageInfo: '{Sayfa} / {ToplamSayfa}', panel: '',
+    };
+
     const newElement: ReportElement = {
       id: Math.random().toString(36).substr(2, 9),
       type: elementType,
-      content: elementType === 'text' ? 'Yeni Metin' : elementType === 'variable' ? '{{değişken}}' : elementType === 'barcode' ? '123456789' : '',
-      position: { x: e.clientX - rect.left, y: e.clientY - rect.top },
+      content: contentMap[elementType] ?? '',
+      position: { x: dropX, y: dropY },
       size: defaultData.defaultSize,
       style: defaultData.defaultStyle,
       properties: {},
@@ -268,42 +311,77 @@ const DesignCanvas: React.FC<DesignCanvasProps> = ({
     const renderContent = () => {
       switch (element.type) {
         case 'text':
+          return <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', padding: '2px 4px', fontStyle: element.style.fontStyle, fontWeight: element.style.fontWeight, textDecoration: element.style.textDecoration, textAlign: element.style.textAlign || 'left' }}>{element.content}</div>;
         case 'variable':
-          return <div className="w-full h-full flex items-center justify-center text-center">{element.content}</div>;
+          return <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', padding: '2px 6px', fontFamily: 'monospace', fontSize: '11px' }}>{element.content}</div>;
+        case 'richText':
+          return <div style={{ width: '100%', height: '100%', padding: '4px 6px', fontSize: `${element.style.fontSize || 12}px`, overflowY: 'hidden', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{element.content}</div>;
+        case 'checkbox': {
+          const checked = element.properties.checked as boolean | undefined;
+          return (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '2px 4px', width: '100%', height: '100%' }}>
+              <div style={{ width: '14px', height: '14px', border: '1.5px solid #555', borderRadius: '2px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fff' }}>
+                {checked && <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5L4 7.5L8.5 2.5" stroke="#333" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+              </div>
+              <span style={{ fontSize: `${element.style.fontSize || 12}px`, color: element.style.color || '#000' }}>{element.content}</span>
+            </div>
+          );
+        }
+        case 'pageInfo':
+          return <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: element.style.textAlign === 'center' ? 'center' : element.style.textAlign === 'right' ? 'flex-end' : 'flex-start', padding: '2px 4px', color: element.style.color || '#666', fontSize: `${element.style.fontSize || 10}px` }}>{element.content}</div>;
+        case 'panel':
+          return <div style={{ width: '100%', height: '100%', background: element.style.backgroundColor || '#f8f8f8', borderRadius: `${element.style.borderRadius || 4}px` }} />;
         case 'logo':
         case 'image':
           return element.style.imageUrl
             ? <img src={element.style.imageUrl} alt="Logo" className="w-full h-full object-contain" />
-            : <div className="w-full h-full flex items-center justify-center bg-gray-100 rounded"><IconComponent className="w-8 h-8 text-gray-400" /></div>;
+            : (
+              <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#f5f5f5', gap: '4px' }}>
+                <IconComponent className="w-8 h-8 text-gray-400" />
+                <span style={{ fontSize: '9px', color: '#999' }}>Resim yükle</span>
+              </div>
+            );
         case 'barcode':
           return (
-            <div className="w-full h-full flex flex-col items-center justify-center bg-white p-2">
-              <div className="flex space-x-0.5 mb-1">
-                {element.content.split('').map((_, i) => <div key={i} className="w-1 bg-black" style={{ height: `${20 + (i % 3) * 5}px` }} />)}
+            <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#fff', padding: '4px' }}>
+              <div style={{ display: 'flex', gap: '1px', alignItems: 'flex-end', marginBottom: '3px' }}>
+                {Array.from({ length: Math.min(element.content.length, 20) }, (_, i) => (
+                  <div key={i} style={{ width: '3px', background: '#000', height: `${16 + (i % 4) * 4}px` }} />
+                ))}
               </div>
-              <span className="text-xs font-mono">{element.content}</span>
+              <span style={{ fontSize: '9px', fontFamily: 'monospace', letterSpacing: '0.1em' }}>{element.content}</span>
             </div>
           );
         case 'line':
-          return <div className="w-full h-full bg-black" />;
+          return <div style={{ width: '100%', height: '100%', background: element.style.backgroundColor || '#000' }} />;
         case 'table':
           return (
-            <div className="w-full h-full border border-gray-300 bg-white p-2">
-              <div className="text-sm font-medium mb-2">Tablo</div>
-              <div className="text-xs text-gray-500">Satır ve sütunlar burada görünecek</div>
+            <div style={{ width: '100%', height: '100%', background: '#fff', overflow: 'hidden' }}>
+              <div style={{ background: '#f0f0f0', padding: '4px 8px', borderBottom: '1px solid #ccc', fontSize: '10px', fontWeight: 700 }}>Tablo Başlığı</div>
+              {[1, 2, 3].map(row => (
+                <div key={row} style={{ display: 'flex', borderBottom: '1px solid #e5e5e5' }}>
+                  {['Alan 1', 'Alan 2', 'Alan 3'].map((col, ci) => (
+                    <div key={ci} style={{ flex: 1, padding: '3px 6px', fontSize: '9px', borderRight: ci < 2 ? '1px solid #e5e5e5' : 'none', color: '#666' }}>{col}</div>
+                  ))}
+                </div>
+              ))}
             </div>
           );
         case 'shape':
-          return <div className="w-full h-full bg-gray-200 rounded flex items-center justify-center"><IconComponent className="w-6 h-6 text-gray-600" /></div>;
+          return <div style={{ width: '100%', height: '100%', background: element.style.backgroundColor || '#e0e0e0', borderRadius: `${element.style.borderRadius || 0}px` }} />;
         case 'chart':
           return (
-            <div className="w-full h-full border border-gray-300 bg-white p-2">
-              <div className="text-sm font-medium mb-2">Grafik</div>
-              <div className="text-xs text-gray-500">Grafik verisi burada görünecek</div>
+            <div style={{ width: '100%', height: '100%', background: '#fff', padding: '8px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <div style={{ fontSize: '10px', fontWeight: 700, color: '#333' }}>Grafik</div>
+              <div style={{ flex: 1, display: 'flex', alignItems: 'flex-end', gap: '4px', padding: '4px 0' }}>
+                {[60, 85, 40, 95, 70, 55].map((h, i) => (
+                  <div key={i} style={{ flex: 1, background: `hsl(${210 + i * 15}, 70%, 55%)`, height: `${h}%`, borderRadius: '2px 2px 0 0' }} />
+                ))}
+              </div>
             </div>
           );
         default:
-          return element.content;
+          return <div style={{ padding: '2px 4px', fontSize: '11px' }}>{element.content}</div>;
       }
     };
 
@@ -323,7 +401,11 @@ const DesignCanvas: React.FC<DesignCanvasProps> = ({
     return (
       <div key={element.id} style={elementStyle} onClick={(e) => handleElementClick(e, element)} onMouseDown={(e) => handleElementDragStart(e, element)}>
         {renderContent()}
-        {isSelected && <div className="absolute -top-6 left-0 bg-blue-500 text-white text-xs px-2 py-1 rounded">{element.type}</div>}
+        {isSelected && (
+          <div style={{ position: 'absolute', top: '-22px', left: 0, background: '#3b82f6', color: '#fff', fontSize: '10px', fontWeight: 600, padding: '2px 8px', borderRadius: '4px 4px 0 0', whiteSpace: 'nowrap', letterSpacing: '0.02em' }}>
+            {element.content ? element.content.substring(0, 24) : element.type}
+          </div>
+        )}
         {isSelected && resizeHandles.map(handle => (
           <div
             key={handle}
@@ -369,9 +451,61 @@ const DesignCanvas: React.FC<DesignCanvasProps> = ({
                   {alignmentGuides.horizontal.map((y, i) => <div key={`h-${i}`} className="absolute left-0 right-0 h-0.5 bg-purple-500 z-40" style={{ top: `${y}px` }} />)}
                 </>
               )}
+              {/* Band overlay — rendered inside canvas paper when banded mode is active */}
+              {designMode === 'banded' && (() => {
+                let accY = 0;
+                return (
+                  <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 4 }}>
+                    {BANDS.map((band) => {
+                      const bandTop = accY;
+                      accY += band.height;
+                      return (
+                        <div
+                          key={band.label}
+                          style={{
+                            position: 'absolute',
+                            left: 0,
+                            right: 0,
+                            top: `${bandTop}px`,
+                            height: `${band.height}px`,
+                            background: `${band.color}0a`,
+                            borderBottom: `1.5px dashed ${band.color}60`,
+                          }}
+                        >
+                          <div style={{
+                            position: 'absolute',
+                            left: 0,
+                            top: 0,
+                            bottom: 0,
+                            width: '52px',
+                            background: `${band.color}18`,
+                            borderRight: `2px solid ${band.color}`,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                          }}>
+                            <span style={{
+                              writingMode: 'vertical-rl',
+                              fontSize: '8px',
+                              fontWeight: 700,
+                              letterSpacing: '0.07em',
+                              color: band.color,
+                              textTransform: 'uppercase',
+                              userSelect: 'none',
+                            }}>
+                              {band.label}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
+
               {elements.map(renderElement)}
               {elements.length === 0 && (
-                <div className="absolute inset-0 flex items-center justify-center text-gray-400">
+                <div className="absolute inset-0 flex items-center justify-center text-gray-400" style={{ zIndex: 3 }}>
                   <div className="text-center">
                     <div className="text-4xl mb-2">📄</div>
                     <div className="text-sm">Öğeleri buraya sürükleyin veya sol panelden ekleyin</div>
