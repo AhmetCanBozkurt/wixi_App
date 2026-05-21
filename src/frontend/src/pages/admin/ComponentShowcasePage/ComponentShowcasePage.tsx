@@ -3,7 +3,7 @@ import { Button, Input, Card, DateInput, AdvancedDataTable, Badge, Select, Switc
 import styles from './ComponentShowcasePage.module.css';
 import toast from 'react-hot-toast';
 import Swal from 'sweetalert2';
-import logoSrc from '../../assets/Logolar/logo.png';
+import logoSrc from '../../../assets/Logolar/logo.png';
 import { 
     FaLock, FaUser, FaGithub, FaGoogle, FaChartLine, 
     FaUsers, FaArrowUp, FaEllipsisH, FaCog
