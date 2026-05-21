@@ -55,6 +55,11 @@ public class WixiCoreDbContext : IdentityDbContext<WixiUser, WixiRole, Guid>
     public DbSet<WixiTransportMode> TransportModes { get; set; }
     public DbSet<WixiPackageType> PackageTypes { get; set; }
 
+    // Reference Data — Geography (Country / State / City)
+    public DbSet<WixiCountry> Countries { get; set; }
+    public DbSet<WixiState> States { get; set; }
+    public DbSet<WixiCity> Cities { get; set; }
+
     // Reference Data — Phase C2
     public DbSet<WixiUnitCategory> UnitCategories { get; set; }
     public DbSet<WixiUnit> Units { get; set; }
@@ -744,7 +749,69 @@ public class WixiCoreDbContext : IdentityDbContext<WixiUser, WixiRole, Guid>
                   .HasForeignKey(e => e.ParentId)
                   .OnDelete(DeleteBehavior.Restrict);
         });
+
+        // Reference Data — Geography
+
+        builder.Entity<WixiCountry>(entity =>
+        {
+            entity.ToTable("WIXI_COUNTRIES");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(150);
+            entity.Property(e => e.Iso2).IsRequired().HasMaxLength(2);
+            entity.HasIndex(e => e.Iso2).IsUnique();
+            entity.Property(e => e.Iso3).IsRequired().HasMaxLength(3);
+            entity.HasIndex(e => e.Iso3).IsUnique();
+            entity.Property(e => e.PhoneCode).HasMaxLength(20);
+            entity.Property(e => e.Capital).HasMaxLength(150);
+            entity.Property(e => e.Currency).HasMaxLength(10);
+            entity.Property(e => e.CurrencyName).HasMaxLength(100);
+            entity.Property(e => e.CurrencySymbol).HasMaxLength(10);
+            entity.Property(e => e.Region).HasMaxLength(100);
+            entity.Property(e => e.SubRegion).HasMaxLength(100);
+            entity.Property(e => e.Latitude).HasColumnType("decimal(10,8)");
+            entity.Property(e => e.Longitude).HasColumnType("decimal(11,8)");
+            entity.Property(e => e.Flag).HasMaxLength(10);
+        });
+
+        builder.Entity<WixiState>(entity =>
+        {
+            entity.ToTable("WIXI_STATES");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(150);
+            entity.Property(e => e.StateCode).HasMaxLength(10);
+            entity.Property(e => e.CountryCode).HasMaxLength(2);
+            entity.Property(e => e.Latitude).HasColumnType("decimal(10,8)");
+            entity.Property(e => e.Longitude).HasColumnType("decimal(11,8)");
+            entity.HasOne(e => e.Country)
+                  .WithMany()
+                  .HasForeignKey(e => e.CountryId)
+                  .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        builder.Entity<WixiCity>(entity =>
+        {
+            entity.ToTable("WIXI_CITIES");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(150);
+            entity.Property(e => e.Latitude).HasColumnType("decimal(10,8)");
+            entity.Property(e => e.Longitude).HasColumnType("decimal(11,8)");
+            entity.HasOne(e => e.State)
+                  .WithMany()
+                  .HasForeignKey(e => e.StateId)
+                  .OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(e => e.Country)
+                  .WithMany()
+                  .HasForeignKey(e => e.CountryId)
+                  .OnDelete(DeleteBehavior.Restrict);
+        });
     }
+
+    // Seed operasyonlarında audit log oluşturmadan kaydetmek için
+    internal async Task<int> RawSaveAsync(CancellationToken ct = default)
+        => await base.SaveChangesAsync(ct);
 
     public async Task LogActivityAsync(string action, string? tableName = null, string? entityId = null, string? details = null, LogType logType = LogType.Activity)
     {

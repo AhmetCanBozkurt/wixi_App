@@ -110,6 +110,22 @@ using (var scope = app.Services.CreateScope())
     await db.Database.MigrateAsync();
 }
 
+// Coğrafi seed — ülke/eyalet/şehir tabloları boşsa dr5hn'den çeker
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<WixiCoreDbContext>();
+    var seedLogger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>()
+                         .CreateLogger("LocationSeeder");
+    try
+    {
+        await Wixi.Modules.Core.Infrastructure.Data.Seeders.LocationSeeder.SeedAsync(db, seedLogger);
+    }
+    catch (Exception ex)
+    {
+        seedLogger.LogWarning(ex, "[LocationSeeder] Coğrafi veri yüklenemedi, uygulama çalışmaya devam ediyor.");
+    }
+}
+
 // Seed & schema fixup — hata tolere edilir (idempotent operasyonlar)
 using (var scope = app.Services.CreateScope())
 {
