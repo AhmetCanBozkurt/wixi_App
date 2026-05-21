@@ -100,15 +100,17 @@ dotnet run --project src/backend/Wixi.API/Wixi.API.csproj
 # Build entire solution
 dotnet build src/backend/Wixi.Platform.sln
 
-# EF Core migrations (run from repo root)
+# EF Core migrations — SADECE dosya oluştur, database update ÇALIŞTIRILMAZ
 dotnet ef migrations add <MigrationName> \
   --project src/backend/Wixi.Modules.Core \
   --startup-project src/backend/Wixi.API \
   --output-dir Infrastructure/Data/Migrations
 
-dotnet ef database update \
-  --project src/backend/Wixi.Modules.Core \
-  --startup-project src/backend/Wixi.API
+# ⚠️ `dotnet ef database update` LOCAL'DEN ÇALIŞTIRILMAZ.
+# Program.cs'deki MigrateAsync() Docker container ayağa kalkınca test DB'ye otomatik uygular.
+# Staging: deploy-staging.yml pipeline'ı STAGING_DB_CONNECTION ile uygular.
+# Prod:    deploy-prod.yml pipeline'ı uygular.
+# Local appsettings.json canlı DB'yi gösterdiğinden manuel update canlıya gider.
 ```
 
 ## Architecture
@@ -123,7 +125,7 @@ docs/TASKS.md         # Phase-based task tracker synced to Linear
 
 ### Backend — Clean Architecture / CQRS
 
-Three projects are in the solution:
+#### Mevcut Modüller
 
 | Project | Role |
 |---|---|
@@ -132,11 +134,81 @@ Three projects are in the solution:
 | `Wixi.Modules.ECommerce` | SaaS e-commerce module (per-tenant DB) — **currently commented out** in `Program.cs` |
 | `Wixi.Shared` | Shared config records (`JwtOptions`, `MailOptions`) and base interfaces (`IAuditable`) |
 
+#### ⚠️ Hedef Modül Yapısı (Yeni kod bu yapıya göre eklenir)
+
+```
+src/backend/
+├── Wixi.API/
+├── Wixi.Shared/
+├── Wixi.Modules.Identity/        ← Auth, UserManagement, Roles, Permissions
+├── Wixi.Modules.Settings/        ← Currencies, Languages, Mailing, Navigation, Logs
+├── Wixi.Modules.ReferenceData/   ← Port, Region, TaxOffice, Incoterm, PaymentTerm, PackageType, TransportMode
+├── Wixi.Modules.Subscriptions/   ← Stripe, SubscriptionPlans, TenantSubscription
+└── Wixi.Modules.ECommerce/       ← Catalog, Sales, Inventory, Store, Marketing
+```
+
+> Mevcut `Wixi.Modules.Core` split edilene kadar **yeni feature'lar** domain'ine göre yukarıdaki hedef modül adıyla klasörlenir (örn. Auth feature → Identity, Currency feature → Settings).
+
+#### Zorunlu Modül İç Yapısı
+
+Her `Wixi.Modules.*` projesi bu yapıyı takip eder:
+
+```
+Wixi.Modules.<Name>/
+├── Application/
+│   └── <Feature>/
+│       ├── Commands/
+│       │   └── <Action>/
+│       │       ├── <Action>Command.cs
+│       │       └── <Action>CommandHandler.cs
+│       ├── Queries/
+│       │   └── <Action>/
+│       │       ├── <Action>Query.cs
+│       │       └── <Action>QueryHandler.cs
+│       └── Dto/
+├── Domain/
+│   └── Entities/          ← entity adları Wixi* prefix ile başlar
+├── Infrastructure/
+│   ├── Data/
+│   │   ├── Migrations/    ← sadece bu modülün migration'ları
+│   │   └── <Name>DbContext.cs
+│   └── Services/
+└── <Name>ModuleExtensions.cs    ← DI kaydı ve middleware buraya
+```
+
+**Kurallar:**
+- Her modül kendi `*ModuleExtensions.cs` içinde `AddXxxModule()` / `UseXxxModule()` metodunu export eder
+- Modüller arası iletişim doğrudan method çağrısı değil MediatR event ile olur
+- `Domain/Entities/` altındaki tüm entity sınıfları `Wixi` prefix'i ile başlar (`WixiUser`, `WixiPort`, vb.)
+- EF Core migration'ları her zaman modülün kendi `Infrastructure/Data/Migrations/` klasörüne yazılır
+
 Every feature in `Wixi.Modules.Core` follows strict CQRS with MediatR:
 - `Application/<Feature>/Commands/<Action>/` — `*Command.cs` + `*CommandHandler.cs`
 - `Application/<Feature>/Queries/<Action>/` — `*Query.cs` + `*QueryHandler.cs`
 - `Domain/Entities/` — EF Core entities prefixed with `Wixi*`
 - `Infrastructure/Data/` — `WixiCoreDbContext`, `WixiCoreDbContextFactory` (design-time), migrations
+
+#### Zorunlu Controller Klasör Yapısı
+
+Controllers düz listede **değil**, domain alt-klasörlerine ayrılmış olmalıdır. Yeni controller eklerken mutlaka doğru alt-klasörü seç:
+
+```
+Wixi.API/Controllers/
+├── Identity/        → AuthController, UserManagementController
+├── Core/            → Currency, Language, Menu, Module, ModuleMenu, Mailing, Audit, SystemLog
+├── ReferenceData/   → her entity için ayrı controller (Ports, Regions, TaxOffices, Incoterms...)
+├── Subscriptions/   → Plans, StripeWebhook, SaasSubscription, SaasOnboarding, Tenants
+├── Admin/           → AdminDashboard, AdminProducts, AdminCategories, AdminBrands, AdminTheme
+├── StoreAdmin/      → StoreAdminAuth, StoreAdminMenus, StoreAdminUpload, StoreSettings, StorePages, ThemeVersions
+├── Storefront/      → StorefrontAuth, StorefrontProducts, StorefrontCategories, StorefrontCart, StorefrontOrders...
+└── Utility/         → Files, Schema, SeedData
+```
+
+**Kurallar:**
+- **Namespace:** `Wixi.API.Controllers.<Domain>` (örn. `namespace Wixi.API.Controllers.StoreAdmin;`)
+- **Route değişmez:** Klasör/namespace değişikliği `[Route(...)]` attribute'larını etkilemez, API URL'leri aynı kalır
+- **God controller yasak:** Tek controller birden fazla domain entity'sini yönetemez. `ReferenceDataController` → her entity ayrı controller. `StoreAdminSettingsController` → StoreSettings + StorePages + ThemeVersions ayrı controller'lar
+- **Program.cs değişikliği gerekmez:** `AddControllers()` tüm alt-klasörleri otomatik discover eder
 
 **Auth flow:** Login → optional 2FA (OTP via email, HMAC-hashed in DB) → JWT access token + HttpOnly refresh token cookie. Token refresh is attempted once on 401 before logging out.
 
@@ -146,12 +218,98 @@ Every feature in `Wixi.Modules.Core` follows strict CQRS with MediatR:
 
 ### Frontend — Feature-Sliced Design (FSD)
 
+#### Katman Tanımları (Ne Nereye Gider)
+
+| Katman | Klasör | Ne Koyulur | Ne Koyulmaz |
+|--------|--------|-----------|-------------|
+| App Shell | `app/` | Router, AuthGuard, global provider'lar | İş mantığı |
+| Entities | `entities/` | TS interface, Zustand store, **sadece GET** API çağrıları | Form, mutation, side effect |
+| Features | `features/` | Form handler, iş akışı, POST/PUT/DELETE API çağrıları, stateful UI | Saf veri modeli |
+| Pages | `pages/` | Route-level bileşenler, domain alt-klasörlerine ayrılmış | Paylaşılan iş mantığı |
+| Widgets | `widgets/` | Birden fazla entity/feature kullanan layout bileşenleri | İş mantığı |
+| Shared UI | `shared/ui/` | Domain-agnostik UI bileşenleri | Entity import'u |
+
+#### Zorunlu Pages Klasör Yapısı
+
+```
+src/frontend/src/pages/
+├── admin/                    ← /admin/* rotaları
+│   ├── DashboardPage/
+│   ├── UserManagementPage/
+│   ├── RoleManagementPage/
+│   ├── CurrencyManagementPage/
+│   ├── LanguageManagementPage/
+│   ├── AuditLogPage/
+│   └── ...
+├── store-admin/              ← /store-admin/* rotaları
+│   ├── StoreAdminPage/
+│   ├── StoreProductsPage/
+│   ├── StoreCariPage/
+│   ├── StoreAnalyticsPage/
+│   └── ...
+├── ecommerce/                ← /ecommerce/* rotaları (platform admin)
+│   ├── ECommerceProductsPage/
+│   ├── ECommerceBrandsPage/
+│   └── ECommerceTenantsPage/
+├── storefront/               ← müşteri mağaza rotaları
+│   ├── StorefrontPage/
+│   ├── StorefrontCartPage/
+│   ├── StorefrontCheckoutPage/
+│   └── ...
+└── auth/                     ← genel auth sayfaları
+    ├── LoginPage/
+    ├── ForgotPasswordPage/
+    └── ResetPasswordPage/
+```
+
+> **Yeni sayfa eklerken:** Hangi domain'e ait olduğunu belirle (`admin/`, `store-admin/`, `ecommerce/`, `storefront/`, `auth/`) ve o alt-klasöre koy. Düz `pages/` köküne **kesinlikle** yeni sayfa eklenmez.
+
+#### Zorunlu Sayfa Klasörü İç Yapısı
+
+```
+<PageName>/
+├── index.ts                  ← export { default } from './<PageName>'
+├── <PageName>.tsx
+├── <PageName>.module.css
+└── components/               ← sadece bu sayfaya özgü alt componentler
+    └── <SubComponent>/
+        ├── <SubComponent>.tsx
+        └── <SubComponent>.module.css
+```
+
+#### ThemeEditor → features/ThemeBuilder/ (Hedef)
+
+ThemeEditor şu an `StoreAdminPage/pages/ThemeEditor/` içinde gömülü. Yeni geliştirme yapılırken veya taşındığında hedef konum:
+
+```
+src/frontend/src/features/ThemeBuilder/
+├── blocks/
+├── canvas/
+├── context/
+├── hooks/
+├── panels/
+└── index.ts
+```
+
+#### FSD Katman Hiyerarşisi (import yönü)
+
+```
+app → pages → widgets → features → entities → shared
+```
+
+Üst katman alt katmanı import edebilir; **alt katman üst katmanı import edemez**.
+
 ```
 src/
   app/           # App shell: App.tsx (router), providers (AuthGuard, ThemeProvider)
   entities/      # Business entities — User model + Zustand store
-  features/      # Self-contained features (Auth, MailingManagement, TenantSelector)
-  pages/         # Route-level page components
+  features/      # Self-contained features (Auth, MailingManagement, TenantSelector, ThemeBuilder)
+  pages/         # Route-level page components — domain alt-klasörlerine bölünmüş
+    admin/
+    store-admin/
+    ecommerce/
+    storefront/
+    auth/
   shared/        # Shared utilities and UI
     api/         # axiosConfig.ts — base client, interceptors, token refresh
     ui/          # Reusable components (Button, Input, Modal, AdvancedDataTable, etc.)
