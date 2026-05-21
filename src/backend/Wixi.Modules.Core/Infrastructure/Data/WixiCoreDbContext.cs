@@ -45,6 +45,25 @@ public class WixiCoreDbContext : IdentityDbContext<WixiUser, WixiRole, Guid>
     public DbSet<WixiThemeTemplate> ThemeTemplates => Set<WixiThemeTemplate>();
     public DbSet<WixiDbSchemaLayout> DbSchemaLayouts => Set<WixiDbSchemaLayout>();
 
+    // Reference Data — Phase C1
+    public DbSet<WixiSystemPage> SystemPages { get; set; }
+    public DbSet<WixiRegion> Regions { get; set; }
+    public DbSet<WixiPort> Ports { get; set; }
+    public DbSet<WixiPaymentTerm> PaymentTerms { get; set; }
+    public DbSet<WixiTaxOffice> TaxOffices { get; set; }
+    public DbSet<WixiIncoterm> Incoterms { get; set; }
+    public DbSet<WixiTransportMode> TransportModes { get; set; }
+    public DbSet<WixiPackageType> PackageTypes { get; set; }
+
+    // Reference Data — Phase C2
+    public DbSet<WixiUnitCategory> UnitCategories { get; set; }
+    public DbSet<WixiUnit> Units { get; set; }
+    public DbSet<WixiUnitConversion> UnitConversions { get; set; }
+    public DbSet<WixiServiceCategory> ServiceCategories { get; set; }
+    public DbSet<WixiService> Services { get; set; }
+    public DbSet<WixiProductDescription> ProductDescriptions { get; set; }
+    public DbSet<WixiHsCode> HsCodes { get; set; }
+
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         // 1. Handle IAuditable timestamps
@@ -535,6 +554,195 @@ public class WixiCoreDbContext : IdentityDbContext<WixiUser, WixiRole, Guid>
             entity.HasKey(e => e.Id);
             entity.Property(e => e.LayoutJson).IsRequired();
             entity.HasIndex(e => e.UserId).IsUnique();
+        });
+
+        // Reference Data — Phase C1
+
+        builder.Entity<WixiSystemPage>(entity =>
+        {
+            entity.ToTable("WIXI_SYSTEM_PAGES");
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.Path).IsUnique();
+            entity.Property(e => e.Path).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.Group).HasMaxLength(100);
+            entity.Property(e => e.Icon).HasMaxLength(100);
+        });
+
+        builder.Entity<WixiRegion>(entity =>
+        {
+            entity.ToTable("WIXI_REGIONS");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Code).IsRequired().HasMaxLength(20);
+            entity.HasIndex(e => e.Code).IsUnique();
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.NameEn).HasMaxLength(100);
+            entity.Property(e => e.Description).HasMaxLength(500);
+        });
+
+        builder.Entity<WixiPort>(entity =>
+        {
+            entity.ToTable("WIXI_PORTS");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.UnLocode).IsRequired().HasMaxLength(10);
+            entity.HasIndex(e => e.UnLocode).IsUnique();
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(150);
+            entity.Property(e => e.NameEn).HasMaxLength(150);
+            entity.Property(e => e.CountryCode).IsRequired().HasMaxLength(3);
+            entity.Property(e => e.CityName).HasMaxLength(100);
+        });
+
+        builder.Entity<WixiPaymentTerm>(entity =>
+        {
+            entity.ToTable("WIXI_PAYMENT_TERMS");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Code).IsRequired().HasMaxLength(20);
+            entity.HasIndex(e => e.Code).IsUnique();
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.NameEn).HasMaxLength(100);
+            entity.Property(e => e.Description).HasMaxLength(500);
+        });
+
+        builder.Entity<WixiTaxOffice>(entity =>
+        {
+            entity.ToTable("WIXI_TAX_OFFICES");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Code).IsRequired().HasMaxLength(20);
+            entity.HasIndex(e => e.Code).IsUnique();
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(150);
+            entity.Property(e => e.CityName).HasMaxLength(100);
+            entity.Property(e => e.CountryCode).HasMaxLength(3);
+        });
+
+        builder.Entity<WixiIncoterm>(entity =>
+        {
+            entity.ToTable("WIXI_INCOTERMS");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Code).IsRequired().HasMaxLength(5);
+            entity.HasIndex(e => e.Code).IsUnique();
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.NameEn).HasMaxLength(100);
+            entity.Property(e => e.Description).IsRequired().HasMaxLength(1000);
+            entity.Property(e => e.DescriptionEn).HasMaxLength(1000);
+        });
+
+        builder.Entity<WixiTransportMode>(entity =>
+        {
+            entity.ToTable("WIXI_TRANSPORT_MODES");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Code).IsRequired().HasMaxLength(10);
+            entity.HasIndex(e => e.Code).IsUnique();
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.NameEn).HasMaxLength(50);
+            entity.Property(e => e.Icon).HasMaxLength(50);
+            entity.Property(e => e.ColorHex).HasMaxLength(10);
+        });
+
+        builder.Entity<WixiPackageType>(entity =>
+        {
+            entity.ToTable("WIXI_PACKAGE_TYPES");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Code).IsRequired().HasMaxLength(20);
+            entity.HasIndex(e => e.Code).IsUnique();
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.NameEn).HasMaxLength(100);
+            entity.Property(e => e.Symbol).HasMaxLength(20);
+        });
+
+        // Reference Data — Phase C2
+
+        builder.Entity<WixiUnitCategory>(entity =>
+        {
+            entity.ToTable("WIXI_UNIT_CATEGORIES");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Code).IsRequired().HasMaxLength(20);
+            entity.HasIndex(e => e.Code).IsUnique();
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.NameEn).HasMaxLength(100);
+        });
+
+        builder.Entity<WixiUnit>(entity =>
+        {
+            entity.ToTable("WIXI_UNITS");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Code).IsRequired().HasMaxLength(20);
+            entity.HasIndex(e => e.Code).IsUnique();
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.NameEn).HasMaxLength(100);
+            entity.Property(e => e.Symbol).HasMaxLength(20);
+            entity.HasOne(e => e.Category)
+                  .WithMany(c => c.Units)
+                  .HasForeignKey(e => e.UnitCategoryId)
+                  .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        builder.Entity<WixiUnitConversion>(entity =>
+        {
+            entity.ToTable("WIXI_UNIT_CONVERSIONS");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Factor).HasColumnType("decimal(18,8)");
+            entity.HasOne(e => e.FromUnit)
+                  .WithMany()
+                  .HasForeignKey(e => e.FromUnitId)
+                  .OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(e => e.ToUnit)
+                  .WithMany()
+                  .HasForeignKey(e => e.ToUnitId)
+                  .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        builder.Entity<WixiServiceCategory>(entity =>
+        {
+            entity.ToTable("WIXI_SERVICE_CATEGORIES");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Code).IsRequired().HasMaxLength(20);
+            entity.HasIndex(e => e.Code).IsUnique();
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.NameEn).HasMaxLength(100);
+            entity.Property(e => e.Description).HasMaxLength(500);
+            entity.Property(e => e.ColorHex).HasMaxLength(10);
+            entity.Property(e => e.Icon).HasMaxLength(50);
+        });
+
+        builder.Entity<WixiService>(entity =>
+        {
+            entity.ToTable("WIXI_SERVICES");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Code).IsRequired().HasMaxLength(20);
+            entity.HasIndex(e => e.Code).IsUnique();
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.NameEn).HasMaxLength(100);
+            entity.Property(e => e.Description).HasMaxLength(500);
+            entity.HasOne(e => e.Category)
+                  .WithMany(c => c.Services)
+                  .HasForeignKey(e => e.ServiceCategoryId)
+                  .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        builder.Entity<WixiProductDescription>(entity =>
+        {
+            entity.ToTable("WIXI_PRODUCT_DESCRIPTIONS");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Code).IsRequired().HasMaxLength(30);
+            entity.HasIndex(e => e.Code).IsUnique();
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.NameEn).HasMaxLength(200);
+            entity.Property(e => e.HsCode).HasMaxLength(20);
+            entity.Property(e => e.Description).HasMaxLength(1000);
+        });
+
+        builder.Entity<WixiHsCode>(entity =>
+        {
+            entity.ToTable("WIXI_HS_CODES");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Code).IsRequired().HasMaxLength(12);
+            entity.HasIndex(e => e.Code).IsUnique();
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(500);
+            entity.Property(e => e.NameEn).HasMaxLength(500);
+            entity.HasOne(e => e.Parent)
+                  .WithMany(p => p.Children)
+                  .HasForeignKey(e => e.ParentId)
+                  .OnDelete(DeleteBehavior.Restrict);
         });
     }
 

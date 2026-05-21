@@ -3,17 +3,20 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Wixi.Modules.Core.Infrastructure.Data;
 
 #nullable disable
 
-namespace Wixi.Modules.Core.Migrations
+namespace Wixi.Modules.Core.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(WixiCoreDbContext))]
-    partial class WixiCoreDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260521084434_AddWixiSystemPages")]
+    partial class AddWixiSystemPages
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -471,63 +474,6 @@ namespace Wixi.Modules.Core.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("WIXI_FILES", (string)null);
-                });
-
-            modelBuilder.Entity("Wixi.Modules.Core.Domain.Entities.WixiHsCode", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(12)
-                        .HasColumnType("nvarchar(12)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreatedByUser")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("Level")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("NameEn")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<Guid?>("ParentId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("SortOrder")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("UpdatedByUser")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Code")
-                        .IsUnique();
-
-                    b.HasIndex("ParentId");
-
-                    b.ToTable("WIXI_HS_CODES", (string)null);
                 });
 
             modelBuilder.Entity("Wixi.Modules.Core.Domain.Entities.WixiIncoterm", b =>
@@ -1238,63 +1184,6 @@ namespace Wixi.Modules.Core.Migrations
                     b.ToTable("WIXI_PORTS", (string)null);
                 });
 
-            modelBuilder.Entity("Wixi.Modules.Core.Domain.Entities.WixiProductDescription", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreatedByUser")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<string>("HsCode")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("NameEn")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<int>("SortOrder")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("UpdatedByUser")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Code")
-                        .IsUnique();
-
-                    b.ToTable("WIXI_PRODUCT_DESCRIPTIONS", (string)null);
-                });
-
             modelBuilder.Entity("Wixi.Modules.Core.Domain.Entities.WixiRefreshToken", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1432,125 +1321,6 @@ namespace Wixi.Modules.Core.Migrations
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.ToTable("WIXI_ROLES", (string)null);
-                });
-
-            modelBuilder.Entity("Wixi.Modules.Core.Domain.Entities.WixiService", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreatedByUser")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("NameEn")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<Guid?>("ServiceCategoryId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("SortOrder")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("UpdatedByUser")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Code")
-                        .IsUnique();
-
-                    b.HasIndex("ServiceCategoryId");
-
-                    b.ToTable("WIXI_SERVICES", (string)null);
-                });
-
-            modelBuilder.Entity("Wixi.Modules.Core.Domain.Entities.WixiServiceCategory", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<string>("ColorHex")
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreatedByUser")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("Icon")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("NameEn")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<int>("SortOrder")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("UpdatedByUser")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Code")
-                        .IsUnique();
-
-                    b.ToTable("WIXI_SERVICE_CATEGORIES", (string)null);
                 });
 
             modelBuilder.Entity("Wixi.Modules.Core.Domain.Entities.WixiSmtpSetting", b =>
@@ -2107,161 +1877,6 @@ namespace Wixi.Modules.Core.Migrations
                     b.ToTable("WIXI_2FA_CODES", (string)null);
                 });
 
-            modelBuilder.Entity("Wixi.Modules.Core.Domain.Entities.WixiUnit", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreatedByUser")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsBaseUnit")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("NameEn")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<int>("SortOrder")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Symbol")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<Guid?>("UnitCategoryId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("UpdatedByUser")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Code")
-                        .IsUnique();
-
-                    b.HasIndex("UnitCategoryId");
-
-                    b.ToTable("WIXI_UNITS", (string)null);
-                });
-
-            modelBuilder.Entity("Wixi.Modules.Core.Domain.Entities.WixiUnitCategory", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreatedByUser")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("NameEn")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<int>("SortOrder")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("UpdatedByUser")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Code")
-                        .IsUnique();
-
-                    b.ToTable("WIXI_UNIT_CATEGORIES", (string)null);
-                });
-
-            modelBuilder.Entity("Wixi.Modules.Core.Domain.Entities.WixiUnitConversion", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreatedByUser")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("Factor")
-                        .HasColumnType("decimal(18,8)");
-
-                    b.Property<Guid>("FromUnitId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("SortOrder")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("ToUnitId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("UpdatedByUser")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FromUnitId");
-
-                    b.HasIndex("ToUnitId");
-
-                    b.ToTable("WIXI_UNIT_CONVERSIONS", (string)null);
-                });
-
             modelBuilder.Entity("Wixi.Modules.Core.Domain.Entities.WixiUser", b =>
                 {
                     b.Property<Guid>("Id")
@@ -2422,16 +2037,6 @@ namespace Wixi.Modules.Core.Migrations
                     b.Navigation("Currency");
                 });
 
-            modelBuilder.Entity("Wixi.Modules.Core.Domain.Entities.WixiHsCode", b =>
-                {
-                    b.HasOne("Wixi.Modules.Core.Domain.Entities.WixiHsCode", "Parent")
-                        .WithMany("Children")
-                        .HasForeignKey("ParentId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("Parent");
-                });
-
             modelBuilder.Entity("Wixi.Modules.Core.Domain.Entities.WixiMenu", b =>
                 {
                     b.HasOne("Wixi.Modules.Core.Domain.Entities.WixiMenu", "Parent")
@@ -2517,16 +2122,6 @@ namespace Wixi.Modules.Core.Migrations
                     b.Navigation("Tenant");
                 });
 
-            modelBuilder.Entity("Wixi.Modules.Core.Domain.Entities.WixiService", b =>
-                {
-                    b.HasOne("Wixi.Modules.Core.Domain.Entities.WixiServiceCategory", "Category")
-                        .WithMany("Services")
-                        .HasForeignKey("ServiceCategoryId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("Category");
-                });
-
             modelBuilder.Entity("Wixi.Modules.Core.Domain.Entities.WixiTenantSubscription", b =>
                 {
                     b.HasOne("Wixi.Modules.Core.Domain.Entities.WixiSubscriptionPlan", "Plan")
@@ -2546,43 +2141,9 @@ namespace Wixi.Modules.Core.Migrations
                     b.Navigation("Tenant");
                 });
 
-            modelBuilder.Entity("Wixi.Modules.Core.Domain.Entities.WixiUnit", b =>
-                {
-                    b.HasOne("Wixi.Modules.Core.Domain.Entities.WixiUnitCategory", "Category")
-                        .WithMany("Units")
-                        .HasForeignKey("UnitCategoryId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("Category");
-                });
-
-            modelBuilder.Entity("Wixi.Modules.Core.Domain.Entities.WixiUnitConversion", b =>
-                {
-                    b.HasOne("Wixi.Modules.Core.Domain.Entities.WixiUnit", "FromUnit")
-                        .WithMany()
-                        .HasForeignKey("FromUnitId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Wixi.Modules.Core.Domain.Entities.WixiUnit", "ToUnit")
-                        .WithMany()
-                        .HasForeignKey("ToUnitId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("FromUnit");
-
-                    b.Navigation("ToUnit");
-                });
-
             modelBuilder.Entity("Wixi.Modules.Core.Domain.Entities.WixiCurrency", b =>
                 {
                     b.Navigation("ExchangeRates");
-                });
-
-            modelBuilder.Entity("Wixi.Modules.Core.Domain.Entities.WixiHsCode", b =>
-                {
-                    b.Navigation("Children");
                 });
 
             modelBuilder.Entity("Wixi.Modules.Core.Domain.Entities.WixiMenu", b =>
@@ -2597,16 +2158,6 @@ namespace Wixi.Modules.Core.Migrations
                     b.Navigation("Children");
 
                     b.Navigation("Translations");
-                });
-
-            modelBuilder.Entity("Wixi.Modules.Core.Domain.Entities.WixiServiceCategory", b =>
-                {
-                    b.Navigation("Services");
-                });
-
-            modelBuilder.Entity("Wixi.Modules.Core.Domain.Entities.WixiUnitCategory", b =>
-                {
-                    b.Navigation("Units");
                 });
 #pragma warning restore 612, 618
         }

@@ -32,29 +32,12 @@ export interface UserMenuBuilderProps {
   isEmbedded?: boolean;
 }
 
-const SYSTEM_PAGES = [
-  { name: '[ GRUP / BAŞLIK / KLASÖR ]', path: 'folder' },
-  { name: 'Dashboard (Ana Sayfa)', path: '/admin' },
-  { name: 'Modül Yönetimi', path: '/admin/modules' },
-  { name: 'Modül Menü Şablonları', path: '/admin/modules/menus' },
-  { name: 'Menü Yönetimi', path: '/admin/menus' },
-  { name: 'Kullanıcı Yönetimi', path: '/admin/users' },
-  { name: 'Dil Yönetimi', path: '/admin/languages' },
-  { name: 'Uygulama Logları (App Logs)', path: '/admin/logs' },
-  { name: 'Sistem Değişiklik Logları (Audit)', path: '/admin/audit' },
-  { name: 'Mail Yönetimi', path: '/admin/mailing' },
-  { name: 'Döviz Yönetimi', path: '/admin/currencies' },
-  { name: 'Döviz Kurları (TCMB)', path: '/admin/exchange-rates' },
-  { name: 'E-Ticaret Müşterileri', path: '/admin/ecommerce/tenants' },
-  { name: 'E-Ticaret Ürünleri (Master)', path: '/admin/ecommerce/products' },
-  { name: 'CRM & Cari Yönetimi', path: '/admin/crm' },
-  { name: 'Ziyaret & Randevu Yönetimi', path: '/admin/visits' },
-  { name: 'Proje & Görev Yönetimi', path: '/admin/projects' },
-  { name: 'Destek & Ticket Yönetimi', path: '/admin/support' },
-  { name: 'Stok & Envanter Yönetimi', path: '/admin/inventory' },
-  { name: 'UI Tasarım Vitrini (Showcase)', path: '/admin/ui-showcase' },
-  { name: 'Çıktı Tasarımcısı (Rapor/Fatura)', path: '/admin/cikti-tasarlama' },
-];
+interface SystemPage {
+  id: string;
+  path: string;
+  name: string;
+  group?: string;
+}
 
 const POPULAR_ICONS = Object.keys(FaIconsList).filter(key => key.startsWith('Fa')).slice(0, 100);
 
@@ -62,6 +45,7 @@ const POPULAR_ICONS = Object.keys(FaIconsList).filter(key => key.startsWith('Fa'
 export const UserMenuBuilder = forwardRef<{ syncHierarchy: () => void }, UserMenuBuilderProps>(({ userId, userName, onClose, isEmbedded }, ref) => {
   const [treeData, setTreeData] = useState<NodeModel<any>[]>([]);
   const [languages, setLanguages] = useState<Language[]>([]);
+  const [systemPages, setSystemPages] = useState<SystemPage[]>([]);
   const [initialLoading, setInitialLoading] = useState(true);
   const [users, setUsers] = useState<SimpleUser[]>([]);
   const [isImportOpen, setIsImportOpen] = useState(false);
@@ -101,6 +85,15 @@ export const UserMenuBuilder = forwardRef<{ syncHierarchy: () => void }, UserMen
     } catch {
       toast.error('Diller yüklenemedi');
       return [];
+    }
+  }, []);
+
+  const fetchSystemPages = useCallback(async () => {
+    try {
+      const res = await apiClient.get<{ items: SystemPage[] }>('ref/system-pages');
+      setSystemPages(res.data.items || []);
+    } catch {
+      // sessiz hata — fallback olarak boş kalır
     }
   }, []);
 
@@ -176,6 +169,7 @@ export const UserMenuBuilder = forwardRef<{ syncHierarchy: () => void }, UserMen
   useEffect(() => {
     const init = async () => {
       const langs = await fetchLanguages();
+      await fetchSystemPages();
       if (langs.length > 0) {
         await fetchUserMenus(langs);
         await fetchUsers();
@@ -187,7 +181,7 @@ export const UserMenuBuilder = forwardRef<{ syncHierarchy: () => void }, UserMen
       }
     };
     init();
-  }, [userId, fetchLanguages, fetchUserMenus]);
+  }, [userId, fetchLanguages, fetchUserMenus, fetchSystemPages]);
 
   // --- ACTIONS ---
   const handleSelectNode = (node: NodeModel<any>) => {
@@ -474,7 +468,7 @@ export const UserMenuBuilder = forwardRef<{ syncHierarchy: () => void }, UserMen
                     label="Hedef Yol (Path)"
                     value={formData.path}
                     onChange={val => setFormData({...formData, path: val as string})}
-                    options={SYSTEM_PAGES.map(p => ({ label: p.name, value: p.path }))}
+                    options={systemPages.map(p => ({ label: p.group ? `[${p.group}] ${p.name}` : p.name, value: p.path }))}
                   />
               </div>
               <div className={styles.formGroup}>

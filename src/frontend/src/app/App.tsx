@@ -72,6 +72,21 @@ import { AdminThemeManagementPage } from '../pages/AdminThemeManagementPage/Admi
 import { AdminTenantThemePage } from '../pages/AdminThemeManagementPage/AdminTenantThemePage';
 import { AdminThemeTemplatesPage } from '../pages/AdminThemeManagementPage/AdminThemeTemplatesPage';
 import CiktiTasarlamaPage from '../pages/CiktiTasarlamaPage/CiktiTasarlamaPage';
+import { SystemPagesPage } from '../pages/DefinitionsPage/SystemPagesPage';
+import { RegionsPage } from '../pages/DefinitionsPage/RegionsPage';
+import { PortsPage } from '../pages/DefinitionsPage/PortsPage';
+import { PaymentTermsPage } from '../pages/DefinitionsPage/PaymentTermsPage';
+import { TaxOfficesPage } from '../pages/DefinitionsPage/TaxOfficesPage';
+import { IncotermsPage } from '../pages/DefinitionsPage/IncotermsPage';
+import { TransportModesPage } from '../pages/DefinitionsPage/TransportModesPage';
+import { PackageTypesPage } from '../pages/DefinitionsPage/PackageTypesPage';
+import { UnitCategoriesPage } from '../pages/DefinitionsPage/UnitCategoriesPage';
+import { UnitsPage } from '../pages/DefinitionsPage/UnitsPage';
+import { UnitConversionsPage } from '../pages/DefinitionsPage/UnitConversionsPage';
+import { ServiceCategoriesPage } from '../pages/DefinitionsPage/ServiceCategoriesPage';
+import { ServicesPage } from '../pages/DefinitionsPage/ServicesPage';
+import { ProductDescriptionsPage } from '../pages/DefinitionsPage/ProductDescriptionsPage';
+import { HsCodesPage } from '../pages/DefinitionsPage/HsCodesPage';
 
 const App = () => {
   return (
@@ -164,6 +179,21 @@ const App = () => {
               <Route path="theme-management/templates" element={<AdminThemeTemplatesPage />} />
               <Route path="theme-management/editor/:tenantSlug" element={<ThemeEditor />} />
               <Route path="cikti-tasarlama" element={<CiktiTasarlamaPage />} />
+              <Route path="definitions/system-pages" element={<SystemPagesPage />} />
+              <Route path="definitions/regions" element={<RegionsPage />} />
+              <Route path="definitions/ports" element={<PortsPage />} />
+              <Route path="definitions/payment-terms" element={<PaymentTermsPage />} />
+              <Route path="definitions/tax-offices" element={<TaxOfficesPage />} />
+              <Route path="definitions/incoterms" element={<IncotermsPage />} />
+              <Route path="definitions/transport-modes" element={<TransportModesPage />} />
+              <Route path="definitions/package-types" element={<PackageTypesPage />} />
+              <Route path="definitions/unit-categories" element={<UnitCategoriesPage />} />
+              <Route path="definitions/units" element={<UnitsPage />} />
+              <Route path="definitions/unit-conversions" element={<UnitConversionsPage />} />
+              <Route path="definitions/service-categories" element={<ServiceCategoriesPage />} />
+              <Route path="definitions/services" element={<ServicesPage />} />
+              <Route path="definitions/product-descriptions" element={<ProductDescriptionsPage />} />
+              <Route path="definitions/hs-codes" element={<HsCodesPage />} />
             </Route>
           </Route>
         </Routes>
