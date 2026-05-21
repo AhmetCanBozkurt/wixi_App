@@ -18,24 +18,33 @@ public static class LocationSeeder
 
     public static async Task SeedAsync(WixiCoreDbContext db, ILogger logger, CancellationToken ct = default)
     {
-        if (await db.Countries.IgnoreQueryFilters().AnyAsync(ct))
-        {
-            logger.LogInformation("[LocationSeeder] Zaten seed edilmiş, atlanıyor.");
-            return;
-        }
-
         using var http = new HttpClient { Timeout = TimeSpan.FromMinutes(10) };
 
-        logger.LogInformation("[LocationSeeder] Ülkeler yükleniyor...");
-        await SeedCountriesAsync(db, http, logger, ct);
+        var hasCountries = await db.Countries.IgnoreQueryFilters().AnyAsync(ct);
+        if (!hasCountries)
+        {
+            logger.LogInformation("[LocationSeeder] Ülkeler yükleniyor...");
+            await SeedCountriesAsync(db, http, logger, ct);
+        }
 
-        logger.LogInformation("[LocationSeeder] Eyaletler yükleniyor...");
-        await SeedStatesAsync(db, http, logger, ct);
+        var hasStates = await db.States.IgnoreQueryFilters().AnyAsync(ct);
+        if (!hasStates)
+        {
+            logger.LogInformation("[LocationSeeder] Eyaletler yükleniyor...");
+            await SeedStatesAsync(db, http, logger, ct);
+        }
 
-        logger.LogInformation("[LocationSeeder] Şehirler yükleniyor...");
-        await SeedCitiesAsync(db, http, logger, ct);
+        var hasCities = await db.Cities.IgnoreQueryFilters().AnyAsync(ct);
+        if (!hasCities)
+        {
+            logger.LogInformation("[LocationSeeder] Şehirler yükleniyor (bu işlem birkaç dakika sürebilir)...");
+            await SeedCitiesAsync(db, http, logger, ct);
+        }
 
-        logger.LogInformation("[LocationSeeder] Tüm coğrafi veriler başarıyla yüklendi.");
+        if (hasCountries && hasStates && hasCities)
+            logger.LogInformation("[LocationSeeder] Tüm coğrafi veriler mevcut, atlanıyor.");
+        else
+            logger.LogInformation("[LocationSeeder] Coğrafi seed tamamlandı.");
     }
 
     private static async Task SeedCountriesAsync(WixiCoreDbContext db, HttpClient http, ILogger logger, CancellationToken ct)
