@@ -1,0 +1,13 @@
+.wrapper {
+  /* Admin layout'un padding'ini sıfırla — tam ekran iframe için */
+  margin: -24px;
+  height: calc(100vh - 64px); /* 64px = header yüksekliği */
+  overflow: hidden;
+}
+
+.frame {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}

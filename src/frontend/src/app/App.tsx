@@ -87,6 +87,7 @@ import { ServiceCategoriesPage } from '../pages/admin/DefinitionsPage/ServiceCat
 import { ServicesPage } from '../pages/admin/DefinitionsPage/ServicesPage';
 import { ProductDescriptionsPage } from '../pages/admin/DefinitionsPage/ProductDescriptionsPage';
 import { HsCodesPage } from '../pages/admin/DefinitionsPage/HsCodesPage';
+import { SystemOverviewPage } from '../pages/admin/SystemOverviewPage/SystemOverviewPage';
 
 const App = () => {
   return (
@@ -194,6 +195,7 @@ const App = () => {
               <Route path="definitions/services" element={<ServicesPage />} />
               <Route path="definitions/product-descriptions" element={<ProductDescriptionsPage />} />
               <Route path="definitions/hs-codes" element={<HsCodesPage />} />
+              <Route path="system-overview" element={<SystemOverviewPage />} />
             </Route>
           </Route>
         </Routes>
