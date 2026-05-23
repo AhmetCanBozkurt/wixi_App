@@ -217,20 +217,37 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse }: SidebarProps) => {
     const paddingLeft = isCollapsed ? undefined : (level * 15) + 14;
 
     if (!hasChildren) {
+      const opensNewTab = item.path.startsWith('/corp/');
       return (
         <li key={item.id} className={styles.menuItemRow}>
-          <NavLink
-            to={item.path}
-            className={({ isActive }) => isActive ? styles.active : ''}
-            title={isCollapsed ? item.title : undefined}
-            style={{ paddingLeft }}
-          >
-            <span className={styles.menuIcon}>
-              <DynamicIcon name={item.icon || 'FaCircle'} color={item.iconColor} />
-            </span>
-            <span className={styles.menuText}>{item.title}</span>
-          </NavLink>
-          {!isCollapsed && item.path !== '#' && !isTenantMode && (
+          {opensNewTab ? (
+            <a
+              href={item.path}
+              target="_blank"
+              rel="noreferrer"
+              title={isCollapsed ? item.title : undefined}
+              style={{ paddingLeft }}
+              className={styles.externalLink}
+            >
+              <span className={styles.menuIcon}>
+                <DynamicIcon name={item.icon || 'FaCircle'} color={item.iconColor} />
+              </span>
+              <span className={styles.menuText}>{item.title}</span>
+            </a>
+          ) : (
+            <NavLink
+              to={item.path}
+              className={({ isActive }) => isActive ? styles.active : ''}
+              title={isCollapsed ? item.title : undefined}
+              style={{ paddingLeft }}
+            >
+              <span className={styles.menuIcon}>
+                <DynamicIcon name={item.icon || 'FaCircle'} color={item.iconColor} />
+              </span>
+              <span className={styles.menuText}>{item.title}</span>
+            </NavLink>
+          )}
+          {!isCollapsed && item.path !== '#' && !isTenantMode && !opensNewTab && (
             <button
               className={`${styles.favStarBtn} ${favorites.includes(item.path) ? styles.isFav : ''}`}
               onClick={() => toggleFavorite(item.path)}

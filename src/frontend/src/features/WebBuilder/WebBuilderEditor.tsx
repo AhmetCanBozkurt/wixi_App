@@ -8,19 +8,10 @@ import { WebSeoPanel } from './panels/WebSeoPanel';
 import { WebBacklinksPanel } from './panels/WebBacklinksPanel';
 import { WebVersionHistoryPanel } from './panels/WebVersionHistoryPanel';
 import { ComponentsPanel } from '../ThemeBuilder/panels/ComponentsPanel';
-import { ThemePanel } from '../ThemeBuilder/panels/ThemePanel';
-import { GlobalPanel } from '../ThemeBuilder/panels/GlobalPanel';
-import { CodeEditorPanel } from '../ThemeBuilder/panels/CodeEditorPanel';
 import { PropertiesPanel } from '../ThemeBuilder/panels/PropertiesPanel';
 import { EditorCanvas } from '../ThemeBuilder/canvas/EditorCanvas';
 import { Modal } from '../../shared/ui/Modal/Modal';
 import styles from '../ThemeBuilder/ThemeEditor.module.css';
-
-// ThemePanel / GlobalPanel / CodeEditorPanel require tenantSlug for save operations.
-// In WebBuilder context, these panels are rendered with an empty slug so their
-// display logic works but save will no-op (API call to storeAdminApi with '' fails silently).
-// Full integration for corp theme saving is tracked as a future improvement.
-const NOOP_TENANT = '';
 
 function WebBuilderEditorInner() {
   const { state, dispatch } = useEditor();
@@ -82,7 +73,7 @@ function WebBuilderEditorInner() {
         {/* Left Sidebar */}
         <div className={styles.sidebarLeft}>
           <div className={styles.leftTabBar}>
-            {([['pages', 'Sayfalar'], ['components', 'Bileşenler'], ['theme', 'Tema'], ['global', 'Global'], ['code', 'Kod']] as const).map(([tab, label]) => (
+            {([['pages', 'Sayfalar'], ['components', 'Bileşenler']] as const).map(([tab, label]) => (
               <button
                 key={tab}
                 className={`${styles.leftTab} ${state.leftTab === tab ? styles.leftTabActive : ''}`}
@@ -96,9 +87,6 @@ function WebBuilderEditorInner() {
           <div className={styles.leftContent}>
             {state.leftTab === 'pages' && <WebPagesPanel />}
             {state.leftTab === 'components' && <ComponentsPanel excludeCategories={['commerce']} />}
-            {state.leftTab === 'theme' && <ThemePanel tenantSlug={NOOP_TENANT} />}
-            {state.leftTab === 'global' && <GlobalPanel tenantSlug={NOOP_TENANT} />}
-            {state.leftTab === 'code' && <CodeEditorPanel tenantSlug={NOOP_TENANT} />}
           </div>
         </div>
 
