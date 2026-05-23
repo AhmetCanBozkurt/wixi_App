@@ -113,6 +113,91 @@ dotnet ef migrations add <MigrationName> \
 # Local appsettings.json canlı DB'yi gösterdiğinden manuel update canlıya gider.
 ```
 
+## Admin Menüsüne Yeni Madde Ekleme (SQL)
+
+Menüler `WIXI_MENUS` + `WIXI_MENU_TRANSLATIONS` tablolarına direkt SQL ile eklenir.  
+`SeedData.cs` yalnızca ilk kurulumda çalışır; mevcut DB'de SQL kullanılır.
+
+### Bağlantı Bilgileri
+```
+Server : 78.188.86.124,1533
+DB     : Wixi_App
+User   : Wixi_App / Wixi_App12.
+```
+
+### Sabit ID'ler (üretim + test DB aynı)
+```sql
+-- Admin kullanıcı
+DECLARE @adminId UNIQUEIDENTIFIER = '2CEB2FC2-7818-45AE-1AE4-08DE9698C0CB';
+-- Türkçe dil
+DECLARE @trId    UNIQUEIDENTIFIER = 'F105229B-2D91-43C1-95B6-B344BCEC4D0F';
+-- İngilizce dil
+DECLARE @enId    UNIQUEIDENTIFIER = 'D2608AF2-E718-489D-A90F-A8009A1A5ED7';
+```
+
+### Şablon: Klasör + Alt Menü Ekle
+```sql
+DECLARE @adminId UNIQUEIDENTIFIER = '2CEB2FC2-7818-45AE-1AE4-08DE9698C0CB';
+DECLARE @trId    UNIQUEIDENTIFIER = 'F105229B-2D91-43C1-95B6-B344BCEC4D0F';
+DECLARE @enId    UNIQUEIDENTIFIER = 'D2608AF2-E718-489D-A90F-A8009A1A5ED7';
+DECLARE @now     DATETIME2        = GETUTCDATE();
+
+-- 1. Klasör (folder)
+DECLARE @fId UNIQUEIDENTIFIER = NEWID();
+INSERT INTO WIXI_MENUS (Id, UserId, ParentId, Path, Icon, IconColor, SortOrder, IsVisible, CreatedAt, IsActive, IsDeleted)
+VALUES (@fId, @adminId, NULL, 'folder', 'FaFolder', '#6366f1', 60, 1, @now, 1, 0);
+
+INSERT INTO WIXI_MENU_TRANSLATIONS (Id, MenuId, LanguageId, Title, CreatedAt, IsActive, IsDeleted)
+VALUES (NEWID(), @fId, @trId, 'Klasör Adı TR', @now, 1, 0),
+       (NEWID(), @fId, @enId, 'Folder Name EN', @now, 1, 0);
+
+-- 2. Alt menü
+DECLARE @mId UNIQUEIDENTIFIER = NEWID();
+INSERT INTO WIXI_MENUS (Id, UserId, ParentId, Path, Icon, IconColor, SortOrder, IsVisible, CreatedAt, IsActive, IsDeleted)
+VALUES (@mId, @adminId, @fId, '/admin/yeni-sayfa', 'FaCircle', '#10b981', 1, 1, @now, 1, 0);
+
+INSERT INTO WIXI_MENU_TRANSLATIONS (Id, MenuId, LanguageId, Title, CreatedAt, IsActive, IsDeleted)
+VALUES (NEWID(), @mId, @trId, 'Menü Adı TR', @now, 1, 0),
+       (NEWID(), @mId, @enId, 'Menu Name EN', @now, 1, 0);
+```
+
+### Şablon: Tek Root Menü (klasörsüz)
+```sql
+-- ParentId = NULL → root seviyede görünür
+DECLARE @mId UNIQUEIDENTIFIER = NEWID();
+INSERT INTO WIXI_MENUS (Id, UserId, ParentId, Path, Icon, IconColor, SortOrder, IsVisible, CreatedAt, IsActive, IsDeleted)
+VALUES (@mId, '2CEB2FC2-7818-45AE-1AE4-08DE9698C0CB', NULL, '/admin/yeni-sayfa', 'FaHome', '#3b82f6', 55, 1, GETUTCDATE(), 1, 0);
+
+INSERT INTO WIXI_MENU_TRANSLATIONS (Id, MenuId, LanguageId, Title, CreatedAt, IsActive, IsDeleted)
+VALUES (NEWID(), @mId, 'F105229B-2D91-43C1-95B6-B344BCEC4D0F', 'Türkçe Ad', GETUTCDATE(), 1, 0),
+       (NEWID(), @mId, 'D2608AF2-E718-489D-A90F-A8009A1A5ED7', 'English Name', GETUTCDATE(), 1, 0);
+```
+
+### Mevcut SortOrder'u Kontrol Et
+```sql
+SELECT MAX(SortOrder) FROM WIXI_MENUS WHERE ParentId IS NULL;  -- root max
+SELECT MAX(SortOrder) FROM WIXI_MENUS WHERE ParentId = '<folder-id>';  -- klasör içi max
+```
+
+### Kurallar
+- `Path = 'folder'` → klasör (tıklanabilir değil, accordion)
+- `Path = '#'` → tıklanabilir ama yönlendirme yok (placeholder)
+- `Icon` değerleri `react-icons/fa` isimleri: `FaWallet`, `FaChartPie`, `FaExchangeAlt` vb.
+- `SortOrder` her menü için benzersiz olmalı (root içinde ya da parent içinde)
+- Her eklenen menü için **hem TR hem EN** çeviri satırı zorunlu
+- Yeni özellik eklenince `SeedData.cs`'e de eklenmeli (fresh kurulum için)
+
+### Mevcut Finans Menüsü (referans)
+```
+SortOrder 50 — "Finans" klasörü (FaWallet #10b981)
+  ├── /my-finance              → Genel Bakış   (FaChartPie  #6366f1)
+  ├── /my-finance/transactions → İşlemler      (FaExchangeAlt #8b5cf6)
+  ├── /my-finance/budgets      → Bütçeler      (FaPiggyBank #f59e0b)
+  └── /my-finance/categories   → Kategoriler   (FaTags #ec4899)
+```
+
+---
+
 ## Architecture
 
 ### Monorepo layout
