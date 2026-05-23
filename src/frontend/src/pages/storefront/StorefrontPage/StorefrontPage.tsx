@@ -632,6 +632,8 @@ export const StorefrontPage = () => {
   const [theme, setTheme] = useState<ThemeConfig>(DEFAULT_THEME);
   const [layout, setLayout] = useState<LayoutComponent[]>([]);
   const [backlinks, setBacklinks] = useState<Backlink[]>([]);
+  const [customCss, setCustomCss] = useState('');
+  const [customJs, setCustomJs] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -652,11 +654,16 @@ export const StorefrontPage = () => {
       setIsLoading(true);
       setNotFound(false);
       try {
-        // Load theme + page in parallel
-        const [themeRes, pageRes] = await Promise.all([
+        // Load settings + theme + page in parallel
+        const [settingsRes, themeRes, pageRes] = await Promise.all([
+          storefrontApi.getSettings(tenantSlug).catch(() => null),
           storefrontApi.getTheme(tenantSlug).catch(() => null),
           storefrontApi.getPage(tenantSlug, slug).catch(() => null),
         ]);
+
+        // Inject store-level custom CSS / JS overrides
+        setCustomCss(settingsRes?.data.customCssOverride ?? '');
+        setCustomJs(settingsRes?.data.customJsOverride ?? '');
 
         // Merge global theme
         if (themeRes?.data.themeConfigJson) {
@@ -735,34 +742,40 @@ export const StorefrontPage = () => {
   }
 
   return (
-    <div className={styles.storefront} ref={rootRef}>
-      {layout.length === 0 && (
-        <div className={styles.empty}>
-          <h2>Mağaza Henüz Tasarlanmamış</h2>
-          <p>Admin panelinden tasarım ekleyin.</p>
-        </div>
-      )}
+    <>
+      {customCss && <style dangerouslySetInnerHTML={{ __html: customCss }} />}
 
-      {layout.map(comp => (
-        <section key={comp.id} className={styles.section} id={`block-${comp.id}`}>
-          <BlockRenderer comp={comp} theme={theme} tenantSlug={tenantSlug!} />
-        </section>
-      ))}
+      <div className={styles.storefront} ref={rootRef}>
+        {layout.length === 0 && (
+          <div className={styles.empty}>
+            <h2>Mağaza Henüz Tasarlanmamış</h2>
+            <p>Admin panelinden tasarım ekleyin.</p>
+          </div>
+        )}
 
-      {backlinks.length > 0 && (
-        <nav className={styles.backlinks} aria-label="İlgili Sayfalar">
-          {backlinks.map((link, i) => (
-            <a
-              key={i}
-              href={link.url}
-              className={styles.backlinkItem}
-              rel={link.noFollow ? 'nofollow' : undefined}
-            >
-              {link.anchorText}
-            </a>
-          ))}
-        </nav>
-      )}
-    </div>
+        {layout.map(comp => (
+          <section key={comp.id} className={styles.section} id={`block-${comp.id}`}>
+            <BlockRenderer comp={comp} theme={theme} tenantSlug={tenantSlug!} />
+          </section>
+        ))}
+
+        {backlinks.length > 0 && (
+          <nav className={styles.backlinks} aria-label="İlgili Sayfalar">
+            {backlinks.map((link, i) => (
+              <a
+                key={i}
+                href={link.url}
+                className={styles.backlinkItem}
+                rel={link.noFollow ? 'nofollow' : undefined}
+              >
+                {link.anchorText}
+              </a>
+            ))}
+          </nav>
+        )}
+      </div>
+
+      {customJs && <script dangerouslySetInnerHTML={{ __html: customJs }} />}
+    </>
   );
 };
