@@ -49,6 +49,10 @@
   padding: 24px;
   display: flex;
   justify-content: center;
+  /* dot grid arka plan */
+  background-color: #1a1a2e;
+  background-image: radial-gradient(circle, rgba(255,255,255,0.12) 1px, transparent 1px);
+  background-size: 20px 20px;
 }
 
 .canvas {
@@ -88,7 +92,9 @@
   position: relative;
   cursor: pointer;
   outline: 2px solid transparent;
+  outline-offset: 0px;
   transition: outline-color 0.15s;
+  overflow: visible;  /* toolbar taşabilsin */
 }
 
 .blockWrapper:hover { outline-color: rgba(236,72,153,0.4); }
@@ -115,15 +121,17 @@
 
 .blockToolbar {
   position: absolute;
-  top: 0;
-  right: 0;
+  top: -36px;   /* block'un üstünde floating */
+  left: 0;
+  right: auto;
   display: flex;
   gap: 2px;
   background: var(--editor-surface);
   border: 1px solid var(--editor-border);
-  border-radius: 0 0 0 8px;
+  border-radius: 6px 6px 6px 0;
   padding: 4px;
   z-index: 20;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
 }
 
 .toolbarBtn {
@@ -180,4 +188,116 @@
   font-size: 12px;
   font-weight: 700;
   margin-top: 8px;
+}
+
+/* ── Insert Zone ────────────────────────────────────── */
+.insertZone {
+  position: relative;
+  height: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: height 0.15s;
+  cursor: pointer;
+}
+
+.insertZone:hover {
+  height: 32px;
+}
+
+.insertZoneBtn {
+  display: none;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  background: #ec4899;
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.insertZone:hover .insertZoneBtn {
+  display: flex;
+}
+
+.insertZoneLine {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: rgba(236,72,153,0.3);
+  transition: background 0.15s;
+}
+
+.insertZone:hover .insertZoneLine {
+  background: #ec4899;
+}
+
+/* ── Navbar & Footer Canvas Preview ─────────────────── */
+.canvasNavbar {
+  background: var(--editor-surface);
+  border-bottom: 1px solid var(--editor-border);
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--editor-text-muted);
+  border-radius: 8px 8px 0 0;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.canvasNavbar:hover,
+.canvasNavbarSelected {
+  background: rgba(236,72,153,0.06);
+  outline: 2px solid rgba(236,72,153,0.4);
+  outline-offset: -2px;
+}
+
+.canvasNavbarSelected {
+  outline-color: #ec4899;
+}
+
+.canvasNavbarLogo {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--editor-text);
+}
+
+.canvasNavbarLinks {
+  display: flex;
+  gap: 16px;
+}
+
+.canvasNavbarLink {
+  font-size: 12px;
+  color: var(--editor-text-muted);
+}
+
+.canvasFooter {
+  background: var(--editor-surface);
+  border-top: 1px solid var(--editor-border);
+  padding: 20px 24px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--editor-text-muted);
+  border-radius: 0 0 8px 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.canvasFooter:hover,
+.canvasFooterSelected {
+  background: rgba(236,72,153,0.06);
+  outline: 2px solid rgba(236,72,153,0.4);
+  outline-offset: -2px;
+}
+
+.canvasFooterSelected {
+  outline-color: #ec4899;
 }

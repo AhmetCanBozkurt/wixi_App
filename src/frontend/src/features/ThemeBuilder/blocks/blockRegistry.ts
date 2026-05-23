@@ -5,6 +5,7 @@ import {
   FaUsers, FaBriefcase, FaNewspaper, FaHistory, FaTh, FaMapMarkerAlt,
 } from 'react-icons/fa';
 import type { IconType } from 'react-icons';
+import type { ThemeConfig } from '../../../entities/StorePage/model/types';
 
 export type PropFieldType = 'text' | 'textarea' | 'richtext' | 'number' | 'url' | 'color' | 'select' | 'image' | 'boolean' | 'json-array';
 
@@ -23,6 +24,13 @@ export interface PropField {
   options?: { value: string; label: string }[];
   rows?: number;
   itemSchema?: RowFieldSchema[]; // for json-array: defines per-row fields
+  group?: 'content' | 'visual' | 'style' | 'advanced';
+}
+
+export interface ChildElement {
+  key: string;       // prop field name — e.g. "title", "subtitle", "buttonText"
+  label: string;     // label shown in LayersPanel — e.g. "Başlık", "Alt Başlık"
+  selector?: string; // optional CSS selector hint — e.g. "h1", "p", "button"
 }
 
 export interface BlockDefinition {
@@ -32,6 +40,8 @@ export interface BlockDefinition {
   icon: IconType;
   defaultProps: Record<string, unknown>;
   propsSchema: PropField[];
+  children?: ChildElement[];
+  toCss?: (props: Record<string, unknown>, theme: ThemeConfig) => string;
 }
 
 export const BLOCK_REGISTRY: BlockDefinition[] = [
@@ -51,14 +61,29 @@ export const BLOCK_REGISTRY: BlockDefinition[] = [
       height: '560px',
     },
     propsSchema: [
-      { field: 'title', type: 'text', label: 'Başlık' },
-      { field: 'subtitle', type: 'textarea', label: 'Alt Başlık', rows: 2 },
-      { field: 'buttonText', type: 'text', label: 'Buton Metni' },
-      { field: 'buttonLink', type: 'url', label: 'Buton Linki' },
-      { field: 'imageUrl', type: 'image', label: 'Arka Plan Görseli' },
-      { field: 'overlayOpacity', type: 'number', label: 'Karartma (0-1)' },
-      { field: 'height', type: 'text', label: 'Yükseklik (px/vh)' },
+      { field: 'title',          type: 'text',     label: 'Başlık',               group: 'content' },
+      { field: 'subtitle',       type: 'textarea', label: 'Alt Başlık', rows: 2,  group: 'content' },
+      { field: 'buttonText',     type: 'text',     label: 'Buton Metni',          group: 'style'   },
+      { field: 'buttonLink',     type: 'url',      label: 'Buton Linki',          group: 'style'   },
+      { field: 'imageUrl',       type: 'image',    label: 'Arka Plan Görseli',    group: 'visual'  },
+      { field: 'overlayOpacity', type: 'number',   label: 'Karartma (0-1)',       group: 'visual'  },
+      { field: 'height',         type: 'text',     label: 'Yükseklik (px/vh)',    group: 'visual'  },
     ],
+    children: [
+      { key: 'title',       label: 'Başlık',       selector: 'h1'         },
+      { key: 'subtitle',    label: 'Alt Başlık',   selector: 'p'          },
+      { key: 'buttonText',  label: 'Buton',        selector: 'button'     },
+      { key: 'imageUrl',    label: 'Arka Plan',    selector: 'div[style]' },
+    ],
+    toCss: (props, theme) => {
+      const height = (props['height'] as string | undefined) ?? '560px';
+      return [
+        `.hero { min-height: ${height}; font-family: ${theme.typography.fontFamily}; }`,
+        `.hero h1 { color: ${theme.colors.text}; font-size: 2.5rem; font-weight: ${theme.typography.headingWeight}; }`,
+        `.hero p { color: ${theme.colors.textMuted}; }`,
+        `.hero button { background: ${theme.colors.primary}; border-radius: ${theme.borderRadius.button}; }`,
+      ].join('\n');
+    },
   },
   {
     type: 'hero-split',
@@ -75,14 +100,30 @@ export const BLOCK_REGISTRY: BlockDefinition[] = [
       imagePosition: 'right',
     },
     propsSchema: [
-      { field: 'title', type: 'text', label: 'Başlık' },
-      { field: 'subtitle', type: 'text', label: 'Alt Başlık' },
-      { field: 'text', type: 'textarea', label: 'Metin', rows: 3 },
-      { field: 'buttonText', type: 'text', label: 'Buton Metni' },
-      { field: 'buttonLink', type: 'url', label: 'Buton Linki' },
-      { field: 'imageUrl', type: 'image', label: 'Görsel' },
-      { field: 'imagePosition', type: 'select', label: 'Görsel Tarafı', options: [{ value: 'left', label: 'Sol' }, { value: 'right', label: 'Sağ' }] },
+      { field: 'title',         type: 'text',     label: 'Başlık',                                                                                            group: 'content' },
+      { field: 'subtitle',      type: 'text',     label: 'Alt Başlık',                                                                                        group: 'content' },
+      { field: 'text',          type: 'textarea', label: 'Metin', rows: 3,                                                                                    group: 'content' },
+      { field: 'buttonText',    type: 'text',     label: 'Buton Metni',                                                                                       group: 'style'   },
+      { field: 'buttonLink',    type: 'url',      label: 'Buton Linki',                                                                                       group: 'style'   },
+      { field: 'imageUrl',      type: 'image',    label: 'Görsel',                                                                                            group: 'visual'  },
+      { field: 'imagePosition', type: 'select',   label: 'Görsel Tarafı', options: [{ value: 'left', label: 'Sol' }, { value: 'right', label: 'Sağ' }],      group: 'visual'  },
     ],
+    children: [
+      { key: 'title',      label: 'Başlık',     selector: 'h2'     },
+      { key: 'subtitle',   label: 'Alt Başlık', selector: 'h3'     },
+      { key: 'text',       label: 'Metin',      selector: 'p'      },
+      { key: 'buttonText', label: 'Buton',      selector: 'button' },
+      { key: 'imageUrl',   label: 'Görsel',     selector: 'img'    },
+    ],
+    toCss: (props, theme) => {
+      return [
+        `.hero-split { font-family: ${theme.typography.fontFamily}; }`,
+        `.hero-split h2 { color: ${theme.colors.text}; font-weight: ${theme.typography.headingWeight}; }`,
+        `.hero-split h3 { color: ${theme.colors.primary}; }`,
+        `.hero-split p { color: ${theme.colors.textMuted}; line-height: ${theme.typography.lineHeight}; }`,
+        `.hero-split button { background: ${theme.colors.primary}; border-radius: ${theme.borderRadius.button}; }`,
+      ].join('\n');
+    },
   },
 
   // ── Content ──────────────────────────────────────────────────────────
@@ -98,11 +139,23 @@ export const BLOCK_REGISTRY: BlockDefinition[] = [
       imagePosition: 'left',
     },
     propsSchema: [
-      { field: 'title', type: 'text', label: 'Başlık' },
-      { field: 'text', type: 'richtext', label: 'Metin' },
-      { field: 'imageUrl', type: 'image', label: 'Görsel' },
-      { field: 'imagePosition', type: 'select', label: 'Görsel Tarafı', options: [{ value: 'left', label: 'Sol' }, { value: 'right', label: 'Sağ' }] },
+      { field: 'title',         type: 'text',    label: 'Başlık',                                                                                       group: 'content' },
+      { field: 'text',          type: 'richtext', label: 'Metin',                                                                                        group: 'content' },
+      { field: 'imageUrl',      type: 'image',   label: 'Görsel',                                                                                        group: 'visual'  },
+      { field: 'imagePosition', type: 'select',  label: 'Görsel Tarafı', options: [{ value: 'left', label: 'Sol' }, { value: 'right', label: 'Sağ' }],  group: 'visual'  },
     ],
+    children: [
+      { key: 'title',    label: 'Başlık', selector: 'h2'       },
+      { key: 'text',     label: 'Metin',  selector: 'div.text' },
+      { key: 'imageUrl', label: 'Görsel', selector: 'img'      },
+    ],
+    toCss: (props, theme) => {
+      return [
+        `.text-image { font-family: ${theme.typography.fontFamily}; }`,
+        `.text-image h2 { color: ${theme.colors.text}; font-weight: ${theme.typography.headingWeight}; }`,
+        `.text-image div.text { color: ${theme.colors.textMuted}; line-height: ${theme.typography.lineHeight}; }`,
+      ].join('\n');
+    },
   },
   {
     type: 'rich-text',
@@ -113,8 +166,16 @@ export const BLOCK_REGISTRY: BlockDefinition[] = [
       html: '<p>İçeriğinizi buraya yazın.</p>',
     },
     propsSchema: [
-      { field: 'html', type: 'richtext', label: 'İçerik' },
+      { field: 'html', type: 'richtext', label: 'İçerik', group: 'content' },
     ],
+    children: [
+      { key: 'html', label: 'İçerik', selector: 'div' },
+    ],
+    toCss: (_props, theme) => {
+      return [
+        `.rich-text { font-family: ${theme.typography.fontFamily}; color: ${theme.colors.text}; line-height: ${theme.typography.lineHeight}; }`,
+      ].join('\n');
+    },
   },
   {
     type: 'stats-bar',
@@ -131,13 +192,23 @@ export const BLOCK_REGISTRY: BlockDefinition[] = [
     },
     propsSchema: [
       {
-        field: 'items', type: 'json-array', label: 'İstatistikler',
+        field: 'items', type: 'json-array', label: 'İstatistikler', group: 'content',
         itemSchema: [
           { key: 'value', label: 'Değer', type: 'text', placeholder: '10.000+' },
           { key: 'label', label: 'Etiket', type: 'text', placeholder: 'Mutlu Müşteri' },
         ],
       },
     ],
+    children: [
+      { key: 'items', label: 'İstatistikler', selector: 'ul' },
+    ],
+    toCss: (_props, theme) => {
+      return [
+        `.stats-bar { background: ${theme.colors.surface}; font-family: ${theme.typography.fontFamily}; }`,
+        `.stats-bar .value { color: ${theme.colors.primary}; font-weight: ${theme.typography.headingWeight}; }`,
+        `.stats-bar .label { color: ${theme.colors.textMuted}; }`,
+      ].join('\n');
+    },
   },
   {
     type: 'video-embed',
@@ -151,11 +222,20 @@ export const BLOCK_REGISTRY: BlockDefinition[] = [
       muted: true,
     },
     propsSchema: [
-      { field: 'title', type: 'text', label: 'Başlık' },
-      { field: 'url', type: 'url', label: 'YouTube/Vimeo URL' },
-      { field: 'autoplay', type: 'boolean', label: 'Otomatik Oynat' },
-      { field: 'muted', type: 'boolean', label: 'Sessiz' },
+      { field: 'title',    type: 'text',    label: 'Başlık',          group: 'content'  },
+      { field: 'url',      type: 'url',     label: 'YouTube/Vimeo URL', group: 'content' },
+      { field: 'autoplay', type: 'boolean', label: 'Otomatik Oynat',  group: 'advanced' },
+      { field: 'muted',    type: 'boolean', label: 'Sessiz',          group: 'advanced' },
     ],
+    children: [
+      { key: 'title', label: 'Başlık',    selector: 'h3'     },
+      { key: 'url',   label: 'Video URL', selector: 'iframe' },
+    ],
+    toCss: (_props, theme) => {
+      return [
+        `.video-embed h3 { color: ${theme.colors.text}; font-family: ${theme.typography.fontFamily}; font-weight: ${theme.typography.headingWeight}; }`,
+      ].join('\n');
+    },
   },
 
   // ── Commerce ─────────────────────────────────────────────────────────
@@ -171,11 +251,20 @@ export const BLOCK_REGISTRY: BlockDefinition[] = [
       sortBy: 'newest',
     },
     propsSchema: [
-      { field: 'title', type: 'text', label: 'Başlık' },
-      { field: 'limit', type: 'number', label: 'Ürün Sayısı' },
-      { field: 'columns', type: 'select', label: 'Kolon Sayısı', options: [{ value: '2', label: '2' }, { value: '3', label: '3' }, { value: '4', label: '4' }] },
-      { field: 'sortBy', type: 'select', label: 'Sıralama', options: [{ value: 'newest', label: 'Yeni' }, { value: 'featured', label: 'Öne Çıkan' }, { value: 'bestselling', label: 'Çok Satan' }] },
+      { field: 'title',   type: 'text',   label: 'Başlık',       group: 'content'  },
+      { field: 'limit',   type: 'number', label: 'Ürün Sayısı',  group: 'advanced' },
+      { field: 'columns', type: 'select', label: 'Kolon Sayısı', group: 'style',   options: [{ value: '2', label: '2' }, { value: '3', label: '3' }, { value: '4', label: '4' }] },
+      { field: 'sortBy',  type: 'select', label: 'Sıralama',     group: 'advanced', options: [{ value: 'newest', label: 'Yeni' }, { value: 'featured', label: 'Öne Çıkan' }, { value: 'bestselling', label: 'Çok Satan' }] },
     ],
+    children: [
+      { key: 'title', label: 'Başlık', selector: 'h2' },
+    ],
+    toCss: (_props, theme) => {
+      return [
+        `.featured-products h2 { color: ${theme.colors.text}; font-family: ${theme.typography.fontFamily}; font-weight: ${theme.typography.headingWeight}; }`,
+        `.featured-products .product-card { border-radius: ${theme.borderRadius.card}; box-shadow: ${theme.shadows.card}; background: ${theme.colors.surface}; }`,
+      ].join('\n');
+    },
   },
   {
     type: 'categories-grid',
@@ -188,10 +277,19 @@ export const BLOCK_REGISTRY: BlockDefinition[] = [
       columns: 3,
     },
     propsSchema: [
-      { field: 'title', type: 'text', label: 'Başlık' },
-      { field: 'limit', type: 'number', label: 'Kategori Sayısı' },
-      { field: 'columns', type: 'select', label: 'Kolon Sayısı', options: [{ value: '2', label: '2' }, { value: '3', label: '3' }, { value: '4', label: '4' }] },
+      { field: 'title',   type: 'text',   label: 'Başlık',          group: 'content'  },
+      { field: 'limit',   type: 'number', label: 'Kategori Sayısı', group: 'advanced' },
+      { field: 'columns', type: 'select', label: 'Kolon Sayısı',    group: 'style',   options: [{ value: '2', label: '2' }, { value: '3', label: '3' }, { value: '4', label: '4' }] },
     ],
+    children: [
+      { key: 'title', label: 'Başlık', selector: 'h2' },
+    ],
+    toCss: (_props, theme) => {
+      return [
+        `.categories-grid h2 { color: ${theme.colors.text}; font-family: ${theme.typography.fontFamily}; font-weight: ${theme.typography.headingWeight}; }`,
+        `.categories-grid .category-card { border-radius: ${theme.borderRadius.card}; }`,
+      ].join('\n');
+    },
   },
   {
     type: 'brand-logos',
@@ -203,15 +301,25 @@ export const BLOCK_REGISTRY: BlockDefinition[] = [
       logos: [],
     },
     propsSchema: [
-      { field: 'title', type: 'text', label: 'Başlık' },
+      { field: 'title', type: 'text', label: 'Başlık', group: 'content' },
       {
-        field: 'logos', type: 'json-array', label: 'Logolar',
+        field: 'logos', type: 'json-array', label: 'Logolar', group: 'content',
         itemSchema: [
           { key: 'imageUrl', label: 'Görsel URL', type: 'url', placeholder: 'https://...' },
-          { key: 'link', label: 'Link (opsiyonel)', type: 'url', placeholder: 'https://...' },
+          { key: 'link',     label: 'Link (opsiyonel)', type: 'url', placeholder: 'https://...' },
         ],
       },
     ],
+    children: [
+      { key: 'title', label: 'Başlık',      selector: 'h3' },
+      { key: 'logos', label: 'Logo Listesi', selector: 'ul' },
+    ],
+    toCss: (_props, theme) => {
+      return [
+        `.brand-logos h3 { color: ${theme.colors.text}; font-family: ${theme.typography.fontFamily}; }`,
+        `.brand-logos { background: ${theme.colors.surface}; }`,
+      ].join('\n');
+    },
   },
 
   // ── Marketing ────────────────────────────────────────────────────────
@@ -227,11 +335,23 @@ export const BLOCK_REGISTRY: BlockDefinition[] = [
       successMessage: 'Teşekkürler! Abone oldunuz.',
     },
     propsSchema: [
-      { field: 'title', type: 'text', label: 'Başlık' },
-      { field: 'text', type: 'textarea', label: 'Açıklama', rows: 2 },
-      { field: 'buttonText', type: 'text', label: 'Buton Metni' },
-      { field: 'successMessage', type: 'text', label: 'Başarı Mesajı' },
+      { field: 'title',          type: 'text',     label: 'Başlık',        group: 'content' },
+      { field: 'text',           type: 'textarea', label: 'Açıklama', rows: 2, group: 'content' },
+      { field: 'buttonText',     type: 'text',     label: 'Buton Metni',   group: 'style'   },
+      { field: 'successMessage', type: 'text',     label: 'Başarı Mesajı', group: 'content' },
     ],
+    children: [
+      { key: 'title',      label: 'Başlık',    selector: 'h2'     },
+      { key: 'text',       label: 'Açıklama',  selector: 'p'      },
+      { key: 'buttonText', label: 'Buton',     selector: 'button' },
+    ],
+    toCss: (_props, theme) => {
+      return [
+        `.newsletter h2 { color: ${theme.colors.text}; font-family: ${theme.typography.fontFamily}; font-weight: ${theme.typography.headingWeight}; }`,
+        `.newsletter p { color: ${theme.colors.textMuted}; }`,
+        `.newsletter button { background: ${theme.colors.primary}; border-radius: ${theme.borderRadius.button}; }`,
+      ].join('\n');
+    },
   },
   {
     type: 'testimonials',
@@ -249,17 +369,27 @@ export const BLOCK_REGISTRY: BlockDefinition[] = [
       ],
     },
     propsSchema: [
-      { field: 'title', type: 'text', label: 'Başlık' },
+      { field: 'title', type: 'text', label: 'Başlık', group: 'content' },
       {
-        field: 'items', type: 'json-array', label: 'Yedek Yorumlar (API yoksa)',
+        field: 'items', type: 'json-array', label: 'Yedek Yorumlar (API yoksa)', group: 'content',
         itemSchema: [
-          { key: 'name', label: 'İsim', type: 'text', placeholder: 'Ayşe K.' },
-          { key: 'role', label: 'Unvan', type: 'text', placeholder: 'Müşteri' },
-          { key: 'quote', label: 'Yorum', type: 'textarea', placeholder: 'Harika bir deneyim!' },
-          { key: 'rating', label: 'Puan (1-5)', type: 'number', placeholder: '5' },
+          { key: 'name',   label: 'İsim',        type: 'text',     placeholder: 'Ayşe K.'             },
+          { key: 'role',   label: 'Unvan',        type: 'text',     placeholder: 'Müşteri'             },
+          { key: 'quote',  label: 'Yorum',        type: 'textarea', placeholder: 'Harika bir deneyim!' },
+          { key: 'rating', label: 'Puan (1-5)',   type: 'number',   placeholder: '5'                  },
         ],
       },
     ],
+    children: [
+      { key: 'title', label: 'Başlık',  selector: 'h2' },
+      { key: 'items', label: 'Yorumlar', selector: 'ul' },
+    ],
+    toCss: (_props, theme) => {
+      return [
+        `.testimonials h2 { color: ${theme.colors.text}; font-family: ${theme.typography.fontFamily}; font-weight: ${theme.typography.headingWeight}; }`,
+        `.testimonials .testimonial-card { background: ${theme.colors.surface}; border-radius: ${theme.borderRadius.card}; box-shadow: ${theme.shadows.card}; }`,
+      ].join('\n');
+    },
   },
   {
     type: 'countdown',
@@ -272,10 +402,21 @@ export const BLOCK_REGISTRY: BlockDefinition[] = [
       message: 'Bu fırsatı kaçırmayın',
     },
     propsSchema: [
-      { field: 'title', type: 'text', label: 'Başlık' },
-      { field: 'targetDate', type: 'text', label: 'Hedef Tarih (ISO)' },
-      { field: 'message', type: 'text', label: 'Mesaj' },
+      { field: 'title',      type: 'text', label: 'Başlık',              group: 'content'  },
+      { field: 'targetDate', type: 'text', label: 'Hedef Tarih (ISO)',   group: 'advanced' },
+      { field: 'message',    type: 'text', label: 'Mesaj',               group: 'content'  },
     ],
+    children: [
+      { key: 'title',   label: 'Başlık', selector: 'h2' },
+      { key: 'message', label: 'Mesaj',  selector: 'p'  },
+    ],
+    toCss: (_props, theme) => {
+      return [
+        `.countdown h2 { color: ${theme.colors.text}; font-family: ${theme.typography.fontFamily}; font-weight: ${theme.typography.headingWeight}; }`,
+        `.countdown .timer-digit { color: ${theme.colors.primary}; font-size: 2rem; }`,
+        `.countdown p { color: ${theme.colors.textMuted}; }`,
+      ].join('\n');
+    },
   },
   {
     type: 'promo-banner',
@@ -293,13 +434,25 @@ export const BLOCK_REGISTRY: BlockDefinition[] = [
       dismissable: true,
     },
     propsSchema: [
-      { field: 'message', type: 'text', label: 'Mesaj (Yedek)' },
-      { field: 'buttonText', type: 'text', label: 'Buton Metni' },
-      { field: 'buttonLink', type: 'url', label: 'Buton Linki' },
-      { field: 'backgroundColor', type: 'color', label: 'Arka Plan Rengi' },
-      { field: 'textColor', type: 'color', label: 'Yazı Rengi' },
-      { field: 'dismissable', type: 'boolean', label: 'Kapatılabilir' },
+      { field: 'message',         type: 'text',    label: 'Mesaj (Yedek)',   group: 'content'  },
+      { field: 'buttonText',      type: 'text',    label: 'Buton Metni',     group: 'style'    },
+      { field: 'buttonLink',      type: 'url',     label: 'Buton Linki',     group: 'style'    },
+      { field: 'backgroundColor', type: 'color',   label: 'Arka Plan Rengi', group: 'visual'   },
+      { field: 'textColor',       type: 'color',   label: 'Yazı Rengi',      group: 'visual'   },
+      { field: 'dismissable',     type: 'boolean', label: 'Kapatılabilir',   group: 'advanced' },
     ],
+    children: [
+      { key: 'message',    label: 'Mesaj', selector: 'span'   },
+      { key: 'buttonText', label: 'Buton', selector: 'button' },
+    ],
+    toCss: (props, _theme) => {
+      const bg   = (props['backgroundColor'] as string | undefined) ?? '#ec4899';
+      const text = (props['textColor']       as string | undefined) ?? '#ffffff';
+      return [
+        `.promo-banner { background: ${bg}; color: ${text}; }`,
+        `.promo-banner button { color: ${bg}; background: ${text}; }`,
+      ].join('\n');
+    },
   },
   {
     type: 'slider',
@@ -311,8 +464,11 @@ export const BLOCK_REGISTRY: BlockDefinition[] = [
       height: '500px',
     },
     propsSchema: [
-      { field: 'sliderId', type: 'text', label: 'Slider ID', placeholder: 'Slider UUID' },
-      { field: 'height', type: 'text', label: 'Yükseklik', placeholder: '500px' },
+      { field: 'sliderId', type: 'text', label: 'Slider ID',   placeholder: 'Slider UUID', group: 'advanced' },
+      { field: 'height',   type: 'text', label: 'Yükseklik',   placeholder: '500px',       group: 'visual'   },
+    ],
+    children: [
+      { key: 'sliderId', label: 'Slider ID', selector: 'div' },
     ],
   },
   {
@@ -326,10 +482,19 @@ export const BLOCK_REGISTRY: BlockDefinition[] = [
       maxItems: 10,
     },
     propsSchema: [
-      { field: 'title', type: 'text', label: 'Başlık' },
-      { field: 'category', type: 'text', label: 'Kategori Filtresi', placeholder: 'Boş = Tümü' },
-      { field: 'maxItems', type: 'number', label: 'Maksimum Öğe' },
+      { field: 'title',    type: 'text',   label: 'Başlık',                                  group: 'content'  },
+      { field: 'category', type: 'text',   label: 'Kategori Filtresi', placeholder: 'Boş = Tümü', group: 'advanced' },
+      { field: 'maxItems', type: 'number', label: 'Maksimum Öğe',                             group: 'advanced' },
     ],
+    children: [
+      { key: 'title', label: 'Başlık', selector: 'h2' },
+    ],
+    toCss: (_props, theme) => {
+      return [
+        `.faq h2 { color: ${theme.colors.text}; font-family: ${theme.typography.fontFamily}; font-weight: ${theme.typography.headingWeight}; }`,
+        `.faq .faq-item { border-bottom: 1px solid ${theme.colors.border}; }`,
+      ].join('\n');
+    },
   },
 
   // ── Forms ─────────────────────────────────────────────────────────────
@@ -348,14 +513,28 @@ export const BLOCK_REGISTRY: BlockDefinition[] = [
       successMessage: 'Mesajınız alındı!',
     },
     propsSchema: [
-      { field: 'title', type: 'text', label: 'Başlık' },
-      { field: 'subtitle', type: 'text', label: 'Alt Başlık' },
-      { field: 'showPhone', type: 'boolean', label: 'Telefon Alanı' },
-      { field: 'showSubject', type: 'boolean', label: 'Konu Alanı' },
-      { field: 'buttonText', type: 'text', label: 'Buton Metni' },
-      { field: 'buttonColor', type: 'color', label: 'Buton Rengi' },
-      { field: 'successMessage', type: 'text', label: 'Başarı Mesajı' },
+      { field: 'title',          type: 'text',    label: 'Başlık',        group: 'content'  },
+      { field: 'subtitle',       type: 'text',    label: 'Alt Başlık',    group: 'content'  },
+      { field: 'showPhone',      type: 'boolean', label: 'Telefon Alanı', group: 'advanced' },
+      { field: 'showSubject',    type: 'boolean', label: 'Konu Alanı',    group: 'advanced' },
+      { field: 'buttonText',     type: 'text',    label: 'Buton Metni',   group: 'style'    },
+      { field: 'buttonColor',    type: 'color',   label: 'Buton Rengi',   group: 'style'    },
+      { field: 'successMessage', type: 'text',    label: 'Başarı Mesajı', group: 'content'  },
     ],
+    children: [
+      { key: 'title',      label: 'Başlık',         selector: 'h2'     },
+      { key: 'subtitle',   label: 'Alt Başlık',      selector: 'p'      },
+      { key: 'buttonText', label: 'Gönder Butonu',   selector: 'button' },
+    ],
+    toCss: (props, theme) => {
+      const btnColor = (props['buttonColor'] as string | undefined) ?? theme.colors.primary;
+      return [
+        `.contact-form h2 { color: ${theme.colors.text}; font-family: ${theme.typography.fontFamily}; font-weight: ${theme.typography.headingWeight}; }`,
+        `.contact-form p { color: ${theme.colors.textMuted}; }`,
+        `.contact-form button[type="submit"] { background: ${btnColor}; border-radius: ${theme.borderRadius.button}; }`,
+        `.contact-form input, .contact-form textarea { border: 1px solid ${theme.colors.border}; border-radius: ${theme.borderRadius.md}; }`,
+      ].join('\n');
+    },
   },
 
   // ── Advanced ─────────────────────────────────────────────────────────
@@ -368,7 +547,10 @@ export const BLOCK_REGISTRY: BlockDefinition[] = [
       html: '<!-- Özel HTML kodunuzu buraya yazın -->',
     },
     propsSchema: [
-      { field: 'html', type: 'richtext', label: 'HTML Kodu' },
+      { field: 'html', type: 'richtext', label: 'HTML Kodu', group: 'content' },
+    ],
+    children: [
+      { key: 'html', label: 'HTML', selector: 'div' },
     ],
   },
 
@@ -382,21 +564,32 @@ export const BLOCK_REGISTRY: BlockDefinition[] = [
       title: 'Ekibimiz',
       items: [
         { name: 'Ahmet Yılmaz', role: 'CEO', imageUrl: '', linkedIn: '' },
-        { name: 'Ayşe Demir', role: 'CTO', imageUrl: '', linkedIn: '' },
+        { name: 'Ayşe Demir',   role: 'CTO', imageUrl: '', linkedIn: '' },
       ],
       columns: 3,
     },
     propsSchema: [
-      { field: 'title', type: 'text', label: 'Başlık' },
-      { field: 'columns', type: 'select', label: 'Kolon', options: [{ value: '2', label: '2' }, { value: '3', label: '3' }, { value: '4', label: '4' }] },
+      { field: 'title',   type: 'text',   label: 'Başlık', group: 'content' },
+      { field: 'columns', type: 'select', label: 'Kolon',  group: 'style',  options: [{ value: '2', label: '2' }, { value: '3', label: '3' }, { value: '4', label: '4' }] },
       {
-        field: 'items', type: 'json-array', label: 'Üyeler', itemSchema: [
-          { key: 'name', label: 'İsim', type: 'text' },
-          { key: 'role', label: 'Unvan', type: 'text' },
-          { key: 'imageUrl', label: 'Fotoğraf URL', type: 'url' },
+        field: 'items', type: 'json-array', label: 'Üyeler', group: 'content',
+        itemSchema: [
+          { key: 'name',     label: 'İsim',         type: 'text' },
+          { key: 'role',     label: 'Unvan',        type: 'text' },
+          { key: 'imageUrl', label: 'Fotoğraf URL', type: 'url'  },
         ],
       },
     ],
+    children: [
+      { key: 'title', label: 'Başlık', selector: 'h2' },
+      { key: 'items', label: 'Üyeler', selector: 'ul' },
+    ],
+    toCss: (_props, theme) => {
+      return [
+        `.team-grid h2 { color: ${theme.colors.text}; font-family: ${theme.typography.fontFamily}; font-weight: ${theme.typography.headingWeight}; }`,
+        `.team-grid .member-card { background: ${theme.colors.surface}; border-radius: ${theme.borderRadius.card}; box-shadow: ${theme.shadows.card}; }`,
+      ].join('\n');
+    },
   },
   {
     type: 'services-grid',
@@ -406,22 +599,33 @@ export const BLOCK_REGISTRY: BlockDefinition[] = [
     defaultProps: {
       title: 'Hizmetlerimiz',
       items: [
-        { icon: 'FaRocket', title: 'Hızlı Teslimat', description: 'Aynı gün kargo imkânı.' },
-        { icon: 'FaShieldAlt', title: 'Güvenli Ödeme', description: '256-bit SSL koruması.' },
-        { icon: 'FaHeadset', title: '7/24 Destek', description: 'Her zaman yanınızdayız.' },
+        { icon: 'FaRocket',   title: 'Hızlı Teslimat', description: 'Aynı gün kargo imkânı.'   },
+        { icon: 'FaShieldAlt', title: 'Güvenli Ödeme', description: '256-bit SSL koruması.'    },
+        { icon: 'FaHeadset',  title: '7/24 Destek',   description: 'Her zaman yanınızdayız.'   },
       ],
       columns: 3,
     },
     propsSchema: [
-      { field: 'title', type: 'text', label: 'Başlık' },
-      { field: 'columns', type: 'select', label: 'Kolon', options: [{ value: '2', label: '2' }, { value: '3', label: '3' }, { value: '4', label: '4' }] },
+      { field: 'title',   type: 'text',   label: 'Başlık', group: 'content' },
+      { field: 'columns', type: 'select', label: 'Kolon',  group: 'style',  options: [{ value: '2', label: '2' }, { value: '3', label: '3' }, { value: '4', label: '4' }] },
       {
-        field: 'items', type: 'json-array', label: 'Hizmetler', itemSchema: [
-          { key: 'title', label: 'Başlık', type: 'text' },
+        field: 'items', type: 'json-array', label: 'Hizmetler', group: 'content',
+        itemSchema: [
+          { key: 'title',       label: 'Başlık',  type: 'text'     },
           { key: 'description', label: 'Açıklama', type: 'textarea' },
         ],
       },
     ],
+    children: [
+      { key: 'title', label: 'Başlık',    selector: 'h2' },
+      { key: 'items', label: 'Hizmetler', selector: 'ul' },
+    ],
+    toCss: (_props, theme) => {
+      return [
+        `.services-grid h2 { color: ${theme.colors.text}; font-family: ${theme.typography.fontFamily}; font-weight: ${theme.typography.headingWeight}; }`,
+        `.services-grid .service-card { background: ${theme.colors.surface}; border-radius: ${theme.borderRadius.card}; box-shadow: ${theme.shadows.card}; }`,
+      ].join('\n');
+    },
   },
   {
     type: 'blog-list',
@@ -436,11 +640,20 @@ export const BLOCK_REGISTRY: BlockDefinition[] = [
       dataSource: 'api',
     },
     propsSchema: [
-      { field: 'title', type: 'text', label: 'Başlık' },
-      { field: 'limit', type: 'number', label: 'Yazı Sayısı' },
-      { field: 'columns', type: 'select', label: 'Kolon', options: [{ value: '1', label: '1' }, { value: '2', label: '2' }, { value: '3', label: '3' }] },
-      { field: 'showFeaturedImage', type: 'boolean', label: 'Kapak Görseli' },
+      { field: 'title',             type: 'text',    label: 'Başlık',        group: 'content'  },
+      { field: 'limit',             type: 'number',  label: 'Yazı Sayısı',   group: 'advanced' },
+      { field: 'columns',           type: 'select',  label: 'Kolon',         group: 'style',   options: [{ value: '1', label: '1' }, { value: '2', label: '2' }, { value: '3', label: '3' }] },
+      { field: 'showFeaturedImage', type: 'boolean', label: 'Kapak Görseli', group: 'visual'   },
     ],
+    children: [
+      { key: 'title', label: 'Başlık', selector: 'h2' },
+    ],
+    toCss: (_props, theme) => {
+      return [
+        `.blog-list h2 { color: ${theme.colors.text}; font-family: ${theme.typography.fontFamily}; font-weight: ${theme.typography.headingWeight}; }`,
+        `.blog-list .post-card { background: ${theme.colors.surface}; border-radius: ${theme.borderRadius.card}; box-shadow: ${theme.shadows.card}; }`,
+      ].join('\n');
+    },
   },
   {
     type: 'timeline',
@@ -450,21 +663,33 @@ export const BLOCK_REGISTRY: BlockDefinition[] = [
     defaultProps: {
       title: 'Tarihçemiz',
       items: [
-        { year: '2018', title: 'Kuruluş', description: 'Şirketimiz kuruldu.' },
-        { year: '2020', title: 'Büyüme', description: '100 çalışana ulaştık.' },
-        { year: '2024', title: 'İnovasyon', description: 'Yeni ürün serimizi lansmanladık.' },
+        { year: '2018', title: 'Kuruluş',   description: 'Şirketimiz kuruldu.'                  },
+        { year: '2020', title: 'Büyüme',    description: '100 çalışana ulaştık.'               },
+        { year: '2024', title: 'İnovasyon', description: 'Yeni ürün serimizi lansmanladık.'     },
       ],
     },
     propsSchema: [
-      { field: 'title', type: 'text', label: 'Başlık' },
+      { field: 'title', type: 'text', label: 'Başlık', group: 'content' },
       {
-        field: 'items', type: 'json-array', label: 'Etkinlikler', itemSchema: [
-          { key: 'year', label: 'Yıl / Tarih', type: 'text' },
-          { key: 'title', label: 'Başlık', type: 'text' },
-          { key: 'description', label: 'Açıklama', type: 'textarea' },
+        field: 'items', type: 'json-array', label: 'Etkinlikler', group: 'content',
+        itemSchema: [
+          { key: 'year',        label: 'Yıl / Tarih', type: 'text'     },
+          { key: 'title',       label: 'Başlık',      type: 'text'     },
+          { key: 'description', label: 'Açıklama',    type: 'textarea' },
         ],
       },
     ],
+    children: [
+      { key: 'title', label: 'Başlık',     selector: 'h2' },
+      { key: 'items', label: 'Etkinlikler', selector: 'ol' },
+    ],
+    toCss: (_props, theme) => {
+      return [
+        `.timeline h2 { color: ${theme.colors.text}; font-family: ${theme.typography.fontFamily}; font-weight: ${theme.typography.headingWeight}; }`,
+        `.timeline .timeline-item::before { background: ${theme.colors.primary}; }`,
+        `.timeline .timeline-year { color: ${theme.colors.primary}; font-weight: ${theme.typography.headingWeight}; }`,
+      ].join('\n');
+    },
   },
   {
     type: 'portfolio-grid',
@@ -474,23 +699,34 @@ export const BLOCK_REGISTRY: BlockDefinition[] = [
     defaultProps: {
       title: 'Projelerimiz',
       items: [
-        { title: 'Proje 1', category: 'Web', imageUrl: '', url: '' },
+        { title: 'Proje 1', category: 'Web',   imageUrl: '', url: '' },
         { title: 'Proje 2', category: 'Mobil', imageUrl: '', url: '' },
       ],
       columns: 3,
     },
     propsSchema: [
-      { field: 'title', type: 'text', label: 'Başlık' },
-      { field: 'columns', type: 'select', label: 'Kolon', options: [{ value: '2', label: '2' }, { value: '3', label: '3' }, { value: '4', label: '4' }] },
+      { field: 'title',   type: 'text',   label: 'Başlık', group: 'content' },
+      { field: 'columns', type: 'select', label: 'Kolon',  group: 'style',  options: [{ value: '2', label: '2' }, { value: '3', label: '3' }, { value: '4', label: '4' }] },
       {
-        field: 'items', type: 'json-array', label: 'Projeler', itemSchema: [
-          { key: 'title', label: 'Başlık', type: 'text' },
-          { key: 'category', label: 'Kategori', type: 'text' },
+        field: 'items', type: 'json-array', label: 'Projeler', group: 'content',
+        itemSchema: [
+          { key: 'title',    label: 'Başlık',    type: 'text' },
+          { key: 'category', label: 'Kategori',  type: 'text' },
           { key: 'imageUrl', label: 'Görsel URL', type: 'url' },
-          { key: 'url', label: 'Proje Linki', type: 'url' },
+          { key: 'url',      label: 'Proje Linki', type: 'url' },
         ],
       },
     ],
+    children: [
+      { key: 'title', label: 'Başlık',  selector: 'h2' },
+      { key: 'items', label: 'Projeler', selector: 'ul' },
+    ],
+    toCss: (_props, theme) => {
+      return [
+        `.portfolio-grid h2 { color: ${theme.colors.text}; font-family: ${theme.typography.fontFamily}; font-weight: ${theme.typography.headingWeight}; }`,
+        `.portfolio-grid .portfolio-item { border-radius: ${theme.borderRadius.card}; overflow: hidden; box-shadow: ${theme.shadows.card}; }`,
+      ].join('\n');
+    },
   },
   {
     type: 'map-embed',
@@ -503,21 +739,30 @@ export const BLOCK_REGISTRY: BlockDefinition[] = [
       title: 'Konum',
     },
     propsSchema: [
-      { field: 'title', type: 'text', label: 'Başlık' },
-      { field: 'embedUrl', type: 'url', label: 'Google Maps Embed URL' },
-      { field: 'height', type: 'text', label: 'Yükseklik' },
+      { field: 'title',    type: 'text', label: 'Başlık',                  group: 'content' },
+      { field: 'embedUrl', type: 'url',  label: 'Google Maps Embed URL',   group: 'content' },
+      { field: 'height',   type: 'text', label: 'Yükseklik',               group: 'visual'  },
     ],
+    children: [
+      { key: 'title',    label: 'Başlık', selector: 'h3'     },
+      { key: 'embedUrl', label: 'Harita', selector: 'iframe' },
+    ],
+    toCss: (_props, theme) => {
+      return [
+        `.map-embed h3 { color: ${theme.colors.text}; font-family: ${theme.typography.fontFamily}; }`,
+      ].join('\n');
+    },
   },
 ];
 
 export const BLOCK_BY_TYPE = Object.fromEntries(BLOCK_REGISTRY.map(b => [b.type, b]));
 
 export const BLOCK_CATEGORIES = {
-  hero: 'Hero',
-  content: 'İçerik',
-  commerce: 'E-Ticaret',
+  hero:      'Hero',
+  content:   'İçerik',
+  commerce:  'E-Ticaret',
   marketing: 'Pazarlama',
-  forms: 'Formlar',
-  advanced: 'Gelişmiş',
+  forms:     'Formlar',
+  advanced:  'Gelişmiş',
   corporate: 'Kurumsal',
 } as const;

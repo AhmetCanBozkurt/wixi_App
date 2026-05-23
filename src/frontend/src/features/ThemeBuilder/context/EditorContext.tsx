@@ -24,6 +24,7 @@ export interface EditorState {
   customCss: string;
   customJs: string;
   selectedComponentId: string | null;
+  selectedPropKey: string | null;
   viewport: Viewport;
   leftTab: LeftTab;
   rightTab: RightTab;
@@ -50,6 +51,7 @@ export type EditorAction =
   | { type: 'MOVE_COMPONENT'; id: string; direction: 'up' | 'down' }
   | { type: 'UPDATE_COMPONENT_PROPS'; id: string; props: Record<string, unknown> }
   | { type: 'SELECT_COMPONENT'; id: string | null }
+  | { type: 'SELECT_PROP'; propKey: string | null }
   | { type: 'SET_VIEWPORT'; viewport: Viewport }
   | { type: 'SET_LEFT_TAB'; tab: LeftTab }
   | { type: 'SET_RIGHT_TAB'; tab: RightTab }
@@ -94,6 +96,7 @@ const initialState: EditorState = {
   customCss: '',
   customJs: '',
   selectedComponentId: null,
+  selectedPropKey: null,
   viewport: 'desktop',
   leftTab: 'pages',
   rightTab: 'props',
@@ -172,7 +175,10 @@ function reducer(state: EditorState, action: EditorAction): EditorState {
     }
 
     case 'SELECT_COMPONENT':
-      return { ...state, selectedComponentId: action.id, rightTab: action.id ? 'props' : state.rightTab };
+      return { ...state, selectedComponentId: action.id, selectedPropKey: null, rightTab: action.id ? 'props' : state.rightTab };
+
+    case 'SELECT_PROP':
+      return { ...state, selectedPropKey: action.propKey };
 
     case 'SET_VIEWPORT': return { ...state, viewport: action.viewport };
     case 'SET_LEFT_TAB': return { ...state, leftTab: action.tab };
@@ -280,5 +286,8 @@ export function EditorProvider({ children }: { children: ReactNode }) {
 export function useEditor() {
   const ctx = useContext(EditorContext);
   if (!ctx) throw new Error('useEditor must be used within EditorProvider');
-  return ctx;
+  return {
+    ...ctx,
+    selectProp: (propKey: string | null) => ctx.dispatch({ type: 'SELECT_PROP', propKey }),
+  };
 }

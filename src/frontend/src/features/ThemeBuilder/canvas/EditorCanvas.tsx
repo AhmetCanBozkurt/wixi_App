@@ -1,14 +1,102 @@
-import { useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { FaArrowUp, FaArrowDown, FaTrash, FaDesktop, FaTabletAlt, FaMobileAlt, FaCopy } from 'react-icons/fa';
 import { useEditor } from '../context/EditorContext';
 import { BLOCK_BY_TYPE } from '../blocks/blockRegistry';
 import { themeToVars } from '../../../entities/StorePage/model/defaultTheme';
-import type { LayoutComponent, ThemeConfig } from '../../../entities/StorePage/model/types';
+import type { LayoutComponent, ThemeConfig, GlobalComponentsConfig } from '../../../entities/StorePage/model/types';
 import styles from './EditorCanvas.module.css';
 
 const VIEWPORT_WIDTHS = { desktop: '100%', tablet: '768px', mobile: '375px' } as const;
 
-// ── Inline mini-renderers (canvas-only, no API calls) ────────────────────────
+// ── InsertZone ────────────────────────────────────────────────────────────────
+
+function InsertZone({ onInsert }: { onInsert: () => void }) {
+  return (
+    <div className={styles.insertZone} onClick={onInsert}>
+      <div className={styles.insertZoneLine} />
+      <button className={styles.insertZoneBtn} type="button">
+        + Bileşen Ekle
+      </button>
+    </div>
+  );
+}
+
+// ── Navbar Canvas Preview ─────────────────────────────────────────────────────
+
+function CanvasNavbarPreview({
+  config,
+  isSelected,
+  onClick,
+}: {
+  config: GlobalComponentsConfig['navbar'];
+  isSelected: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <div
+      className={`${styles.canvasNavbar} ${isSelected ? styles.canvasNavbarSelected : ''}`}
+      onClick={onClick}
+      title="Navbar'ı düzenle (Global sekmesi)"
+    >
+      <span className={styles.canvasNavbarLogo}>
+        {config.logoPosition === 'center' ? '— LOGO —' : 'LOGO'}
+      </span>
+      <div className={styles.canvasNavbarLinks}>
+        <span className={styles.canvasNavbarLink}>Anasayfa</span>
+        <span className={styles.canvasNavbarLink}>Ürünler</span>
+        <span className={styles.canvasNavbarLink}>Hakkında</span>
+        {config.showSearch && <span className={styles.canvasNavbarLink}>🔍</span>}
+      </div>
+    </div>
+  );
+}
+
+// ── Footer Canvas Preview ─────────────────────────────────────────────────────
+
+function CanvasFooterPreview({
+  config,
+  isSelected,
+  onClick,
+}: {
+  config: GlobalComponentsConfig['footer'];
+  isSelected: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <div
+      className={`${styles.canvasFooter} ${isSelected ? styles.canvasFooterSelected : ''}`}
+      onClick={onClick}
+      title="Footer'ı düzenle (Global sekmesi)"
+    >
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-around',
+          marginBottom: '12px',
+          flexWrap: 'wrap',
+          gap: '8px',
+        }}
+      >
+        {Array.from({ length: config.columnCount }).map((_, i) => (
+          <div key={i} style={{ fontSize: '10px', color: 'var(--editor-text-muted)' }}>
+            Kolon {i + 1}
+          </div>
+        ))}
+      </div>
+      <div
+        style={{
+          borderTop: '1px solid var(--editor-border)',
+          paddingTop: '8px',
+          fontSize: '11px',
+        }}
+      >
+        {config.copyrightText || '© 2024 Mağaza Adı'}
+      </div>
+    </div>
+  );
+}
+
+// ── MiniRenderer ──────────────────────────────────────────────────────────────
 
 function MiniRenderer({ comp, theme }: { comp: LayoutComponent; theme: ThemeConfig }) {
   const p = comp.props;
@@ -25,11 +113,32 @@ function MiniRenderer({ comp, theme }: { comp: LayoutComponent; theme: ThemeConf
             background: p.imageUrl ? undefined : 'linear-gradient(135deg, #1e293b, #0f172a)',
           }}
         >
-          <div className={styles.heroOverlayPrev} style={{ background: `rgba(0,0,0,${p.overlayOpacity ?? 0.4})` }}>
-            <h2 style={{ color: '#fff', fontSize: '1.5rem', fontWeight: 700 }}>{p.title as string}</h2>
-            {!!p.subtitle && <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>{p.subtitle as string}</p>}
+          <div
+            className={styles.heroOverlayPrev}
+            style={{ background: `rgba(0,0,0,${p.overlayOpacity ?? 0.4})` }}
+          >
+            <h2
+              data-prop-key="title"
+              style={{ color: '#fff', fontSize: '1.5rem', fontWeight: 700 }}
+            >
+              {p.title as string}
+            </h2>
+            {!!p.subtitle && (
+              <p
+                data-prop-key="subtitle"
+                style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}
+              >
+                {p.subtitle as string}
+              </p>
+            )}
             {!!p.buttonText && (
-              <span className={styles.previewBtn} style={{ background: theme.colors.primary }}>{p.buttonText as string}</span>
+              <span
+                data-prop-key="buttonText"
+                className={styles.previewBtn}
+                style={{ background: theme.colors.primary }}
+              >
+                {p.buttonText as string}
+              </span>
             )}
           </div>
         </div>
@@ -39,25 +148,81 @@ function MiniRenderer({ comp, theme }: { comp: LayoutComponent; theme: ThemeConf
       return (
         <div className={styles.heroSplitPrev}>
           <div className={styles.heroSplitText}>
-            <h3 style={{ color: theme.colors.primary, fontSize: '0.8rem', marginBottom: '4px' }}>{p.subtitle as string}</h3>
-            <h2 style={{ fontSize: '1.2rem', fontWeight: 700 }}>{p.title as string}</h2>
-            {!!p.buttonText && <span className={styles.previewBtn} style={{ background: theme.colors.primary }}>{p.buttonText as string}</span>}
+            <h3
+              data-prop-key="subtitle"
+              style={{ color: theme.colors.primary, fontSize: '0.8rem', marginBottom: '4px' }}
+            >
+              {p.subtitle as string}
+            </h3>
+            <h2 data-prop-key="title" style={{ fontSize: '1.2rem', fontWeight: 700 }}>
+              {p.title as string}
+            </h2>
+            {!!p.buttonText && (
+              <span
+                data-prop-key="buttonText"
+                className={styles.previewBtn}
+                style={{ background: theme.colors.primary }}
+              >
+                {p.buttonText as string}
+              </span>
+            )}
           </div>
-          <div className={styles.heroSplitImg} style={{ background: p.imageUrl ? `url(${p.imageUrl as string}) center/cover` : '#f3f4f6' }} />
+          <div
+            className={styles.heroSplitImg}
+            style={{
+              background: p.imageUrl
+                ? `url(${p.imageUrl as string}) center/cover`
+                : '#f3f4f6',
+            }}
+          />
         </div>
       );
 
     case 'featured-products':
       return (
         <div style={{ padding: '16px' }}>
-          <h3 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '12px', color: theme.colors.text }}>{p.title as string}</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(Number(p.columns ?? 4), 4)}, 1fr)`, gap: '8px' }}>
+          <h3
+            data-prop-key="title"
+            style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '12px', color: theme.colors.text }}
+          >
+            {p.title as string}
+          </h3>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: `repeat(${Math.min(Number(p.columns ?? 4), 4)}, 1fr)`,
+              gap: '8px',
+            }}
+          >
             {Array.from({ length: Math.min(Number(p.limit ?? 4), 8) }).map((_, i) => (
-              <div key={i} style={{ background: theme.colors.surface, borderRadius: theme.borderRadius.card, overflow: 'hidden', border: `1px solid ${theme.colors.border}` }}>
+              <div
+                key={i}
+                style={{
+                  background: theme.colors.surface,
+                  borderRadius: theme.borderRadius.card,
+                  overflow: 'hidden',
+                  border: `1px solid ${theme.colors.border}`,
+                }}
+              >
                 <div style={{ height: '60px', background: theme.colors.border }} />
                 <div style={{ padding: '8px' }}>
-                  <div style={{ height: '10px', background: theme.colors.border, borderRadius: '4px', marginBottom: '4px' }} />
-                  <div style={{ height: '10px', width: '60%', background: theme.colors.primary, borderRadius: '4px', opacity: 0.7 }} />
+                  <div
+                    style={{
+                      height: '10px',
+                      background: theme.colors.border,
+                      borderRadius: '4px',
+                      marginBottom: '4px',
+                    }}
+                  />
+                  <div
+                    style={{
+                      height: '10px',
+                      width: '60%',
+                      background: theme.colors.primary,
+                      borderRadius: '4px',
+                      opacity: 0.7,
+                    }}
+                  />
                 </div>
               </div>
             ))}
@@ -68,11 +233,36 @@ function MiniRenderer({ comp, theme }: { comp: LayoutComponent; theme: ThemeConf
     case 'categories-grid':
       return (
         <div style={{ padding: '16px' }}>
-          <h3 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '12px' }}>{p.title as string}</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(Number(p.columns ?? 3), 4)}, 1fr)`, gap: '8px' }}>
+          <h3 data-prop-key="title" style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '12px' }}>
+            {p.title as string}
+          </h3>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: `repeat(${Math.min(Number(p.columns ?? 3), 4)}, 1fr)`,
+              gap: '8px',
+            }}
+          >
             {Array.from({ length: Math.min(Number(p.limit ?? 6), 6) }).map((_, i) => (
-              <div key={i} style={{ background: theme.colors.surface, borderRadius: theme.borderRadius.card, padding: '12px', textAlign: 'center', border: `1px solid ${theme.colors.border}` }}>
-                <div style={{ width: '40px', height: '40px', borderRadius: theme.borderRadius.md, background: theme.colors.border, margin: '0 auto 6px' }} />
+              <div
+                key={i}
+                style={{
+                  background: theme.colors.surface,
+                  borderRadius: theme.borderRadius.card,
+                  padding: '12px',
+                  textAlign: 'center',
+                  border: `1px solid ${theme.colors.border}`,
+                }}
+              >
+                <div
+                  style={{
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: theme.borderRadius.md,
+                    background: theme.colors.border,
+                    margin: '0 auto 6px',
+                  }}
+                />
                 <div style={{ height: '8px', background: theme.colors.border, borderRadius: '4px' }} />
               </div>
             ))}
@@ -82,22 +272,60 @@ function MiniRenderer({ comp, theme }: { comp: LayoutComponent; theme: ThemeConf
 
     case 'text-image':
       return (
-        <div style={{ display: 'flex', gap: '16px', padding: '16px', flexDirection: p.imagePosition === 'right' ? 'row' : 'row-reverse' }}>
+        <div
+          style={{
+            display: 'flex',
+            gap: '16px',
+            padding: '16px',
+            flexDirection: p.imagePosition === 'right' ? 'row' : 'row-reverse',
+          }}
+        >
           <div style={{ flex: 1 }}>
-            <h3 style={{ fontWeight: 700, marginBottom: '8px', color: theme.colors.text }}>{p.title as string}</h3>
-            <p style={{ fontSize: '0.8rem', color: theme.colors.textMuted, lineHeight: 1.6 }}>{String(p.text ?? '').slice(0, 120)}...</p>
+            <h3
+              data-prop-key="title"
+              style={{ fontWeight: 700, marginBottom: '8px', color: theme.colors.text }}
+            >
+              {p.title as string}
+            </h3>
+            <p
+              data-prop-key="text"
+              style={{ fontSize: '0.8rem', color: theme.colors.textMuted, lineHeight: 1.6 }}
+            >
+              {String(p.text ?? '').slice(0, 120)}...
+            </p>
           </div>
-          <div style={{ flex: 1, borderRadius: theme.borderRadius.lg, background: p.imageUrl ? `url(${p.imageUrl as string}) center/cover` : theme.colors.surface, minHeight: '100px', border: `1px solid ${theme.colors.border}` }} />
+          <div
+            style={{
+              flex: 1,
+              borderRadius: theme.borderRadius.lg,
+              background: p.imageUrl
+                ? `url(${p.imageUrl as string}) center/cover`
+                : theme.colors.surface,
+              minHeight: '100px',
+              border: `1px solid ${theme.colors.border}`,
+            }}
+          />
         </div>
       );
 
     case 'stats-bar': {
       const items = (p.items as { value: string; label: string }[]) ?? [];
       return (
-        <div style={{ padding: '16px', background: theme.colors.surface, display: 'flex', justifyContent: 'space-around', flexWrap: 'wrap', gap: '12px' }}>
+        <div
+          style={{
+            padding: '16px',
+            background: theme.colors.surface,
+            display: 'flex',
+            justifyContent: 'space-around',
+            flexWrap: 'wrap',
+            gap: '12px',
+          }}
+        >
           {items.slice(0, 4).map((s, i) => (
             <div key={i} style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '1.2rem', fontWeight: 800, color: theme.colors.primary }}>{s.value}</div>
+              <div style={{ fontSize: '1.2rem', fontWeight: 800, color: theme.colors.primary }}>
+                {s.value}
+              </div>
               <div style={{ fontSize: '0.7rem', color: theme.colors.textMuted }}>{s.label}</div>
             </div>
           ))}
@@ -109,13 +337,34 @@ function MiniRenderer({ comp, theme }: { comp: LayoutComponent; theme: ThemeConf
       const items = (p.items as { name: string; quote: string; rating: number }[]) ?? [];
       return (
         <div style={{ padding: '16px' }}>
-          <h3 style={{ fontWeight: 700, marginBottom: '12px', fontSize: '0.95rem' }}>{p.title as string}</h3>
+          <h3
+            data-prop-key="title"
+            style={{ fontWeight: 700, marginBottom: '12px', fontSize: '0.95rem' }}
+          >
+            {p.title as string}
+          </h3>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
             {items.slice(0, 2).map((t, i) => (
-              <div key={i} style={{ background: theme.colors.surface, padding: '10px', borderRadius: theme.borderRadius.md, border: `1px solid ${theme.colors.border}` }}>
-                <div style={{ color: theme.colors.accent, fontSize: '11px', marginBottom: '6px' }}>{'★'.repeat(t.rating ?? 5)}</div>
-                <p style={{ fontSize: '0.7rem', color: theme.colors.text, lineHeight: 1.5 }}>"{t.quote.slice(0, 60)}"</p>
-                <div style={{ fontSize: '0.7rem', fontWeight: 700, color: theme.colors.text, marginTop: '6px' }}>{t.name}</div>
+              <div
+                key={i}
+                style={{
+                  background: theme.colors.surface,
+                  padding: '10px',
+                  borderRadius: theme.borderRadius.md,
+                  border: `1px solid ${theme.colors.border}`,
+                }}
+              >
+                <div style={{ color: theme.colors.accent, fontSize: '11px', marginBottom: '6px' }}>
+                  {'★'.repeat(t.rating ?? 5)}
+                </div>
+                <p style={{ fontSize: '0.7rem', color: theme.colors.text, lineHeight: 1.5 }}>
+                  "{t.quote.slice(0, 60)}"
+                </p>
+                <div
+                  style={{ fontSize: '0.7rem', fontWeight: 700, color: theme.colors.text, marginTop: '6px' }}
+                >
+                  {t.name}
+                </div>
               </div>
             ))}
           </div>
@@ -125,13 +374,27 @@ function MiniRenderer({ comp, theme }: { comp: LayoutComponent; theme: ThemeConf
 
     case 'countdown':
       return (
-        <div style={{ background: theme.colors.primary, padding: '24px', textAlign: 'center', color: '#fff' }}>
-          <h3 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '8px' }}>{p.title as string}</h3>
+        <div
+          style={{
+            background: theme.colors.primary,
+            padding: '24px',
+            textAlign: 'center',
+            color: '#fff',
+          }}
+        >
+          <h3
+            data-prop-key="title"
+            style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '8px' }}
+          >
+            {p.title as string}
+          </h3>
           <div style={{ display: 'flex', justifyContent: 'center', gap: '16px' }}>
             {['00', '00', '00', '00'].map((v, i) => (
               <div key={i} style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: '1.5rem', fontWeight: 800 }}>{v}</div>
-                <div style={{ fontSize: '0.6rem', opacity: 0.8 }}>{['Gün', 'Saat', 'Dk', 'Sn'][i]}</div>
+                <div style={{ fontSize: '0.6rem', opacity: 0.8 }}>
+                  {['Gün', 'Saat', 'Dk', 'Sn'][i]}
+                </div>
               </div>
             ))}
           </div>
@@ -140,20 +403,77 @@ function MiniRenderer({ comp, theme }: { comp: LayoutComponent; theme: ThemeConf
 
     case 'promo-banner':
       return (
-        <div style={{ background: (p.backgroundColor as string) || theme.colors.primary, color: (p.textColor as string) || '#fff', padding: '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
-          <span style={{ fontWeight: 600, fontSize: '0.85rem' }}>{p.message as string}</span>
-          {!!p.buttonText && <span style={{ padding: '4px 12px', border: '1px solid rgba(255,255,255,0.5)', borderRadius: theme.borderRadius.button, fontSize: '0.8rem' }}>{p.buttonText as string}</span>}
+        <div
+          style={{
+            background: (p.backgroundColor as string) || theme.colors.primary,
+            color: (p.textColor as string) || '#fff',
+            padding: '12px 20px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '12px',
+          }}
+        >
+          <span data-prop-key="message" style={{ fontWeight: 600, fontSize: '0.85rem' }}>
+            {p.message as string}
+          </span>
+          {!!p.buttonText && (
+            <span
+              data-prop-key="buttonText"
+              style={{
+                padding: '4px 12px',
+                border: '1px solid rgba(255,255,255,0.5)',
+                borderRadius: theme.borderRadius.button,
+                fontSize: '0.8rem',
+              }}
+            >
+              {p.buttonText as string}
+            </span>
+          )}
         </div>
       );
 
     case 'newsletter':
       return (
         <div style={{ background: theme.colors.surface, padding: '24px', textAlign: 'center' }}>
-          <h3 style={{ fontWeight: 700, marginBottom: '8px', fontSize: '0.95rem' }}>{p.title as string}</h3>
-          <p style={{ fontSize: '0.75rem', color: theme.colors.textMuted, marginBottom: '12px' }}>{p.text as string}</p>
+          <h3
+            data-prop-key="title"
+            style={{ fontWeight: 700, marginBottom: '8px', fontSize: '0.95rem' }}
+          >
+            {p.title as string}
+          </h3>
+          <p
+            data-prop-key="text"
+            style={{ fontSize: '0.75rem', color: theme.colors.textMuted, marginBottom: '12px' }}
+          >
+            {p.text as string}
+          </p>
           <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-            <div style={{ background: '#fff', border: `1px solid ${theme.colors.border}`, borderRadius: theme.borderRadius.button, padding: '8px 16px', fontSize: '0.75rem', color: theme.colors.textMuted }}>E-posta adresiniz</div>
-            <span style={{ background: theme.colors.primary, color: '#fff', padding: '8px 16px', borderRadius: theme.borderRadius.button, fontSize: '0.75rem', fontWeight: 600 }}>{p.buttonText as string}</span>
+            <div
+              style={{
+                background: '#fff',
+                border: `1px solid ${theme.colors.border}`,
+                borderRadius: theme.borderRadius.button,
+                padding: '8px 16px',
+                fontSize: '0.75rem',
+                color: theme.colors.textMuted,
+              }}
+            >
+              E-posta adresiniz
+            </div>
+            <span
+              data-prop-key="buttonText"
+              style={{
+                background: theme.colors.primary,
+                color: '#fff',
+                padding: '8px 16px',
+                borderRadius: theme.borderRadius.button,
+                fontSize: '0.75rem',
+                fontWeight: 600,
+              }}
+            >
+              {p.buttonText as string}
+            </span>
           </div>
         </div>
       );
@@ -161,23 +481,68 @@ function MiniRenderer({ comp, theme }: { comp: LayoutComponent; theme: ThemeConf
     case 'contact-form':
       return (
         <div style={{ padding: '16px' }}>
-          <h3 style={{ fontWeight: 700, marginBottom: '12px', fontSize: '0.95rem', textAlign: 'center' }}>{p.title as string}</h3>
+          <h3
+            data-prop-key="title"
+            style={{ fontWeight: 700, marginBottom: '12px', fontSize: '0.95rem', textAlign: 'center' }}
+          >
+            {p.title as string}
+          </h3>
           {['Adınız', 'E-posta', 'Mesajınız'].map((f, i) => (
-            <div key={i} style={{ height: i === 2 ? '48px' : '28px', background: theme.colors.surface, border: `1px solid ${theme.colors.border}`, borderRadius: theme.borderRadius.md, marginBottom: '6px', padding: '0 8px', display: 'flex', alignItems: 'center' }}>
+            <div
+              key={i}
+              style={{
+                height: i === 2 ? '48px' : '28px',
+                background: theme.colors.surface,
+                border: `1px solid ${theme.colors.border}`,
+                borderRadius: theme.borderRadius.md,
+                marginBottom: '6px',
+                padding: '0 8px',
+                display: 'flex',
+                alignItems: 'center',
+              }}
+            >
               <span style={{ fontSize: '0.7rem', color: theme.colors.textMuted }}>{f}</span>
             </div>
           ))}
-          <div style={{ background: theme.colors.primary, color: '#fff', textAlign: 'center', padding: '8px', borderRadius: theme.borderRadius.button, fontSize: '0.8rem', fontWeight: 600, marginTop: '4px' }}>{p.submitText as string || 'Gönder'}</div>
+          <div
+            data-prop-key="submitText"
+            style={{
+              background: theme.colors.primary,
+              color: '#fff',
+              textAlign: 'center',
+              padding: '8px',
+              borderRadius: theme.borderRadius.button,
+              fontSize: '0.8rem',
+              fontWeight: 600,
+              marginTop: '4px',
+            }}
+          >
+            {(p.submitText as string) || 'Gönder'}
+          </div>
         </div>
       );
 
     case 'brand-logos':
       return (
         <div style={{ padding: '16px', textAlign: 'center' }}>
-          <h3 style={{ fontWeight: 700, marginBottom: '12px', fontSize: '0.95rem' }}>{p.title as string}</h3>
+          <h3
+            data-prop-key="title"
+            style={{ fontWeight: 700, marginBottom: '12px', fontSize: '0.95rem' }}
+          >
+            {p.title as string}
+          </h3>
           <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', flexWrap: 'wrap' }}>
             {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} style={{ width: '60px', height: '24px', background: theme.colors.border, borderRadius: '4px', opacity: 0.5 }} />
+              <div
+                key={i}
+                style={{
+                  width: '60px',
+                  height: '24px',
+                  background: theme.colors.border,
+                  borderRadius: '4px',
+                  opacity: 0.5,
+                }}
+              />
             ))}
           </div>
         </div>
@@ -186,8 +551,22 @@ function MiniRenderer({ comp, theme }: { comp: LayoutComponent; theme: ThemeConf
     case 'video-embed':
       return (
         <div style={{ padding: '16px' }}>
-          <h3 style={{ fontWeight: 700, marginBottom: '12px', fontSize: '0.95rem', textAlign: 'center' }}>{p.title as string}</h3>
-          <div style={{ background: '#000', borderRadius: theme.borderRadius.lg, aspectRatio: '16/9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <h3
+            data-prop-key="title"
+            style={{ fontWeight: 700, marginBottom: '12px', fontSize: '0.95rem', textAlign: 'center' }}
+          >
+            {p.title as string}
+          </h3>
+          <div
+            style={{
+              background: '#000',
+              borderRadius: theme.borderRadius.lg,
+              aspectRatio: '16/9',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
             <span style={{ color: '#fff', fontSize: '2rem' }}>▶</span>
           </div>
         </div>
@@ -195,13 +574,24 @@ function MiniRenderer({ comp, theme }: { comp: LayoutComponent; theme: ThemeConf
 
     case 'rich-text':
       return (
-        <div style={{ padding: '16px', fontSize: '0.85rem', color: theme.colors.text, lineHeight: 1.7 }}
-          dangerouslySetInnerHTML={{ __html: String(p.html ?? '').slice(0, 200) }} />
+        <div
+          style={{ padding: '16px', fontSize: '0.85rem', color: theme.colors.text, lineHeight: 1.7 }}
+          dangerouslySetInnerHTML={{ __html: String(p.html ?? '').slice(0, 200) }}
+        />
       );
 
     case 'custom-html':
       return (
-        <div style={{ padding: '16px', background: '#1a1a2e', borderRadius: '6px', fontFamily: 'monospace', fontSize: '0.75rem', color: '#7dd3fc' }}>
+        <div
+          style={{
+            padding: '16px',
+            background: '#1a1a2e',
+            borderRadius: '6px',
+            fontFamily: 'monospace',
+            fontSize: '0.75rem',
+            color: '#7dd3fc',
+          }}
+        >
           &lt;custom html&gt;
         </div>
       );
@@ -219,8 +609,12 @@ function MiniRenderer({ comp, theme }: { comp: LayoutComponent; theme: ThemeConf
 
 export function EditorCanvas() {
   const { state, dispatch } = useEditor();
-  const { layout, selectedComponentId, viewport, theme, activePage } = state;
+  const { layout, selectedComponentId, viewport, theme, activePage, globalComponents } = state;
   const canvasRef = useRef<HTMLDivElement>(null);
+
+  const [canvasSelectedSection, setCanvasSelectedSection] = useState<'navbar' | 'footer' | null>(
+    null,
+  );
 
   // Keep a ref to latest state so the keydown handler always has fresh values
   const stateRef = useRef(state);
@@ -240,7 +634,9 @@ export function EditorCanvas() {
     const handler = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement;
       // Don't capture when user is typing in an input
-      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName) || target.isContentEditable) return;
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName) || target.isContentEditable) {
+        return;
+      }
 
       const selId = stateRef.current.selectedComponentId;
 
@@ -287,9 +683,26 @@ export function EditorCanvas() {
     return () => window.removeEventListener('keydown', handler);
   }, [dispatch]);
 
-  const select = (id: string) => {
+  const select = (id: string, e?: React.MouseEvent) => {
     dispatch({ type: 'SELECT_COMPONENT', id });
     dispatch({ type: 'SET_RIGHT_TAB', tab: 'props' });
+
+    if (e) {
+      const target = e.target as HTMLElement;
+      const propKeyEl = target.closest('[data-prop-key]');
+      if (propKeyEl) {
+        const propKey = propKeyEl.getAttribute('data-prop-key');
+        if (propKey) {
+          dispatch({ type: 'SELECT_PROP', propKey });
+        }
+      }
+    }
+  };
+
+  const handleSelectSection = (section: 'navbar' | 'footer') => {
+    dispatch({ type: 'SELECT_COMPONENT', id: null });
+    setCanvasSelectedSection(prev => (prev === section ? null : section));
+    dispatch({ type: 'SET_LEFT_TAB', tab: 'global' });
   };
 
   return (
@@ -318,6 +731,14 @@ export function EditorCanvas() {
           style={{ maxWidth: VIEWPORT_WIDTHS[viewport] }}
           ref={canvasRef}
         >
+          {/* Navbar preview */}
+          <CanvasNavbarPreview
+            config={globalComponents.navbar}
+            isSelected={canvasSelectedSection === 'navbar'}
+            onClick={() => handleSelectSection('navbar')}
+          />
+
+          {/* Empty state */}
           {layout.length === 0 && (
             <div className={styles.emptyCanvas}>
               <div className={styles.emptyIcon}>+</div>
@@ -325,58 +746,86 @@ export function EditorCanvas() {
             </div>
           )}
 
+          {/* Insert zone at top */}
+          {layout.length > 0 && (
+            <InsertZone
+              onInsert={() => dispatch({ type: 'SET_LEFT_TAB', tab: 'components' })}
+            />
+          )}
+
           {layout.map((comp, idx) => {
             const isSelected = comp.id === selectedComponentId;
             const def = BLOCK_BY_TYPE[comp.type];
             return (
-              <div
-                key={comp.id}
-                className={`${styles.blockWrapper} ${isSelected ? styles.selected : ''}`}
-                onClick={() => select(comp.id)}
-              >
-                {/* Block label */}
-                <div className={styles.blockLabel}>{def?.name ?? comp.type}</div>
+              <div key={comp.id}>
+                <div
+                  className={`${styles.blockWrapper} ${isSelected ? styles.selected : ''}`}
+                  onClick={(e) => select(comp.id, e)}
+                >
+                  {/* Block label */}
+                  <div className={styles.blockLabel}>{def?.name ?? comp.type}</div>
 
-                {/* Toolbar — only on selected */}
-                {isSelected && (
-                  <div className={styles.blockToolbar} onClick={e => e.stopPropagation()}>
-                    <button
-                      className={styles.toolbarBtn}
-                      disabled={idx === 0}
-                      onClick={() => dispatch({ type: 'MOVE_COMPONENT', id: comp.id, direction: 'up' })}
-                      title="Yukarı Taşı"
-                    >
-                      <FaArrowUp />
-                    </button>
-                    <button
-                      className={styles.toolbarBtn}
-                      disabled={idx === layout.length - 1}
-                      onClick={() => dispatch({ type: 'MOVE_COMPONENT', id: comp.id, direction: 'down' })}
-                      title="Aşağı Taşı"
-                    >
-                      <FaArrowDown />
-                    </button>
-                    <button
-                      className={styles.toolbarBtn}
-                      onClick={() => dispatch({ type: 'DUPLICATE_COMPONENT', id: comp.id })}
-                      title="Çoğalt (Ctrl+D)"
-                    >
-                      <FaCopy />
-                    </button>
-                    <button
-                      className={`${styles.toolbarBtn} ${styles.toolbarDanger}`}
-                      onClick={() => dispatch({ type: 'REMOVE_COMPONENT', id: comp.id })}
-                      title="Sil (Delete)"
-                    >
-                      <FaTrash />
-                    </button>
-                  </div>
-                )}
+                  {/* Toolbar — only on selected */}
+                  {isSelected && (
+                    <div className={styles.blockToolbar} onClick={e => e.stopPropagation()}>
+                      <button
+                        className={styles.toolbarBtn}
+                        disabled={idx === 0}
+                        onClick={() =>
+                          dispatch({ type: 'MOVE_COMPONENT', id: comp.id, direction: 'up' })
+                        }
+                        title="Yukarı Taşı"
+                      >
+                        <FaArrowUp />
+                      </button>
+                      <button
+                        className={styles.toolbarBtn}
+                        disabled={idx === layout.length - 1}
+                        onClick={() =>
+                          dispatch({ type: 'MOVE_COMPONENT', id: comp.id, direction: 'down' })
+                        }
+                        title="Aşağı Taşı"
+                      >
+                        <FaArrowDown />
+                      </button>
+                      <button
+                        className={styles.toolbarBtn}
+                        onClick={() =>
+                          dispatch({ type: 'DUPLICATE_COMPONENT', id: comp.id })
+                        }
+                        title="Çoğalt (Ctrl+D)"
+                      >
+                        <FaCopy />
+                      </button>
+                      <button
+                        className={`${styles.toolbarBtn} ${styles.toolbarDanger}`}
+                        onClick={() =>
+                          dispatch({ type: 'REMOVE_COMPONENT', id: comp.id })
+                        }
+                        title="Sil (Delete)"
+                      >
+                        <FaTrash />
+                      </button>
+                    </div>
+                  )}
 
-                <MiniRenderer comp={comp} theme={theme} />
+                  <MiniRenderer comp={comp} theme={theme} />
+                </div>
+
+                {/* Insert zone between blocks */}
+                <InsertZone
+                  onInsert={() => dispatch({ type: 'SET_LEFT_TAB', tab: 'components' })}
+                />
               </div>
             );
           })}
+
+          {/* Footer preview */}
+          <CanvasFooterPreview
+            config={globalComponents.footer}
+            isSelected={canvasSelectedSection === 'footer'}
+            onClick={() => handleSelectSection('footer')}
+          />
         </div>
       </div>
     </div>
