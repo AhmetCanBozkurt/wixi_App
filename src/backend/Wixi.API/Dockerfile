@@ -7,6 +7,7 @@ COPY Wixi.Platform.sln .
 COPY Wixi.API/Wixi.API.csproj                         Wixi.API/
 COPY Wixi.Modules.Core/Wixi.Modules.Core.csproj       Wixi.Modules.Core/
 COPY Wixi.Modules.ECommerce/Wixi.Modules.ECommerce.csproj Wixi.Modules.ECommerce/
+COPY Wixi.Modules.WebBuilder/Wixi.Modules.WebBuilder.csproj Wixi.Modules.WebBuilder/
 COPY Wixi.Shared/Wixi.Shared.csproj                   Wixi.Shared/
 
 RUN dotnet restore Wixi.Platform.sln
