@@ -1,6 +1,34 @@
 import { useState, useRef, useEffect } from 'react';
-import { FaArrowUp, FaArrowDown, FaTrash, FaDesktop, FaTabletAlt, FaMobileAlt, FaCopy } from 'react-icons/fa';
+import type { Dispatch } from 'react';
+import {
+  FaArrowUp,
+  FaArrowDown,
+  FaTrash,
+  FaDesktop,
+  FaTabletAlt,
+  FaMobileAlt,
+  FaCopy,
+  FaGripVertical,
+} from 'react-icons/fa';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+  DragOverlay,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  useSortable,
+  arrayMove,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { useEditor } from '../context/EditorContext';
+import type { EditorAction } from '../context/EditorContext';
 import { BLOCK_BY_TYPE } from '../blocks/blockRegistry';
 import { themeToVars } from '../../../entities/StorePage/model/defaultTheme';
 import type { LayoutComponent, ThemeConfig, GlobalComponentsConfig } from '../../../entities/StorePage/model/types';
@@ -10,9 +38,9 @@ const VIEWPORT_WIDTHS = { desktop: '100%', tablet: '768px', mobile: '375px' } as
 
 // ── InsertZone ────────────────────────────────────────────────────────────────
 
-function InsertZone({ onInsert }: { onInsert: () => void }) {
+function InsertZone({ index, onInsertAt }: { index: number; onInsertAt: (index: number) => void }) {
   return (
-    <div className={styles.insertZone} onClick={onInsert}>
+    <div className={styles.insertZone} onClick={() => onInsertAt(index)}>
       <div className={styles.insertZoneLine} />
       <button className={styles.insertZoneBtn} type="button">
         + Bileşen Ekle
@@ -605,6 +633,99 @@ function MiniRenderer({ comp, theme }: { comp: LayoutComponent; theme: ThemeConf
   }
 }
 
+// ── SortableBlock ─────────────────────────────────────────────────────────────
+
+function SortableBlock({
+  comp,
+  idx,
+  theme,
+  isSelected,
+  totalCount,
+  onSelect,
+  onDispatch,
+}: {
+  comp: LayoutComponent;
+  idx: number;
+  theme: ThemeConfig;
+  isSelected: boolean;
+  totalCount: number;
+  onSelect: (id: string, e: React.MouseEvent) => void;
+  onDispatch: (action: Parameters<Dispatch<EditorAction>>[0]) => void;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: comp.id });
+
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.4 : 1,
+    position: 'relative' as const,
+  };
+
+  const def = BLOCK_BY_TYPE[comp.type];
+
+  return (
+    <div ref={setNodeRef} style={style}>
+      <div
+        className={`${styles.blockWrapper} ${isSelected ? styles.selected : ''}`}
+        onClick={(e) => onSelect(comp.id, e)}
+      >
+        {/* Drag handle */}
+        <button
+          className={styles.dragHandle}
+          {...attributes}
+          {...listeners}
+          onClick={e => e.stopPropagation()}
+          title="Sürükleyerek sırala"
+          type="button"
+        >
+          <FaGripVertical />
+        </button>
+
+        {/* Block label */}
+        <div className={styles.blockLabel}>{def?.name ?? comp.type}</div>
+
+        {/* Toolbar — only on selected */}
+        {isSelected && (
+          <div className={styles.blockToolbar} onClick={e => e.stopPropagation()}>
+            <button
+              className={styles.toolbarBtn}
+              disabled={idx === 0}
+              onClick={() => onDispatch({ type: 'MOVE_COMPONENT', id: comp.id, direction: 'up' })}
+              title="Yukarı Taşı"
+            >
+              <FaArrowUp />
+            </button>
+            <button
+              className={styles.toolbarBtn}
+              disabled={idx === totalCount - 1}
+              onClick={() => onDispatch({ type: 'MOVE_COMPONENT', id: comp.id, direction: 'down' })}
+              title="Aşağı Taşı"
+            >
+              <FaArrowDown />
+            </button>
+            <button
+              className={styles.toolbarBtn}
+              onClick={() => onDispatch({ type: 'DUPLICATE_COMPONENT', id: comp.id })}
+              title="Çoğalt (Ctrl+D)"
+            >
+              <FaCopy />
+            </button>
+            <button
+              className={`${styles.toolbarBtn} ${styles.toolbarDanger}`}
+              onClick={() => onDispatch({ type: 'REMOVE_COMPONENT', id: comp.id })}
+              title="Sil (Delete)"
+            >
+              <FaTrash />
+            </button>
+          </div>
+        )}
+
+        <MiniRenderer comp={comp} theme={theme} />
+      </div>
+    </div>
+  );
+}
+
 // ── Canvas ────────────────────────────────────────────────────────────────────
 
 export function EditorCanvas() {
@@ -615,6 +736,7 @@ export function EditorCanvas() {
   const [canvasSelectedSection, setCanvasSelectedSection] = useState<'navbar' | 'footer' | null>(
     null,
   );
+  const [isDraggingAny, setIsDraggingAny] = useState(false);
 
   // Keep a ref to latest state so the keydown handler always has fresh values
   const stateRef = useRef(state);
@@ -683,6 +805,34 @@ export function EditorCanvas() {
     return () => window.removeEventListener('keydown', handler);
   }, [dispatch]);
 
+  // DnD sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(KeyboardSensor),
+  );
+
+  const handleDragStart = () => {
+    setIsDraggingAny(true);
+    dispatch({ type: 'SET_INSERT_INDEX', index: null });
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    setIsDraggingAny(false);
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      const oldIndex = layout.findIndex(c => c.id === String(active.id));
+      const newIndex = layout.findIndex(c => c.id === String(over.id));
+      if (oldIndex !== -1 && newIndex !== -1) {
+        dispatch({ type: 'SET_LAYOUT', layout: arrayMove(layout, oldIndex, newIndex) });
+      }
+    }
+  };
+
+  const handleInsertAt = (index: number) => {
+    dispatch({ type: 'SET_INSERT_INDEX', index });
+    dispatch({ type: 'SET_LEFT_TAB', tab: 'components' });
+  };
+
   const select = (id: string, e?: React.MouseEvent) => {
     dispatch({ type: 'SELECT_COMPONENT', id });
     dispatch({ type: 'SET_RIGHT_TAB', tab: 'props' });
@@ -731,7 +881,7 @@ export function EditorCanvas() {
           style={{ maxWidth: VIEWPORT_WIDTHS[viewport] }}
           ref={canvasRef}
         >
-          {/* Navbar preview */}
+          {/* Navbar preview — outside DndContext */}
           <CanvasNavbarPreview
             config={globalComponents.navbar}
             isSelected={canvasSelectedSection === 'navbar'}
@@ -746,81 +896,40 @@ export function EditorCanvas() {
             </div>
           )}
 
-          {/* Insert zone at top */}
-          {layout.length > 0 && (
-            <InsertZone
-              onInsert={() => dispatch({ type: 'SET_LEFT_TAB', tab: 'components' })}
-            />
-          )}
+          {/* DnD sortable block list */}
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext items={layout.map(c => c.id)} strategy={verticalListSortingStrategy}>
+              {/* Insert zone at top */}
+              {layout.length > 0 && !isDraggingAny && (
+                <InsertZone index={0} onInsertAt={handleInsertAt} />
+              )}
 
-          {layout.map((comp, idx) => {
-            const isSelected = comp.id === selectedComponentId;
-            const def = BLOCK_BY_TYPE[comp.type];
-            return (
-              <div key={comp.id}>
-                <div
-                  className={`${styles.blockWrapper} ${isSelected ? styles.selected : ''}`}
-                  onClick={(e) => select(comp.id, e)}
-                >
-                  {/* Block label */}
-                  <div className={styles.blockLabel}>{def?.name ?? comp.type}</div>
-
-                  {/* Toolbar — only on selected */}
-                  {isSelected && (
-                    <div className={styles.blockToolbar} onClick={e => e.stopPropagation()}>
-                      <button
-                        className={styles.toolbarBtn}
-                        disabled={idx === 0}
-                        onClick={() =>
-                          dispatch({ type: 'MOVE_COMPONENT', id: comp.id, direction: 'up' })
-                        }
-                        title="Yukarı Taşı"
-                      >
-                        <FaArrowUp />
-                      </button>
-                      <button
-                        className={styles.toolbarBtn}
-                        disabled={idx === layout.length - 1}
-                        onClick={() =>
-                          dispatch({ type: 'MOVE_COMPONENT', id: comp.id, direction: 'down' })
-                        }
-                        title="Aşağı Taşı"
-                      >
-                        <FaArrowDown />
-                      </button>
-                      <button
-                        className={styles.toolbarBtn}
-                        onClick={() =>
-                          dispatch({ type: 'DUPLICATE_COMPONENT', id: comp.id })
-                        }
-                        title="Çoğalt (Ctrl+D)"
-                      >
-                        <FaCopy />
-                      </button>
-                      <button
-                        className={`${styles.toolbarBtn} ${styles.toolbarDanger}`}
-                        onClick={() =>
-                          dispatch({ type: 'REMOVE_COMPONENT', id: comp.id })
-                        }
-                        title="Sil (Delete)"
-                      >
-                        <FaTrash />
-                      </button>
-                    </div>
+              {layout.map((comp, idx) => (
+                <div key={comp.id}>
+                  <SortableBlock
+                    comp={comp}
+                    idx={idx}
+                    theme={theme}
+                    isSelected={comp.id === selectedComponentId}
+                    totalCount={layout.length}
+                    onSelect={select}
+                    onDispatch={dispatch}
+                  />
+                  {!isDraggingAny && (
+                    <InsertZone index={idx + 1} onInsertAt={handleInsertAt} />
                   )}
-
-                  <MiniRenderer comp={comp} theme={theme} />
                 </div>
+              ))}
+            </SortableContext>
+            <DragOverlay />
+          </DndContext>
 
-                {/* Insert zone between blocks */}
-                <InsertZone
-                  onInsert={() => dispatch({ type: 'SET_LEFT_TAB', tab: 'components' })}
-                />
-              </div>
-            );
-          })}
-
-          {/* Footer preview */}
+          {/* Footer preview — outside DndContext */}
           <CanvasFooterPreview
             config={globalComponents.footer}
             isSelected={canvasSelectedSection === 'footer'}

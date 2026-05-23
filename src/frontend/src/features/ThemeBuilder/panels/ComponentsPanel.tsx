@@ -9,7 +9,8 @@ interface ComponentsPanelProps {
 }
 
 export function ComponentsPanel({ excludeCategories }: ComponentsPanelProps = {}) {
-  const { dispatch } = useEditor();
+  const { state, dispatch, setInsertIndex } = useEditor();
+  const { insertAtIndex } = state;
   const [query, setQuery] = useState('');
 
   const addComponent = (type: string) => {
@@ -33,6 +34,31 @@ export function ComponentsPanel({ excludeCategories }: ComponentsPanelProps = {}
   return (
     <div className={styles.panel}>
       <div className={styles.panelHeader}><span>Bileşen Ekle</span></div>
+
+      {insertAtIndex !== null && (
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '6px 12px',
+          background: 'rgba(236,72,153,0.12)',
+          borderBottom: '1px solid rgba(236,72,153,0.3)',
+          fontSize: '11px',
+          color: '#ec4899',
+          gap: '8px',
+          flexShrink: 0,
+        }}>
+          <span>📌 {insertAtIndex + 1}. sıraya eklenecek</span>
+          <button
+            onClick={() => setInsertIndex(null)}
+            style={{ background: 'transparent', border: 'none', color: '#ec4899', cursor: 'pointer', fontSize: '14px', lineHeight: 1, padding: '0 2px' }}
+            type="button"
+            title="Pozisyonu temizle — sona ekle"
+          >
+            ×
+          </button>
+        </div>
+      )}
 
       {/* Search */}
       <div className={styles.compSearchWrap}>

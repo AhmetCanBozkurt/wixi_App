@@ -33,6 +33,7 @@ export interface EditorState {
   isLoading: boolean;
   themeVersions: ThemeVersionSummary[];
   versionsLoading: boolean;
+  insertAtIndex: number | null;  // InsertZone pozisyonu — null = sona ekle
   // ── History (undo/redo) ───────────────────────────────
   _past: LayoutComponent[][];
   _future: LayoutComponent[][];
@@ -68,7 +69,8 @@ export type EditorAction =
   | { type: 'REDO' }
   | { type: 'DUPLICATE_COMPONENT'; id: string }
   | { type: 'COPY_COMPONENT'; id: string }
-  | { type: 'PASTE_COMPONENT' };
+  | { type: 'PASTE_COMPONENT' }
+  | { type: 'SET_INSERT_INDEX'; index: number | null };
 
 const HISTORY_LIMIT = 50;
 
@@ -105,6 +107,7 @@ const initialState: EditorState = {
   isLoading: true,
   themeVersions: [],
   versionsLoading: false,
+  insertAtIndex: null,
   _past: [],
   _future: [],
   _clipboard: null,
@@ -141,7 +144,19 @@ function reducer(state: EditorState, action: EditorAction): EditorState {
 
     case 'ADD_COMPONENT': {
       const h = pushHistory(state);
-      return { ...h, layout: [...state.layout, action.component], selectedComponentId: action.component.id, isDirty: true };
+      const insertAt = state.insertAtIndex !== null ? state.insertAtIndex : h.layout.length;
+      const newLayout = [
+        ...h.layout.slice(0, insertAt),
+        action.component,
+        ...h.layout.slice(insertAt),
+      ];
+      return {
+        ...h,
+        layout: newLayout,
+        selectedComponentId: action.component.id,
+        insertAtIndex: null,
+        isDirty: true,
+      };
     }
 
     case 'REMOVE_COMPONENT': {
@@ -267,6 +282,9 @@ function reducer(state: EditorState, action: EditorAction): EditorState {
       return { ...h, layout: newLayout, selectedComponentId: clone.id, isDirty: true };
     }
 
+    case 'SET_INSERT_INDEX':
+      return { ...state, insertAtIndex: action.index };
+
     default: return state;
   }
 }
@@ -289,5 +307,6 @@ export function useEditor() {
   return {
     ...ctx,
     selectProp: (propKey: string | null) => ctx.dispatch({ type: 'SELECT_PROP', propKey }),
+    setInsertIndex: (index: number | null) => ctx.dispatch({ type: 'SET_INSERT_INDEX', index }),
   };
 }

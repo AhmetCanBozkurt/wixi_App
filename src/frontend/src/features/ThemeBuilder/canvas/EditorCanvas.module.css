@@ -301,3 +301,30 @@
 .canvasFooterSelected {
   outline-color: #ec4899;
 }
+
+/* ── Drag Handle ─────────────────────────────────────── */
+.dragHandle {
+  position: absolute;
+  top: 50%;
+  left: -28px;
+  transform: translateY(-50%);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 32px;
+  background: var(--editor-surface);
+  border: 1px solid var(--editor-border);
+  border-radius: 4px;
+  color: var(--editor-text-muted);
+  cursor: grab;
+  font-size: 11px;
+  z-index: 15;
+  transition: all 0.15s;
+}
+
+.dragHandle:active { cursor: grabbing; }
+.dragHandle:hover { border-color: #ec4899; color: #ec4899; }
+
+.blockWrapper:hover .dragHandle,
+.selected .dragHandle { display: flex; }
