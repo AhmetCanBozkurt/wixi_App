@@ -91,6 +91,9 @@ import { SystemOverviewPage } from '../pages/admin/SystemOverviewPage/SystemOver
 import WebBuilderEditorPage from '../pages/corporate/WebBuilderEditorPage/WebBuilderEditorPage';
 import BlogManagementPage from '../pages/corporate/BlogManagementPage/BlogManagementPage';
 import FormManagementPage from '../pages/corporate/FormManagementPage/FormManagementPage';
+import { MyFinanceLayout } from '../pages/my-finance/MyFinanceLayout/MyFinanceLayout';
+import { PersonalFinanceDashboardPage } from '../pages/my-finance/PersonalFinanceDashboardPage/PersonalFinanceDashboardPage';
+import { TransactionsPage } from '../pages/my-finance/TransactionsPage/TransactionsPage';
 
 const App = () => {
   return (
@@ -156,6 +159,10 @@ const App = () => {
           </Route>
           <Route element={<AuthGuard />}>
             <Route path="/corp/builder" element={<WebBuilderEditorPage />} />
+            <Route path="/my-finance" element={<MyFinanceLayout />}>
+              <Route index element={<PersonalFinanceDashboardPage />} />
+              <Route path="transactions" element={<TransactionsPage />} />
+            </Route>
             <Route path="/admin" element={<DashboardPage />}>
               <Route index element={<AdminDashboardPage />} />
               <Route path="logs" element={<ApplicationLogsPage />} />

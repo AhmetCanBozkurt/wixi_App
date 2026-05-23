@@ -87,6 +87,12 @@ builder.Services.AddECommerceModule(builder.Configuration);
 // ── WebBuilder Modülü ────────────────────────────────────────────
 builder.Services.AddWebBuilderModule(builder.Configuration);
 
+// ── PersonalFinance Modülü ───────────────────────────────────────
+// builder.Services.AddPersonalFinanceModule(builder.Configuration);
+
+// ── Finance (Tenant) Modülü ─────────────────────────────────────
+// builder.Services.AddFinanceModule(builder.Configuration);
+
 builder.Services.AddHealthChecks()
     .AddCheck("database", () =>
     {
@@ -226,6 +232,12 @@ await app.MigrateAllTenantDbsAsync();
 
 // ── WebBuilder DB Migration ───────────────────────────────────────
 await app.MigrateWebBuilderDbAsync();
+
+// ── PersonalFinance DB Migration ──────────────────────────────────
+// await app.MigratePersonalFinanceDbAsync();
+
+// ── Finance (Tenant) DB Migration ─────────────────────────────────
+// await app.MigrateFinanceDbAsync();
 
 app.MapHealthChecks("/health");
 app.MapControllers();
