@@ -95,7 +95,7 @@ function WebBuilderEditorInner() {
           </div>
           <div className={styles.leftContent}>
             {state.leftTab === 'pages' && <WebPagesPanel />}
-            {state.leftTab === 'components' && <ComponentsPanel />}
+            {state.leftTab === 'components' && <ComponentsPanel excludeCategories={['commerce']} />}
             {state.leftTab === 'theme' && <ThemePanel tenantSlug={NOOP_TENANT} />}
             {state.leftTab === 'global' && <GlobalPanel tenantSlug={NOOP_TENANT} />}
             {state.leftTab === 'code' && <CodeEditorPanel tenantSlug={NOOP_TENANT} />}

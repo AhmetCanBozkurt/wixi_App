@@ -1,7 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
+using Wixi.Modules.Core.Infrastructure.Data;
 using Wixi.Modules.WebBuilder.Application.Forms.Commands.CreateWebForm;
 using Wixi.Modules.WebBuilder.Application.Forms.Commands.DeleteWebForm;
 using Wixi.Modules.WebBuilder.Application.Forms.Commands.SubmitWebForm;
@@ -15,38 +15,28 @@ namespace Wixi.API.Controllers.WebBuilder;
 [ApiController]
 [Route("api/v1/web-builder/forms")]
 [Authorize]
-public class FormsController : ControllerBase
+public class FormsController : WebBuilderControllerBase
 {
     private readonly IMediator _mediator;
 
-    public FormsController(IMediator mediator)
+    public FormsController(IMediator mediator, WixiCoreDbContext db) : base(db)
     {
         _mediator = mediator;
-    }
-
-    // TODO: TenantId'yi ileride JWT claim'den alınacak ("tenant_id" claim eklendikten sonra).
-    // Şimdilik Guid.Empty placeholder olarak kullanılıyor.
-    private Guid ResolveTenantId()
-    {
-        var tenantClaim = User.FindFirstValue("tenant_id");
-        if (!string.IsNullOrEmpty(tenantClaim) && Guid.TryParse(tenantClaim, out var tenantId))
-            return tenantId;
-
-        // TODO: X-Tenant-Slug header'dan resolve (ileride eklenecek)
-        return Guid.Empty;
     }
 
     [HttpGet]
     public async Task<IActionResult> GetForms(CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new GetWebFormsQuery(ResolveTenantId()), cancellationToken);
+        var tenantId = await ResolveTenantIdAsync(cancellationToken);
+        var result = await _mediator.Send(new GetWebFormsQuery(tenantId), cancellationToken);
         return Ok(result);
     }
 
     [HttpGet("{slug}")]
     public async Task<IActionResult> GetBySlug(string slug, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new GetWebFormBySlugQuery(ResolveTenantId(), slug), cancellationToken);
+        var tenantId = await ResolveTenantIdAsync(cancellationToken);
+        var result = await _mediator.Send(new GetWebFormBySlugQuery(tenantId, slug), cancellationToken);
         if (result is null) return NotFound();
         return Ok(result);
     }
@@ -54,8 +44,9 @@ public class FormsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateWebFormRequest request, CancellationToken cancellationToken)
     {
+        var tenantId = await ResolveTenantIdAsync(cancellationToken);
         var result = await _mediator.Send(
-            new CreateWebFormCommand(ResolveTenantId(), request.Name, request.Slug,
+            new CreateWebFormCommand(tenantId, request.Name, request.Slug,
                 request.FieldsJson, request.SubmitButtonText ?? "Gönder",
                 request.SuccessMessage, request.NotifyEmail),
             cancellationToken);
@@ -65,8 +56,9 @@ public class FormsController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateWebFormRequest request, CancellationToken cancellationToken)
     {
+        var tenantId = await ResolveTenantIdAsync(cancellationToken);
         await _mediator.Send(
-            new UpdateWebFormCommand(id, ResolveTenantId(), request.Name, request.Slug,
+            new UpdateWebFormCommand(id, tenantId, request.Name, request.Slug,
                 request.FieldsJson, request.SubmitButtonText ?? "Gönder",
                 request.SuccessMessage, request.NotifyEmail),
             cancellationToken);
@@ -76,7 +68,8 @@ public class FormsController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
     {
-        await _mediator.Send(new DeleteWebFormCommand(id, ResolveTenantId()), cancellationToken);
+        var tenantId = await ResolveTenantIdAsync(cancellationToken);
+        await _mediator.Send(new DeleteWebFormCommand(id, tenantId), cancellationToken);
         return NoContent();
     }
 
@@ -87,7 +80,8 @@ public class FormsController : ControllerBase
         [FromQuery] int take = 20,
         CancellationToken cancellationToken = default)
     {
-        var result = await _mediator.Send(new GetFormSubmissionsQuery(id, ResolveTenantId(), skip, take), cancellationToken);
+        var tenantId = await ResolveTenantIdAsync(cancellationToken);
+        var result = await _mediator.Send(new GetFormSubmissionsQuery(id, tenantId, skip, take), cancellationToken);
         return Ok(result);
     }
 }

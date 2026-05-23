@@ -3,7 +3,11 @@ import { useEditor } from '../context/EditorContext';
 import type { LayoutComponent } from '../../../entities/StorePage/model/types';
 import styles from './Panels.module.css';
 
-export function ComponentsPanel() {
+interface ComponentsPanelProps {
+  excludeCategories?: (keyof typeof BLOCK_CATEGORIES)[];
+}
+
+export function ComponentsPanel({ excludeCategories }: ComponentsPanelProps = {}) {
   const { dispatch } = useEditor();
 
   const addComponent = (type: string) => {
@@ -19,7 +23,8 @@ export function ComponentsPanel() {
     dispatch({ type: 'SET_RIGHT_TAB', tab: 'props' });
   };
 
-  const categories = Object.entries(BLOCK_CATEGORIES) as [keyof typeof BLOCK_CATEGORIES, string][];
+  const categories = (Object.entries(BLOCK_CATEGORIES) as [keyof typeof BLOCK_CATEGORIES, string][])
+    .filter(([cat]) => !excludeCategories?.includes(cat));
 
   return (
     <div className={styles.panel}>

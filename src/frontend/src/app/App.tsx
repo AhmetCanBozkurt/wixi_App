@@ -89,6 +89,8 @@ import { ProductDescriptionsPage } from '../pages/admin/DefinitionsPage/ProductD
 import { HsCodesPage } from '../pages/admin/DefinitionsPage/HsCodesPage';
 import { SystemOverviewPage } from '../pages/admin/SystemOverviewPage/SystemOverviewPage';
 import WebBuilderEditorPage from '../pages/corporate/WebBuilderEditorPage/WebBuilderEditorPage';
+import BlogManagementPage from '../pages/corporate/BlogManagementPage/BlogManagementPage';
+import FormManagementPage from '../pages/corporate/FormManagementPage/FormManagementPage';
 
 const App = () => {
   return (
@@ -113,7 +115,6 @@ const App = () => {
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/checkout/success" element={<CheckoutSuccessPage />} />
           <Route path="/checkout/cancel" element={<CheckoutCancelPage />} />
-          <Route path="/corp/builder" element={<WebBuilderEditorPage />} />
           <Route path="/store-admin/login" element={<StoreAdminLoginPage />} />
           <Route path="/store/:tenantSlug" element={<StorefrontLayout />}>
             <Route index element={<StorefrontPage />} />
@@ -154,6 +155,7 @@ const App = () => {
             </Route>
           </Route>
           <Route element={<AuthGuard />}>
+            <Route path="/corp/builder" element={<WebBuilderEditorPage />} />
             <Route path="/admin" element={<DashboardPage />}>
               <Route index element={<AdminDashboardPage />} />
               <Route path="logs" element={<ApplicationLogsPage />} />
@@ -198,6 +200,8 @@ const App = () => {
               <Route path="definitions/product-descriptions" element={<ProductDescriptionsPage />} />
               <Route path="definitions/hs-codes" element={<HsCodesPage />} />
               <Route path="system-overview" element={<SystemOverviewPage />} />
+              <Route path="corp/blog" element={<BlogManagementPage />} />
+              <Route path="corp/forms" element={<FormManagementPage />} />
             </Route>
           </Route>
         </Routes>

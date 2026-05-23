@@ -1,7 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
+using Wixi.Modules.Core.Infrastructure.Data;
 using Wixi.Modules.WebBuilder.Application.Blog.Commands.CreateBlogCategory;
 using Wixi.Modules.WebBuilder.Application.Blog.Commands.CreateBlogPost;
 using Wixi.Modules.WebBuilder.Application.Blog.Commands.DeleteBlogCategory;
@@ -18,25 +18,13 @@ namespace Wixi.API.Controllers.WebBuilder;
 [ApiController]
 [Route("api/v1/web-builder/blog")]
 [Authorize]
-public class BlogController : ControllerBase
+public class BlogController : WebBuilderControllerBase
 {
     private readonly IMediator _mediator;
 
-    public BlogController(IMediator mediator)
+    public BlogController(IMediator mediator, WixiCoreDbContext db) : base(db)
     {
         _mediator = mediator;
-    }
-
-    // TODO: TenantId'yi ileride JWT claim'den alınacak ("tenant_id" claim eklendikten sonra).
-    // Şimdilik Guid.Empty placeholder olarak kullanılıyor.
-    private Guid ResolveTenantId()
-    {
-        var tenantClaim = User.FindFirstValue("tenant_id");
-        if (!string.IsNullOrEmpty(tenantClaim) && Guid.TryParse(tenantClaim, out var tenantId))
-            return tenantId;
-
-        // TODO: X-Tenant-Slug header'dan resolve (ileride eklenecek)
-        return Guid.Empty;
     }
 
     // ── Categories ──────────────────────────────────────────────────
@@ -44,15 +32,17 @@ public class BlogController : ControllerBase
     [HttpGet("categories")]
     public async Task<IActionResult> GetCategories(CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new GetBlogCategoriesQuery(ResolveTenantId()), cancellationToken);
+        var tenantId = await ResolveTenantIdAsync(cancellationToken);
+        var result = await _mediator.Send(new GetBlogCategoriesQuery(tenantId), cancellationToken);
         return Ok(result);
     }
 
     [HttpPost("categories")]
     public async Task<IActionResult> CreateCategory([FromBody] CreateBlogCategoryRequest request, CancellationToken cancellationToken)
     {
+        var tenantId = await ResolveTenantIdAsync(cancellationToken);
         var result = await _mediator.Send(
-            new CreateBlogCategoryCommand(ResolveTenantId(), request.Name, request.Slug, request.Description, request.SortOrder),
+            new CreateBlogCategoryCommand(tenantId, request.Name, request.Slug, request.Description, request.SortOrder),
             cancellationToken);
         return Ok(result);
     }
@@ -60,8 +50,9 @@ public class BlogController : ControllerBase
     [HttpPut("categories/{id}")]
     public async Task<IActionResult> UpdateCategory(Guid id, [FromBody] UpdateBlogCategoryRequest request, CancellationToken cancellationToken)
     {
+        var tenantId = await ResolveTenantIdAsync(cancellationToken);
         await _mediator.Send(
-            new UpdateBlogCategoryCommand(id, ResolveTenantId(), request.Name, request.Slug, request.Description, request.SortOrder),
+            new UpdateBlogCategoryCommand(id, tenantId, request.Name, request.Slug, request.Description, request.SortOrder),
             cancellationToken);
         return NoContent();
     }
@@ -69,7 +60,8 @@ public class BlogController : ControllerBase
     [HttpDelete("categories/{id}")]
     public async Task<IActionResult> DeleteCategory(Guid id, CancellationToken cancellationToken)
     {
-        await _mediator.Send(new DeleteBlogCategoryCommand(id, ResolveTenantId()), cancellationToken);
+        var tenantId = await ResolveTenantIdAsync(cancellationToken);
+        await _mediator.Send(new DeleteBlogCategoryCommand(id, tenantId), cancellationToken);
         return NoContent();
     }
 
@@ -81,14 +73,16 @@ public class BlogController : ControllerBase
         [FromQuery] bool? isPublished,
         CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new GetBlogPostsQuery(ResolveTenantId(), categoryId, isPublished), cancellationToken);
+        var tenantId = await ResolveTenantIdAsync(cancellationToken);
+        var result = await _mediator.Send(new GetBlogPostsQuery(tenantId, categoryId, isPublished), cancellationToken);
         return Ok(result);
     }
 
     [HttpGet("posts/{slug}")]
     public async Task<IActionResult> GetPostBySlug(string slug, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new GetBlogPostBySlugQuery(ResolveTenantId(), slug), cancellationToken);
+        var tenantId = await ResolveTenantIdAsync(cancellationToken);
+        var result = await _mediator.Send(new GetBlogPostBySlugQuery(tenantId, slug), cancellationToken);
         if (result is null) return NotFound();
         return Ok(result);
     }
@@ -96,8 +90,9 @@ public class BlogController : ControllerBase
     [HttpPost("posts")]
     public async Task<IActionResult> CreatePost([FromBody] CreateBlogPostRequest request, CancellationToken cancellationToken)
     {
+        var tenantId = await ResolveTenantIdAsync(cancellationToken);
         var result = await _mediator.Send(
-            new CreateBlogPostCommand(ResolveTenantId(), request.CategoryId, request.Title, request.Slug,
+            new CreateBlogPostCommand(tenantId, request.CategoryId, request.Title, request.Slug,
                 request.Summary, request.ContentHtml, request.FeaturedImageUrl,
                 request.MetaTitle, request.MetaDescription, request.Tags,
                 request.AuthorName, request.ReadTimeMinutes),
@@ -108,8 +103,9 @@ public class BlogController : ControllerBase
     [HttpPut("posts/{id}")]
     public async Task<IActionResult> UpdatePost(Guid id, [FromBody] UpdateBlogPostRequest request, CancellationToken cancellationToken)
     {
+        var tenantId = await ResolveTenantIdAsync(cancellationToken);
         await _mediator.Send(
-            new UpdateBlogPostCommand(id, ResolveTenantId(), request.CategoryId, request.Title, request.Slug,
+            new UpdateBlogPostCommand(id, tenantId, request.CategoryId, request.Title, request.Slug,
                 request.Summary, request.ContentHtml, request.FeaturedImageUrl,
                 request.MetaTitle, request.MetaDescription, request.Tags,
                 request.AuthorName, request.ReadTimeMinutes),
@@ -120,14 +116,16 @@ public class BlogController : ControllerBase
     [HttpPut("posts/{id}/publish")]
     public async Task<IActionResult> PublishPost(Guid id, [FromBody] PublishBlogPostRequest request, CancellationToken cancellationToken)
     {
-        await _mediator.Send(new PublishBlogPostCommand(id, ResolveTenantId(), request.IsPublished), cancellationToken);
+        var tenantId = await ResolveTenantIdAsync(cancellationToken);
+        await _mediator.Send(new PublishBlogPostCommand(id, tenantId, request.IsPublished), cancellationToken);
         return NoContent();
     }
 
     [HttpDelete("posts/{id}")]
     public async Task<IActionResult> DeletePost(Guid id, CancellationToken cancellationToken)
     {
-        await _mediator.Send(new DeleteBlogPostCommand(id, ResolveTenantId()), cancellationToken);
+        var tenantId = await ResolveTenantIdAsync(cancellationToken);
+        await _mediator.Send(new DeleteBlogPostCommand(id, tenantId), cancellationToken);
         return NoContent();
     }
 }
