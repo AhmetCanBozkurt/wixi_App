@@ -1,5 +1,5 @@
 import { useRef, useEffect } from 'react';
-import { FaArrowUp, FaArrowDown, FaTrash, FaDesktop, FaTabletAlt, FaMobileAlt } from 'react-icons/fa';
+import { FaArrowUp, FaArrowDown, FaTrash, FaDesktop, FaTabletAlt, FaMobileAlt, FaCopy } from 'react-icons/fa';
 import { useEditor } from '../context/EditorContext';
 import { BLOCK_BY_TYPE } from '../blocks/blockRegistry';
 import { themeToVars } from '../../../entities/StorePage/model/defaultTheme';
@@ -222,6 +222,11 @@ export function EditorCanvas() {
   const { layout, selectedComponentId, viewport, theme, activePage } = state;
   const canvasRef = useRef<HTMLDivElement>(null);
 
+  // Keep a ref to latest state so the keydown handler always has fresh values
+  const stateRef = useRef(state);
+  useEffect(() => { stateRef.current = state; });
+
+  // Theme CSS vars
   useEffect(() => {
     if (!canvasRef.current) return;
     const vars = themeToVars(theme);
@@ -229,6 +234,58 @@ export function EditorCanvas() {
       canvasRef.current.style.setProperty(k, v);
     }
   }, [theme]);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      // Don't capture when user is typing in an input
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName) || target.isContentEditable) return;
+
+      const selId = stateRef.current.selectedComponentId;
+
+      if (e.key === 'Escape') {
+        dispatch({ type: 'SELECT_COMPONENT', id: null });
+        return;
+      }
+
+      if ((e.key === 'Delete' || e.key === 'Backspace') && selId) {
+        e.preventDefault();
+        dispatch({ type: 'REMOVE_COMPONENT', id: selId });
+        return;
+      }
+
+      if (e.ctrlKey || e.metaKey) {
+        switch (e.key.toLowerCase()) {
+          case 'z':
+            e.preventDefault();
+            dispatch({ type: e.shiftKey ? 'REDO' : 'UNDO' });
+            break;
+          case 'y':
+            e.preventDefault();
+            dispatch({ type: 'REDO' });
+            break;
+          case 'd':
+            e.preventDefault();
+            if (selId) dispatch({ type: 'DUPLICATE_COMPONENT', id: selId });
+            break;
+          case 'c':
+            if (selId) {
+              e.preventDefault();
+              dispatch({ type: 'COPY_COMPONENT', id: selId });
+            }
+            break;
+          case 'v':
+            e.preventDefault();
+            dispatch({ type: 'PASTE_COMPONENT' });
+            break;
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [dispatch]);
 
   const select = (id: string) => {
     dispatch({ type: 'SELECT_COMPONENT', id });
@@ -300,9 +357,16 @@ export function EditorCanvas() {
                       <FaArrowDown />
                     </button>
                     <button
+                      className={styles.toolbarBtn}
+                      onClick={() => dispatch({ type: 'DUPLICATE_COMPONENT', id: comp.id })}
+                      title="Çoğalt (Ctrl+D)"
+                    >
+                      <FaCopy />
+                    </button>
+                    <button
                       className={`${styles.toolbarBtn} ${styles.toolbarDanger}`}
                       onClick={() => dispatch({ type: 'REMOVE_COMPONENT', id: comp.id })}
-                      title="Sil"
+                      title="Sil (Delete)"
                     >
                       <FaTrash />
                     </button>

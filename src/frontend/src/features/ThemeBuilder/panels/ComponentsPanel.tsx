@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { BLOCK_REGISTRY, BLOCK_CATEGORIES } from '../blocks/blockRegistry';
 import { useEditor } from '../context/EditorContext';
 import type { LayoutComponent } from '../../../entities/StorePage/model/types';
@@ -9,6 +10,7 @@ interface ComponentsPanelProps {
 
 export function ComponentsPanel({ excludeCategories }: ComponentsPanelProps = {}) {
   const { dispatch } = useEditor();
+  const [query, setQuery] = useState('');
 
   const addComponent = (type: string) => {
     const def = BLOCK_REGISTRY.find(b => b.type === type);
@@ -23,15 +25,36 @@ export function ComponentsPanel({ excludeCategories }: ComponentsPanelProps = {}
     dispatch({ type: 'SET_RIGHT_TAB', tab: 'props' });
   };
 
+  const q = query.trim().toLowerCase();
+
   const categories = (Object.entries(BLOCK_CATEGORIES) as [keyof typeof BLOCK_CATEGORIES, string][])
     .filter(([cat]) => !excludeCategories?.includes(cat));
 
   return (
     <div className={styles.panel}>
       <div className={styles.panelHeader}><span>Bileşen Ekle</span></div>
+
+      {/* Search */}
+      <div className={styles.compSearchWrap}>
+        <input
+          className={styles.compSearchInput}
+          type="text"
+          placeholder="Bileşen ara..."
+          value={query}
+          onChange={e => setQuery(e.target.value)}
+        />
+        {query && (
+          <button className={styles.compSearchClear} onClick={() => setQuery('')} type="button">
+            ×
+          </button>
+        )}
+      </div>
+
       <div className={styles.componentsList}>
         {categories.map(([cat, label]) => {
-          const blocks = BLOCK_REGISTRY.filter(b => b.category === cat);
+          const blocks = BLOCK_REGISTRY.filter(
+            b => b.category === cat && (!q || b.name.toLowerCase().includes(q) || b.type.toLowerCase().includes(q)),
+          );
           if (blocks.length === 0) return null;
           return (
             <div key={cat}>
@@ -52,6 +75,17 @@ export function ComponentsPanel({ excludeCategories }: ComponentsPanelProps = {}
             </div>
           );
         })}
+
+        {q && categories.every(([cat]) => {
+          const blocks = BLOCK_REGISTRY.filter(
+            b => b.category === cat && (b.name.toLowerCase().includes(q) || b.type.toLowerCase().includes(q)),
+          );
+          return blocks.length === 0;
+        }) && (
+          <div className={styles.noSelection} style={{ paddingTop: '32px' }}>
+            <span>"{query}" için bileşen bulunamadı</span>
+          </div>
+        )}
       </div>
     </div>
   );

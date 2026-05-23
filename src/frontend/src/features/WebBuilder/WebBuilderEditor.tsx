@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { FaGlobe, FaSave, FaExternalLinkAlt, FaHistory } from 'react-icons/fa';
+import { FaGlobe, FaSave, FaExternalLinkAlt, FaHistory, FaUndo, FaRedo } from 'react-icons/fa';
 
 import { useEditor } from '../ThemeBuilder/context/EditorContext';
 import { useWebBuilder } from './hooks/useWebBuilder';
@@ -8,6 +8,7 @@ import { WebSeoPanel } from './panels/WebSeoPanel';
 import { WebBacklinksPanel } from './panels/WebBacklinksPanel';
 import { WebVersionHistoryPanel } from './panels/WebVersionHistoryPanel';
 import { ComponentsPanel } from '../ThemeBuilder/panels/ComponentsPanel';
+import { LayersPanel } from '../ThemeBuilder/panels/LayersPanel';
 import { PropertiesPanel } from '../ThemeBuilder/panels/PropertiesPanel';
 import { EditorCanvas } from '../ThemeBuilder/canvas/EditorCanvas';
 import { Modal } from '../../shared/ui/Modal/Modal';
@@ -17,6 +18,8 @@ function WebBuilderEditorInner() {
   const { state, dispatch } = useEditor();
   const { loadPages, saveAll } = useWebBuilder();
   const [versionModalOpen, setVersionModalOpen] = useState(false);
+  const canUndo = state._past.length > 0;
+  const canRedo = state._future.length > 0;
 
   useEffect(() => {
     void loadPages();
@@ -38,6 +41,25 @@ function WebBuilderEditorInner() {
 
         <div className={styles.topActions}>
           {state.isDirty && <div className={styles.dirtyDot} title="Kaydedilmemiş değişiklikler" />}
+
+          <button
+            className={styles.undoRedoBtn}
+            onClick={() => dispatch({ type: 'UNDO' })}
+            disabled={!canUndo}
+            title="Geri Al (Ctrl+Z)"
+            type="button"
+          >
+            <FaUndo />
+          </button>
+          <button
+            className={styles.undoRedoBtn}
+            onClick={() => dispatch({ type: 'REDO' })}
+            disabled={!canRedo}
+            title="Yeniden Yap (Ctrl+Y)"
+            type="button"
+          >
+            <FaRedo />
+          </button>
 
           <button
             className={styles.historyBtn}
@@ -73,7 +95,7 @@ function WebBuilderEditorInner() {
         {/* Left Sidebar */}
         <div className={styles.sidebarLeft}>
           <div className={styles.leftTabBar}>
-            {([['pages', 'Sayfalar'], ['components', 'Bileşenler']] as const).map(([tab, label]) => (
+            {([['pages', 'Sayfalar'], ['components', 'Bileşenler'], ['layers', 'Katmanlar']] as const).map(([tab, label]) => (
               <button
                 key={tab}
                 className={`${styles.leftTab} ${state.leftTab === tab ? styles.leftTabActive : ''}`}
@@ -87,6 +109,7 @@ function WebBuilderEditorInner() {
           <div className={styles.leftContent}>
             {state.leftTab === 'pages' && <WebPagesPanel />}
             {state.leftTab === 'components' && <ComponentsPanel excludeCategories={['commerce']} />}
+            {state.leftTab === 'layers' && <LayersPanel />}
           </div>
         </div>
 

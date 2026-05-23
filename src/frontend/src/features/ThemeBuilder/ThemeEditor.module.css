@@ -82,6 +82,24 @@
 .saveBtn:hover { background: #db2777; }
 .saveBtn:disabled { opacity: 0.6; cursor: not-allowed; }
 
+.undoRedoBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: var(--editor-surface-2);
+  border: 1px solid var(--editor-border);
+  border-radius: 7px;
+  color: var(--editor-text-muted);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.undoRedoBtn:hover { border-color: var(--editor-text-muted); color: var(--editor-text); }
+.undoRedoBtn:disabled { opacity: 0.35; cursor: not-allowed; pointer-events: none; }
+
 .historyBtn {
   display: flex;
   align-items: center;

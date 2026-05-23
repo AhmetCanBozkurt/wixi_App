@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { FaPaintBrush, FaSave, FaExternalLinkAlt, FaHistory } from 'react-icons/fa';
+import { FaPaintBrush, FaSave, FaExternalLinkAlt, FaHistory, FaUndo, FaRedo } from 'react-icons/fa';
 
 import { EditorProvider, useEditor } from './context/EditorContext';
 import { useThemeEditor } from './hooks/useThemeEditor';
 import { PagesPanel } from './panels/PagesPanel';
 import { ComponentsPanel } from './panels/ComponentsPanel';
+import { LayersPanel } from './panels/LayersPanel';
 import { ThemePanel } from './panels/ThemePanel';
 import { GlobalPanel } from './panels/GlobalPanel';
 import { CodeEditorPanel } from './panels/CodeEditorPanel';
@@ -21,6 +22,8 @@ function ThemeEditorInner({ tenantSlug }: { tenantSlug: string }) {
   const { state, dispatch } = useEditor();
   const { loadPages, saveAll } = useThemeEditor(tenantSlug);
   const [versionModalOpen, setVersionModalOpen] = useState(false);
+  const canUndo = state._past.length > 0;
+  const canRedo = state._future.length > 0;
 
   useEffect(() => {
     void loadPages();
@@ -42,6 +45,25 @@ function ThemeEditorInner({ tenantSlug }: { tenantSlug: string }) {
 
         <div className={styles.topActions}>
           {state.isDirty && <div className={styles.dirtyDot} title="Kaydedilmemiş değişiklikler" />}
+
+          <button
+            className={styles.undoRedoBtn}
+            onClick={() => dispatch({ type: 'UNDO' })}
+            disabled={!canUndo}
+            title="Geri Al (Ctrl+Z)"
+            type="button"
+          >
+            <FaUndo />
+          </button>
+          <button
+            className={styles.undoRedoBtn}
+            onClick={() => dispatch({ type: 'REDO' })}
+            disabled={!canRedo}
+            title="Yeniden Yap (Ctrl+Y)"
+            type="button"
+          >
+            <FaRedo />
+          </button>
 
           <button
             className={styles.historyBtn}
@@ -77,7 +99,7 @@ function ThemeEditorInner({ tenantSlug }: { tenantSlug: string }) {
         {/* Left Sidebar */}
         <div className={styles.sidebarLeft}>
           <div className={styles.leftTabBar}>
-            {([['pages', 'Sayfalar'], ['components', 'Bileşenler'], ['theme', 'Tema'], ['global', 'Global'], ['code', 'Kod']] as const).map(([tab, label]) => (
+            {([['pages', 'Sayfalar'], ['components', 'Bileşenler'], ['layers', 'Katmanlar'], ['theme', 'Tema'], ['global', 'Global'], ['code', 'Kod']] as const).map(([tab, label]) => (
               <button
                 key={tab}
                 className={`${styles.leftTab} ${state.leftTab === tab ? styles.leftTabActive : ''}`}
@@ -91,6 +113,7 @@ function ThemeEditorInner({ tenantSlug }: { tenantSlug: string }) {
           <div className={styles.leftContent}>
             {state.leftTab === 'pages' && <PagesPanel tenantSlug={tenantSlug} />}
             {state.leftTab === 'components' && <ComponentsPanel />}
+            {state.leftTab === 'layers' && <LayersPanel />}
             {state.leftTab === 'theme' && <ThemePanel tenantSlug={tenantSlug} />}
             {state.leftTab === 'global' && <GlobalPanel tenantSlug={tenantSlug} />}
             {state.leftTab === 'code' && <CodeEditorPanel tenantSlug={tenantSlug} />}
