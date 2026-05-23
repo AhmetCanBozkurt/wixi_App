@@ -2,6 +2,7 @@ import {
   FaImage, FaColumns, FaShoppingBag, FaThLarge, FaFileAlt, FaEnvelope,
   FaQuoteLeft, FaClock, FaBullhorn, FaTrademark, FaChartBar,
   FaVideo, FaAlignLeft, FaWpforms, FaCode, FaImages, FaQuestionCircle,
+  FaUsers, FaBriefcase, FaNewspaper, FaHistory, FaTh, FaMapMarkerAlt,
 } from 'react-icons/fa';
 import type { IconType } from 'react-icons';
 
@@ -27,7 +28,7 @@ export interface PropField {
 export interface BlockDefinition {
   type: string;
   name: string;
-  category: 'hero' | 'content' | 'commerce' | 'marketing' | 'forms' | 'advanced';
+  category: 'hero' | 'content' | 'commerce' | 'marketing' | 'forms' | 'advanced' | 'corporate';
   icon: IconType;
   defaultProps: Record<string, unknown>;
   propsSchema: PropField[];
@@ -370,6 +371,143 @@ export const BLOCK_REGISTRY: BlockDefinition[] = [
       { field: 'html', type: 'richtext', label: 'HTML Kodu' },
     ],
   },
+
+  // ── Corporate ────────────────────────────────────────────────────────
+  {
+    type: 'team-grid',
+    name: 'Ekip Üyeleri',
+    category: 'corporate',
+    icon: FaUsers,
+    defaultProps: {
+      title: 'Ekibimiz',
+      items: [
+        { name: 'Ahmet Yılmaz', role: 'CEO', imageUrl: '', linkedIn: '' },
+        { name: 'Ayşe Demir', role: 'CTO', imageUrl: '', linkedIn: '' },
+      ],
+      columns: 3,
+    },
+    propsSchema: [
+      { field: 'title', type: 'text', label: 'Başlık' },
+      { field: 'columns', type: 'select', label: 'Kolon', options: [{ value: '2', label: '2' }, { value: '3', label: '3' }, { value: '4', label: '4' }] },
+      {
+        field: 'items', type: 'json-array', label: 'Üyeler', itemSchema: [
+          { key: 'name', label: 'İsim', type: 'text' },
+          { key: 'role', label: 'Unvan', type: 'text' },
+          { key: 'imageUrl', label: 'Fotoğraf URL', type: 'url' },
+        ],
+      },
+    ],
+  },
+  {
+    type: 'services-grid',
+    name: 'Hizmetler',
+    category: 'corporate',
+    icon: FaBriefcase,
+    defaultProps: {
+      title: 'Hizmetlerimiz',
+      items: [
+        { icon: 'FaRocket', title: 'Hızlı Teslimat', description: 'Aynı gün kargo imkânı.' },
+        { icon: 'FaShieldAlt', title: 'Güvenli Ödeme', description: '256-bit SSL koruması.' },
+        { icon: 'FaHeadset', title: '7/24 Destek', description: 'Her zaman yanınızdayız.' },
+      ],
+      columns: 3,
+    },
+    propsSchema: [
+      { field: 'title', type: 'text', label: 'Başlık' },
+      { field: 'columns', type: 'select', label: 'Kolon', options: [{ value: '2', label: '2' }, { value: '3', label: '3' }, { value: '4', label: '4' }] },
+      {
+        field: 'items', type: 'json-array', label: 'Hizmetler', itemSchema: [
+          { key: 'title', label: 'Başlık', type: 'text' },
+          { key: 'description', label: 'Açıklama', type: 'textarea' },
+        ],
+      },
+    ],
+  },
+  {
+    type: 'blog-list',
+    name: 'Blog Yazıları',
+    category: 'corporate',
+    icon: FaNewspaper,
+    defaultProps: {
+      title: 'Blog',
+      limit: 3,
+      columns: 3,
+      showFeaturedImage: true,
+      dataSource: 'api',
+    },
+    propsSchema: [
+      { field: 'title', type: 'text', label: 'Başlık' },
+      { field: 'limit', type: 'number', label: 'Yazı Sayısı' },
+      { field: 'columns', type: 'select', label: 'Kolon', options: [{ value: '1', label: '1' }, { value: '2', label: '2' }, { value: '3', label: '3' }] },
+      { field: 'showFeaturedImage', type: 'boolean', label: 'Kapak Görseli' },
+    ],
+  },
+  {
+    type: 'timeline',
+    name: 'Zaman Çizelgesi',
+    category: 'corporate',
+    icon: FaHistory,
+    defaultProps: {
+      title: 'Tarihçemiz',
+      items: [
+        { year: '2018', title: 'Kuruluş', description: 'Şirketimiz kuruldu.' },
+        { year: '2020', title: 'Büyüme', description: '100 çalışana ulaştık.' },
+        { year: '2024', title: 'İnovasyon', description: 'Yeni ürün serimizi lansmanladık.' },
+      ],
+    },
+    propsSchema: [
+      { field: 'title', type: 'text', label: 'Başlık' },
+      {
+        field: 'items', type: 'json-array', label: 'Etkinlikler', itemSchema: [
+          { key: 'year', label: 'Yıl / Tarih', type: 'text' },
+          { key: 'title', label: 'Başlık', type: 'text' },
+          { key: 'description', label: 'Açıklama', type: 'textarea' },
+        ],
+      },
+    ],
+  },
+  {
+    type: 'portfolio-grid',
+    name: 'Portfolyo',
+    category: 'corporate',
+    icon: FaTh,
+    defaultProps: {
+      title: 'Projelerimiz',
+      items: [
+        { title: 'Proje 1', category: 'Web', imageUrl: '', url: '' },
+        { title: 'Proje 2', category: 'Mobil', imageUrl: '', url: '' },
+      ],
+      columns: 3,
+    },
+    propsSchema: [
+      { field: 'title', type: 'text', label: 'Başlık' },
+      { field: 'columns', type: 'select', label: 'Kolon', options: [{ value: '2', label: '2' }, { value: '3', label: '3' }, { value: '4', label: '4' }] },
+      {
+        field: 'items', type: 'json-array', label: 'Projeler', itemSchema: [
+          { key: 'title', label: 'Başlık', type: 'text' },
+          { key: 'category', label: 'Kategori', type: 'text' },
+          { key: 'imageUrl', label: 'Görsel URL', type: 'url' },
+          { key: 'url', label: 'Proje Linki', type: 'url' },
+        ],
+      },
+    ],
+  },
+  {
+    type: 'map-embed',
+    name: 'Harita',
+    category: 'corporate',
+    icon: FaMapMarkerAlt,
+    defaultProps: {
+      embedUrl: '',
+      height: '400px',
+      title: 'Konum',
+    },
+    propsSchema: [
+      { field: 'title', type: 'text', label: 'Başlık' },
+      { field: 'embedUrl', type: 'url', label: 'Google Maps Embed URL' },
+      { field: 'height', type: 'text', label: 'Yükseklik' },
+    ],
+  },
 ];
 
 export const BLOCK_BY_TYPE = Object.fromEntries(BLOCK_REGISTRY.map(b => [b.type, b]));
@@ -381,4 +519,5 @@ export const BLOCK_CATEGORIES = {
   marketing: 'Pazarlama',
   forms: 'Formlar',
   advanced: 'Gelişmiş',
+  corporate: 'Kurumsal',
 } as const;

@@ -88,6 +88,7 @@ import { ServicesPage } from '../pages/admin/DefinitionsPage/ServicesPage';
 import { ProductDescriptionsPage } from '../pages/admin/DefinitionsPage/ProductDescriptionsPage';
 import { HsCodesPage } from '../pages/admin/DefinitionsPage/HsCodesPage';
 import { SystemOverviewPage } from '../pages/admin/SystemOverviewPage/SystemOverviewPage';
+import WebBuilderEditorPage from '../pages/corporate/WebBuilderEditorPage/WebBuilderEditorPage';
 
 const App = () => {
   return (
@@ -112,6 +113,7 @@ const App = () => {
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/checkout/success" element={<CheckoutSuccessPage />} />
           <Route path="/checkout/cancel" element={<CheckoutCancelPage />} />
+          <Route path="/corp/builder" element={<WebBuilderEditorPage />} />
           <Route path="/store-admin/login" element={<StoreAdminLoginPage />} />
           <Route path="/store/:tenantSlug" element={<StorefrontLayout />}>
             <Route index element={<StorefrontPage />} />

@@ -6,6 +6,7 @@ using Wixi.Modules.Core.Application.Common.Interfaces;
 using Wixi.Modules.Core.Infrastructure.Services;
 using Wixi.API.Extensions;
 using Wixi.Modules.ECommerce;
+using Wixi.Modules.WebBuilder;
 using Serilog;
 using Serilog.Events;
 
@@ -34,6 +35,7 @@ builder.Services.AddWixiAuth(builder.Configuration);
 
 builder.Services.AddControllers()
     .AddApplicationPart(typeof(Wixi.Modules.ECommerce.ECommerceModuleExtensions).Assembly)
+    .AddApplicationPart(typeof(Wixi.Modules.WebBuilder.WebBuilderModuleExtensions).Assembly)
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
@@ -81,6 +83,9 @@ builder.Services.AddHttpClient<Wixi.Modules.Core.Application.Common.Interfaces.I
 
 // ── ECommerce Modülü ─────────────────────────────────────────────
 builder.Services.AddECommerceModule(builder.Configuration);
+
+// ── WebBuilder Modülü ────────────────────────────────────────────
+builder.Services.AddWebBuilderModule(builder.Configuration);
 
 builder.Services.AddHealthChecks()
     .AddCheck("database", () =>
@@ -218,6 +223,9 @@ app.UseECommerceModule();
 // ── ECommerce Master & Tenant DB Migrations ───────────────────────
 await app.MigrateECommerceMasterDbAsync();
 await app.MigrateAllTenantDbsAsync();
+
+// ── WebBuilder DB Migration ───────────────────────────────────────
+await app.MigrateWebBuilderDbAsync();
 
 app.MapHealthChecks("/health");
 app.MapControllers();
