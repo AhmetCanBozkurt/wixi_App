@@ -624,6 +624,501 @@ export function MiniRenderer({ comp, theme }: { comp: LayoutComponent; theme: Th
         </div>
       );
 
+    // ── Corporate Previews ─────────────────────────────────────────────
+
+    case 'hero-corporate':
+      return (
+        <div
+          style={{
+            minHeight: '180px',
+            background: p.imageUrl
+              ? `linear-gradient(rgba(0,0,0,${p.overlayOpacity ?? 0.55}),rgba(0,0,0,${p.overlayOpacity ?? 0.55})), url(${p.imageUrl as string}) center/cover`
+              : 'linear-gradient(135deg,#1e293b 0%,#0f172a 100%)',
+            padding: '28px 24px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+          }}
+        >
+          <h2 data-prop-key="title" style={{ color: '#fff', fontSize: '1.3rem', fontWeight: 800, marginBottom: '8px', lineHeight: 1.2 }}>
+            {p.title as string}
+          </h2>
+          {!!p.subtitle && (
+            <p data-prop-key="subtitle" style={{ color: 'rgba(255,255,255,0.78)', fontSize: '0.78rem', lineHeight: 1.5, marginBottom: '14px', maxWidth: '480px' }}>
+              {String(p.subtitle).slice(0, 100)}…
+            </p>
+          )}
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '14px' }}>
+            <span data-prop-key="primaryButtonText" style={{ background: theme.colors.primary, color: '#fff', padding: '6px 14px', borderRadius: theme.borderRadius.button, fontSize: '0.75rem', fontWeight: 600 }}>
+              {p.primaryButtonText as string}
+            </span>
+            {!!p.secondaryButtonText && (
+              <span style={{ background: 'transparent', color: '#fff', border: '1.5px solid rgba(255,255,255,0.5)', padding: '6px 14px', borderRadius: theme.borderRadius.button, fontSize: '0.75rem' }}>
+                {p.secondaryButtonText as string}
+              </span>
+            )}
+          </div>
+          {Array.isArray(p.trustBadges) && p.trustBadges.length > 0 && (
+            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+              {(p.trustBadges as { text: string }[]).slice(0, 4).map((b, i) => (
+                <span key={i} style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', color: '#fff', padding: '3px 8px', borderRadius: '4px', fontSize: '0.65rem' }}>
+                  ✓ {b.text}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      );
+
+    case 'about-company': {
+      const stats = (p.stats as { value: string; label: string }[]) ?? [];
+      return (
+        <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div>
+            <div style={{ fontSize: '0.7rem', color: theme.colors.primary, fontWeight: 600, marginBottom: '4px' }}>
+              {String(p.subtitle ?? '').slice(0, 60)}
+            </div>
+            <h3 data-prop-key="title" style={{ fontWeight: 700, fontSize: '1rem', marginBottom: '8px', color: theme.colors.text }}>
+              {p.title as string}
+            </h3>
+            <p style={{ fontSize: '0.75rem', color: theme.colors.textMuted, lineHeight: 1.5 }}>
+              {String(p.text ?? '').replace(/<[^>]+>/g, '').slice(0, 120)}…
+            </p>
+          </div>
+          {Boolean(p.showStats) && stats.length > 0 && (
+            <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(stats.length, 4)}, 1fr)`, gap: '8px', background: theme.colors.surface, borderRadius: theme.borderRadius.card, padding: '12px' }}>
+              {stats.slice(0, 4).map((s, i) => (
+                <div key={i} style={{ textAlign: 'center' }}>
+                  <div style={{ fontSize: '1.1rem', fontWeight: 800, color: theme.colors.primary }}>{s.value}</div>
+                  <div style={{ fontSize: '0.62rem', color: theme.colors.textMuted }}>{s.label}</div>
+                </div>
+              ))}
+            </div>
+          )}
+          {Boolean(p.showMissionVision) && (
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+              {[{ title: p.missionTitle, text: p.missionText }, { title: p.visionTitle, text: p.visionText }].map((mv, i) => (
+                <div key={i} style={{ background: theme.colors.surface, borderLeft: `3px solid ${theme.colors.primary}`, borderRadius: theme.borderRadius.md, padding: '8px' }}>
+                  <div style={{ fontSize: '0.7rem', fontWeight: 700, color: theme.colors.primary, marginBottom: '4px' }}>{mv.title as string}</div>
+                  <div style={{ fontSize: '0.65rem', color: theme.colors.textMuted, lineHeight: 1.4 }}>{String(mv.text ?? '').slice(0, 60)}…</div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    case 'team-grid': {
+      const members = (p.items as { name: string; role: string; bio?: string }[]) ?? [];
+      const cols = Number(p.columns ?? 3);
+      return (
+        <div style={{ padding: '16px' }}>
+          <h3 data-prop-key="title" style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '4px', color: theme.colors.text }}>{p.title as string}</h3>
+          {!!p.subtitle && <p style={{ fontSize: '0.72rem', color: theme.colors.textMuted, marginBottom: '12px' }}>{String(p.subtitle).slice(0, 70)}…</p>}
+          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(cols, 4)}, 1fr)`, gap: '8px' }}>
+            {members.slice(0, Math.min(cols, 4)).map((m, i) => (
+              <div key={i} style={{ background: theme.colors.surface, borderRadius: theme.borderRadius.card, border: `1px solid ${theme.colors.border}`, padding: '10px', textAlign: 'center' }}>
+                <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: theme.colors.border, margin: '0 auto 8px' }} />
+                <div style={{ fontSize: '0.72rem', fontWeight: 700, color: theme.colors.text }}>{m.name}</div>
+                <div style={{ fontSize: '0.65rem', color: theme.colors.primary, marginTop: '2px' }}>{m.role}</div>
+                {Boolean(p.showBio) && m.bio && <div style={{ fontSize: '0.6rem', color: theme.colors.textMuted, marginTop: '4px', lineHeight: 1.4 }}>{m.bio.slice(0, 50)}…</div>}
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    case 'services-grid': {
+      const services = (p.items as { icon?: string; title: string; description: string; iconColor?: string }[]) ?? [];
+      const cols = Number(p.columns ?? 3);
+      return (
+        <div style={{ padding: '16px' }}>
+          <h3 data-prop-key="title" style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '4px', color: theme.colors.text }}>{p.title as string}</h3>
+          {!!p.subtitle && <p style={{ fontSize: '0.72rem', color: theme.colors.textMuted, marginBottom: '12px' }}>{String(p.subtitle).slice(0, 80)}…</p>}
+          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(cols, 3)}, 1fr)`, gap: '8px' }}>
+            {services.slice(0, Math.min(cols, 6)).map((s, i) => (
+              <div key={i} style={{ background: theme.colors.surface, borderRadius: theme.borderRadius.card, border: `1px solid ${theme.colors.border}`, padding: '12px' }}>
+                <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: s.iconColor ?? theme.colors.primary, opacity: 0.15, marginBottom: '8px' }} />
+                <div style={{ fontSize: '0.75rem', fontWeight: 700, color: theme.colors.text, marginBottom: '4px' }}>{s.title}</div>
+                <div style={{ fontSize: '0.65rem', color: theme.colors.textMuted, lineHeight: 1.4 }}>{s.description.slice(0, 60)}…</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    case 'features-highlight': {
+      const features = (p.items as { icon?: string; title: string; description: string; color?: string }[]) ?? [];
+      const cols = Number(p.columns ?? 3);
+      return (
+        <div style={{ padding: '16px' }}>
+          <h3 data-prop-key="title" style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '4px', color: theme.colors.text }}>{p.title as string}</h3>
+          {!!p.subtitle && <p style={{ fontSize: '0.72rem', color: theme.colors.textMuted, marginBottom: '12px' }}>{String(p.subtitle).slice(0, 70)}…</p>}
+          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(cols, 3)}, 1fr)`, gap: '8px' }}>
+            {features.slice(0, Math.min(cols, 6)).map((f, i) => (
+              <div key={i} style={{ background: theme.colors.surface, borderRadius: theme.borderRadius.card, border: `1px solid ${theme.colors.border}`, padding: '12px', display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
+                <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: f.color ?? theme.colors.primary, flexShrink: 0, opacity: 0.85 }} />
+                <div>
+                  <div style={{ fontSize: '0.75rem', fontWeight: 700, color: theme.colors.text, marginBottom: '3px' }}>{f.title}</div>
+                  <div style={{ fontSize: '0.62rem', color: theme.colors.textMuted, lineHeight: 1.4 }}>{f.description.slice(0, 55)}…</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    case 'process-steps': {
+      const steps = (p.steps as { stepNumber: string; title: string; description: string }[]) ?? [];
+      return (
+        <div style={{ padding: '16px' }}>
+          <h3 data-prop-key="title" style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '4px', color: theme.colors.text }}>{p.title as string}</h3>
+          {!!p.subtitle && <p style={{ fontSize: '0.72rem', color: theme.colors.textMuted, marginBottom: '12px' }}>{String(p.subtitle).slice(0, 80)}…</p>}
+          <div style={{ display: 'flex', flexDirection: p.orientation === 'vertical' ? 'column' : 'row', gap: '8px', overflowX: 'hidden' }}>
+            {steps.slice(0, 4).map((s, i) => (
+              <div key={i} style={{ flex: 1, background: theme.colors.surface, border: `1px solid ${theme.colors.border}`, borderRadius: theme.borderRadius.card, padding: '10px', position: 'relative' }}>
+                <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: theme.colors.primary, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 700, marginBottom: '8px' }}>
+                  {s.stepNumber}
+                </div>
+                <div style={{ fontSize: '0.72rem', fontWeight: 700, color: theme.colors.text, marginBottom: '3px' }}>{s.title}</div>
+                <div style={{ fontSize: '0.62rem', color: theme.colors.textMuted, lineHeight: 1.4 }}>{s.description.slice(0, 55)}…</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    case 'pricing-plans': {
+      const plans = (p.plans as { name: string; price: string; currency: string; highlighted?: boolean; badge?: string; features?: { text: string; included: boolean }[] }[]) ?? [];
+      return (
+        <div style={{ padding: '16px' }}>
+          <h3 data-prop-key="title" style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '4px', textAlign: 'center', color: theme.colors.text }}>{p.title as string}</h3>
+          {!!p.subtitle && <p style={{ fontSize: '0.7rem', color: theme.colors.textMuted, textAlign: 'center', marginBottom: '12px' }}>{String(p.subtitle).slice(0, 80)}…</p>}
+          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(plans.length, 3)}, 1fr)`, gap: '8px' }}>
+            {plans.slice(0, 3).map((pl, i) => (
+              <div key={i} style={{ background: theme.colors.surface, borderRadius: theme.borderRadius.card, border: `2px solid ${pl.highlighted ? theme.colors.primary : theme.colors.border}`, padding: '12px', textAlign: 'center', position: 'relative' }}>
+                {pl.badge && (
+                  <div style={{ position: 'absolute', top: '-10px', left: '50%', transform: 'translateX(-50%)', background: theme.colors.primary, color: '#fff', borderRadius: '4px', padding: '2px 8px', fontSize: '0.6rem', fontWeight: 700, whiteSpace: 'nowrap' }}>
+                    {pl.badge}
+                  </div>
+                )}
+                <div style={{ fontSize: '0.75rem', fontWeight: 700, color: theme.colors.text, marginBottom: '6px' }}>{pl.name}</div>
+                <div style={{ fontSize: '1.2rem', fontWeight: 800, color: theme.colors.primary, marginBottom: '10px' }}>
+                  {pl.currency}{pl.price}
+                </div>
+                {pl.features && pl.features.slice(0, 4).map((f, j) => (
+                  <div key={j} style={{ fontSize: '0.6rem', color: f.included ? theme.colors.text : theme.colors.textMuted, textDecoration: f.included ? 'none' : 'line-through', marginBottom: '3px', textAlign: 'left' }}>
+                    {f.included ? '✓' : '✗'} {f.text}
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    case 'clients-logos': {
+      const logos = (p.logos as { imageUrl: string; altText: string }[]) ?? [];
+      const cols = Number(p.columns ?? 6);
+      return (
+        <div style={{ padding: '16px', textAlign: 'center' }}>
+          <h3 data-prop-key="title" style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '4px', color: theme.colors.text }}>{p.title as string}</h3>
+          {!!p.subtitle && <p style={{ fontSize: '0.7rem', color: theme.colors.textMuted, marginBottom: '12px' }}>{String(p.subtitle).slice(0, 70)}…</p>}
+          <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '10px' }}>
+            {Array.from({ length: Math.min(logos.length || cols, 8) }).map((_, i) => (
+              <div key={i} style={{ height: '28px', width: '70px', background: theme.colors.border, borderRadius: '4px', opacity: 0.45 }}>
+                {logos[i]?.altText && (
+                  <div style={{ fontSize: '0.55rem', color: theme.colors.textMuted, display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+                    {logos[i].altText}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    case 'awards-certifications': {
+      const awards = (p.items as { year: string; name: string; organization: string }[]) ?? [];
+      const cols = Number(p.columns ?? 3);
+      return (
+        <div style={{ padding: '16px' }}>
+          <h3 data-prop-key="title" style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '4px', color: theme.colors.text }}>{p.title as string}</h3>
+          {!!p.subtitle && <p style={{ fontSize: '0.7rem', color: theme.colors.textMuted, marginBottom: '12px' }}>{String(p.subtitle).slice(0, 70)}…</p>}
+          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(cols, 3)}, 1fr)`, gap: '8px' }}>
+            {awards.slice(0, Math.min(cols, 6)).map((a, i) => (
+              <div key={i} style={{ background: theme.colors.surface, border: `1px solid ${theme.colors.border}`, borderRadius: theme.borderRadius.card, padding: '10px' }}>
+                <div style={{ fontSize: '0.6rem', color: theme.colors.primary, fontWeight: 700, marginBottom: '4px' }}>{a.year}</div>
+                <div style={{ fontSize: '0.72rem', fontWeight: 700, color: theme.colors.text, marginBottom: '3px', lineHeight: 1.3 }}>{a.name}</div>
+                <div style={{ fontSize: '0.62rem', color: theme.colors.textMuted }}>— {a.organization}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    case 'numbers-counter': {
+      const counters = (p.items as { value: string; suffix: string; label: string; color?: string }[]) ?? [];
+      const cols = Number(p.columns ?? 3);
+      return (
+        <div style={{ padding: '16px', background: p.backgroundType === 'dark' ? '#0f172a' : (p.backgroundColor as string || theme.colors.surface) }}>
+          {!!p.title && <h3 style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '4px', textAlign: 'center', color: p.backgroundType === 'dark' ? '#fff' : theme.colors.text }}>{p.title as string}</h3>}
+          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(cols, 6)}, 1fr)`, gap: '8px', marginTop: '12px' }}>
+            {counters.slice(0, Math.min(cols, 6)).map((c, i) => (
+              <div key={i} style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '1.4rem', fontWeight: 800, color: c.color ?? theme.colors.primary, lineHeight: 1 }}>
+                  {c.value}{c.suffix}
+                </div>
+                <div style={{ fontSize: '0.65rem', color: p.backgroundType === 'dark' ? 'rgba(255,255,255,0.6)' : theme.colors.textMuted, marginTop: '4px' }}>
+                  {c.label}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    case 'cta-banner':
+      return (
+        <div
+          style={{
+            background: p.backgroundType === 'gradient'
+              ? `linear-gradient(135deg, ${theme.colors.primary}, ${theme.colors.secondary ?? theme.colors.primary}cc)`
+              : p.backgroundType === 'image' && p.imageUrl
+                ? `linear-gradient(rgba(0,0,0,0.6),rgba(0,0,0,0.6)), url(${p.imageUrl as string}) center/cover`
+                : (p.backgroundColor as string) || theme.colors.primary,
+            padding: '28px 24px',
+            textAlign: 'center',
+            borderRadius: theme.borderRadius.card,
+          }}
+        >
+          {!!p.highlightText && (
+            <div style={{ display: 'inline-block', background: 'rgba(255,255,255,0.18)', color: '#fff', border: '1px solid rgba(255,255,255,0.3)', borderRadius: '4px', padding: '3px 10px', fontSize: '0.65rem', fontWeight: 600, marginBottom: '10px' }}>
+              {p.highlightText as string}
+            </div>
+          )}
+          <h3 data-prop-key="headline" style={{ color: '#fff', fontSize: '1.1rem', fontWeight: 800, marginBottom: '8px', lineHeight: 1.25 }}>
+            {p.headline as string}
+          </h3>
+          {!!p.subheadline && (
+            <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem', marginBottom: '14px', lineHeight: 1.5 }}>
+              {String(p.subheadline).slice(0, 100)}…
+            </p>
+          )}
+          <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <span style={{ background: '#fff', color: theme.colors.primary, padding: '7px 16px', borderRadius: theme.borderRadius.button, fontSize: '0.75rem', fontWeight: 700 }}>
+              {p.primaryButtonText as string}
+            </span>
+            {Boolean(p.showSecondaryButton) && !!p.secondaryButtonText && (
+              <span style={{ background: 'transparent', color: '#fff', border: '1.5px solid rgba(255,255,255,0.5)', padding: '7px 16px', borderRadius: theme.borderRadius.button, fontSize: '0.75rem' }}>
+                {p.secondaryButtonText as string}
+              </span>
+            )}
+          </div>
+        </div>
+      );
+
+    case 'contact-details': {
+      const phones = (p.phones as { label: string; number: string }[]) ?? [];
+      const emails = (p.emails as { label: string; address: string }[]) ?? [];
+      const hours  = (p.workingHours as { days: string; hours: string }[]) ?? [];
+      return (
+        <div style={{ padding: '16px' }}>
+          <h3 data-prop-key="title" style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '4px', color: theme.colors.text }}>{p.title as string}</h3>
+          {!!p.subtitle && <p style={{ fontSize: '0.7rem', color: theme.colors.textMuted, marginBottom: '12px' }}>{String(p.subtitle).slice(0, 70)}…</p>}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+            {/* Address */}
+            <div style={{ background: theme.colors.surface, border: `1px solid ${theme.colors.border}`, borderRadius: theme.borderRadius.md, padding: '10px' }}>
+              <div style={{ fontSize: '0.6rem', color: theme.colors.primary, fontWeight: 700, textTransform: 'uppercase', marginBottom: '5px' }}>📍 Adres</div>
+              <div style={{ fontSize: '0.68rem', color: theme.colors.text, lineHeight: 1.4 }}>{p.address as string}<br />{p.city as string}</div>
+            </div>
+            {/* Phones */}
+            <div style={{ background: theme.colors.surface, border: `1px solid ${theme.colors.border}`, borderRadius: theme.borderRadius.md, padding: '10px' }}>
+              <div style={{ fontSize: '0.6rem', color: theme.colors.primary, fontWeight: 700, textTransform: 'uppercase', marginBottom: '5px' }}>📞 Telefon</div>
+              {phones.slice(0, 2).map((ph, i) => (
+                <div key={i} style={{ fontSize: '0.65rem', color: theme.colors.text, marginBottom: '3px' }}>
+                  <span style={{ color: theme.colors.textMuted }}>{ph.label}: </span>{ph.number}
+                </div>
+              ))}
+            </div>
+            {/* Emails */}
+            <div style={{ background: theme.colors.surface, border: `1px solid ${theme.colors.border}`, borderRadius: theme.borderRadius.md, padding: '10px' }}>
+              <div style={{ fontSize: '0.6rem', color: theme.colors.primary, fontWeight: 700, textTransform: 'uppercase', marginBottom: '5px' }}>✉️ E-posta</div>
+              {emails.slice(0, 2).map((em, i) => (
+                <div key={i} style={{ fontSize: '0.65rem', color: theme.colors.primary, marginBottom: '3px' }}>{em.address}</div>
+              ))}
+            </div>
+            {/* Hours */}
+            <div style={{ background: theme.colors.surface, border: `1px solid ${theme.colors.border}`, borderRadius: theme.borderRadius.md, padding: '10px' }}>
+              <div style={{ fontSize: '0.6rem', color: theme.colors.primary, fontWeight: 700, textTransform: 'uppercase', marginBottom: '5px' }}>🕐 Saatler</div>
+              {hours.slice(0, 2).map((h, i) => (
+                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.62rem', marginBottom: '3px' }}>
+                  <span style={{ color: theme.colors.textMuted }}>{h.days}</span>
+                  <span style={{ color: theme.colors.text, fontWeight: 600 }}>{h.hours}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    case 'blog-list': {
+      const cols = Number(p.columns ?? 3);
+      return (
+        <div style={{ padding: '16px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+            <h3 data-prop-key="title" style={{ fontWeight: 700, fontSize: '0.95rem', color: theme.colors.text }}>{p.title as string}</h3>
+            {!!p.viewAllLink && <span style={{ fontSize: '0.7rem', color: theme.colors.primary, fontWeight: 600 }}>{p.viewAllText as string} →</span>}
+          </div>
+          {!!p.subtitle && <p style={{ fontSize: '0.7rem', color: theme.colors.textMuted, marginBottom: '12px' }}>{String(p.subtitle).slice(0, 80)}…</p>}
+          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(cols, 3)}, 1fr)`, gap: '8px' }}>
+            {Array.from({ length: Math.min(Number(p.limit ?? 3), 3) }).map((_, i) => (
+              <div key={i} style={{ background: theme.colors.surface, border: `1px solid ${theme.colors.border}`, borderRadius: theme.borderRadius.card, overflow: 'hidden' }}>
+                {p.showFeaturedImage && <div style={{ height: '60px', background: theme.colors.border }} />}
+                <div style={{ padding: '8px' }}>
+                  {p.showCategory && <div style={{ fontSize: '0.58rem', color: theme.colors.primary, fontWeight: 700, textTransform: 'uppercase', marginBottom: '3px' }}>Kategori</div>}
+                  <div style={{ height: '8px', background: theme.colors.border, borderRadius: '3px', marginBottom: '4px' }} />
+                  <div style={{ height: '8px', width: '70%', background: theme.colors.border, borderRadius: '3px', marginBottom: '6px' }} />
+                  {(p.showAuthor || p.showDate) && (
+                    <div style={{ fontSize: '0.58rem', color: theme.colors.textMuted }}>
+                      {p.showAuthor ? 'Yazar Adı' : ''} {p.showDate ? '· 01 Haz 2025' : ''} {p.showReadTime ? '· 5 dk' : ''}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    case 'timeline': {
+      const items = (p.items as { year: string; title: string; description: string; color?: string }[]) ?? [];
+      return (
+        <div style={{ padding: '16px' }}>
+          <h3 data-prop-key="title" style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '4px', color: theme.colors.text }}>{p.title as string}</h3>
+          {!!p.subtitle && <p style={{ fontSize: '0.7rem', color: theme.colors.textMuted, marginBottom: '12px' }}>{String(p.subtitle).slice(0, 70)}…</p>}
+          <div style={{ position: 'relative', paddingLeft: '20px', borderLeft: `2px solid ${theme.colors.border}`, display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            {items.slice(0, 4).map((it, i) => (
+              <div key={i} style={{ position: 'relative' }}>
+                <div style={{ position: 'absolute', left: '-27px', top: '2px', width: '12px', height: '12px', borderRadius: '50%', background: it.color ?? theme.colors.primary, border: `2px solid var(--bg, #fff)`, boxShadow: `0 0 0 2px ${it.color ?? theme.colors.primary}44` }} />
+                <div style={{ fontSize: '0.65rem', color: it.color ?? theme.colors.primary, fontWeight: 700 }}>{it.year}</div>
+                <div style={{ fontSize: '0.75rem', fontWeight: 700, color: theme.colors.text, marginBottom: '2px' }}>{it.title}</div>
+                <div style={{ fontSize: '0.62rem', color: theme.colors.textMuted, lineHeight: 1.4 }}>{it.description.slice(0, 70)}…</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    case 'portfolio-grid': {
+      const items = (p.items as { title: string; category: string; description?: string; tags?: string }[]) ?? [];
+      const cols = Number(p.columns ?? 3);
+      return (
+        <div style={{ padding: '16px' }}>
+          <h3 data-prop-key="title" style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '4px', color: theme.colors.text }}>{p.title as string}</h3>
+          {!!p.subtitle && <p style={{ fontSize: '0.7rem', color: theme.colors.textMuted, marginBottom: '8px' }}>{String(p.subtitle).slice(0, 70)}…</p>}
+          {p.filterEnabled && (
+            <div style={{ display: 'flex', gap: '5px', marginBottom: '10px', flexWrap: 'wrap' }}>
+              {['Tümü', ...new Set(items.map(it => it.category).filter(Boolean))].slice(0, 5).map((cat, i) => (
+                <span key={i} style={{ fontSize: '0.62rem', padding: '3px 8px', border: `1px solid ${i === 0 ? theme.colors.primary : theme.colors.border}`, borderRadius: '4px', background: i === 0 ? theme.colors.primary : 'transparent', color: i === 0 ? '#fff' : theme.colors.textMuted }}>
+                  {cat}
+                </span>
+              ))}
+            </div>
+          )}
+          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(cols, 3)}, 1fr)`, gap: '8px' }}>
+            {items.slice(0, Math.min(cols, 6)).map((it, i) => (
+              <div key={i} style={{ background: theme.colors.surface, border: `1px solid ${theme.colors.border}`, borderRadius: theme.borderRadius.card, overflow: 'hidden' }}>
+                <div style={{ height: '60px', background: theme.colors.border }} />
+                <div style={{ padding: '8px' }}>
+                  <div style={{ fontSize: '0.58rem', color: theme.colors.primary, fontWeight: 700, textTransform: 'uppercase', marginBottom: '2px' }}>{it.category}</div>
+                  <div style={{ fontSize: '0.75rem', fontWeight: 700, color: theme.colors.text, marginBottom: '3px' }}>{it.title}</div>
+                  {it.description && <div style={{ fontSize: '0.6rem', color: theme.colors.textMuted, lineHeight: 1.4 }}>{it.description.slice(0, 50)}…</div>}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    case 'map-embed':
+      return (
+        <div style={{ padding: '16px' }}>
+          <h3 data-prop-key="title" style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '12px', color: theme.colors.text }}>{p.title as string}</h3>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            {/* Map placeholder */}
+            <div
+              style={{
+                flex: 2,
+                minHeight: '120px',
+                background: '#e5e7eb',
+                borderRadius: theme.borderRadius.card,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '1.4rem',
+                color: '#9ca3af',
+              }}
+            >
+              🗺️
+            </div>
+            {/* Sidebar */}
+            {p.showContactSidebar && (
+              <div style={{ flex: 1, background: theme.colors.surface, border: `1px solid ${theme.colors.border}`, borderRadius: theme.borderRadius.card, padding: '10px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {[['📍', 'Adres', p.address], ['📞', 'Tel', p.phone], ['✉️', 'Mail', p.email], ['🕐', 'Saatler', p.workingHours]].map(([icon, lbl, val], i) => (
+                  <div key={i}>
+                    <div style={{ fontSize: '0.58rem', color: theme.colors.primary, fontWeight: 700, textTransform: 'uppercase', marginBottom: '2px' }}>{icon} {lbl}</div>
+                    <div style={{ fontSize: '0.65rem', color: theme.colors.text, lineHeight: 1.3 }}>{String(val ?? '').slice(0, 35)}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      );
+
+    case 'phone-contact':
+      return (
+        <div style={{ padding: '16px', background: p.backgroundColor as string || theme.colors.surface, borderRadius: theme.borderRadius.card }}>
+          <h3 data-prop-key="title" style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '4px', color: theme.colors.text }}>{p.title as string}</h3>
+          {!!p.subtitle && <p style={{ fontSize: '0.7rem', color: theme.colors.textMuted, marginBottom: '12px' }}>{String(p.subtitle).slice(0, 70)}…</p>}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '10px' }}>
+            {[[p.mainPhoneLabel, p.mainPhone], [p.supportPhoneLabel, p.supportPhone]].map(([lbl, num], i) => (
+              <div key={i} style={{ background: theme.colors.surface, border: `1px solid ${theme.colors.border}`, borderRadius: theme.borderRadius.md, padding: '10px' }}>
+                <div style={{ fontSize: '0.6rem', color: theme.colors.textMuted, marginBottom: '3px' }}>{lbl as string}</div>
+                <div style={{ fontSize: '0.85rem', fontWeight: 800, color: theme.colors.text }}>{num as string}</div>
+              </div>
+            ))}
+          </div>
+          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+            {!!p.whatsapp && (
+              <span style={{ background: '#25D366', color: '#fff', padding: '5px 12px', borderRadius: theme.borderRadius.button, fontSize: '0.72rem', fontWeight: 600 }}>
+                📲 WhatsApp
+              </span>
+            )}
+            <span style={{ background: theme.colors.primary, color: '#fff', padding: '5px 12px', borderRadius: theme.borderRadius.button, fontSize: '0.72rem', fontWeight: 600 }}>
+              {p.buttonText as string}
+            </span>
+          </div>
+          {!!p.availabilityText && (
+            <div style={{ fontSize: '0.62rem', color: theme.colors.textMuted, marginTop: '8px' }}>🕐 {p.availabilityText as string}</div>
+          )}
+        </div>
+      );
+
     default:
       return (
         <div style={{ padding: '24px', textAlign: 'center', color: theme.colors.textMuted }}>
@@ -732,6 +1227,7 @@ export function EditorCanvas() {
   const { state, dispatch } = useEditor();
   const { layout, selectedComponentId, viewport, theme, activePage, globalComponents } = state;
   const canvasRef = useRef<HTMLDivElement>(null);
+  const canvasScrollRef = useRef<HTMLDivElement>(null);
 
   const [canvasSelectedSection, setCanvasSelectedSection] = useState<'navbar' | 'footer' | null>(
     null,
@@ -741,6 +1237,13 @@ export function EditorCanvas() {
   // Keep a ref to latest state so the keydown handler always has fresh values
   const stateRef = useRef(state);
   useEffect(() => { stateRef.current = state; });
+
+  // Reset scroll position when active page changes
+  useEffect(() => {
+    if (canvasScrollRef.current) {
+      canvasScrollRef.current.scrollTop = 0;
+    }
+  }, [activePage?.id]);
 
   // Theme CSS vars
   useEffect(() => {
@@ -875,7 +1378,7 @@ export function EditorCanvas() {
       </div>
 
       {/* Canvas area */}
-      <div className={styles.canvasScroll}>
+      <div className={styles.canvasScroll} ref={canvasScrollRef}>
         <div
           className={styles.canvas}
           style={{ maxWidth: VIEWPORT_WIDTHS[viewport] }}

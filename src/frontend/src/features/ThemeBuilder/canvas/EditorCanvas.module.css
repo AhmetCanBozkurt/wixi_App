@@ -1,5 +1,7 @@
 .canvasWrapper {
   flex: 1;
+  min-width: 0;           /* prevent flex horizontal overflow */
+  min-height: 0;          /* prevent flex vertical overflow */
   display: flex;
   flex-direction: column;
   overflow: hidden;
