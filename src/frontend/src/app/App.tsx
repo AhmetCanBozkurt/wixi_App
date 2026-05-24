@@ -89,6 +89,7 @@ import { ProductDescriptionsPage } from '../pages/admin/DefinitionsPage/ProductD
 import { HsCodesPage } from '../pages/admin/DefinitionsPage/HsCodesPage';
 import { SystemOverviewPage } from '../pages/admin/SystemOverviewPage/SystemOverviewPage';
 import WebBuilderEditorPage from '../pages/corporate/WebBuilderEditorPage/WebBuilderEditorPage';
+import { CorpSitePage } from '../pages/corporate/CorpSitePage/CorpSitePage';
 import BlogManagementPage from '../pages/corporate/BlogManagementPage/BlogManagementPage';
 import FormManagementPage from '../pages/corporate/FormManagementPage/FormManagementPage';
 import { PersonalFinanceDashboardPage } from '../pages/my-finance/PersonalFinanceDashboardPage/PersonalFinanceDashboardPage';
@@ -120,6 +121,8 @@ const App = () => {
           <Route path="/checkout/success" element={<CheckoutSuccessPage />} />
           <Route path="/checkout/cancel" element={<CheckoutCancelPage />} />
           <Route path="/store-admin/login" element={<StoreAdminLoginPage />} />
+          <Route path="/corp/:tenantSlug" element={<CorpSitePage />} />
+          <Route path="/corp/:tenantSlug/:pageSlug" element={<CorpSitePage />} />
           <Route path="/store/:tenantSlug" element={<StorefrontLayout />}>
             <Route index element={<StorefrontPage />} />
             <Route path="product/:slug" element={<StorefrontProductDetailPage />} />

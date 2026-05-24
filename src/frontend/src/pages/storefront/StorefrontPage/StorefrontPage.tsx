@@ -1237,7 +1237,7 @@ function PhoneContactBlock({ props, theme }: { props: Record<string, unknown>; t
 
 // ── Block dispatcher ──────────────────────────────────────────────────────────
 
-function BlockRenderer({ comp, theme, tenantSlug }: { comp: LayoutComponent; theme: ThemeConfig; tenantSlug: string }) {
+export function BlockRenderer({ comp, theme, tenantSlug }: { comp: LayoutComponent; theme: ThemeConfig; tenantSlug: string }) {
   const p = comp.props;
   switch (comp.type) {
     case 'hero': return <HeroBlock props={p} theme={theme} />;
