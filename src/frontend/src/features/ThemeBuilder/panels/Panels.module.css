@@ -7,6 +7,7 @@
   background: var(--editor-surface);
 }
 
+
 .panelHeader {
   display: flex;
   align-items: center;
@@ -257,44 +258,63 @@
 
 .compSearchClear:hover { color: var(--editor-text); }
 
-.componentsList { flex: 1; overflow-y: auto; padding: 8px; }
+.componentsList { flex: 1; overflow-y: auto; padding: 4px 6px; }
 
 .categoryLabel {
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 1.2px;
   color: var(--editor-text-muted);
-  padding: 12px 4px 6px;
+  padding: 10px 6px 4px;
+  opacity: 0.7;
 }
 
 .blocksGrid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6px;
-  margin-bottom: 8px;
-}
-
-.blockBtn {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 12px 8px;
-  background: var(--editor-surface-2);
-  border: 1px solid var(--editor-border);
-  border-radius: 8px;
-  color: var(--editor-text-muted);
-  cursor: pointer;
-  font-size: 11px;
-  text-align: center;
-  transition: all 0.15s;
-  line-height: 1.3;
+  gap: 1px;
+  margin-bottom: 4px;
 }
 
-.blockBtn:hover { border-color: #ec4899; color: #ec4899; background: var(--editor-input-bg); }
-.blockIcon { font-size: 18px; }
+/* ── Compact list-style block button ─────────────────── */
+.blockBtn {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 8px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: var(--editor-text-muted);
+  cursor: pointer;
+  font-size: 12px;
+  text-align: left;
+  width: 100%;
+  transition: background 0.1s, border-color 0.1s, color 0.1s;
+  line-height: 1;
+}
+
+.blockBtn:hover {
+  background: var(--editor-surface-2);
+  border-color: var(--editor-border);
+  color: var(--editor-text);
+}
+
+.blockBtn:active {
+  background: rgba(236, 72, 153, 0.08);
+  border-color: rgba(236, 72, 153, 0.35);
+  color: #ec4899;
+}
+
+.blockIcon {
+  font-size: 13px;
+  flex-shrink: 0;
+  opacity: 0.75;
+  width: 16px;
+  text-align: center;
+}
 
 /* ── Layer Panel ─────────────────────────────────────── */
 .layerCount {

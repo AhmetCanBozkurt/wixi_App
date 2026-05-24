@@ -1,6 +1,10 @@
 import { useEffect, useState } from 'react';
+import type { ComponentType } from 'react';
 import { useParams } from 'react-router-dom';
-import { FaPaintBrush, FaSave, FaExternalLinkAlt, FaHistory, FaUndo, FaRedo } from 'react-icons/fa';
+import {
+  FaPaintBrush, FaSave, FaExternalLinkAlt, FaHistory, FaUndo, FaRedo,
+  FaChevronRight, FaFile, FaPlus, FaLayerGroup, FaPalette, FaGlobe, FaCode,
+} from 'react-icons/fa';
 
 import { EditorProvider, useEditor } from './context/EditorContext';
 import { useThemeEditor } from './hooks/useThemeEditor';
@@ -16,8 +20,56 @@ import { BacklinksPanel } from './panels/BacklinksPanel';
 import { VersionHistoryPanel } from './panels/VersionHistoryPanel';
 import { EditorCanvas } from './canvas/EditorCanvas';
 import { Modal } from '../../shared/ui/Modal/Modal';
+import { BLOCK_REGISTRY } from './blocks/blockRegistry';
 import styles from './ThemeEditor.module.css';
 
+// ── Accordion Section ──────────────────────────────────────────────────────
+interface AccordionSectionProps {
+  label: string;
+  icon: ComponentType<{ className?: string }>;
+  badge?: number | string;
+  children: React.ReactNode;
+  defaultOpen?: boolean;
+  height?: number;
+}
+
+function AccordionSection({
+  label,
+  icon: Icon,
+  badge,
+  children,
+  defaultOpen = false,
+  height = 320,
+}: AccordionSectionProps) {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <div className={styles.accordionSection}>
+      <button
+        className={styles.accordionHeader}
+        onClick={() => setOpen(o => !o)}
+        type="button"
+        aria-expanded={open}
+      >
+        <FaChevronRight
+          className={`${styles.accordionChevron} ${open ? styles.accordionChevronOpen : ''}`}
+        />
+        <Icon className={styles.accordionHeaderIcon} />
+        <span className={styles.accordionLabel}>{label}</span>
+        {badge !== undefined && <span className={styles.accordionBadge}>{badge}</span>}
+      </button>
+      {open && (
+        <div
+          className={styles.accordionContent}
+          style={{ '--accordion-h': `${height}px` } as React.CSSProperties}
+        >
+          {children}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Main Editor Component ──────────────────────────────────────────────────
 function ThemeEditorInner({ tenantSlug }: { tenantSlug: string }) {
   const { state, dispatch } = useEditor();
   const { loadPages, saveAll } = useThemeEditor(tenantSlug);
@@ -96,34 +148,69 @@ function ThemeEditorInner({ tenantSlug }: { tenantSlug: string }) {
 
       {/* ── 3-Panel Layout ──────────────────────────────────── */}
       <div className={styles.mainArea}>
-        {/* Left Sidebar */}
+
+        {/* ── Left Sidebar — Accordion ─────────────────────── */}
         <div className={styles.sidebarLeft}>
-          <div className={styles.leftTabBar}>
-            {([['pages', 'Sayfalar'], ['components', 'Bileşenler'], ['layers', 'Katmanlar'], ['theme', 'Tema'], ['global', 'Global'], ['code', 'Kod']] as const).map(([tab, label]) => (
-              <button
-                key={tab}
-                className={`${styles.leftTab} ${state.leftTab === tab ? styles.leftTabActive : ''}`}
-                onClick={() => dispatch({ type: 'SET_LEFT_TAB', tab })}
-                type="button"
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-          <div className={styles.leftContent}>
-            {state.leftTab === 'pages' && <PagesPanel tenantSlug={tenantSlug} />}
-            {state.leftTab === 'components' && <ComponentsPanel />}
-            {state.leftTab === 'layers' && <LayersPanel />}
-            {state.leftTab === 'theme' && <ThemePanel tenantSlug={tenantSlug} />}
-            {state.leftTab === 'global' && <GlobalPanel tenantSlug={tenantSlug} />}
-            {state.leftTab === 'code' && <CodeEditorPanel tenantSlug={tenantSlug} />}
-          </div>
+
+          <AccordionSection
+            label="Sayfalar"
+            icon={FaFile}
+            badge={state.pages.length || undefined}
+            defaultOpen
+            height={220}
+          >
+            <PagesPanel tenantSlug={tenantSlug} />
+          </AccordionSection>
+
+          <AccordionSection
+            label="Bileşenler"
+            icon={FaPlus}
+            badge={BLOCK_REGISTRY.length}
+            defaultOpen
+            height={380}
+          >
+            <ComponentsPanel />
+          </AccordionSection>
+
+          <AccordionSection
+            label="Katmanlar"
+            icon={FaLayerGroup}
+            badge={state.layout.length || undefined}
+            height={300}
+          >
+            <LayersPanel />
+          </AccordionSection>
+
+          <AccordionSection
+            label="Tema"
+            icon={FaPalette}
+            height={440}
+          >
+            <ThemePanel tenantSlug={tenantSlug} />
+          </AccordionSection>
+
+          <AccordionSection
+            label="Global"
+            icon={FaGlobe}
+            height={400}
+          >
+            <GlobalPanel tenantSlug={tenantSlug} />
+          </AccordionSection>
+
+          <AccordionSection
+            label="Kod"
+            icon={FaCode}
+            height={500}
+          >
+            <CodeEditorPanel tenantSlug={tenantSlug} />
+          </AccordionSection>
+
         </div>
 
-        {/* Center Canvas */}
+        {/* ── Center Canvas ─────────────────────────────────── */}
         <EditorCanvas />
 
-        {/* Right Sidebar — 3 tabs only */}
+        {/* ── Right Sidebar — Tabs ──────────────────────────── */}
         <div className={styles.sidebarRight}>
           <div className={styles.rightTabBar}>
             {([['props', 'Özellikler'], ['seo', 'SEO'], ['backlinks', 'Bağlantılar']] as const).map(([tab, label]) => (
@@ -143,6 +230,7 @@ function ThemeEditorInner({ tenantSlug }: { tenantSlug: string }) {
             {state.rightTab === 'backlinks' && <BacklinksPanel tenantSlug={tenantSlug} />}
           </div>
         </div>
+
       </div>
 
       {/* ── Version History Modal ────────────────────────────── */}
