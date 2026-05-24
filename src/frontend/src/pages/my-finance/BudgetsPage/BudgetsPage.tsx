@@ -13,12 +13,15 @@ interface BudgetItem {
   id: string;
   name: string;
   totalAmount: number;
-  spentAmount: number;
+  totalSpent: number;      // API field: totalSpent (not spentAmount)
+  totalRemaining: number;
   startDate: string;
   endDate: string;
   status: number; // 1=Active, 2=Completed, 3=Cancelled
   periodType: number; // 1=Monthly, 2=Weekly, 3=Yearly, 4=Custom
-  notes: string | null;
+  autoRenew: boolean;
+  categoryCount: number;
+  notes?: string | null;
 }
 
 interface BudgetsApiResponse {
@@ -44,8 +47,8 @@ const STATUS_FILTER_OPTIONS = [
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function formatAmount(n: number) {
-  return n.toLocaleString('tr-TR', { minimumFractionDigits: 2 });
+function formatAmount(n: number | undefined | null) {
+  return (n ?? 0).toLocaleString('tr-TR', { minimumFractionDigits: 2 });
 }
 
 function formatDate(iso: string) {
@@ -207,8 +210,8 @@ export const BudgetsPage = () => {
       ) : (
         <div className={styles.budgetGrid}>
           {budgets.map((b) => {
-            const pct = getSpentPercent(b.spentAmount, b.totalAmount);
-            const isOver = b.spentAmount > b.totalAmount;
+            const pct = getSpentPercent(b.totalSpent, b.totalAmount);
+            const isOver = b.totalSpent > b.totalAmount;
             return (
               <div key={b.id} className={styles.budgetCard}>
                 <div className={styles.cardTop}>
@@ -230,7 +233,7 @@ export const BudgetsPage = () => {
 
                 <div className={styles.amounts}>
                   <span className={styles.spent} style={{ color: isOver ? '#ef4444' : undefined }}>
-                    ₺ {formatAmount(b.spentAmount)}
+                    ₺ {formatAmount(b.totalSpent)}
                   </span>
                   <span className={styles.total}>/ ₺ {formatAmount(b.totalAmount)}</span>
                 </div>

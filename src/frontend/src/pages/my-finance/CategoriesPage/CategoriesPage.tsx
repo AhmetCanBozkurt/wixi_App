@@ -107,7 +107,7 @@ export const CategoriesPage = () => {
     if (!formName.trim()) { setFormError('Kategori adı zorunludur.'); return; }
     setIsSaving(true);
     try {
-      const body = { name: formName.trim(), type: Number(formType), color: formColor, icon: formIcon.trim() || null };
+      const body = { name: formName.trim(), type: Number(formType), color: formColor, icon: formIcon.trim() || '📁' };
       if (editItem) {
         await apiClient.put(`/me/finance/categories/${editItem.id}`, body);
       } else {
