@@ -6,13 +6,18 @@ import { useWebBuilder } from '../hooks/useWebBuilder';
 import styles from '../../ThemeBuilder/panels/Panels.module.css';
 
 const CORP_PAGE_TYPE_LABELS: Record<string, string> = {
-  Home: 'Ana Sayfa',
-  About: 'Hakkımızda',
-  Contact: 'İletişim',
-  Services: 'Hizmetler',
-  Portfolio: 'Portfolyo',
-  Blog: 'Blog',
-  Custom: 'Özel Sayfa',
+  Home:        'Ana Sayfa',
+  About:       'Hakkımızda',
+  Services:    'Hizmetler',
+  Portfolio:   'Portfolyo / Referanslar',
+  Team:        'Ekip',
+  Pricing:     'Fiyatlandırma',
+  Contact:     'İletişim',
+  Blog:        'Blog',
+  CaseStudy:   'Başarı Hikayeleri',
+  Faq:         'Sık Sorulan Sorular',
+  Landing:     'Landing Page',
+  Custom:      'Özel Sayfa',
 };
 
 interface NewPageForm {

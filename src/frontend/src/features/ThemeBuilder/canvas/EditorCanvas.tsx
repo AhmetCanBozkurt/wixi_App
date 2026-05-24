@@ -984,14 +984,14 @@ export function MiniRenderer({ comp, theme }: { comp: LayoutComponent; theme: Th
           <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(cols, 3)}, 1fr)`, gap: '8px' }}>
             {Array.from({ length: Math.min(Number(p.limit ?? 3), 3) }).map((_, i) => (
               <div key={i} style={{ background: theme.colors.surface, border: `1px solid ${theme.colors.border}`, borderRadius: theme.borderRadius.card, overflow: 'hidden' }}>
-                {p.showFeaturedImage && <div style={{ height: '60px', background: theme.colors.border }} />}
+                {Boolean(p.showFeaturedImage) && <div style={{ height: '60px', background: theme.colors.border }} />}
                 <div style={{ padding: '8px' }}>
-                  {p.showCategory && <div style={{ fontSize: '0.58rem', color: theme.colors.primary, fontWeight: 700, textTransform: 'uppercase', marginBottom: '3px' }}>Kategori</div>}
+                  {Boolean(p.showCategory) && <div style={{ fontSize: '0.58rem', color: theme.colors.primary, fontWeight: 700, textTransform: 'uppercase', marginBottom: '3px' }}>Kategori</div>}
                   <div style={{ height: '8px', background: theme.colors.border, borderRadius: '3px', marginBottom: '4px' }} />
                   <div style={{ height: '8px', width: '70%', background: theme.colors.border, borderRadius: '3px', marginBottom: '6px' }} />
-                  {(p.showAuthor || p.showDate) && (
+                  {(Boolean(p.showAuthor) || Boolean(p.showDate)) && (
                     <div style={{ fontSize: '0.58rem', color: theme.colors.textMuted }}>
-                      {p.showAuthor ? 'Yazar Adı' : ''} {p.showDate ? '· 01 Haz 2025' : ''} {p.showReadTime ? '· 5 dk' : ''}
+                      {Boolean(p.showAuthor) ? 'Yazar Adı' : ''} {Boolean(p.showDate) ? '· 01 Haz 2025' : ''} {Boolean(p.showReadTime) ? '· 5 dk' : ''}
                     </div>
                   )}
                 </div>
@@ -1029,7 +1029,7 @@ export function MiniRenderer({ comp, theme }: { comp: LayoutComponent; theme: Th
         <div style={{ padding: '16px' }}>
           <h3 data-prop-key="title" style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '4px', color: theme.colors.text }}>{p.title as string}</h3>
           {!!p.subtitle && <p style={{ fontSize: '0.7rem', color: theme.colors.textMuted, marginBottom: '8px' }}>{String(p.subtitle).slice(0, 70)}…</p>}
-          {p.filterEnabled && (
+          {Boolean(p.filterEnabled) && (
             <div style={{ display: 'flex', gap: '5px', marginBottom: '10px', flexWrap: 'wrap' }}>
               {['Tümü', ...new Set(items.map(it => it.category).filter(Boolean))].slice(0, 5).map((cat, i) => (
                 <span key={i} style={{ fontSize: '0.62rem', padding: '3px 8px', border: `1px solid ${i === 0 ? theme.colors.primary : theme.colors.border}`, borderRadius: '4px', background: i === 0 ? theme.colors.primary : 'transparent', color: i === 0 ? '#fff' : theme.colors.textMuted }}>
@@ -1076,9 +1076,9 @@ export function MiniRenderer({ comp, theme }: { comp: LayoutComponent; theme: Th
               🗺️
             </div>
             {/* Sidebar */}
-            {p.showContactSidebar && (
+            {Boolean(p.showContactSidebar) && (
               <div style={{ flex: 1, background: theme.colors.surface, border: `1px solid ${theme.colors.border}`, borderRadius: theme.borderRadius.card, padding: '10px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {[['📍', 'Adres', p.address], ['📞', 'Tel', p.phone], ['✉️', 'Mail', p.email], ['🕐', 'Saatler', p.workingHours]].map(([icon, lbl, val], i) => (
+                {([['📍', 'Adres', p.address], ['📞', 'Tel', p.phone], ['✉️', 'Mail', p.email], ['🕐', 'Saatler', p.workingHours]] as [string, string, unknown][]).map(([icon, lbl, val], i) => (
                   <div key={i}>
                     <div style={{ fontSize: '0.58rem', color: theme.colors.primary, fontWeight: 700, textTransform: 'uppercase', marginBottom: '2px' }}>{icon} {lbl}</div>
                     <div style={{ fontSize: '0.65rem', color: theme.colors.text, lineHeight: 1.3 }}>{String(val ?? '').slice(0, 35)}</div>
