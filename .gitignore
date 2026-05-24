@@ -23,6 +23,8 @@ src/frontend/.vite/
 
 # Sensitive configuration
 appsettings.Development.json
+appsettings.Staging.json
+appsettings.Production.json
 src/frontend/.env
 src/frontend/.env.local
 
