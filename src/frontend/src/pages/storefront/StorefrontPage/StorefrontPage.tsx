@@ -592,6 +592,649 @@ function CustomHtmlBlock({ props }: { props: Record<string, unknown> }) {
   );
 }
 
+// ── Corporate Block Renderers ─────────────────────────────────────────────────
+
+function HeroCorporateBlock({ props, theme }: { props: Record<string, unknown>; theme: ThemeConfig }) {
+  const height = (props.height as string) || '640px';
+  const opacity = typeof props.overlayOpacity === 'number' ? props.overlayOpacity : 0.55;
+  const trustBadges = (props.trustBadges as { text: string }[]) || [];
+  return (
+    <div style={{
+      minHeight: height, position: 'relative',
+      backgroundImage: props.imageUrl ? `url(${props.imageUrl as string})` : 'none',
+      background: props.imageUrl ? undefined : 'linear-gradient(135deg,#1e293b 0%,#0f172a 100%)',
+      backgroundSize: 'cover', backgroundPosition: 'center', display: 'flex', alignItems: 'center',
+    }}>
+      <div style={{ position: 'absolute', inset: 0, background: `rgba(0,0,0,${opacity})` }} />
+      <div style={{ position: 'relative', zIndex: 1, maxWidth: '900px', margin: '0 auto', padding: '80px 48px', width: '100%' }}>
+        <h1 style={{ color: '#fff', fontSize: 'clamp(2rem,5vw,3.2rem)', fontWeight: 800, lineHeight: 1.2, marginBottom: '20px' }}>
+          {props.title as string}
+        </h1>
+        {!!props.subtitle && (
+          <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '1.15rem', lineHeight: 1.75, marginBottom: '36px', maxWidth: '660px' }}>
+            {props.subtitle as string}
+          </p>
+        )}
+        <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap', marginBottom: '36px' }}>
+          {!!props.primaryButtonText && (
+            <Link to={(props.primaryButtonLink as string) || '#'} style={{ background: theme.colors.primary, color: '#fff', padding: '14px 32px', borderRadius: theme.borderRadius.button, fontWeight: 700, textDecoration: 'none', fontSize: '1rem' }}>
+              {props.primaryButtonText as string}
+            </Link>
+          )}
+          {!!props.secondaryButtonText && (
+            <Link to={(props.secondaryButtonLink as string) || '#'} style={{ background: 'transparent', color: '#fff', border: '2px solid rgba(255,255,255,0.6)', padding: '14px 32px', borderRadius: theme.borderRadius.button, fontWeight: 600, textDecoration: 'none', fontSize: '1rem' }}>
+              {props.secondaryButtonText as string}
+            </Link>
+          )}
+        </div>
+        {trustBadges.length > 0 && (
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+            {trustBadges.map((b, i) => (
+              <span key={i} style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.25)', color: '#fff', padding: '6px 14px', borderRadius: '6px', fontSize: '0.85rem', fontWeight: 500 }}>
+                ✓ {b.text}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function AboutCompanyBlock({ props, theme }: { props: Record<string, unknown>; theme: ThemeConfig }) {
+  const isRight = props.imagePosition !== 'left';
+  const stats = (props.stats as { value: string; label: string }[]) || [];
+  return (
+    <div className={styles.sectionInner}>
+      {!!props.subtitle && <p style={{ textAlign: 'center', color: theme.colors.primary, fontWeight: 600, marginBottom: '8px', fontSize: '1.05rem' }}>{props.subtitle as string}</p>}
+      <h2 className={styles.sectionTitle}>{props.title as string}</h2>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '48px', alignItems: 'center', marginBottom: '40px' }}>
+        <div style={{ order: isRight ? 0 : 1 }}>
+          <div style={{ color: '#4b5563', lineHeight: 1.85, fontSize: '1.05rem', marginBottom: '24px' }}
+            dangerouslySetInnerHTML={{ __html: (props.text as string || '').replace(/\n/g, '<br>') }} />
+          {Boolean(props.showMissionVision) && (
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              {[{ t: props.missionTitle, d: props.missionText }, { t: props.visionTitle, d: props.visionText }].map((mv, i) => (
+                <div key={i} style={{ borderLeft: `4px solid ${theme.colors.primary}`, paddingLeft: '16px', background: '#f8fafc', borderRadius: '0 8px 8px 0', padding: '16px 16px 16px 16px' }}>
+                  <div style={{ color: theme.colors.primary, fontWeight: 700, marginBottom: '8px', fontSize: '0.95rem' }}>{mv.t as string}</div>
+                  <p style={{ fontSize: '0.88rem', color: '#6b7280', margin: 0, lineHeight: 1.65 }}>{mv.d as string}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+        <div style={{ order: isRight ? 1 : 0 }}>
+          {props.imageUrl
+            ? <img src={props.imageUrl as string} alt={props.title as string} style={{ width: '100%', borderRadius: '16px', objectFit: 'cover', maxHeight: '440px' }} />
+            : <div style={{ height: '360px', background: `${theme.colors.primary}11`, borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '4rem' }}>🏢</div>
+          }
+        </div>
+      </div>
+      {Boolean(props.showStats) && stats.length > 0 && (
+        <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(stats.length, 4)}, 1fr)`, gap: '24px', background: `${theme.colors.primary}08`, borderRadius: '16px', padding: '36px' }}>
+          {stats.map((s, i) => (
+            <div key={i} style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: '2.6rem', fontWeight: 800, color: theme.colors.primary, lineHeight: 1 }}>{s.value}</div>
+              <div style={{ color: '#6b7280', marginTop: '8px', fontSize: '0.9rem' }}>{s.label}</div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function TeamGridBlock({ props, theme }: { props: Record<string, unknown>; theme: ThemeConfig }) {
+  const items = (props.items as { name: string; role: string; bio?: string; imageUrl?: string; linkedIn?: string; twitter?: string; email?: string }[]) || [];
+  const cols = parseInt(String(props.columns || 3));
+  return (
+    <div className={styles.sectionInner}>
+      <h2 className={styles.sectionTitle}>{props.title as string}</h2>
+      {!!props.subtitle && <p style={{ textAlign: 'center', color: '#6b7280', marginBottom: '40px', fontSize: '1.05rem' }}>{props.subtitle as string}</p>}
+      <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(cols, 4)}, 1fr)`, gap: '24px' }}>
+        {items.map((m, i) => (
+          <div key={i} style={{ background: '#fff', borderRadius: '16px', border: '1px solid #e5e7eb', padding: '32px 20px', textAlign: 'center', transition: 'transform 0.25s, box-shadow 0.25s' }}
+            onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.transform = 'translateY(-6px)'; el.style.boxShadow = '0 16px 40px rgba(0,0,0,0.1)'; }}
+            onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.transform = ''; el.style.boxShadow = ''; }}>
+            {m.imageUrl
+              ? <img src={m.imageUrl} alt={m.name} style={{ width: '96px', height: '96px', borderRadius: '50%', objectFit: 'cover', margin: '0 auto 16px', display: 'block', border: `3px solid ${theme.colors.primary}33` }} />
+              : <div style={{ width: '96px', height: '96px', borderRadius: '50%', background: `${theme.colors.primary}18`, margin: '0 auto 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.2rem', color: theme.colors.primary, fontWeight: 700 }}>{m.name.charAt(0)}</div>
+            }
+            <div style={{ fontWeight: 700, fontSize: '1.05rem', color: '#111827', marginBottom: '4px' }}>{m.name}</div>
+            <div style={{ color: theme.colors.primary, fontSize: '0.875rem', fontWeight: 600, marginBottom: '12px' }}>{m.role}</div>
+            {Boolean(props.showBio) && m.bio && (
+              <p style={{ fontSize: '0.85rem', color: '#6b7280', lineHeight: 1.65, marginBottom: '14px' }}>{m.bio}</p>
+            )}
+            {Boolean(props.showSocial) && (
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '12px' }}>
+                {m.linkedIn && <a href={m.linkedIn} target="_blank" rel="noopener noreferrer" style={{ color: '#0a66c2', fontSize: '0.8rem', fontWeight: 600, textDecoration: 'none' }}>in</a>}
+                {m.twitter && <a href={m.twitter} target="_blank" rel="noopener noreferrer" style={{ color: '#1da1f2', fontSize: '0.8rem', fontWeight: 600, textDecoration: 'none' }}>𝕏</a>}
+                {m.email && <a href={`mailto:${m.email}`} style={{ color: theme.colors.primary, fontSize: '0.8rem', fontWeight: 600, textDecoration: 'none' }}>✉</a>}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ServicesGridBlock({ props, theme }: { props: Record<string, unknown>; theme: ThemeConfig }) {
+  const items = (props.items as { icon?: string; title: string; description: string; iconColor?: string; buttonText?: string; buttonLink?: string }[]) || [];
+  const cols = parseInt(String(props.columns || 3));
+  return (
+    <div className={styles.sectionInner}>
+      <h2 className={styles.sectionTitle}>{props.title as string}</h2>
+      {!!props.subtitle && <p style={{ textAlign: 'center', color: '#6b7280', marginBottom: '40px', maxWidth: '700px', margin: '0 auto 40px', fontSize: '1.05rem' }}>{props.subtitle as string}</p>}
+      <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(cols, 3)}, 1fr)`, gap: '24px' }}>
+        {items.map((s, i) => (
+          <div key={i} style={{ background: '#fff', borderRadius: '16px', border: '1px solid #e5e7eb', padding: '32px 24px', transition: 'transform 0.25s, box-shadow 0.25s' }}
+            onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.transform = 'translateY(-4px)'; el.style.boxShadow = '0 16px 40px rgba(0,0,0,0.1)'; }}
+            onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.transform = ''; el.style.boxShadow = ''; }}>
+            <div style={{ width: '52px', height: '52px', borderRadius: '12px', background: `${s.iconColor || theme.colors.primary}18`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px', fontSize: '1.6rem' }}>
+              <span style={{ color: s.iconColor || theme.colors.primary }}>◈</span>
+            </div>
+            <h3 style={{ fontWeight: 700, fontSize: '1.1rem', color: '#111827', marginBottom: '12px' }}>{s.title}</h3>
+            <p style={{ color: '#6b7280', lineHeight: 1.7, fontSize: '0.9rem', marginBottom: s.buttonText ? '20px' : '0' }}>{s.description}</p>
+            {Boolean(props.showButton) && s.buttonText && (
+              <Link to={s.buttonLink || '#'} style={{ color: theme.colors.primary, fontWeight: 600, fontSize: '0.9rem', textDecoration: 'none' }}>
+                {s.buttonText} →
+              </Link>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function FeaturesHighlightBlock({ props, theme }: { props: Record<string, unknown>; theme: ThemeConfig }) {
+  const items = (props.items as { icon?: string; title: string; description: string; color?: string }[]) || [];
+  const cols = parseInt(String(props.columns || 3));
+  return (
+    <div className={styles.sectionInner}>
+      <h2 className={styles.sectionTitle}>{props.title as string}</h2>
+      {!!props.subtitle && <p style={{ textAlign: 'center', color: '#6b7280', marginBottom: '40px', maxWidth: '680px', margin: '0 auto 40px', fontSize: '1.05rem' }}>{props.subtitle as string}</p>}
+      <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(cols, 3)}, 1fr)`, gap: '24px' }}>
+        {items.map((f, i) => (
+          <div key={i} style={{ background: '#fff', borderRadius: '16px', border: '1px solid #e5e7eb', padding: '28px 24px', display: 'flex', gap: '18px', alignItems: 'flex-start', transition: 'border-color 0.2s' }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = f.color || theme.colors.primary; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = '#e5e7eb'; }}>
+            <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: `${f.color || theme.colors.primary}18`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '1.4rem', color: f.color || theme.colors.primary }}>✦</div>
+            <div>
+              <h3 style={{ fontWeight: 700, fontSize: '1rem', color: '#111827', marginBottom: '8px' }}>{f.title}</h3>
+              <p style={{ color: '#6b7280', lineHeight: 1.65, fontSize: '0.88rem', margin: 0 }}>{f.description}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ProcessStepsBlock({ props, theme }: { props: Record<string, unknown>; theme: ThemeConfig }) {
+  const steps = (props.steps as { stepNumber: string; icon?: string; title: string; description: string }[]) || [];
+  const isVertical = props.orientation === 'vertical';
+  return (
+    <div className={styles.sectionInner}>
+      <h2 className={styles.sectionTitle}>{props.title as string}</h2>
+      {!!props.subtitle && <p style={{ textAlign: 'center', color: '#6b7280', marginBottom: '48px', maxWidth: '700px', margin: '0 auto 48px', fontSize: '1.05rem' }}>{props.subtitle as string}</p>}
+      <div style={{ display: isVertical ? 'flex' : 'grid', flexDirection: isVertical ? 'column' : undefined, gridTemplateColumns: !isVertical ? `repeat(${Math.min(steps.length, 3)}, 1fr)` : undefined, gap: '32px' }}>
+        {steps.map((s, i) => (
+          <div key={i} style={{ background: '#fff', borderRadius: '16px', border: '1px solid #e5e7eb', padding: '28px 24px', position: 'relative' }}>
+            {i < steps.length - 1 && !isVertical && (
+              <div style={{ position: 'absolute', top: '36px', right: '-16px', width: '32px', height: '2px', background: `${theme.colors.primary}40`, zIndex: 1 }} />
+            )}
+            <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: theme.colors.primary, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1rem', fontWeight: 800, marginBottom: '18px' }}>
+              {s.stepNumber}
+            </div>
+            <h3 style={{ fontWeight: 700, fontSize: '1rem', color: '#111827', marginBottom: '10px' }}>{s.title}</h3>
+            <p style={{ color: '#6b7280', lineHeight: 1.7, fontSize: '0.88rem', margin: 0 }}>{s.description}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function PricingPlansBlock({ props, theme }: { props: Record<string, unknown>; theme: ThemeConfig }) {
+  const [isAnnual, setIsAnnual] = useState(false);
+  const plans = (props.plans as {
+    name: string; price: string; priceAnnual: string; currency: string; period: string;
+    description: string; highlighted: boolean; badge: string;
+    buttonText: string; buttonLink: string;
+    features: { text: string; included: boolean }[];
+  }[]) || [];
+
+  return (
+    <div className={styles.sectionInner}>
+      <h2 className={styles.sectionTitle}>{props.title as string}</h2>
+      {!!props.subtitle && <p style={{ textAlign: 'center', color: '#6b7280', marginBottom: '32px', maxWidth: '680px', margin: '0 auto 32px' }}>{props.subtitle as string}</p>}
+      {Boolean(props.showAnnualToggle) && (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '14px', marginBottom: '40px' }}>
+          <span style={{ color: isAnnual ? '#6b7280' : '#111827', fontWeight: isAnnual ? 400 : 600 }}>Aylık</span>
+          <button onClick={() => setIsAnnual(v => !v)}
+            style={{ width: '52px', height: '28px', borderRadius: '14px', border: 'none', cursor: 'pointer', background: isAnnual ? theme.colors.primary : '#d1d5db', position: 'relative', transition: 'background 0.2s' }}>
+            <div style={{ width: '22px', height: '22px', borderRadius: '50%', background: '#fff', position: 'absolute', top: '3px', left: isAnnual ? '27px' : '3px', transition: 'left 0.2s' }} />
+          </button>
+          <span style={{ color: isAnnual ? '#111827' : '#6b7280', fontWeight: isAnnual ? 600 : 400 }}>
+            Yıllık {!!props.annualDiscountText && <span style={{ background: `${theme.colors.primary}18`, color: theme.colors.primary, padding: '2px 8px', borderRadius: '4px', fontSize: '0.8rem', fontWeight: 700, marginLeft: '6px' }}>{props.annualDiscountText as string}</span>}
+          </span>
+        </div>
+      )}
+      <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(plans.length, 3)}, 1fr)`, gap: '24px', alignItems: 'start' }}>
+        {plans.map((pl, i) => (
+          <div key={i} style={{ background: '#fff', borderRadius: '20px', border: `2px solid ${pl.highlighted ? theme.colors.primary : '#e5e7eb'}`, padding: '36px 28px', position: 'relative', boxShadow: pl.highlighted ? `0 0 0 4px ${theme.colors.primary}18` : 'none' }}>
+            {pl.badge && (
+              <div style={{ position: 'absolute', top: '-14px', left: '50%', transform: 'translateX(-50%)', background: theme.colors.primary, color: '#fff', borderRadius: '8px', padding: '4px 14px', fontSize: '0.78rem', fontWeight: 700, whiteSpace: 'nowrap' }}>{pl.badge}</div>
+            )}
+            <div style={{ fontWeight: 700, fontSize: '1.15rem', color: '#111827', marginBottom: '8px' }}>{pl.name}</div>
+            <p style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '24px', lineHeight: 1.5 }}>{pl.description}</p>
+            <div style={{ marginBottom: '28px' }}>
+              <span style={{ fontSize: '2.6rem', fontWeight: 800, color: theme.colors.primary }}>{pl.currency}{isAnnual ? pl.priceAnnual : pl.price}</span>
+              {pl.period && <span style={{ color: '#9ca3af', fontSize: '0.875rem' }}>{pl.period}</span>}
+            </div>
+            <Link to={pl.buttonLink || '#'} style={{ display: 'block', textAlign: 'center', background: pl.highlighted ? theme.colors.primary : 'transparent', color: pl.highlighted ? '#fff' : theme.colors.primary, border: `2px solid ${theme.colors.primary}`, borderRadius: '8px', padding: '12px', fontWeight: 700, textDecoration: 'none', marginBottom: '28px', transition: 'all 0.2s' }}>
+              {pl.buttonText}
+            </Link>
+            <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {pl.features?.map((f, j) => (
+                <li key={j} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', color: f.included ? '#374151' : '#9ca3af', fontSize: '0.875rem' }}>
+                  <span style={{ flexShrink: 0, color: f.included ? '#10b981' : '#d1d5db' }}>{f.included ? '✓' : '✗'}</span>
+                  <span style={{ textDecoration: f.included ? 'none' : 'line-through', opacity: f.included ? 1 : 0.6 }}>{f.text}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ClientsLogosBlock({ props, theme }: { props: Record<string, unknown>; theme: ThemeConfig }) {
+  const logos = (props.logos as { imageUrl: string; altText: string; url?: string }[]) || [];
+  return (
+    <div className={styles.sectionInner}>
+      <h2 className={styles.sectionTitle}>{props.title as string}</h2>
+      {!!props.subtitle && <p style={{ textAlign: 'center', color: '#6b7280', marginBottom: '40px' }}>{props.subtitle as string}</p>}
+      <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '32px 40px', alignItems: 'center' }}>
+        {logos.map((l, i) => {
+          const img = (
+            <img src={l.imageUrl} alt={l.altText} style={{
+              height: '44px', maxWidth: '140px', objectFit: 'contain',
+              filter: Boolean(props.grayscale) ? 'grayscale(100%)' : 'none',
+              opacity: Boolean(props.grayscale) ? 0.5 : 1,
+              transition: 'filter 0.3s, opacity 0.3s',
+            }}
+              onMouseEnter={e => { if (Boolean(props.grayscale)) { const img = e.currentTarget as HTMLImageElement; img.style.filter = 'grayscale(0%)'; img.style.opacity = '1'; } }}
+              onMouseLeave={e => { if (Boolean(props.grayscale)) { const img = e.currentTarget as HTMLImageElement; img.style.filter = 'grayscale(100%)'; img.style.opacity = '0.5'; } }}
+            />
+          );
+          if (!l.imageUrl) {
+            return <div key={i} style={{ height: '36px', minWidth: '100px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: `${theme.colors.primary}10`, borderRadius: '6px', padding: '0 16px', color: theme.colors.primary, fontWeight: 600, fontSize: '0.85rem' }}>{l.altText}</div>;
+          }
+          return l.url
+            ? <a key={i} href={l.url} target="_blank" rel="noopener noreferrer">{img}</a>
+            : <div key={i}>{img}</div>;
+        })}
+      </div>
+    </div>
+  );
+}
+
+function AwardsCertificationsBlock({ props, theme }: { props: Record<string, unknown>; theme: ThemeConfig }) {
+  const items = (props.items as { year: string; name: string; organization: string; imageUrl?: string; description?: string }[]) || [];
+  const cols = parseInt(String(props.columns || 3));
+  return (
+    <div className={styles.sectionInner}>
+      <h2 className={styles.sectionTitle}>{props.title as string}</h2>
+      {!!props.subtitle && <p style={{ textAlign: 'center', color: '#6b7280', marginBottom: '40px', maxWidth: '640px', margin: '0 auto 40px' }}>{props.subtitle as string}</p>}
+      <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(cols, 3)}, 1fr)`, gap: '20px' }}>
+        {items.map((a, i) => (
+          <div key={i} style={{ background: '#fff', borderRadius: '16px', border: '1px solid #e5e7eb', padding: '24px', display: 'flex', gap: '16px', alignItems: 'flex-start', transition: 'border-color 0.2s, box-shadow 0.2s' }}
+            onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.borderColor = theme.colors.primary; el.style.boxShadow = `0 4px 20px ${theme.colors.primary}18`; }}
+            onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.borderColor = '#e5e7eb'; el.style.boxShadow = ''; }}>
+            {a.imageUrl
+              ? <img src={a.imageUrl} alt={a.name} style={{ width: '52px', height: '52px', objectFit: 'contain', flexShrink: 0, borderRadius: '8px' }} />
+              : <div style={{ width: '52px', height: '52px', borderRadius: '12px', background: `${theme.colors.primary}18`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '1.5rem' }}>🏆</div>
+            }
+            <div>
+              <div style={{ fontSize: '0.75rem', color: theme.colors.primary, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '4px' }}>{a.year}</div>
+              <div style={{ fontWeight: 700, color: '#111827', marginBottom: '4px', fontSize: '0.95rem', lineHeight: 1.3 }}>{a.name}</div>
+              <div style={{ fontSize: '0.825rem', color: '#6b7280', marginBottom: a.description ? '8px' : '0' }}>— {a.organization}</div>
+              {a.description && <p style={{ fontSize: '0.82rem', color: '#9ca3af', margin: 0, lineHeight: 1.5 }}>{a.description}</p>}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function NumbersCounterBlock({ props, theme }: { props: Record<string, unknown>; theme: ThemeConfig }) {
+  const items = (props.items as { value: string; suffix: string; label: string; color?: string }[]) || [];
+  const cols = parseInt(String(props.columns || 3));
+  const isDark = props.backgroundType === 'dark';
+  const bg = isDark ? '#0f172a' : (props.backgroundColor as string || (props.backgroundType === 'gradient' ? `linear-gradient(135deg,${theme.colors.primary}14,${theme.colors.primary}06)` : '#f8fafc'));
+  return (
+    <div style={{ background: bg, padding: '64px 0' }}>
+      <div className={styles.sectionInner} style={{ paddingTop: 0, paddingBottom: 0 }}>
+        {!!props.title && <h2 style={{ textAlign: 'center', fontWeight: 800, fontSize: '2rem', color: isDark ? '#fff' : '#111827', marginBottom: '8px' }}>{props.title as string}</h2>}
+        {!!props.subtitle && <p style={{ textAlign: 'center', color: isDark ? 'rgba(255,255,255,0.65)' : '#6b7280', marginBottom: '48px' }}>{props.subtitle as string}</p>}
+        <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(cols, 6)}, 1fr)`, gap: '40px' }}>
+          {items.map((c, i) => (
+            <div key={i} style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: 'clamp(2rem,4vw,3rem)', fontWeight: 800, color: c.color || theme.colors.primary, lineHeight: 1, letterSpacing: '-0.02em' }}>
+                {c.value}<span style={{ fontSize: '60%' }}>{c.suffix}</span>
+              </div>
+              <div style={{ color: isDark ? 'rgba(255,255,255,0.65)' : '#6b7280', marginTop: '10px', fontSize: '0.9rem' }}>{c.label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CtaBannerBlock({ props, theme }: { props: Record<string, unknown>; theme: ThemeConfig }) {
+  const bgStyle: React.CSSProperties =
+    props.backgroundType === 'gradient'
+      ? { background: `linear-gradient(135deg,${theme.colors.primary},${theme.colors.secondary || theme.colors.primary}cc)` }
+      : props.backgroundType === 'image' && props.imageUrl
+        ? { backgroundImage: `linear-gradient(rgba(0,0,0,0.55),rgba(0,0,0,0.55)),url(${props.imageUrl as string})`, backgroundSize: 'cover', backgroundPosition: 'center' }
+        : { background: (props.backgroundColor as string) || theme.colors.primary };
+  return (
+    <div style={{ ...bgStyle, padding: '80px 48px', textAlign: 'center' }}>
+      {!!props.highlightText && (
+        <div style={{ display: 'inline-block', background: 'rgba(255,255,255,0.18)', color: '#fff', border: '1px solid rgba(255,255,255,0.3)', borderRadius: '6px', padding: '5px 16px', fontSize: '0.85rem', fontWeight: 600, marginBottom: '20px' }}>
+          {props.highlightText as string}
+        </div>
+      )}
+      <h2 style={{ color: '#fff', fontSize: 'clamp(1.6rem,4vw,2.6rem)', fontWeight: 800, marginBottom: '16px', lineHeight: 1.25, maxWidth: '800px', margin: '0 auto 16px' }}>
+        {props.headline as string}
+      </h2>
+      {!!props.subheadline && (
+        <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '1.1rem', lineHeight: 1.75, marginBottom: '36px', maxWidth: '660px', margin: '0 auto 36px' }}>
+          {props.subheadline as string}
+        </p>
+      )}
+      <div style={{ display: 'flex', gap: '14px', justifyContent: 'center', flexWrap: 'wrap' }}>
+        {!!props.primaryButtonText && (
+          <Link to={(props.primaryButtonLink as string) || '#'} style={{ background: '#fff', color: theme.colors.primary, padding: '15px 36px', borderRadius: theme.borderRadius.button, fontWeight: 700, textDecoration: 'none', fontSize: '1rem' }}>
+            {props.primaryButtonText as string}
+          </Link>
+        )}
+        {Boolean(props.showSecondaryButton) && !!props.secondaryButtonText && (
+          <Link to={(props.secondaryButtonLink as string) || '#'} style={{ background: 'transparent', color: '#fff', border: '2px solid rgba(255,255,255,0.6)', padding: '15px 36px', borderRadius: theme.borderRadius.button, fontWeight: 600, textDecoration: 'none', fontSize: '1rem' }}>
+            {props.secondaryButtonText as string}
+          </Link>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ContactDetailsBlock({ props, theme }: { props: Record<string, unknown>; theme: ThemeConfig }) {
+  const phones = (props.phones as { label: string; number: string }[]) || [];
+  const emails = (props.emails as { label: string; address: string }[]) || [];
+  const hours  = (props.workingHours as { days: string; hours: string }[]) || [];
+  return (
+    <div className={styles.sectionInner}>
+      <h2 className={styles.sectionTitle}>{props.title as string}</h2>
+      {!!props.subtitle && <p style={{ textAlign: 'center', color: '#6b7280', marginBottom: '48px', maxWidth: '640px', margin: '0 auto 48px' }}>{props.subtitle as string}</p>}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(240px,1fr))', gap: '20px' }}>
+        <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: '16px', padding: '28px' }}>
+          <div style={{ fontSize: '0.75rem', color: theme.colors.primary, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '14px' }}>📍 Adres</div>
+          <p style={{ color: '#374151', lineHeight: 1.75, margin: 0, whiteSpace: 'pre-line' }}>{props.address as string}</p>
+          {!!props.city && <p style={{ color: '#6b7280', margin: '4px 0 0' }}>{props.city as string}, {props.country as string}</p>}
+        </div>
+        {phones.length > 0 && (
+          <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: '16px', padding: '28px' }}>
+            <div style={{ fontSize: '0.75rem', color: theme.colors.primary, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '14px' }}>📞 Telefon</div>
+            {phones.map((ph, i) => (
+              <div key={i} style={{ marginBottom: '10px' }}>
+                <div style={{ fontSize: '0.78rem', color: '#9ca3af', marginBottom: '2px' }}>{ph.label}</div>
+                <a href={`tel:${ph.number}`} style={{ color: '#111827', fontWeight: 600, textDecoration: 'none', fontSize: '1rem' }}>{ph.number}</a>
+              </div>
+            ))}
+          </div>
+        )}
+        {emails.length > 0 && (
+          <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: '16px', padding: '28px' }}>
+            <div style={{ fontSize: '0.75rem', color: theme.colors.primary, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '14px' }}>✉️ E-posta</div>
+            {emails.map((em, i) => (
+              <div key={i} style={{ marginBottom: '10px' }}>
+                <div style={{ fontSize: '0.78rem', color: '#9ca3af', marginBottom: '2px' }}>{em.label}</div>
+                <a href={`mailto:${em.address}`} style={{ color: theme.colors.primary, fontWeight: 600, textDecoration: 'none' }}>{em.address}</a>
+              </div>
+            ))}
+          </div>
+        )}
+        {hours.length > 0 && (
+          <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: '16px', padding: '28px' }}>
+            <div style={{ fontSize: '0.75rem', color: theme.colors.primary, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '14px' }}>🕐 Çalışma Saatleri</div>
+            {hours.map((h, i) => (
+              <div key={i} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', gap: '12px' }}>
+                <span style={{ color: '#6b7280', fontSize: '0.875rem' }}>{h.days}</span>
+                <span style={{ color: '#111827', fontWeight: 600, fontSize: '0.875rem', flexShrink: 0 }}>{h.hours}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function CorpBlogListBlock({ props, theme }: { props: Record<string, unknown>; theme: ThemeConfig }) {
+  type PostItem = { id: string; title: string; slug: string; excerpt?: string; authorName?: string; publishedAt?: string; readTimeMinutes?: number; categoryName?: string; featuredImageUrl?: string };
+  const [posts, setPosts] = useState<PostItem[]>([]);
+  const cols = parseInt(String(props.columns || 3));
+
+  useEffect(() => {
+    // Blog API'ye erişilebilirse yükle, aksi hâlde boş bırak
+    fetch(`/api/v1/web-builder/blog/posts?limit=${props.limit || 6}`)
+      .then(r => r.json())
+      .then(data => setPosts(Array.isArray(data?.items) ? data.items : []))
+      .catch(() => {});
+  }, [props.limit]);
+
+  return (
+    <div className={styles.sectionInner}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+        <h2 className={styles.sectionTitle} style={{ margin: 0 }}>{props.title as string}</h2>
+        {!!props.viewAllLink && (
+          <Link to={props.viewAllLink as string} style={{ color: theme.colors.primary, fontWeight: 600, textDecoration: 'none', fontSize: '0.9rem' }}>
+            {(props.viewAllText as string) || 'Tümünü Gör'} →
+          </Link>
+        )}
+      </div>
+      {!!props.subtitle && <p style={{ color: '#6b7280', marginBottom: '36px' }}>{props.subtitle as string}</p>}
+      {posts.length === 0
+        ? <p style={{ textAlign: 'center', color: '#9ca3af' }}>Henüz blog yazısı yayınlanmamış.</p>
+        : (
+          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(cols, 3)}, 1fr)`, gap: '24px' }}>
+            {posts.map(post => (
+              <Link key={post.id} to={`blog/${post.slug}`} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', background: '#fff', border: '1px solid #e5e7eb', borderRadius: '16px', overflow: 'hidden', transition: 'transform 0.25s, box-shadow 0.25s' }}
+                onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.transform = 'translateY(-4px)'; el.style.boxShadow = '0 12px 30px rgba(0,0,0,0.1)'; }}
+                onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.transform = ''; el.style.boxShadow = ''; }}>
+                {Boolean(props.showFeaturedImage) && (
+                  post.featuredImageUrl
+                    ? <img src={post.featuredImageUrl} alt={post.title} style={{ width: '100%', height: '180px', objectFit: 'cover' }} />
+                    : <div style={{ height: '180px', background: `${theme.colors.primary}10`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem' }}>📝</div>
+                )}
+                <div style={{ padding: '20px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                  {Boolean(props.showCategory) && post.categoryName && (
+                    <span style={{ fontSize: '0.72rem', color: theme.colors.primary, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>{post.categoryName}</span>
+                  )}
+                  <h3 style={{ fontWeight: 700, color: '#111827', fontSize: '1rem', lineHeight: 1.4, marginBottom: '10px' }}>{post.title}</h3>
+                  {post.excerpt && <p style={{ color: '#6b7280', fontSize: '0.875rem', lineHeight: 1.6, flex: 1 }}>{post.excerpt}</p>}
+                  <div style={{ display: 'flex', gap: '10px', marginTop: '14px', fontSize: '0.75rem', color: '#9ca3af' }}>
+                    {Boolean(props.showAuthor) && post.authorName && <span>{post.authorName}</span>}
+                    {Boolean(props.showDate) && post.publishedAt && <span>· {new Date(post.publishedAt).toLocaleDateString('tr-TR')}</span>}
+                    {Boolean(props.showReadTime) && post.readTimeMinutes && <span>· {post.readTimeMinutes} dk</span>}
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )
+      }
+    </div>
+  );
+}
+
+function TimelineBlock({ props, theme }: { props: Record<string, unknown>; theme: ThemeConfig }) {
+  const items = (props.items as { year: string; title: string; description: string; imageUrl?: string; color?: string }[]) || [];
+  return (
+    <div className={styles.sectionInner}>
+      <h2 className={styles.sectionTitle}>{props.title as string}</h2>
+      {!!props.subtitle && <p style={{ textAlign: 'center', color: '#6b7280', marginBottom: '48px', maxWidth: '640px', margin: '0 auto 48px' }}>{props.subtitle as string}</p>}
+      <div style={{ position: 'relative', paddingLeft: '32px' }}>
+        <div style={{ position: 'absolute', left: '11px', top: 0, bottom: 0, width: '2px', background: '#e5e7eb' }} />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '36px' }}>
+          {items.map((it, i) => (
+            <div key={i} style={{ position: 'relative', display: 'grid', gridTemplateColumns: props.orientation === 'alternating' && i % 2 === 1 ? '1fr auto' : 'auto 1fr', gap: '24px' }}>
+              <div style={{ position: 'absolute', left: '-33px', top: '6px', width: '14px', height: '14px', borderRadius: '50%', background: it.color || theme.colors.primary, border: `3px solid #fff`, boxShadow: `0 0 0 3px ${it.color || theme.colors.primary}44` }} />
+              <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: '16px', padding: '24px 28px', boxShadow: '0 2px 12px rgba(0,0,0,0.05)' }}>
+                <div style={{ fontSize: '0.875rem', color: it.color || theme.colors.primary, fontWeight: 700, marginBottom: '6px' }}>{it.year}</div>
+                <h3 style={{ fontWeight: 700, fontSize: '1.05rem', color: '#111827', marginBottom: '10px' }}>{it.title}</h3>
+                <p style={{ color: '#6b7280', lineHeight: 1.7, margin: 0, fontSize: '0.9rem' }}>{it.description}</p>
+                {it.imageUrl && <img src={it.imageUrl} alt={it.title} style={{ width: '100%', borderRadius: '10px', marginTop: '14px', objectFit: 'cover', maxHeight: '200px' }} />}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PortfolioGridBlock({ props, theme }: { props: Record<string, unknown>; theme: ThemeConfig }) {
+  const items = (props.items as { title: string; category: string; description?: string; tags?: string; imageUrl?: string; url?: string }[]) || [];
+  const cols = parseInt(String(props.columns || 3));
+  const [activeFilter, setActiveFilter] = useState('Tümü');
+  const categories = ['Tümü', ...Array.from(new Set(items.map(it => it.category).filter(Boolean)))];
+  const filtered = activeFilter === 'Tümü' ? items : items.filter(it => it.category === activeFilter);
+
+  return (
+    <div className={styles.sectionInner}>
+      <h2 className={styles.sectionTitle}>{props.title as string}</h2>
+      {!!props.subtitle && <p style={{ textAlign: 'center', color: '#6b7280', marginBottom: '32px', maxWidth: '680px', margin: '0 auto 32px' }}>{props.subtitle as string}</p>}
+      {Boolean(props.filterEnabled) && categories.length > 1 && (
+        <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '36px' }}>
+          {categories.map(cat => (
+            <button key={cat} onClick={() => setActiveFilter(cat)}
+              style={{ padding: '7px 18px', borderRadius: '999px', border: `1.5px solid ${activeFilter === cat ? theme.colors.primary : '#e5e7eb'}`, background: activeFilter === cat ? theme.colors.primary : 'transparent', color: activeFilter === cat ? '#fff' : '#6b7280', fontWeight: 500, cursor: 'pointer', fontSize: '0.875rem', transition: 'all 0.2s' }}>
+              {cat}
+            </button>
+          ))}
+        </div>
+      )}
+      <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(cols, 3)}, 1fr)`, gap: '24px' }}>
+        {filtered.map((it, i) => (
+          <div key={i} style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: '16px', overflow: 'hidden', transition: 'transform 0.25s, box-shadow 0.25s' }}
+            onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.transform = 'translateY(-4px)'; el.style.boxShadow = '0 16px 40px rgba(0,0,0,0.12)'; }}
+            onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.transform = ''; el.style.boxShadow = ''; }}>
+            {it.imageUrl
+              ? <img src={it.imageUrl} alt={it.title} style={{ width: '100%', height: '200px', objectFit: 'cover', display: 'block' }} />
+              : <div style={{ height: '200px', background: `${theme.colors.primary}10`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.5rem' }}>🖼️</div>
+            }
+            <div style={{ padding: '20px' }}>
+              <div style={{ fontSize: '0.72rem', color: theme.colors.primary, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px' }}>{it.category}</div>
+              <h3 style={{ fontWeight: 700, fontSize: '1rem', color: '#111827', marginBottom: '8px' }}>{it.title}</h3>
+              {it.description && <p style={{ color: '#6b7280', fontSize: '0.875rem', lineHeight: 1.65, marginBottom: '12px' }}>{it.description}</p>}
+              {it.tags && (
+                <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: it.url ? '14px' : '0' }}>
+                  {it.tags.split(',').map(tag => tag.trim()).filter(Boolean).map((tag, j) => (
+                    <span key={j} style={{ background: '#f3f4f6', color: '#6b7280', borderRadius: '4px', padding: '2px 8px', fontSize: '0.72rem' }}>{tag}</span>
+                  ))}
+                </div>
+              )}
+              {it.url && <a href={it.url} target="_blank" rel="noopener noreferrer" style={{ color: theme.colors.primary, fontWeight: 600, fontSize: '0.875rem', textDecoration: 'none' }}>Detayları Gör →</a>}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function MapEmbedBlock({ props, theme }: { props: Record<string, unknown>; theme: ThemeConfig }) {
+  const mapHeight = (props.mapHeight as string) || '420px';
+  const showSidebar = Boolean(props.showContactSidebar);
+  return (
+    <div className={styles.sectionInner}>
+      {!!props.title && <h2 className={styles.sectionTitle}>{props.title as string}</h2>}
+      <div style={{ display: 'grid', gridTemplateColumns: showSidebar ? '2fr 1fr' : '1fr', gap: '24px', alignItems: 'start' }}>
+        {props.embedUrl
+          ? <iframe src={props.embedUrl as string} style={{ width: '100%', height: mapHeight, border: 0, borderRadius: '16px' }} allowFullScreen title="Konum" />
+          : <div style={{ height: mapHeight, background: '#f3f4f6', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9ca3af', fontSize: '1rem' }}>Google Maps Embed URL giriniz</div>
+        }
+        {showSidebar && (
+          <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: '16px', padding: '28px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            {[
+              { icon: '📍', label: 'Adres', value: props.address as string },
+              { icon: '📞', label: 'Telefon', value: props.phone as string, href: `tel:${props.phone}` },
+              { icon: '✉️', label: 'E-posta', value: props.email as string, href: `mailto:${props.email}` },
+              { icon: '🕐', label: 'Çalışma Saatleri', value: props.workingHours as string },
+            ].filter(item => item.value).map((item, i) => (
+              <div key={i}>
+                <div style={{ fontSize: '0.72rem', color: theme.colors.primary, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '5px' }}>{item.icon} {item.label}</div>
+                {item.href
+                  ? <a href={item.href} style={{ color: '#374151', fontWeight: 500, textDecoration: 'none' }}>{item.value}</a>
+                  : <p style={{ color: '#374151', margin: 0, lineHeight: 1.6, whiteSpace: 'pre-line' }}>{item.value}</p>
+                }
+              </div>
+            ))}
+            {!!props.parkingNote && <p style={{ fontSize: '0.8rem', color: '#9ca3af', margin: 0, borderTop: '1px solid #f3f4f6', paddingTop: '16px' }}>ℹ️ {props.parkingNote as string}</p>}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function PhoneContactBlock({ props, theme }: { props: Record<string, unknown>; theme: ThemeConfig }) {
+  return (
+    <div style={{ background: (props.backgroundColor as string) || '#f8fafc', padding: '64px 0' }}>
+      <div className={styles.sectionInner} style={{ paddingTop: 0, paddingBottom: 0 }}>
+        <h2 className={styles.sectionTitle}>{props.title as string}</h2>
+        {!!props.subtitle && <p style={{ textAlign: 'center', color: '#6b7280', marginBottom: '40px', maxWidth: '560px', margin: '0 auto 40px' }}>{props.subtitle as string}</p>}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', maxWidth: '700px', margin: '0 auto 28px' }}>
+          {[[props.mainPhoneLabel, props.mainPhone], [props.supportPhoneLabel, props.supportPhone]].map(([lbl, num], i) => (
+            num ? (
+              <div key={i} style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: '16px', padding: '24px', textAlign: 'center' }}>
+                <div style={{ fontSize: '0.78rem', color: '#9ca3af', marginBottom: '6px' }}>{lbl as string}</div>
+                <a href={`tel:${num}`} style={{ fontSize: '1.4rem', fontWeight: 800, color: '#111827', textDecoration: 'none', display: 'block' }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = theme.colors.primary; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#111827'; }}>
+                  {num as string}
+                </a>
+              </div>
+            ) : null
+          ))}
+        </div>
+        <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '16px' }}>
+          {!!props.whatsapp && (
+            <a href={`https://wa.me/${String(props.whatsapp).replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer"
+              style={{ background: '#25D366', color: '#fff', padding: '12px 28px', borderRadius: theme.borderRadius.button, fontWeight: 700, textDecoration: 'none', fontSize: '0.95rem' }}>
+              📲 WhatsApp
+            </a>
+          )}
+          {!!props.buttonText && (
+            <Link to={(props.buttonLink as string) || '#'} style={{ background: theme.colors.primary, color: '#fff', padding: '12px 28px', borderRadius: theme.borderRadius.button, fontWeight: 700, textDecoration: 'none', fontSize: '0.95rem' }}>
+              {props.buttonText as string}
+            </Link>
+          )}
+        </div>
+        {!!props.availabilityText && <p style={{ textAlign: 'center', color: '#9ca3af', fontSize: '0.875rem' }}>🕐 {props.availabilityText as string}</p>}
+      </div>
+    </div>
+  );
+}
+
 // ── Block dispatcher ──────────────────────────────────────────────────────────
 
 function BlockRenderer({ comp, theme, tenantSlug }: { comp: LayoutComponent; theme: ThemeConfig; tenantSlug: string }) {
@@ -614,6 +1257,24 @@ function BlockRenderer({ comp, theme, tenantSlug }: { comp: LayoutComponent; the
     case 'slider': return <SliderBlock props={p} tenantSlug={tenantSlug} />;
     case 'faq': return <FaqBlock props={p} tenantSlug={tenantSlug} />;
     case 'custom-html': return <CustomHtmlBlock props={p} />;
+    // ── Corporate ──
+    case 'hero-corporate':        return <HeroCorporateBlock props={p} theme={theme} />;
+    case 'about-company':         return <AboutCompanyBlock props={p} theme={theme} />;
+    case 'team-grid':             return <TeamGridBlock props={p} theme={theme} />;
+    case 'services-grid':         return <ServicesGridBlock props={p} theme={theme} />;
+    case 'features-highlight':    return <FeaturesHighlightBlock props={p} theme={theme} />;
+    case 'process-steps':         return <ProcessStepsBlock props={p} theme={theme} />;
+    case 'pricing-plans':         return <PricingPlansBlock props={p} theme={theme} />;
+    case 'clients-logos':         return <ClientsLogosBlock props={p} theme={theme} />;
+    case 'awards-certifications': return <AwardsCertificationsBlock props={p} theme={theme} />;
+    case 'numbers-counter':       return <NumbersCounterBlock props={p} theme={theme} />;
+    case 'cta-banner':            return <CtaBannerBlock props={p} theme={theme} />;
+    case 'contact-details':       return <ContactDetailsBlock props={p} theme={theme} />;
+    case 'blog-list':             return <CorpBlogListBlock props={p} theme={theme} />;
+    case 'timeline':              return <TimelineBlock props={p} theme={theme} />;
+    case 'portfolio-grid':        return <PortfolioGridBlock props={p} theme={theme} />;
+    case 'map-embed':             return <MapEmbedBlock props={p} theme={theme} />;
+    case 'phone-contact':         return <PhoneContactBlock props={p} theme={theme} />;
     default: return (
       <div className={styles.sectionInner} style={{ textAlign: 'center', color: '#9ca3af' }}>
         <p>Bilinmeyen bileşen: {comp.type}</p>
