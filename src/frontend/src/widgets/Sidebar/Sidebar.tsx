@@ -85,6 +85,37 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse }: SidebarProps) => {
     return () => window.removeEventListener('wixi-refresh-menu', handleRefresh);
   }, []);
 
+  // Auto-expand accordion sections that contain the active route
+  useEffect(() => {
+    if (menus.length === 0) return;
+
+    const toExpand: Record<string, boolean> = {};
+
+    const checkAndExpand = (items: MenuItemDto[]) => {
+      for (const item of items) {
+        if (item.children && item.children.length > 0) {
+          const hasActiveChild = item.children.some(
+            (child) =>
+              location.pathname === child.path ||
+              location.pathname.startsWith(child.path + '/')
+          );
+          if (hasActiveChild) toExpand[item.id] = true;
+          checkAndExpand(item.children);
+        }
+      }
+    };
+
+    checkAndExpand(menus);
+
+    if (Object.keys(toExpand).length > 0) {
+      setExpandedCategories((prev) => {
+        const merged = { ...prev, ...toExpand };
+        localStorage.setItem(STORAGE_KEYS.EXPANDED, JSON.stringify(merged));
+        return merged;
+      });
+    }
+  }, [menus, location.pathname]);
+
   // Close context menu on click outside
   useEffect(() => {
     const handler = (e: MouseEvent) => {
