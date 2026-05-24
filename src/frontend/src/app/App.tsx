@@ -91,7 +91,6 @@ import { SystemOverviewPage } from '../pages/admin/SystemOverviewPage/SystemOver
 import WebBuilderEditorPage from '../pages/corporate/WebBuilderEditorPage/WebBuilderEditorPage';
 import BlogManagementPage from '../pages/corporate/BlogManagementPage/BlogManagementPage';
 import FormManagementPage from '../pages/corporate/FormManagementPage/FormManagementPage';
-import { MyFinanceLayout } from '../pages/my-finance/MyFinanceLayout/MyFinanceLayout';
 import { PersonalFinanceDashboardPage } from '../pages/my-finance/PersonalFinanceDashboardPage/PersonalFinanceDashboardPage';
 import { TransactionsPage } from '../pages/my-finance/TransactionsPage/TransactionsPage';
 import { BudgetsPage } from '../pages/my-finance/BudgetsPage/BudgetsPage';
@@ -161,12 +160,6 @@ const App = () => {
           </Route>
           <Route element={<AuthGuard />}>
             <Route path="/corp/builder" element={<WebBuilderEditorPage />} />
-            <Route path="/my-finance" element={<MyFinanceLayout />}>
-              <Route index element={<PersonalFinanceDashboardPage />} />
-              <Route path="transactions" element={<TransactionsPage />} />
-              <Route path="budgets" element={<BudgetsPage />} />
-              <Route path="categories" element={<CategoriesPage />} />
-            </Route>
             <Route path="/admin" element={<DashboardPage />}>
               <Route index element={<AdminDashboardPage />} />
               <Route path="logs" element={<ApplicationLogsPage />} />
@@ -213,6 +206,11 @@ const App = () => {
               <Route path="system-overview" element={<SystemOverviewPage />} />
               <Route path="corp/blog" element={<BlogManagementPage />} />
               <Route path="corp/forms" element={<FormManagementPage />} />
+              {/* ── Kişisel Finans ──────────────────────────────────── */}
+              <Route path="finance" element={<PersonalFinanceDashboardPage />} />
+              <Route path="finance/transactions" element={<TransactionsPage />} />
+              <Route path="finance/budgets" element={<BudgetsPage />} />
+              <Route path="finance/categories" element={<CategoriesPage />} />
             </Route>
           </Route>
         </Routes>
