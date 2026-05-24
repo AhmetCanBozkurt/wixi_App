@@ -34,6 +34,7 @@ const RIGHT_TABS = [
 function WebBuilderEditorInner() {
   const { state, dispatch } = useEditor();
   const { loadPages, saveAll } = useWebBuilder();
+  const activeTenantSlug = localStorage.getItem('wixi-active-tenant') ?? '';
   const [versionModalOpen, setVersionModalOpen] = useState(false);
   const [leftOpen, setLeftOpen]   = useState(true);
   const [rightOpen, setRightOpen] = useState(true);
@@ -103,7 +104,7 @@ function WebBuilderEditorInner() {
 
           <a
             className={styles.previewBtn}
-            href={`/corp/${state.activePage?.slug ?? ''}`}
+            href={state.activePage ? `/corp/${activeTenantSlug}/${state.activePage.slug}` : '#'}
             target="_blank"
             rel="noreferrer"
           >

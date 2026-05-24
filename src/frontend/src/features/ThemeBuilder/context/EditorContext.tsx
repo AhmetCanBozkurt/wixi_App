@@ -116,7 +116,16 @@ const initialState: EditorState = {
 function reducer(state: EditorState, action: EditorAction): EditorState {
   switch (action.type) {
 
-    case 'SET_PAGES': return { ...state, pages: action.pages };
+    case 'SET_PAGES': {
+      // Sync activePage.isPublished if it's in the updated list
+      const updated = state.activePage
+        ? action.pages.find(p => p.id === state.activePage!.id)
+        : undefined;
+      const activePage = updated && state.activePage
+        ? { ...state.activePage, isPublished: updated.isPublished }
+        : state.activePage;
+      return { ...state, pages: action.pages, activePage };
+    }
 
     case 'SET_ACTIVE_PAGE': {
       let layout: LayoutComponent[] = [];
