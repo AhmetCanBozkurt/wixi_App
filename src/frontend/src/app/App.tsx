@@ -94,6 +94,8 @@ import FormManagementPage from '../pages/corporate/FormManagementPage/FormManage
 import { MyFinanceLayout } from '../pages/my-finance/MyFinanceLayout/MyFinanceLayout';
 import { PersonalFinanceDashboardPage } from '../pages/my-finance/PersonalFinanceDashboardPage/PersonalFinanceDashboardPage';
 import { TransactionsPage } from '../pages/my-finance/TransactionsPage/TransactionsPage';
+import { BudgetsPage } from '../pages/my-finance/BudgetsPage/BudgetsPage';
+import { CategoriesPage } from '../pages/my-finance/CategoriesPage/CategoriesPage';
 
 const App = () => {
   return (
@@ -162,6 +164,8 @@ const App = () => {
             <Route path="/my-finance" element={<MyFinanceLayout />}>
               <Route index element={<PersonalFinanceDashboardPage />} />
               <Route path="transactions" element={<TransactionsPage />} />
+              <Route path="budgets" element={<BudgetsPage />} />
+              <Route path="categories" element={<CategoriesPage />} />
             </Route>
             <Route path="/admin" element={<DashboardPage />}>
               <Route index element={<AdminDashboardPage />} />

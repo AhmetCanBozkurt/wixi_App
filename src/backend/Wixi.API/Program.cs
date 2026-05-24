@@ -7,6 +7,7 @@ using Wixi.Modules.Core.Infrastructure.Services;
 using Wixi.API.Extensions;
 using Wixi.Modules.ECommerce;
 using Wixi.Modules.WebBuilder;
+using Wixi.Modules.PersonalFinance;
 using Serilog;
 using Serilog.Events;
 
@@ -88,7 +89,7 @@ builder.Services.AddECommerceModule(builder.Configuration);
 builder.Services.AddWebBuilderModule(builder.Configuration);
 
 // ── PersonalFinance Modülü ───────────────────────────────────────
-// builder.Services.AddPersonalFinanceModule(builder.Configuration);
+builder.Services.AddPersonalFinanceModule(builder.Configuration);
 
 // ── Finance (Tenant) Modülü ─────────────────────────────────────
 // builder.Services.AddFinanceModule(builder.Configuration);
@@ -234,7 +235,7 @@ await app.MigrateAllTenantDbsAsync();
 await app.MigrateWebBuilderDbAsync();
 
 // ── PersonalFinance DB Migration ──────────────────────────────────
-// await app.MigratePersonalFinanceDbAsync();
+await app.MigratePersonalFinanceDbAsync();
 
 // ── Finance (Tenant) DB Migration ─────────────────────────────────
 // await app.MigrateFinanceDbAsync();
