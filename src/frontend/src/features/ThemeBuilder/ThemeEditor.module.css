@@ -134,12 +134,44 @@
   border-right: 1px solid var(--editor-border);
   overflow-y: auto;
   overflow-x: hidden;
+  transition: width 0.22s ease;
 }
 
 /* scrollbar thin */
 .sidebarLeft::-webkit-scrollbar { width: 4px; }
 .sidebarLeft::-webkit-scrollbar-track { background: transparent; }
 .sidebarLeft::-webkit-scrollbar-thumb { background: var(--editor-border); border-radius: 2px; }
+
+/* ── Sidebar collapsed state (shared left + right) ─── */
+.sidebarCollapsed {
+  width: 0 !important;
+  overflow: hidden !important;
+  border: none !important;
+}
+
+/* ── Sidebar toggle button ─────────────────────────── */
+.sidebarToggle {
+  width: 14px;
+  flex-shrink: 0;
+  background: var(--editor-surface-2);
+  border: none;
+  border-left: 1px solid var(--editor-border);
+  border-right: 1px solid var(--editor-border);
+  color: var(--editor-text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  padding: 0;
+  transition: background 0.12s, color 0.12s;
+  z-index: 5;
+}
+
+.sidebarToggle:hover {
+  background: rgba(236, 72, 153, 0.12);
+  color: #ec4899;
+}
 
 /* ── Accordion ─────────────────────────────────────── */
 .accordionSection {
@@ -213,7 +245,7 @@
   flex-direction: column;
 }
 
-/* ── Right Sidebar ─────────────────────────────────── */
+/* ── Right Sidebar — Accordion ─────────────────────── */
 .sidebarRight {
   width: 280px;
   flex-shrink: 0;
@@ -221,33 +253,14 @@
   flex-direction: column;
   background: var(--editor-surface);
   border-left: 1px solid var(--editor-border);
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
+  transition: width 0.22s ease;
 }
 
-.rightTabBar {
-  display: flex;
-  border-bottom: 1px solid var(--editor-border);
-  flex-shrink: 0;
-}
-
-.rightTab {
-  flex: 1;
-  padding: 10px 4px;
-  background: transparent;
-  border: none;
-  color: var(--editor-tab-inactive);
-  font-size: 11px;
-  font-weight: 600;
-  cursor: pointer;
-  text-align: center;
-  border-bottom: 2px solid transparent;
-  transition: all 0.15s;
-}
-
-.rightTab:hover { color: var(--editor-text); }
-.rightTabActive { color: #ec4899; border-bottom-color: #ec4899; }
-
-.rightContent { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+.sidebarRight::-webkit-scrollbar { width: 4px; }
+.sidebarRight::-webkit-scrollbar-track { background: transparent; }
+.sidebarRight::-webkit-scrollbar-thumb { background: var(--editor-border); border-radius: 2px; }
 
 /* ── Loading ───────────────────────────────────────── */
 .loading {

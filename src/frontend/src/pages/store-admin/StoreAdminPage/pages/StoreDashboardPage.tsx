@@ -337,7 +337,7 @@ export const StoreDashboardPage = () => {
             <QuickAction icon={<FaBoxOpen />}        accent="#10b981" label="Ürünler"      desc="Ürün & varyant yönetimi" onClick={() => navigate(`${base}/products`)} />
             <QuickAction icon={<FaUsers />}          accent="#3b82f6" label="Müşteriler"   desc="Müşteri hesapları"       onClick={() => navigate(`${base}/customers`)} />
             <QuickAction icon={<FaPercent />}        accent="#f59e0b" label="İndirimler"   desc="Kupon & kampanyalar"     onClick={() => navigate(`${base}/discounts`)} />
-            <QuickAction icon={<FaImage />}          accent="#8b5cf6" label="Tema & Görsel" desc="Tasarım düzenleyici"    onClick={() => navigate(`${base}/theme-editor`)} />
+            <QuickAction icon={<FaImage />}          accent="#8b5cf6" label="Tema & Görsel" desc="Tasarım düzenleyici"    onClick={() => window.open(`${base}/theme-editor`, '_blank')} />
             <QuickAction icon={<FaAddressBook />}    accent="#ec4899" label="Formlar"      desc="İletişim talepleri"      onClick={() => navigate(`${base}/contact-submissions`)} />
             <QuickAction icon={<FaChartLine />}      accent="#0891b2" label="Analitik"     desc="Satış & trafik raporu"   onClick={() => navigate(`${base}/analytics`)} />
             <QuickAction icon={<FaCog />}            accent="#64748b" label="Ayarlar"      desc="Mağaza yapılandırması"   onClick={() => navigate(`${base}/settings`)} />

@@ -3,7 +3,9 @@ import type { ComponentType } from 'react';
 import { useParams } from 'react-router-dom';
 import {
   FaPaintBrush, FaSave, FaExternalLinkAlt, FaHistory, FaUndo, FaRedo,
-  FaChevronRight, FaFile, FaPlus, FaLayerGroup, FaPalette, FaGlobe, FaCode,
+  FaChevronRight, FaChevronLeft,
+  FaFile, FaPlus, FaLayerGroup, FaPalette, FaGlobe, FaCode,
+  FaEdit, FaSearch, FaLink,
 } from 'react-icons/fa';
 
 import { EditorProvider, useEditor } from './context/EditorContext';
@@ -74,6 +76,9 @@ function ThemeEditorInner({ tenantSlug }: { tenantSlug: string }) {
   const { state, dispatch } = useEditor();
   const { loadPages, saveAll } = useThemeEditor(tenantSlug);
   const [versionModalOpen, setVersionModalOpen] = useState(false);
+  const [leftOpen, setLeftOpen] = useState(true);
+  const [rightOpen, setRightOpen] = useState(true);
+
   const canUndo = state._past.length > 0;
   const canRedo = state._future.length > 0;
 
@@ -150,8 +155,7 @@ function ThemeEditorInner({ tenantSlug }: { tenantSlug: string }) {
       <div className={styles.mainArea}>
 
         {/* ── Left Sidebar — Accordion ─────────────────────── */}
-        <div className={styles.sidebarLeft}>
-
+        <div className={`${styles.sidebarLeft} ${!leftOpen ? styles.sidebarCollapsed : ''}`}>
           <AccordionSection
             label="Sayfalar"
             icon={FaFile}
@@ -181,54 +185,55 @@ function ThemeEditorInner({ tenantSlug }: { tenantSlug: string }) {
             <LayersPanel />
           </AccordionSection>
 
-          <AccordionSection
-            label="Tema"
-            icon={FaPalette}
-            height={440}
-          >
+          <AccordionSection label="Tema" icon={FaPalette} height={440}>
             <ThemePanel tenantSlug={tenantSlug} />
           </AccordionSection>
 
-          <AccordionSection
-            label="Global"
-            icon={FaGlobe}
-            height={400}
-          >
+          <AccordionSection label="Global" icon={FaGlobe} height={400}>
             <GlobalPanel tenantSlug={tenantSlug} />
           </AccordionSection>
 
-          <AccordionSection
-            label="Kod"
-            icon={FaCode}
-            height={500}
-          >
+          <AccordionSection label="Kod" icon={FaCode} height={500}>
             <CodeEditorPanel tenantSlug={tenantSlug} />
           </AccordionSection>
-
         </div>
+
+        {/* ── Left Toggle ──────────────────────────────────── */}
+        <button
+          className={styles.sidebarToggle}
+          onClick={() => setLeftOpen(o => !o)}
+          title={leftOpen ? 'Sol paneli gizle' : 'Sol paneli göster'}
+          type="button"
+        >
+          {leftOpen ? <FaChevronLeft /> : <FaChevronRight />}
+        </button>
 
         {/* ── Center Canvas ─────────────────────────────────── */}
         <EditorCanvas />
 
-        {/* ── Right Sidebar — Tabs ──────────────────────────── */}
-        <div className={styles.sidebarRight}>
-          <div className={styles.rightTabBar}>
-            {([['props', 'Özellikler'], ['seo', 'SEO'], ['backlinks', 'Bağlantılar']] as const).map(([tab, label]) => (
-              <button
-                key={tab}
-                className={`${styles.rightTab} ${state.rightTab === tab ? styles.rightTabActive : ''}`}
-                onClick={() => dispatch({ type: 'SET_RIGHT_TAB', tab })}
-                type="button"
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-          <div className={styles.rightContent}>
-            {state.rightTab === 'props' && <PropertiesPanel />}
-            {state.rightTab === 'seo' && <SeoPanel tenantSlug={tenantSlug} />}
-            {state.rightTab === 'backlinks' && <BacklinksPanel tenantSlug={tenantSlug} />}
-          </div>
+        {/* ── Right Toggle ─────────────────────────────────── */}
+        <button
+          className={styles.sidebarToggle}
+          onClick={() => setRightOpen(o => !o)}
+          title={rightOpen ? 'Sağ paneli gizle' : 'Sağ paneli göster'}
+          type="button"
+        >
+          {rightOpen ? <FaChevronRight /> : <FaChevronLeft />}
+        </button>
+
+        {/* ── Right Sidebar — Accordion ─────────────────────── */}
+        <div className={`${styles.sidebarRight} ${!rightOpen ? styles.sidebarCollapsed : ''}`}>
+          <AccordionSection label="Özellikler" icon={FaEdit} defaultOpen height={520}>
+            <PropertiesPanel />
+          </AccordionSection>
+
+          <AccordionSection label="SEO" icon={FaSearch} height={440}>
+            <SeoPanel tenantSlug={tenantSlug} />
+          </AccordionSection>
+
+          <AccordionSection label="Bağlantılar" icon={FaLink} height={360}>
+            <BacklinksPanel tenantSlug={tenantSlug} />
+          </AccordionSection>
         </div>
 
       </div>
