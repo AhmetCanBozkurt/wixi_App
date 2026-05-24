@@ -863,12 +863,12 @@ function ClientsLogosBlock({ props, theme }: { props: Record<string, unknown>; t
           const img = (
             <img src={l.imageUrl} alt={l.altText} style={{
               height: '44px', maxWidth: '140px', objectFit: 'contain',
-              filter: Boolean(props.grayscale) ? 'grayscale(100%)' : 'none',
-              opacity: Boolean(props.grayscale) ? 0.5 : 1,
+              filter: props.grayscale ? 'grayscale(100%)' : 'none',
+              opacity: props.grayscale ? 0.5 : 1,
               transition: 'filter 0.3s, opacity 0.3s',
             }}
-              onMouseEnter={e => { if (Boolean(props.grayscale)) { const img = e.currentTarget as HTMLImageElement; img.style.filter = 'grayscale(0%)'; img.style.opacity = '1'; } }}
-              onMouseLeave={e => { if (Boolean(props.grayscale)) { const img = e.currentTarget as HTMLImageElement; img.style.filter = 'grayscale(100%)'; img.style.opacity = '0.5'; } }}
+              onMouseEnter={e => { if (props.grayscale) { const img = e.currentTarget as HTMLImageElement; img.style.filter = 'grayscale(0%)'; img.style.opacity = '1'; } }}
+              onMouseLeave={e => { if (props.grayscale) { const img = e.currentTarget as HTMLImageElement; img.style.filter = 'grayscale(100%)'; img.style.opacity = '0.5'; } }}
             />
           );
           if (!l.imageUrl) {

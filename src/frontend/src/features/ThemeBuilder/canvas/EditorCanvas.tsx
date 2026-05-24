@@ -991,7 +991,7 @@ export function MiniRenderer({ comp, theme }: { comp: LayoutComponent; theme: Th
                   <div style={{ height: '8px', width: '70%', background: theme.colors.border, borderRadius: '3px', marginBottom: '6px' }} />
                   {(Boolean(p.showAuthor) || Boolean(p.showDate)) && (
                     <div style={{ fontSize: '0.58rem', color: theme.colors.textMuted }}>
-                      {Boolean(p.showAuthor) ? 'Yazar Adı' : ''} {Boolean(p.showDate) ? '· 01 Haz 2025' : ''} {Boolean(p.showReadTime) ? '· 5 dk' : ''}
+                      {p.showAuthor ? 'Yazar Adı' : ''} {p.showDate ? '· 01 Haz 2025' : ''} {p.showReadTime ? '· 5 dk' : ''}
                     </div>
                   )}
                 </div>
