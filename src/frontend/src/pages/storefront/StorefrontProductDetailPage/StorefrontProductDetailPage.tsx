@@ -13,6 +13,7 @@ interface ProductVariant {
   price: number;
   compareAtPrice?: number;
   stockQuantity: number;
+  lowStockThreshold: number;
   attributesJson: string;
   isActive: boolean;
 }
@@ -71,6 +72,25 @@ function findMatchingVariant(
   });
 }
 
+// Seçili attrs + bu opsiyon için en az 1 aktif variant var mı?
+function isOptionAvailable(
+  variants: ProductVariant[],
+  selectedAttrs: Record<string, string>,
+  checkKey: string,
+  checkValue: string
+): boolean {
+  const testAttrs: Record<string, string> = {};
+  for (const [k, v] of Object.entries(selectedAttrs)) {
+    if (k !== checkKey) testAttrs[k] = v;
+  }
+  testAttrs[checkKey] = checkValue;
+  return variants.some((v) => {
+    if (!v.isActive) return false;
+    const attrs = parseAttributes(v.attributesJson);
+    return Object.entries(testAttrs).every(([k, val]) => attrs[k] === val);
+  });
+}
+
 export const StorefrontProductDetailPage = () => {
   const { tenantSlug, slug } = useParams<{ tenantSlug: string; slug: string }>();
   const navigate = useNavigate();
@@ -98,6 +118,7 @@ export const StorefrontProductDetailPage = () => {
         setProduct(p);
         setSelectedImg(p.mainImageUrl || null);
         setSelectedAttrs({});
+        setQuantity(1);
       })
       .catch(() => setProduct(null))
       .finally(() => setIsLoading(false));
@@ -120,8 +141,15 @@ export const StorefrontProductDetailPage = () => {
   const displayCompare = matchedVariant?.compareAtPrice ?? product?.compareAtPrice;
   const outOfStock = matchedVariant ? matchedVariant.stockQuantity <= 0 : false;
 
+  const maxQty = matchedVariant ? Math.max(1, matchedVariant.stockQuantity) : 99;
+  const isLowStock =
+    matchedVariant &&
+    matchedVariant.stockQuantity > 0 &&
+    matchedVariant.stockQuantity <= (matchedVariant.lowStockThreshold || 5);
+
   const selectAttr = (key: string, value: string) => {
     setSelectedAttrs((prev) => ({ ...prev, [key]: value }));
+    setQuantity(1);
   };
 
   const handleAddToCart = async () => {
@@ -240,19 +268,30 @@ export const StorefrontProductDetailPage = () => {
                   {attributeMap[key].map((value) => {
                     const isColor = isHexColor(value);
                     const isChosen = selectedAttrs[key] === value;
+                    const available = isOptionAvailable(product.variants, selectedAttrs, key, value);
                     return isColor ? (
                       <button
                         key={value}
                         title={value}
-                        className={`${styles.colorSwatch} ${isChosen ? styles.colorSwatchActive : ''}`}
+                        disabled={!available}
+                        className={[
+                          styles.colorSwatch,
+                          isChosen ? styles.colorSwatchActive : '',
+                          !available ? styles.colorSwatchUnavailable : '',
+                        ].join(' ')}
                         style={{ background: value }}
-                        onClick={() => selectAttr(key, value)}
+                        onClick={() => available && selectAttr(key, value)}
                       />
                     ) : (
                       <button
                         key={value}
-                        className={`${styles.variantBtn} ${isChosen ? styles.variantBtnActive : ''}`}
-                        onClick={() => selectAttr(key, value)}
+                        disabled={!available}
+                        className={[
+                          styles.variantBtn,
+                          isChosen ? styles.variantBtnActive : '',
+                          !available ? styles.variantBtnUnavailable : '',
+                        ].join(' ')}
+                        onClick={() => available && selectAttr(key, value)}
                       >
                         {value}
                       </button>
@@ -262,18 +301,33 @@ export const StorefrontProductDetailPage = () => {
               </div>
             ))}
 
-            {/* Stock warning */}
+            {/* Stok uyarıları */}
             {hasVariants && matchedVariant && outOfStock && (
               <p className={styles.outOfStock}>Bu kombinasyon stokta yok.</p>
+            )}
+            {isLowStock && (
+              <p className={styles.lowStock}>
+                Son {matchedVariant!.stockQuantity} adet kaldı!
+              </p>
             )}
 
             {/* ── Quantity ── */}
             <div className={styles.qtyRow}>
               <label className={styles.qtyLabel}>Adet</label>
               <div className={styles.qty}>
-                <button className={styles.qtyBtn} onClick={() => setQuantity(Math.max(1, quantity - 1))}>−</button>
+                <button
+                  className={styles.qtyBtn}
+                  onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                >
+                  −
+                </button>
                 <span className={styles.qtyVal}>{quantity}</span>
-                <button className={styles.qtyBtn} onClick={() => setQuantity(quantity + 1)}>+</button>
+                <button
+                  className={styles.qtyBtn}
+                  onClick={() => setQuantity((q) => Math.min(q + 1, maxQty))}
+                >
+                  +
+                </button>
               </div>
             </div>
 

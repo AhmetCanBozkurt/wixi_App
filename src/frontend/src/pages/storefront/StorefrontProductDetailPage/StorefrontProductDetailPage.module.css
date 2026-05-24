@@ -203,7 +203,7 @@
   transition: border-color 0.15s, background 0.15s, color 0.15s;
 }
 
-.variantBtn:hover {
+.variantBtn:hover:not(:disabled) {
   border-color: var(--sf-color-primary, #6366f1);
 }
 
@@ -213,6 +213,12 @@
   color: white;
 }
 
+.variantBtnUnavailable {
+  opacity: 0.35;
+  cursor: not-allowed;
+  text-decoration: line-through;
+}
+
 .colorSwatch {
   width: 32px;
   height: 32px;
@@ -220,10 +226,11 @@
   border: 2px solid var(--sf-color-border, #e5e7eb);
   cursor: pointer;
   padding: 0;
+  position: relative;
   transition: transform 0.15s, box-shadow 0.15s;
 }
 
-.colorSwatch:hover {
+.colorSwatch:hover:not(:disabled) {
   transform: scale(1.1);
 }
 
@@ -232,10 +239,36 @@
   border-color: transparent;
 }
 
+.colorSwatchUnavailable {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.colorSwatchUnavailable::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: linear-gradient(
+    to bottom right,
+    transparent calc(50% - 1px),
+    var(--sf-color-text-muted, #9ca3af) calc(50% - 1px),
+    var(--sf-color-text-muted, #9ca3af) calc(50% + 1px),
+    transparent calc(50% + 1px)
+  );
+}
+
 .outOfStock {
   color: #ef4444;
   font-size: 0.875rem;
   font-weight: 500;
+  margin-bottom: 16px;
+}
+
+.lowStock {
+  color: #f59e0b;
+  font-size: 0.875rem;
+  font-weight: 600;
   margin-bottom: 16px;
 }
 

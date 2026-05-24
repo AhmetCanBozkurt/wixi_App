@@ -12,6 +12,7 @@ public record ProductVariantDto(
     decimal Price,
     decimal? CompareAtPrice,
     int StockQuantity,
+    int LowStockThreshold,
     string AttributesJson,
     bool IsActive
 );
@@ -77,6 +78,7 @@ public class GetProductBySlugQueryHandler : IRequestHandler<GetProductBySlugQuer
                 v.Price,
                 v.CompareAtPrice,
                 v.StockQuantity,
+                v.LowStockThreshold,
                 v.AttributesJson,
                 v.IsActive
             ))
