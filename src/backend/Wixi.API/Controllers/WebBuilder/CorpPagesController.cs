@@ -7,6 +7,7 @@ using Wixi.Modules.WebBuilder.Application.CorpPages.Commands.CreateCorpPageVersi
 using Wixi.Modules.WebBuilder.Application.CorpPages.Commands.DeleteCorpPage;
 using Wixi.Modules.WebBuilder.Application.CorpPages.Commands.PublishCorpPage;
 using Wixi.Modules.WebBuilder.Application.CorpPages.Commands.RollbackCorpPageVersion;
+using Wixi.Modules.WebBuilder.Application.CorpPages.Commands.UpdateCorpPageBacklinks;
 using Wixi.Modules.WebBuilder.Application.CorpPages.Commands.UpdateCorpPageLayout;
 using Wixi.Modules.WebBuilder.Application.CorpPages.Commands.UpdateCorpPageSeo;
 using Wixi.Modules.WebBuilder.Application.CorpPages.Queries.GetCorpPageBySlug;
@@ -76,6 +77,14 @@ public class CorpPagesController : WebBuilderControllerBase
         return NoContent();
     }
 
+    [HttpPut("{id}/backlinks")]
+    public async Task<IActionResult> UpdateBacklinks(Guid id, [FromBody] UpdateCorpPageBacklinksRequest request, CancellationToken cancellationToken)
+    {
+        var tenantId = await ResolveTenantIdAsync(cancellationToken);
+        await _mediator.Send(new UpdateCorpPageBacklinksCommand(id, tenantId, request.BacklinksJson), cancellationToken);
+        return NoContent();
+    }
+
     [HttpPut("{id}/publish")]
     public async Task<IActionResult> Publish(Guid id, [FromBody] PublishCorpPageRequest request, CancellationToken cancellationToken)
     {
@@ -121,6 +130,7 @@ public class CorpPagesController : WebBuilderControllerBase
 
 public record CreateCorpPageRequest(CorpPageType PageType, string Slug, string Title);
 public record UpdateCorpPageLayoutRequest(string? LayoutConfigJson, string? ThemeOverrideJson);
+public record UpdateCorpPageBacklinksRequest(string? BacklinksJson);
 public record UpdateCorpPageSeoRequest(string? MetaTitle, string? MetaDescription, string? MetaKeywords, string? OpenGraphImageUrl, string? BacklinksJson);
 public record PublishCorpPageRequest(bool IsPublished);
 public record CreateCheckpointRequest(string? CheckpointLabel);
