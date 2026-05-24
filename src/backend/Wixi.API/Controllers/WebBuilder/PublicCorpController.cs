@@ -25,6 +25,15 @@ public class PublicCorpController(IMediator mediator, WixiCoreDbContext db) : Co
 
         var page = await mediator.Send(new GetCorpPageBySlugQuery(tenantId.Value, pageSlug), ct);
 
+        // "home" bulunamazsa tenant'ın ilk yayınlanmış sayfasına fallback yap
+        if ((page is null || !page.IsPublished) && pageSlug == "home")
+        {
+            var all = await mediator.Send(new GetCorpPagesQuery(tenantId.Value), ct);
+            var firstSlug = all.FirstOrDefault(p => p.IsPublished)?.Slug;
+            if (firstSlug != null)
+                page = await mediator.Send(new GetCorpPageBySlugQuery(tenantId.Value, firstSlug), ct);
+        }
+
         if (page is null || !page.IsPublished) return NotFound();
 
         return Ok(page);
