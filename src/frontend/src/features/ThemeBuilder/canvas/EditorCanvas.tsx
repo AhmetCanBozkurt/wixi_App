@@ -126,7 +126,7 @@ function CanvasFooterPreview({
 
 // ── MiniRenderer ──────────────────────────────────────────────────────────────
 
-function MiniRenderer({ comp, theme }: { comp: LayoutComponent; theme: ThemeConfig }) {
+export function MiniRenderer({ comp, theme }: { comp: LayoutComponent; theme: ThemeConfig }) {
   const p = comp.props;
   const def = BLOCK_BY_TYPE[comp.type];
 

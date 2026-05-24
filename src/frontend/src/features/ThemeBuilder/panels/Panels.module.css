@@ -316,6 +316,41 @@
   text-align: center;
 }
 
+/* hovered block highlight (preview open) */
+.blockBtnHovered {
+  background: rgba(236, 72, 153, 0.08) !important;
+  border-color: rgba(236, 72, 153, 0.4) !important;
+  color: #ec4899 !important;
+}
+
+.blockBtnHovered .blockIcon { opacity: 1; }
+
+/* ── Preview tooltip add button ──────────────────────── */
+.previewAddBtn {
+  width: 100%;
+  padding: 9px 0;
+  background: #ec4899;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: background 0.15s;
+}
+
+.previewAddBtn:hover { background: #db2777; }
+
+/* ── Preview fade-in keyframe ────────────────────────── */
+:global(@keyframes fadeInPreview) {
+  from { opacity: 0; transform: translateX(-6px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
 /* ── Layer Panel ─────────────────────────────────────── */
 .layerCount {
   background: var(--editor-border);
