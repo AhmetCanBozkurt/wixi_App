@@ -163,6 +163,7 @@ const App = () => {
           </Route>
           <Route element={<AuthGuard />}>
             <Route path="/corp/builder" element={<WebBuilderEditorPage />} />
+            <Route path="/corp/builder/:tenantSlug" element={<WebBuilderEditorPage />} />
             <Route path="/admin" element={<DashboardPage />}>
               <Route index element={<AdminDashboardPage />} />
               <Route path="logs" element={<ApplicationLogsPage />} />

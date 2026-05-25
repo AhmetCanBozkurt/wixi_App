@@ -34,7 +34,11 @@ const RIGHT_TABS = [
 function WebBuilderEditorInner() {
   const { state, dispatch } = useEditor();
   const { loadPages, saveAll } = useWebBuilder();
+  // URL'deki :tenantSlug varsa WebBuilderEditorPage zaten localStorage'a yazmış olur
   const activeTenantSlug = localStorage.getItem('wixi-active-tenant') ?? '';
+  const previewHref = state.activePage && activeTenantSlug
+    ? `/corp/${activeTenantSlug}/${state.activePage.slug}`
+    : undefined;
   const [versionModalOpen, setVersionModalOpen] = useState(false);
   const [leftOpen, setLeftOpen]   = useState(true);
   const [rightOpen, setRightOpen] = useState(true);
@@ -102,14 +106,25 @@ function WebBuilderEditorInner() {
             <FaHistory /> Geçmiş
           </button>
 
-          <a
-            className={styles.previewBtn}
-            href={state.activePage ? `/corp/${activeTenantSlug}/${state.activePage.slug}` : '#'}
-            target="_blank"
-            rel="noreferrer"
-          >
-            <FaExternalLinkAlt /> Önizle
-          </a>
+          {previewHref ? (
+            <a
+              className={styles.previewBtn}
+              href={previewHref}
+              target="_blank"
+              rel="noreferrer"
+              title={`Önizle: ${previewHref}`}
+            >
+              <FaExternalLinkAlt /> Önizle
+            </a>
+          ) : (
+            <span
+              className={styles.previewBtn}
+              style={{ opacity: 0.4, cursor: 'not-allowed' }}
+              title="Önizlemek için /corp/builder/{tenantSlug} URL'sini kullanın"
+            >
+              <FaExternalLinkAlt /> Önizle
+            </span>
+          )}
 
           <button
             className={styles.saveBtn}
