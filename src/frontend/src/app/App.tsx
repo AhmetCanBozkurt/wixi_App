@@ -7,6 +7,7 @@ import { StoreAdminGuard } from './providers/StoreAdminGuard';
 import { StorefrontAuthGuard } from './providers/StorefrontAuthGuard';
 import { LoginPage } from '../pages/auth/LoginPage/LoginPage';
 import { MasterStorefrontPage } from '../pages/storefront/MasterStorefrontPage/MasterStorefrontPage';
+import { LandingPage } from '../pages/storefront/LandingPage';
 import { ForgotPasswordPage } from '../pages/auth/ForgotPasswordPage/ForgotPasswordPage';
 import { ResetPasswordPage } from '../pages/auth/ResetPasswordPage/ResetPasswordPage';
 import { DashboardPage } from '../pages/admin/DashboardPage/DashboardPage';
@@ -114,7 +115,7 @@ const App = () => {
       />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<MasterStorefrontPage />} />
+          <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
