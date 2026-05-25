@@ -1,0 +1,1 @@
+export { ModullerPage } from './ModullerPage';

@@ -7,6 +7,17 @@ import { StoreAdminGuard } from './providers/StoreAdminGuard';
 import { StorefrontAuthGuard } from './providers/StorefrontAuthGuard';
 import { LoginPage } from '../pages/auth/LoginPage/LoginPage';
 import { LandingPage } from '../pages/storefront/LandingPage';
+import { OzelliklerPage } from '../pages/storefront/OzelliklerPage';
+import { FiyatlandirmaPage } from '../pages/storefront/FiyatlandirmaPage';
+import { NasilCalisirPage } from '../pages/storefront/NasilCalisirPage';
+import { HakkimizdaPage } from '../pages/storefront/HakkimizdaPage';
+import { IletisimPage } from '../pages/storefront/IletisimPage';
+import { SssPage } from '../pages/storefront/SssPage';
+import { ModullerPage } from '../pages/storefront/ModullerPage';
+import { StudyoPage } from '../pages/storefront/StudyoPage';
+import { VakaCalismalariPage } from '../pages/storefront/VakaCalismalariPage';
+import { YolHaritasiPage } from '../pages/storefront/YolHaritasiPage';
+import { GizlilikPage, KvkkPage, KullanimSartlariPage, CerezlerPage } from '../pages/storefront/LegalPage';
 import { ForgotPasswordPage } from '../pages/auth/ForgotPasswordPage/ForgotPasswordPage';
 import { ResetPasswordPage } from '../pages/auth/ResetPasswordPage/ResetPasswordPage';
 import { DashboardPage } from '../pages/admin/DashboardPage/DashboardPage';
@@ -115,6 +126,20 @@ const App = () => {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<LandingPage />} />
+          <Route path="/ozellikler" element={<OzelliklerPage />} />
+          <Route path="/fiyatlandirma" element={<FiyatlandirmaPage />} />
+          <Route path="/nasil-calisir" element={<NasilCalisirPage />} />
+          <Route path="/hakkimizda" element={<HakkimizdaPage />} />
+          <Route path="/iletisim" element={<IletisimPage />} />
+          <Route path="/sss" element={<SssPage />} />
+          <Route path="/moduller" element={<ModullerPage />} />
+          <Route path="/studyo" element={<StudyoPage />} />
+          <Route path="/vaka-calismalari" element={<VakaCalismalariPage />} />
+          <Route path="/yol-haritasi" element={<YolHaritasiPage />} />
+          <Route path="/gizlilik" element={<GizlilikPage />} />
+          <Route path="/kvkk" element={<KvkkPage />} />
+          <Route path="/kullanim-sartlari" element={<KullanimSartlariPage />} />
+          <Route path="/cerezler" element={<CerezlerPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />

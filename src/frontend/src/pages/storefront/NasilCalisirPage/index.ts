@@ -1,0 +1,1 @@
+export { NasilCalisirPage } from './NasilCalisirPage';

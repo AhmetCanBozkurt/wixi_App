@@ -1,0 +1,1 @@
+export { HakkimizdaPage } from './HakkimizdaPage';

@@ -1,0 +1,1 @@
+export { FiyatlandirmaPage } from './FiyatlandirmaPage';

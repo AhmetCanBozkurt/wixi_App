@@ -1,0 +1,1 @@
+export { OzelliklerPage } from './OzelliklerPage';

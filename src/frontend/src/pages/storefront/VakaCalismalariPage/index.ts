@@ -1,0 +1,1 @@
+export { VakaCalismalariPage } from './VakaCalismalariPage';
