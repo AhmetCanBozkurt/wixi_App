@@ -6,7 +6,6 @@ import { AuthGuard } from './providers/AuthGuard';
 import { StoreAdminGuard } from './providers/StoreAdminGuard';
 import { StorefrontAuthGuard } from './providers/StorefrontAuthGuard';
 import { LoginPage } from '../pages/auth/LoginPage/LoginPage';
-import { MasterStorefrontPage } from '../pages/storefront/MasterStorefrontPage/MasterStorefrontPage';
 import { LandingPage } from '../pages/storefront/LandingPage';
 import { ForgotPasswordPage } from '../pages/auth/ForgotPasswordPage/ForgotPasswordPage';
 import { ResetPasswordPage } from '../pages/auth/ResetPasswordPage/ResetPasswordPage';
