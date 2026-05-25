@@ -16,11 +16,26 @@ const NAV_LINKS = [
   { href: '/sss', label: 'SSS' },
 ];
 
+interface Lang { code: string; label: string; flag: string; dir: 'ltr' | 'rtl' }
+const LANGUAGES: Lang[] = [
+  { code: 'tr', label: 'Türkçe', flag: '🇹🇷', dir: 'ltr' },
+  { code: 'en', label: 'English', flag: '🇬🇧', dir: 'ltr' },
+  { code: 'de', label: 'Deutsch', flag: '🇩🇪', dir: 'ltr' },
+  { code: 'ar', label: 'العربية', flag: '🇸🇦', dir: 'rtl' },
+  { code: 'fr', label: 'Français', flag: '🇫🇷', dir: 'ltr' },
+];
+
 export function LandingNavbar({ theme, onToggleTheme }: Props) {
   const [scrolled, setScrolled] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [langOpen, setLangOpen] = useState(false);
+  const [activeLang, setActiveLang] = useState<Lang>(() => {
+    const stored = localStorage.getItem('wixi-lang') ?? 'tr';
+    return LANGUAGES.find((l) => l.code === stored) ?? LANGUAGES[0];
+  });
   const location = useLocation();
   const burgerRef = useRef<HTMLButtonElement>(null);
+  const langRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -32,6 +47,27 @@ export function LandingNavbar({ theme, onToggleTheme }: Props) {
   useEffect(() => {
     setDrawerOpen(false);
   }, [location.pathname]);
+
+  // Close lang dropdown on outside click
+  useEffect(() => {
+    if (!langOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (langRef.current && !langRef.current.contains(e.target as Node)) {
+        setLangOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [langOpen]);
+
+  const selectLang = (lang: Lang) => {
+    setActiveLang(lang);
+    setLangOpen(false);
+    localStorage.setItem('wixi-lang', lang.code);
+    // Apply RTL direction for Arabic
+    document.documentElement.dir = lang.dir;
+    document.documentElement.lang = lang.code;
+  };
 
   return (
     <>
@@ -55,6 +91,45 @@ export function LandingNavbar({ theme, onToggleTheme }: Props) {
           </nav>
 
           <div className={s.cta}>
+            {/* Language switcher */}
+            <div className={s.langSwitch} ref={langRef}>
+              <button
+                className={s.langBtn}
+                onClick={() => setLangOpen((v) => !v)}
+                aria-label="Dil seçin"
+                aria-expanded={langOpen}
+              >
+                <span className={s.langFlag}>{activeLang.flag}</span>
+                <span className={s.langCode}>{activeLang.code.toUpperCase()}</span>
+                <svg
+                  className={`${s.langChevron} ${langOpen ? s.langChevronOpen : ''}`}
+                  width="10" height="10" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+                >
+                  <path d="m6 9 6 6 6-6"/>
+                </svg>
+              </button>
+              {langOpen && (
+                <div className={s.langMenu}>
+                  {LANGUAGES.map((lang) => (
+                    <button
+                      key={lang.code}
+                      className={`${s.langOption} ${activeLang.code === lang.code ? s.langOptionActive : ''}`}
+                      onClick={() => selectLang(lang)}
+                    >
+                      <span className={s.langFlag}>{lang.flag}</span>
+                      <span className={s.langLabel}>{lang.label}</span>
+                      {activeLang.code === lang.code && (
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: 'auto', color: '#a5b4fc' }}>
+                          <path d="M20 6 9 17l-5-5"/>
+                        </svg>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
             <Link to="/login" className={`lp-btn lp-btn--ghost lp-btn--sm ${s.loginBtn}`}>
               Giriş Yap
             </Link>
@@ -103,6 +178,18 @@ export function LandingNavbar({ theme, onToggleTheme }: Props) {
             {link.label} <span>→</span>
           </Link>
         ))}
+        {/* Mobile lang switcher */}
+        <div className={s.drawerLangs}>
+          {LANGUAGES.map((lang) => (
+            <button
+              key={lang.code}
+              className={`${s.drawerLangBtn} ${activeLang.code === lang.code ? s.drawerLangActive : ''}`}
+              onClick={() => { selectLang(lang); setDrawerOpen(false); }}
+            >
+              {lang.flag} {lang.code.toUpperCase()}
+            </button>
+          ))}
+        </div>
         <div className={s.drawerRow}>
           <Link to="/login" className="lp-btn lp-btn--ghost" onClick={() => setDrawerOpen(false)}>
             Giriş Yap

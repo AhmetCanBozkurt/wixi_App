@@ -308,10 +308,10 @@ export function LandingPage() {
             </p>
 
             <div className={`${s.heroCta} fade-up`} data-delay="3">
-              <Link to="/register" className="lp-btn lp-btn--primary lp-btn--lg">
+              <Link to="/register" className="lp-btn lp-btn--primary lp-btn--lg" data-magnet>
                 Ücretsiz Deneyin →
               </Link>
-              <button className="lp-btn lp-btn--ghost lp-btn--lg">
+              <button className="lp-btn lp-btn--ghost lp-btn--lg" data-magnet>
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
                   <path d="M3 1.5v11l9-5.5z" />
                 </svg>

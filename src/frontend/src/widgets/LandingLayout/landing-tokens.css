@@ -380,6 +380,11 @@
   50% { box-shadow: 0 18px 40px -12px rgba(99,102,241,.6), 0 0 0 14px rgba(139,92,246,0); }
 }
 
+/* ── Page enter animation ── */
+.landing-shell .lp-page-enter {
+  animation: lpPageEnter .6s cubic-bezier(.22,1,.36,1) both;
+}
+
 /* ── Reduced motion ── */
 @media (prefers-reduced-motion: reduce) {
   .landing-shell .fade-up,

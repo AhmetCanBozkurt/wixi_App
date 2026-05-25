@@ -219,3 +219,107 @@
 .drawerRow :global(.lp-btn) {
   flex: 1;
 }
+
+/* ── Language switcher ── */
+.langSwitch {
+  position: relative;
+}
+.langBtn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 10px;
+  border-radius: 10px;
+  background: var(--lp-surface);
+  border: 1px solid var(--lp-border);
+  color: var(--lp-text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .2s, border-color .2s, color .2s;
+  white-space: nowrap;
+}
+.langBtn:hover {
+  background: var(--lp-surface-2);
+  border-color: var(--lp-border-strong);
+  color: var(--lp-text);
+}
+.langFlag { font-size: 16px; line-height: 1; }
+.langCode { font-size: 12px; letter-spacing: .04em; }
+.langChevron {
+  transition: transform .25s cubic-bezier(.22,1,.36,1);
+}
+.langChevronOpen {
+  transform: rotate(180deg);
+}
+
+.langMenu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: var(--lp-bg-2);
+  border: 1px solid var(--lp-border);
+  border-radius: 14px;
+  padding: 6px;
+  min-width: 160px;
+  z-index: 100;
+  box-shadow: 0 20px 50px -15px rgba(0,0,0,.6);
+  animation: lpDrawerIn .25s cubic-bezier(.22,1,.36,1);
+}
+.langOption {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--lp-text-muted);
+  font-size: 13.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background .15s, color .15s;
+  text-align: left;
+}
+.langOption:hover {
+  background: var(--lp-surface-2);
+  color: var(--lp-text);
+}
+.langOptionActive {
+  color: var(--lp-text);
+  background: rgba(99,102,241,.08);
+}
+.langLabel { flex: 1; }
+
+/* Mobile lang row */
+.drawerLangs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding: 4px 0 8px;
+}
+.drawerLangBtn {
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: var(--lp-surface);
+  border: 1px solid var(--lp-border);
+  color: var(--lp-text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .15s, color .15s, border-color .15s;
+}
+.drawerLangBtn:hover {
+  background: var(--lp-surface-2);
+  color: var(--lp-text);
+}
+.drawerLangActive {
+  background: rgba(99,102,241,.12) !important;
+  border-color: rgba(99,102,241,.35) !important;
+  color: #a5b4fc !important;
+}
+
+@media (max-width: 880px) {
+  .langSwitch { display: none; }
+}

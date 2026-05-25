@@ -1,8 +1,11 @@
-import { type ReactNode, useEffect, useRef, useState } from 'react';
+import { type ReactNode, useEffect, useRef } from 'react';
 import './landing-tokens.css';
 import { LandingNavbar } from './LandingNavbar';
 import { LandingFooter } from './LandingFooter';
+import { LandingChatWidget } from './LandingChatWidget';
+import { useMagnet, useSpotlight } from './useLandingAnimations';
 import s from './LandingLayout.module.css';
+import { useState } from 'react';
 
 interface Props {
   children: ReactNode;
@@ -13,6 +16,10 @@ export function LandingLayout({ children }: Props) {
     return (localStorage.getItem('wixi-theme') as 'dark' | 'light') || 'dark';
   });
   const progressRef = useRef<HTMLDivElement>(null);
+
+  // Global animation hooks
+  useMagnet();
+  useSpotlight();
 
   const toggleTheme = () => {
     const next = theme === 'dark' ? 'light' : 'dark';
@@ -57,6 +64,9 @@ export function LandingLayout({ children }: Props) {
       </main>
 
       <LandingFooter />
+
+      {/* Chat widget */}
+      <LandingChatWidget />
     </div>
   );
 }
