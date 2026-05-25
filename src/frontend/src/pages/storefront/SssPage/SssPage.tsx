@@ -101,7 +101,14 @@ export function SssPage() {
             <aside className={s.sidebar}>
               <div className={s.sideLabel}>Kategoriler</div>
               {CATS.map((cat) => (
-                <button key={cat.id} className={`${s.sideLink} ${activecat === cat.id && !q ? s.sideLinkOn : ''}`} onClick={() => { setActivecat(cat.id); }}>
+                <button
+                  key={cat.id}
+                  className={`${s.sideLink} ${activecat === cat.id && !q ? s.sideLinkOn : ''}`}
+                  onClick={() => {
+                    setActivecat(cat.id);
+                    document.getElementById(cat.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }}
+                >
                   <span>{cat.label}</span>
                   <span className={s.sideNum}>{cat.count}</span>
                 </button>

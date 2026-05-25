@@ -3,10 +3,11 @@
 .lead { font-size: 19px; color: var(--lp-text-muted); max-width: 620px; margin: 0 auto; line-height: 1.55; }
 
 .tabs { padding: 40px 0 80px; }
-.tabNav { display: flex; gap: 6px; background: var(--lp-surface); border: 1px solid var(--lp-border); padding: 6px; border-radius: 14px; flex-wrap: wrap; margin-bottom: 40px; }
-.tabBtn { padding: 10px 18px; border-radius: 10px; font-size: 14px; font-weight: 600; color: var(--lp-text-muted); display: inline-flex; align-items: center; gap: 8px; transition: background .2s, color .2s; }
-.tabBtn:hover { color: var(--lp-text); background: var(--lp-surface-2); }
-.tabBtnOn { background: var(--grad) !important; color: #fff !important; box-shadow: 0 6px 18px -6px rgba(99,102,241,.5); }
+.tabNav { display: flex; gap: 6px; background: var(--lp-surface); border: 1px solid var(--lp-border); padding: 6px; border-radius: 999px; width: max-content; max-width: 100%; margin: 0 auto 40px; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+.tabBtn { padding: 10px 20px; border-radius: 999px; font-size: 14px; font-weight: 600; color: var(--lp-text-muted); display: inline-flex; align-items: center; gap: 8px; transition: background .25s, color .25s; white-space: nowrap; }
+.tabBtn:hover { color: var(--lp-text); background: rgba(255,255,255,.04); }
+.tabBtnOn { background: var(--grad) !important; color: #fff !important; box-shadow: 0 8px 20px -8px rgba(99,102,241,.5); }
+.tabCopy { display: flex; flex-direction: column; }
 .tabContent { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; }
 @media (max-width: 880px) { .tabContent { grid-template-columns: 1fr; gap: 32px; } }
 .tabH2 { font-family: 'Manrope', sans-serif; font-size: clamp(28px, 3.6vw, 40px); line-height: 1.1; letter-spacing: -.025em; font-weight: 800; margin: 0 0 14px; }
@@ -25,6 +26,8 @@
   box-shadow: 0 30px 80px -40px rgba(0,0,0,.6);
   transition: box-shadow .3s;
 }
+:global(.landing-shell[data-theme="light"]) .tabNav { background: rgba(255,255,255,.6); border-color: var(--lp-border); }
+:global(.landing-shell[data-theme="light"]) .tabBtn:hover { background: rgba(15,23,42,.04); color: var(--lp-text); }
 :global(.landing-shell[data-theme="light"]) .mockup {
   background: linear-gradient(180deg, #fff, #fafbff);
   border-color: var(--lp-border);
