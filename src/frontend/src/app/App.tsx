@@ -20,6 +20,7 @@ import { YolHaritasiPage } from '../pages/storefront/YolHaritasiPage';
 import { GizlilikPage, KvkkPage, KullanimSartlariPage, CerezlerPage } from '../pages/storefront/LegalPage';
 import { ForgotPasswordPage } from '../pages/auth/ForgotPasswordPage/ForgotPasswordPage';
 import { ResetPasswordPage } from '../pages/auth/ResetPasswordPage/ResetPasswordPage';
+import { RegisterPage } from '../pages/auth/RegisterPage';
 import { DashboardPage } from '../pages/admin/DashboardPage/DashboardPage';
 import { ApplicationLogsPage } from '../pages/admin/ApplicationLogsPage/ApplicationLogsPage';
 import { LanguageManagementPage } from '../pages/admin/LanguageManagementPage/LanguageManagementPage';
@@ -141,6 +142,7 @@ const App = () => {
           <Route path="/kullanim-sartlari" element={<KullanimSartlariPage />} />
           <Route path="/cerezler" element={<CerezlerPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/checkout/success" element={<CheckoutSuccessPage />} />
