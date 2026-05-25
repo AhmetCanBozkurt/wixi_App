@@ -3,5 +3,34 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--bg-secondary);
+  padding: 24px;
+  background: #070a14;
+  position: relative;
+  overflow: hidden;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Top-left glow blob */
+.pageContainer::before {
+  content: "";
+  position: absolute;
+  width: 700px;
+  height: 700px;
+  left: -250px;
+  top: -200px;
+  background: radial-gradient(circle, rgba(99,102,241,0.20) 0%, transparent 65%);
+  pointer-events: none;
+}
+
+/* Bottom-right glow blob */
+.pageContainer::after {
+  content: "";
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  right: -200px;
+  bottom: -150px;
+  background: radial-gradient(circle, rgba(139,92,246,0.16) 0%, transparent 65%);
+  pointer-events: none;
 }
