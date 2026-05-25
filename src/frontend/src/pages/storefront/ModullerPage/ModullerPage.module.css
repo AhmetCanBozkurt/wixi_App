@@ -190,3 +190,12 @@
 }
 .emptyState h4 { margin: 0; font-size: 18px; font-weight: 700; }
 .emptyState p { margin: 0; font-size: 14px; color: var(--lp-text-muted); }
+
+/* ── LIGHT THEME OVERRIDES ── */
+:global(.landing-shell[data-theme="light"]) .toolbar {
+  background: rgba(250,251,255,.85);
+}
+:global(.landing-shell[data-theme="light"]) .tbSearchInput {
+  background: rgba(255,255,255,.8);
+  border-color: var(--lp-border-strong);
+}
