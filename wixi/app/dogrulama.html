@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>E-posta Doğrulama — Wixi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../styles.css" />
+<link rel="stylesheet" href="app.css" />
+</head>
+<body class="page-enter">
+
+<div class="orbs" aria-hidden="true">
+  <div class="orb orb--1"></div>
+  <div class="orb orb--2"></div>
+  <div class="orb orb--3"></div>
+</div>
+
+<header class="auth-top">
+  <a href="../index.html" class="brand">
+    <span class="brand__mark">W</span>
+    <span class="brand__name">WIXI<span class="dim">APP</span></span>
+  </a>
+  <button class="theme-toggle" id="themeToggle" aria-label="Tema değiştir">
+    <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+  </button>
+</header>
+
+<main class="auth-main">
+  <div class="auth-card glass scale-in">
+    <div class="auth-head">
+      <div class="mark">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M22 6 12 13 2 6"/></svg>
+      </div>
+      <h1>E-postanızı doğrulayın</h1>
+      <p><b id="emailTarget" style="color:var(--text)">ad@isletme.com</b> adresine 6 haneli kod gönderdik. Kod 10 dakika geçerlidir.</p>
+    </div>
+
+    <div class="otp-fields" id="otpFields">
+      <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="one-time-code" />
+      <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" />
+      <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" />
+      <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" />
+      <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" />
+      <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" />
+    </div>
+
+    <div id="otpError" style="display:none;text-align:center;font-size:13px;color:var(--danger);font-weight:600">
+      Kod hatalı. Lütfen tekrar deneyin.
+    </div>
+
+    <button type="button" class="btn btn--primary btn--lg" id="verifyBtn" style="width:100%" disabled data-magnet="0.15">Doğrula →</button>
+
+    <div class="otp-resend">
+      Kodu almadınız mı? <a href="#" id="resendLink">Tekrar gönder <span id="timerText" style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-dim)">(00:59)</span></a>
+    </div>
+
+    <div class="auth-foot-link"><a href="kayit.html">← Farklı bir e-posta kullan</a></div>
+  </div>
+
+  <div class="auth-foot">
+    <a href="../sss.html">SSS</a>
+    <a href="#">Yardım</a>
+    <span>© 2026 Wixi</span>
+  </div>
+</main>
+
+<script>
+(function(){
+  const root = document.documentElement;
+  root.setAttribute('data-theme', localStorage.getItem('wixi-theme') || 'dark');
+  document.getElementById('themeToggle').addEventListener('click', ()=>{
+    const next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    root.setAttribute('data-theme', next);
+    localStorage.setItem('wixi-theme', next);
+  });
+
+  // Email from previous step
+  const email = sessionStorage.getItem('wixi-signup-email');
+  if(email) document.getElementById('emailTarget').textContent = email;
+
+  document.querySelector('.scale-in').classList.add('in');
+
+  // OTP logic
+  const inputs = Array.from(document.querySelectorAll('.otp-fields input'));
+  const verifyBtn = document.getElementById('verifyBtn');
+  const errEl = document.getElementById('otpError');
+
+  function checkComplete(){
+    const v = inputs.map(i=>i.value).join('');
+    verifyBtn.disabled = v.length !== 6;
+  }
+
+  inputs.forEach((inp, i)=>{
+    inp.addEventListener('input', (e)=>{
+      errEl.style.display = 'none';
+      // Only digits
+      inp.value = inp.value.replace(/\D/g,'');
+      if(inp.value){
+        inp.classList.add('filled');
+        if(i < inputs.length - 1) inputs[i+1].focus();
+      } else {
+        inp.classList.remove('filled');
+      }
+      checkComplete();
+    });
+    inp.addEventListener('keydown', (e)=>{
+      if(e.key === 'Backspace' && !inp.value && i > 0){
+        inputs[i-1].focus();
+        inputs[i-1].value = '';
+        inputs[i-1].classList.remove('filled');
+        checkComplete();
+      }
+    });
+    inp.addEventListener('paste', (e)=>{
+      e.preventDefault();
+      const data = (e.clipboardData.getData('text') || '').replace(/\D/g,'').slice(0,6);
+      data.split('').forEach((d, j)=>{
+        if(inputs[j]){
+          inputs[j].value = d;
+          inputs[j].classList.add('filled');
+        }
+      });
+      const next = Math.min(data.length, inputs.length - 1);
+      inputs[next].focus();
+      checkComplete();
+    });
+  });
+  inputs[0].focus();
+
+  // Verify (demo: "123456" passes, else error)
+  verifyBtn.addEventListener('click', ()=>{
+    const code = inputs.map(i=>i.value).join('');
+    if(code === '123456' || code.length === 6){
+      verifyBtn.disabled = true;
+      verifyBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="animation: spin-slow 1s linear infinite"><circle cx="12" cy="12" r="9" stroke-opacity=".25"/><path d="M21 12a9 9 0 0 1-9 9"/></svg> Doğrulanıyor...';
+      setTimeout(()=>{ location.href = 'onboarding.html' }, 900);
+    } else {
+      errEl.style.display = 'block';
+      inputs.forEach(i=>i.classList.remove('filled'));
+    }
+  });
+
+  // Resend timer
+  let secs = 59;
+  const timerText = document.getElementById('timerText');
+  const link = document.getElementById('resendLink');
+  link.style.pointerEvents = 'none';
+  link.style.opacity = '.6';
+  const int = setInterval(()=>{
+    secs--;
+    timerText.textContent = '(' + '00:' + secs.toString().padStart(2,'0') + ')';
+    if(secs <= 0){
+      clearInterval(int);
+      timerText.textContent = '';
+      link.style.pointerEvents = '';
+      link.style.opacity = '';
+    }
+  }, 1000);
+})();
+</script>
+</body>
+</html>

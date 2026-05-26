@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Yol Haritası — Wixi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+<style>
+.rm-hero{padding:80px 0 30px;text-align:center}
+.rm-hero h1{font-family:'Manrope',sans-serif;font-size:clamp(46px,5.5vw,72px);line-height:1.05;letter-spacing:-.03em;font-weight:800;margin:24px 0 18px}
+.rm-hero p{font-size:17.5px;color:var(--text-muted);max-width:620px;margin:0 auto 32px;line-height:1.55}
+
+.rm-legend{display:inline-flex;gap:18px;padding:14px 22px;border-radius:14px;background:var(--surface);border:1px solid var(--border);flex-wrap:wrap;justify-content:center}
+.rm-legend__item{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;color:var(--text-muted)}
+.rm-legend__item .dot{width:9px;height:9px;border-radius:50%}
+.rm-legend__item.shipped .dot{background:var(--success)}
+.rm-legend__item.now .dot{background:var(--violet);box-shadow:0 0 6px var(--violet)}
+.rm-legend__item.next .dot{background:var(--warning)}
+.rm-legend__item.later .dot{background:var(--text-dim)}
+
+.rm-cols{padding:50px 0 80px}
+.rm-cols__grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;align-items:start}
+@media (max-width:1100px){.rm-cols__grid{grid-template-columns:1fr 1fr}}
+@media (max-width:560px){.rm-cols__grid{grid-template-columns:1fr}}
+
+.rm-col{
+  padding:24px 20px;display:flex;flex-direction:column;gap:14px;
+}
+.rm-col__head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-bottom:14px;border-bottom:1px solid var(--border)}
+.rm-col__head h3{margin:0;font-family:'Manrope',sans-serif;font-size:18px;font-weight:800;letter-spacing:-.015em}
+.rm-col__head .status{
+  font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:700;
+  padding:3px 8px;border-radius:5px;letter-spacing:.04em;text-transform:uppercase;
+}
+.rm-col.shipped .rm-col__head .status{background:rgba(124,228,164,.16);color:var(--success);border:1px solid rgba(124,228,164,.3)}
+.rm-col.now .rm-col__head .status{background:rgba(139,92,246,.18);color:#c4b5fd;border:1px solid rgba(139,92,246,.35)}
+.rm-col.next .rm-col__head .status{background:rgba(251,191,36,.16);color:var(--warning);border:1px solid rgba(251,191,36,.3)}
+.rm-col.later .rm-col__head .status{background:rgba(168,174,196,.12);color:var(--text-muted);border:1px solid var(--border)}
+
+.rm-item{
+  padding:14px 16px;border-radius:11px;
+  background:var(--surface);border:1px solid var(--border);
+  display:flex;flex-direction:column;gap:6px;
+  transition: border-color .2s, transform .25s var(--easing);
+}
+.rm-item:hover{border-color: rgba(139,92,246,.4);transform: translateY(-2px)}
+.rm-item__head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.rm-item__head b{font-size:13.5px;font-weight:700;letter-spacing:-.005em}
+.rm-item__cat{
+  font-size:9.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+  padding:2px 6px;border-radius:4px;color:var(--text-muted);
+  background:rgba(255,255,255,.04);border:1px solid var(--border);
+}
+[data-theme="light"] .rm-item__cat{background:rgba(15,23,42,.04)}
+.rm-item p{margin:0;color:var(--text-muted);font-size:12px;line-height:1.5}
+.rm-item__foot{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-top:8px;border-top:1px solid var(--border);margin-top:4px}
+.rm-item__date{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--text-dim)}
+.rm-vote{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:3px 8px;border-radius:6px;
+  background:rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.2);
+  color:#a5b4fc;font-size:11px;font-weight:700;
+  cursor:pointer;transition: background .2s, transform .2s var(--easing);
+}
+.rm-vote:hover{background:rgba(99,102,241,.18);transform:scale(1.05)}
+.rm-vote.voted{background:var(--grad);color:#fff;border-color:transparent}
+.rm-vote.voted .arrow{transform: translateY(-1px)}
+.rm-vote .arrow{display:inline-block;transition: transform .2s var(--easing)}
+[data-theme="light"] .rm-vote{color:#7c3aed;background:rgba(139,92,246,.08);border-color:rgba(139,92,246,.2)}
+[data-theme="light"] .rm-vote.voted{color:#fff}
+
+.rm-item.shipped{background:linear-gradient(135deg,rgba(124,228,164,.06),transparent);border-color:rgba(124,228,164,.25)}
+.rm-item.shipped .rm-item__head b::before{content:"✓ ";color:var(--success);font-weight:800}
+.rm-item.now{background:linear-gradient(135deg,rgba(139,92,246,.08),transparent);border-color:rgba(139,92,246,.35)}
+
+/* Beta program callout */
+.rm-beta{padding:70px 0}
+.rm-beta__card{
+  padding:40px 48px;border-radius:24px;
+  background:radial-gradient(60% 100% at 100% 50%,rgba(139,92,246,.20),transparent 60%),radial-gradient(50% 80% at 0% 50%,rgba(6,182,212,.18),transparent 60%),linear-gradient(180deg,rgba(20,24,42,1),rgba(14,18,32,1));
+  border:1px solid rgba(139,92,246,.3);
+  display:grid;grid-template-columns: 1.2fr 1fr;gap:32px;align-items:center;
+  box-shadow:0 30px 80px -40px rgba(99,102,241,.5);
+}
+@media (max-width:720px){.rm-beta__card{grid-template-columns:1fr;padding:28px 24px}}
+[data-theme="light"] .rm-beta__card{background:radial-gradient(60% 100% at 100% 50%,rgba(139,92,246,.18),transparent 60%),radial-gradient(50% 80% at 0% 50%,rgba(6,182,212,.14),transparent 60%),linear-gradient(180deg,#fff,#fafbff);box-shadow:0 30px 80px -40px rgba(99,102,241,.3)}
+.rm-beta__card h3{margin:0 0 12px;font-family:'Manrope',sans-serif;font-size:28px;font-weight:800;letter-spacing:-.025em;line-height:1.15}
+.rm-beta__card p{margin:0 0 16px;color:var(--text-muted);font-size:14.5px;line-height:1.6}
+.rm-beta__features{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.rm-beta__features li{display:flex;align-items:center;gap:8px;font-size:13.5px;list-style:none}
+.rm-beta__features svg{color:var(--success);flex-shrink:0}
+.rm-beta__cta{text-align:center}
+.rm-beta__cta .num{font-family:'Manrope',sans-serif;font-size:46px;font-weight:800;letter-spacing:-.03em;background:var(--grad-text);-webkit-background-clip:text;background-clip:text;color:transparent;line-height:1}
+.rm-beta__cta .lbl{color:var(--text-muted);font-size:13px;margin:6px 0 18px}
+
+/* Changelog */
+.rm-changes{padding:60px 0 100px}
+.rm-changes__head{text-align:center;max-width:640px;margin:0 auto 36px}
+.rm-changes__head h2{font-family:'Manrope',sans-serif;font-size:clamp(28px,3.4vw,38px);letter-spacing:-.025em;line-height:1.1;font-weight:800;margin:12px 0 12px}
+.rm-changes__head p{color:var(--text-muted);font-size:15px;margin:0}
+
+.rm-change{
+  padding:20px 24px;display:grid;grid-template-columns:140px 1fr;gap:24px;
+  border-bottom:1px solid var(--border);
+  align-items:flex-start;
+}
+.rm-change:last-child{border-bottom:0}
+@media (max-width:600px){.rm-change{grid-template-columns:1fr;gap:8px}}
+.rm-change__date{
+  font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-dim);
+  padding-top:2px;
+}
+.rm-change__date b{display:block;color:var(--text);font-weight:700;font-size:13px;margin-bottom:2px;letter-spacing:.04em}
+.rm-change__body h4{margin:0 0 6px;font-size:15px;font-weight:700;letter-spacing:-.005em;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.rm-change__body h4 .tag{font-size:9.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 6px;border-radius:4px}
+.tag-feature{background:rgba(124,228,164,.15);color:var(--success);border:1px solid rgba(124,228,164,.3)}
+.tag-improvement{background:rgba(99,102,241,.16);color:#a5b4fc;border:1px solid rgba(99,102,241,.3)}
+.tag-fix{background:rgba(251,191,36,.16);color:var(--warning);border:1px solid rgba(251,191,36,.3)}
+.rm-change__body p{margin:0;color:var(--text-muted);font-size:13.5px;line-height:1.55}
+</style>
+</head>
+<body class="page-enter">
+<div class="orbs" aria-hidden="true"><div class="orb orb--1"></div><div class="orb orb--2"></div></div>
+<div class="scroll-progress"><div class="scroll-progress__bar"></div></div>
+
+<header class="nav">
+  <div class="container nav__row">
+    <a href="index.html" class="brand"><span class="brand__mark">W</span><span class="brand__name">WIXI<span class="dim">APP</span></span></a>
+    <nav class="nav__links">
+      <a href="ozellikler.html">Özellikler</a>
+      <a href="moduller.html">Modüller</a>
+      <a href="studyo.html">Stüdyo</a>
+      <a href="fiyatlandirma.html">Fiyatlandırma</a>
+      <a href="sss.html">SSS</a>
+    </nav>
+    <div class="nav__cta">
+      <a href="#" class="btn btn--ghost btn--sm">Giriş Yap</a>
+      <a href="#" class="btn btn--primary btn--sm" data-magnet="0.2">Hemen Başla</a>
+      <button class="nav__burger" aria-label="Menü"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+<div class="nav__drawer" id="navDrawer">
+  <a href="ozellikler.html">Özellikler <span>→</span></a>
+  <a href="moduller.html">Modüller <span>→</span></a>
+  <a href="studyo.html">Stüdyo <span>→</span></a>
+  <a href="fiyatlandirma.html">Fiyatlandırma <span>→</span></a>
+  <a href="sss.html">SSS <span>→</span></a>
+  <div class="row"><a href="#" class="btn btn--ghost">Giriş Yap</a><a href="#" class="btn btn--primary">Hemen Başla</a></div>
+</div>
+
+<section class="rm-hero">
+  <div class="container">
+    <span class="eyebrow fade-up"><span class="dot"></span>Yol Haritası</span>
+    <h1 class="fade-up" data-delay="1">Sırada <span class="grad-text">ne var?</span></h1>
+    <p class="fade-up" data-delay="2">Wixi'nin yakında nereye gittiğini sizinle paylaşıyoruz. Beğendiğiniz özellikleri oylayın — önceliklendirmemize yardımcı olun.</p>
+
+    <div class="rm-legend fade-up" data-delay="3">
+      <span class="rm-legend__item shipped"><span class="dot"></span>Tamamlandı</span>
+      <span class="rm-legend__item now"><span class="dot"></span>Şimdi · Q1 2026</span>
+      <span class="rm-legend__item next"><span class="dot"></span>Sırada · Q2 2026</span>
+      <span class="rm-legend__item later"><span class="dot"></span>Daha sonra</span>
+    </div>
+  </div>
+</section>
+
+<section class="rm-cols">
+  <div class="container">
+    <div class="rm-cols__grid">
+
+      <!-- SHIPPED -->
+      <div class="rm-col glass shipped fade-up">
+        <div class="rm-col__head">
+          <h3>Tamamlandı</h3>
+          <span class="status">Q4 2025</span>
+        </div>
+        <div class="rm-item shipped">
+          <div class="rm-item__head"><b>Stüdyo Modülü</b><span class="rm-item__cat">Yeni Modül</span></div>
+          <p>Sürükle-bırak form + akış builder, AI form üretici, 30+ component.</p>
+          <div class="rm-item__foot"><span class="rm-item__date">15 Mayıs 2026</span><span class="rm-vote voted">✓ Yayında</span></div>
+        </div>
+        <div class="rm-item shipped">
+          <div class="rm-item__head"><b>Mobil Yönetici App</b><span class="rm-item__cat">Platform</span></div>
+          <p>iOS + Android, sipariş yönetimi, push bildirim.</p>
+          <div class="rm-item__foot"><span class="rm-item__date">Mart 2026</span><span class="rm-vote voted">✓ Yayında</span></div>
+        </div>
+        <div class="rm-item shipped">
+          <div class="rm-item__head"><b>Çok Dilli Yönetim</b><span class="rm-item__cat">Lokalizasyon</span></div>
+          <p>12 dilde mağaza yönetimi, otomatik çeviri.</p>
+          <div class="rm-item__foot"><span class="rm-item__date">Şubat 2026</span><span class="rm-vote voted">✓ Yayında</span></div>
+        </div>
+      </div>
+
+      <!-- NOW -->
+      <div class="rm-col glass now fade-up" data-delay="1">
+        <div class="rm-col__head">
+          <h3>Şimdi</h3>
+          <span class="status">Q1 2026</span>
+        </div>
+        <div class="rm-item now">
+          <div class="rm-item__head"><b>Muhasebe Modülü</b><span class="rm-item__cat">Yeni Modül</span></div>
+          <p>E-fatura, gelir-gider, KDV beyannamesi, GİB entegrasyonu.</p>
+          <div class="rm-item__foot"><span class="rm-item__date">Beklenen: Mayıs 2026</span><span class="rm-vote" data-votes="847">▲ 847</span></div>
+        </div>
+        <div class="rm-item">
+          <div class="rm-item__head"><b>API Marketplace</b><span class="rm-item__cat">Geliştirici</span></div>
+          <p>3. parti geliştiriciler için modül marketplace.</p>
+          <div class="rm-item__foot"><span class="rm-item__date">Beklenen: Haziran 2026</span><span class="rm-vote" data-votes="423">▲ 423</span></div>
+        </div>
+        <div class="rm-item">
+          <div class="rm-item__head"><b>Çağrı Merkezi Beta</b><span class="rm-item__cat">Yeni Modül</span></div>
+          <p>VoIP, IVR, çağrı kayıtları — destek operasyonu için.</p>
+          <div class="rm-item__foot"><span class="rm-item__date">Beklenen: Haziran 2026</span><span class="rm-vote" data-votes="312">▲ 312</span></div>
+        </div>
+      </div>
+
+      <!-- NEXT -->
+      <div class="rm-col glass next fade-up" data-delay="2">
+        <div class="rm-col__head">
+          <h3>Sırada</h3>
+          <span class="status">Q2 2026</span>
+        </div>
+        <div class="rm-item">
+          <div class="rm-item__head"><b>Üretim Modülü</b><span class="rm-item__cat">Yeni Modül</span></div>
+          <p>İş emri, BOM, kalite kontrol — atölye ve üretici KOBİ'ler için.</p>
+          <div class="rm-item__foot"><span class="rm-item__date">Q3 2026</span><span class="rm-vote" data-votes="568">▲ 568</span></div>
+        </div>
+        <div class="rm-item">
+          <div class="rm-item__head"><b>AI Asistan</b><span class="rm-item__cat">AI</span></div>
+          <p>Panelinize özel: "Geçen ay en çok satan ne?" tarzı sohbet.</p>
+          <div class="rm-item__foot"><span class="rm-item__date">Q3 2026</span><span class="rm-vote" data-votes="1.2K">▲ 1.2K</span></div>
+        </div>
+        <div class="rm-item">
+          <div class="rm-item__head"><b>KOBİ Kredi Modülü</b><span class="rm-item__cat">Finans</span></div>
+          <p>Bankalar ile entegre kredi başvuru ve takip.</p>
+          <div class="rm-item__foot"><span class="rm-item__date">Q3 2026</span><span class="rm-vote" data-votes="289">▲ 289</span></div>
+        </div>
+        <div class="rm-item">
+          <div class="rm-item__head"><b>White-label</b><span class="rm-item__cat">Kurumsal</span></div>
+          <p>Tam markalama, kendi domainde sunum.</p>
+          <div class="rm-item__foot"><span class="rm-item__date">Q3 2026</span><span class="rm-vote" data-votes="178">▲ 178</span></div>
+        </div>
+      </div>
+
+      <!-- LATER -->
+      <div class="rm-col glass later fade-up" data-delay="3">
+        <div class="rm-col__head">
+          <h3>Daha sonra</h3>
+          <span class="status">2026+</span>
+        </div>
+        <div class="rm-item">
+          <div class="rm-item__head"><b>Mağaza POS</b><span class="rm-item__cat">Donanım</span></div>
+          <p>Fiziksel mağaza için Wixi-uyumlu POS terminali.</p>
+          <div class="rm-item__foot"><span class="rm-item__date">2027</span><span class="rm-vote" data-votes="92">▲ 92</span></div>
+        </div>
+        <div class="rm-item">
+          <div class="rm-item__head"><b>Wixi Akademi</b><span class="rm-item__cat">Eğitim</span></div>
+          <p>KOBİ sahipleri için ücretsiz online eğitim platformu.</p>
+          <div class="rm-item__foot"><span class="rm-item__date">2027</span><span class="rm-vote" data-votes="156">▲ 156</span></div>
+        </div>
+        <div class="rm-item">
+          <div class="rm-item__head"><b>Marketplace Listesi</b><span class="rm-item__cat">Pazarlama</span></div>
+          <p>Wixi mağazalarının sergilendiği marka pazaryeri.</p>
+          <div class="rm-item__foot"><span class="rm-item__date">2027</span><span class="rm-vote" data-votes="64">▲ 64</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section class="rm-beta">
+  <div class="container">
+    <div class="rm-beta__card fade-up">
+      <div>
+        <span class="eyebrow"><span class="dot"></span>Beta Programı</span>
+        <h3>Yenilikleri herkesden önce deneyin</h3>
+        <p>Wixi Beta programına katılarak yeni özellikleri 4-6 hafta önceden test edin, ekibimize doğrudan geri bildirim verin.</p>
+        <ul class="rm-beta__features">
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Erken erişim — yayından 1+ ay önce</li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Ürün ekibiyle aylık görüşme</li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Beta özellikler ücretsiz</li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Yıllık plan %15 indirim</li>
+        </ul>
+      </div>
+      <div class="rm-beta__cta">
+        <div class="num">142</div>
+        <div class="lbl">aktif beta üyesi</div>
+        <a href="#" class="btn btn--primary btn--lg" data-magnet="0.2">Beta'ya Katıl →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="rm-changes">
+  <div class="container">
+    <div class="rm-changes__head fade-up">
+      <span class="eyebrow"><span class="dot"></span>Son Değişiklikler</span>
+      <h2>Geçtiğimiz <span class="grad-text">30 günde</span></h2>
+      <p>Her güncellemeden haberdar olmak için <a href="#" style="color:#a5b4fc">RSS</a> veya <a href="#" style="color:#a5b4fc">e-posta</a> aboneliği.</p>
+    </div>
+
+    <div class="glass" style="padding:0;border-radius:18px;overflow:hidden">
+      <div class="rm-change">
+        <div class="rm-change__date"><b>15 MAY</b>2026</div>
+        <div class="rm-change__body">
+          <h4>Stüdyo modülü yayında <span class="tag tag-feature">Yeni</span></h4>
+          <p>Sürükle-bırak form & akış builder. 30+ component, AI form üretici, 40+ Türkçe şablon. Premium plana dahil.</p>
+        </div>
+      </div>
+      <div class="rm-change">
+        <div class="rm-change__date"><b>08 MAY</b>2026</div>
+        <div class="rm-change__body">
+          <h4>Pazaryeri senkronizasyonu hızlandı <span class="tag tag-improvement">İyileştirme</span></h4>
+          <p>Trendyol ve Hepsiburada stok güncellemesi 5 dakikadan 30 saniyeye indi.</p>
+        </div>
+      </div>
+      <div class="rm-change">
+        <div class="rm-change__date"><b>02 MAY</b>2026</div>
+        <div class="rm-change__body">
+          <h4>CRM'de kanban performansı <span class="tag tag-fix">Düzeltme</span></h4>
+          <p>500+ fırsat içeren kanban panolarında lag sorunu çözüldü.</p>
+        </div>
+      </div>
+      <div class="rm-change">
+        <div class="rm-change__date"><b>25 NİS</b>2026</div>
+        <div class="rm-change__body">
+          <h4>Çok dilli e-posta şablonları <span class="tag tag-feature">Yeni</span></h4>
+          <p>Her dilde ayrı e-posta şablonu yönetebilirsiniz. Sistem dile göre otomatik gönderir.</p>
+        </div>
+      </div>
+      <div class="rm-change">
+        <div class="rm-change__date"><b>20 NİS</b>2026</div>
+        <div class="rm-change__body">
+          <h4>API limitleri 2x'e çıktı <span class="tag tag-improvement">İyileştirme</span></h4>
+          <p>Premium 25K → 50K/ay, Kurumsal sınırsız (önceden 200K).</p>
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin-top:32px">
+      <a href="#" class="btn btn--ghost">Tüm değişiklikleri gör →</a>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer__grid">
+      <div class="footer__brand">
+        <a href="index.html" class="brand"><span class="brand__mark">W</span><span class="brand__name">WIXI<span class="dim">APP</span></span></a>
+        <p>KOBİ'ler için modüler SaaS platformu.</p>
+      </div>
+      <div class="footer__col"><h4>Ürün</h4><ul><li><a href="ozellikler.html">Özellikler</a></li><li><a href="moduller.html">Modüller</a></li><li><a href="studyo.html">Stüdyo</a></li><li><a href="fiyatlandirma.html">Fiyatlandırma</a></li></ul></div>
+      <div class="footer__col"><h4>Kaynaklar</h4><ul><li><a href="sss.html">SSS</a></li><li><a href="vaka-calismalari.html">Vaka Çalışmaları</a></li><li><a href="yol-haritasi.html">Yol Haritası</a></li><li><a href="#">Blog</a></li></ul></div>
+      <div class="footer__col"><h4>Şirket</h4><ul><li><a href="hakkimizda.html">Hakkımızda</a></li><li><a href="iletisim.html">İletişim</a></li><li><a href="#">Kariyer</a></li><li><a href="#">Basın</a></li></ul></div>
+      <div class="footer__col"><h4>Yasal</h4><ul><li><a href="kullanim-sartlari.html">Kullanım Şartları</a></li><li><a href="gizlilik.html">Gizlilik</a></li><li><a href="kvkk.html">KVKK</a></li><li><a href="cerezler.html">Çerezler</a></li></ul></div>
+    </div>
+    <div class="footer__bottom">
+      <div>© 2026 Wixi Teknoloji A.Ş. Tüm hakları saklıdır.</div>
+      <div class="legal"><span>🇹🇷 Türkçe</span><span>İstanbul, Türkiye</span></div>
+    </div>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+<script>
+document.querySelectorAll('.rm-vote:not(.voted)').forEach(v => {
+  v.addEventListener('click', ()=>{
+    v.classList.add('voted');
+    const txt = v.textContent.replace('▲', '').trim();
+    const num = parseInt(txt.replace(/[.,K]/g, ''), 10) || 0;
+    const isK = txt.includes('K');
+    const newNum = num + 1;
+    v.innerHTML = '✓ ' + (isK ? (newNum/1000).toFixed(1) + 'K' : newNum);
+  });
+});
+</script>
+</body>
+</html>

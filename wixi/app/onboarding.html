@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Onboarding — Wixi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../styles.css" />
+<link rel="stylesheet" href="app.css" />
+</head>
+<body class="page-enter">
+
+<div class="orbs" aria-hidden="true">
+  <div class="orb orb--1"></div>
+  <div class="orb orb--2"></div>
+</div>
+
+<div class="ob-shell">
+
+  <!-- SIDE: Steps -->
+  <aside class="ob-side">
+    <div class="ob-side__brand">
+      <span class="mark">W</span>
+      <span>WIXI<span style="color:var(--text-muted)">APP</span></span>
+    </div>
+
+    <div>
+      <div class="ob-progress-text">Adım <span id="curStep">1</span> / 4</div>
+      <div class="ob-steps" id="obSteps">
+        <button class="ob-step active" data-step="1">
+          <div class="ob-step__num"><span>1</span></div>
+          <div class="ob-step__info">
+            <b>Sektörünüz</b>
+            <span>Size en uygun şablonu önerelim</span>
+          </div>
+        </button>
+        <button class="ob-step" data-step="2">
+          <div class="ob-step__num"><span>2</span></div>
+          <div class="ob-step__info">
+            <b>Modüller</b>
+            <span>İhtiyaç duyduğunuz modülleri seçin</span>
+          </div>
+        </button>
+        <button class="ob-step" data-step="3">
+          <div class="ob-step__num"><span>3</span></div>
+          <div class="ob-step__info">
+            <b>Marka kimliği</b>
+            <span>Logo, renk ve yazı tipi</span>
+          </div>
+        </button>
+        <button class="ob-step" data-step="4">
+          <div class="ob-step__num"><span>4</span></div>
+          <div class="ob-step__info">
+            <b>Hoş geldiniz</b>
+            <span>İlk adımlarınız</span>
+          </div>
+        </button>
+      </div>
+    </div>
+
+    <div class="ob-side__support">
+      <b>Yardıma mı ihtiyacınız var?</b><br />
+      <a href="../sss.html">SSS</a> · <a href="#">Canlı destek</a>
+    </div>
+  </aside>
+
+  <!-- CONTENT -->
+  <main class="ob-content">
+    <div class="ob-content__inner">
+
+      <!-- PANEL 1: Sector -->
+      <div class="ob-panel active" data-panel="1">
+        <div>
+          <span class="eyebrow"><span class="dot"></span>Adım 1 / 4</span>
+          <h1 style="margin-top:14px">İşletmeniz hangi <span class="grad-text">sektörde</span>?</h1>
+          <p class="lead">Sektörünüze özel hazır şablonlar ve modül önerileri sunalım.</p>
+        </div>
+
+        <div class="sector-grid" id="sectorGrid">
+          <div class="sector" data-val="retail"><span class="emoji">🛍️</span><b>Perakende</b><span>Mağaza, butik</span></div>
+          <div class="sector" data-val="ecom"><span class="emoji">📦</span><b>E-Ticaret</b><span>Online satış</span></div>
+          <div class="sector" data-val="food"><span class="emoji">🍰</span><b>Gıda / Restoran</b><span>Kafe, fırın, lokanta</span></div>
+          <div class="sector" data-val="service"><span class="emoji">💇</span><b>Hizmet</b><span>Kuaför, atölye</span></div>
+          <div class="sector" data-val="textile"><span class="emoji">👗</span><b>Tekstil & Moda</b><span>Üretim, satış</span></div>
+          <div class="sector" data-val="manufacture"><span class="emoji">🏭</span><b>Üretim</b><span>Küçük üretici</span></div>
+          <div class="sector" data-val="health"><span class="emoji">⚕️</span><b>Sağlık & Estetik</b><span>Klinik, eczane</span></div>
+          <div class="sector" data-val="consult"><span class="emoji">💼</span><b>Danışmanlık</b><span>Hizmet sağlayıcı</span></div>
+          <div class="sector" data-val="other"><span class="emoji">✨</span><b>Diğer</b><span>Daha sonra söyleyeceğim</span></div>
+        </div>
+
+        <div style="margin-top:24px">
+          <div class="field" style="max-width:340px">
+            <label for="staff">Kaç kişi çalışıyor?</label>
+            <select id="staff">
+              <option>Yalnız ben</option>
+              <option>2 — 5</option>
+              <option>6 — 15</option>
+              <option>16 — 50</option>
+              <option>50+</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- PANEL 2: Modules -->
+      <div class="ob-panel" data-panel="2">
+        <div>
+          <span class="eyebrow"><span class="dot"></span>Adım 2 / 4</span>
+          <h1 style="margin-top:14px">Hangi <span class="grad-text">modüllerle</span> başlayacaksınız?</h1>
+          <p class="lead">Birkaç modülle başlayın, ihtiyaca göre sonra ekleyebilirsiniz. Hepsi 14 gün ücretsiz.</p>
+        </div>
+
+        <div style="background: var(--surface); border:1px solid var(--border); border-radius:12px; padding:14px 16px; display:flex;align-items:center;gap:12px">
+          <span style="width:28px;height:28px;border-radius:8px;background:rgba(99,102,241,.15);color:#a5b4fc;display:grid;place-items:center">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          </span>
+          <div style="flex:1;font-size:13.5px">
+            <b style="color:var(--text)">Önerilen:</b> Seçtiğiniz sektör için <b style="color:#a5b4fc" id="recCount">E-Ticaret + Stok + CRM</b> en sık tercih ediliyor.
+          </div>
+          <button class="btn btn--ghost btn--sm" id="useRec">Bu paketi seç</button>
+        </div>
+
+        <div class="sector-grid" id="moduleGrid" style="grid-template-columns:repeat(2,1fr)">
+          <div class="sector" data-mod="eticaret" data-price="499" style="flex-direction:row;text-align:left;align-items:center;gap:14px;padding:14px 16px"><span class="emoji">🛒</span><div style="flex:1"><b style="display:block">E-Ticaret</b><span style="font-size:11px">Mağaza · ₺499/ay</span></div></div>
+          <div class="sector" data-mod="crm" data-price="399" style="flex-direction:row;text-align:left;align-items:center;gap:14px;padding:14px 16px"><span class="emoji">👥</span><div style="flex:1"><b style="display:block">CRM</b><span style="font-size:11px">Müşteri ilişkileri · ₺399/ay</span></div></div>
+          <div class="sector" data-mod="stok" data-price="199" style="flex-direction:row;text-align:left;align-items:center;gap:14px;padding:14px 16px"><span class="emoji">📦</span><div style="flex:1"><b style="display:block">Stok</b><span style="font-size:11px">Sayım, lokasyon · ₺199/ay</span></div></div>
+          <div class="sector" data-mod="muhasebe" data-price="349" style="flex-direction:row;text-align:left;align-items:center;gap:14px;padding:14px 16px"><span class="emoji">📊</span><div style="flex:1"><b style="display:block">Muhasebe</b><span style="font-size:11px">E-fatura, KDV · ₺349/ay</span></div></div>
+          <div class="sector" data-mod="ik" data-price="299" style="flex-direction:row;text-align:left;align-items:center;gap:14px;padding:14px 16px"><span class="emoji">💼</span><div style="flex:1"><b style="display:block">İK</b><span style="font-size:11px">Personel, bordro · ₺299/ay</span></div></div>
+          <div class="sector" data-mod="kargo" data-price="129" style="flex-direction:row;text-align:left;align-items:center;gap:14px;padding:14px 16px"><span class="emoji">🚚</span><div style="flex:1"><b style="display:block">Kargo</b><span style="font-size:11px">Aras, MNG, Yurtiçi · ₺129/ay</span></div></div>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-radius:12px;background: var(--grad-soft);border:1px solid rgba(139,92,246,.3)">
+          <span style="font-size:13.5px;color:var(--text-muted)"><b id="selModCount" style="color:#a5b4fc">0 modül</b> seçili</span>
+          <span style="font-size:15px;font-weight:700"><b id="selModTotal" style="font-family:'JetBrains Mono',monospace">₺0</b> / ay</span>
+        </div>
+
+        <p style="font-size:12.5px;color:var(--text-dim);margin:0">
+          📍 Tüm modüller 14 gün ücretsiz. <a href="../moduller.html" style="color:#a5b4fc">35+ modülün tamamını görün →</a>
+        </p>
+      </div>
+
+      <!-- PANEL 3: Brand -->
+      <div class="ob-panel" data-panel="3">
+        <div>
+          <span class="eyebrow"><span class="dot"></span>Adım 3 / 4</span>
+          <h1 style="margin-top:14px">Marka kimliğinizi <span class="grad-text">tanıyalım</span></h1>
+          <p class="lead">Renk paleti ve logoyu sonra değiştirebilirsiniz.</p>
+        </div>
+
+        <div class="brand-grid">
+          <div>
+            <label style="font-size:12.5px;font-weight:600;color:var(--text-muted);display:block;margin-bottom:8px">Logo</label>
+            <div class="logo-drop" id="logoDrop">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              <b>Logonuzu sürükleyin</b>
+              <span>veya dosya seçmek için tıklayın · PNG, SVG, JPG · max 2MB</span>
+            </div>
+          </div>
+
+          <div>
+            <label style="font-size:12.5px;font-weight:600;color:var(--text-muted);display:block;margin-bottom:8px">Marka rengi</label>
+            <div class="color-swatches" id="swatches">
+              <span class="color-swatch sel" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)" data-c="indigo"></span>
+              <span class="color-swatch" style="background:linear-gradient(135deg,#10b981,#06b6d4)" data-c="emerald"></span>
+              <span class="color-swatch" style="background:linear-gradient(135deg,#f59e0b,#ef4444)" data-c="amber"></span>
+              <span class="color-swatch" style="background:linear-gradient(135deg,#ec4899,#8b5cf6)" data-c="pink"></span>
+              <span class="color-swatch" style="background:linear-gradient(135deg,#0f172a,#475569)" data-c="slate"></span>
+              <span class="color-swatch" style="background:linear-gradient(135deg,#06b6d4,#3b82f6)" data-c="cyan"></span>
+              <span class="color-swatch" style="background:linear-gradient(135deg,#fb923c,#dc2626)" data-c="orange"></span>
+              <span class="color-swatch" style="background:linear-gradient(135deg,#a3a3a3,#525252)" data-c="gray"></span>
+            </div>
+
+            <label style="font-size:12.5px;font-weight:600;color:var(--text-muted);display:block;margin: 18px 0 8px">Yazı tipi</label>
+            <div style="display:flex;flex-direction:column;gap:8px" id="fontPicker">
+              <button class="sector" data-f="jakarta" style="padding:10px 14px;text-align:left;flex-direction:row;align-items:center"><span style="font-family:'Plus Jakarta Sans';font-size:16px;font-weight:700">Aa</span> <span style="margin-left:10px;font-size:13px">Plus Jakarta Sans</span></button>
+              <button class="sector" data-f="inter" style="padding:10px 14px;text-align:left;flex-direction:row;align-items:center"><span style="font-family:'Inter';font-size:16px;font-weight:700">Aa</span> <span style="margin-left:10px;font-size:13px">Inter</span></button>
+              <button class="sector" data-f="serif" style="padding:10px 14px;text-align:left;flex-direction:row;align-items:center"><span style="font-family:Georgia;font-size:16px;font-weight:700">Aa</span> <span style="margin-left:10px;font-size:13px">Klasik Serif</span></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PANEL 4: Welcome -->
+      <div class="ob-panel" data-panel="4">
+        <div style="text-align:center;padding-bottom:8px">
+          <div style="width:72px;height:72px;border-radius:50%;background:var(--grad);display:inline-grid;place-items:center;color:#fff;margin-bottom:18px;box-shadow:0 18px 50px -16px rgba(99,102,241,.6);animation: pop-in .6s var(--easing) both">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+          </div>
+          <h1>Hesabınız <span class="grad-text">hazır!</span></h1>
+          <p class="lead">Aşağıdaki adımlarla ilk değerinizi 2 dakikada elde edebilirsiniz.</p>
+        </div>
+
+        <div class="welcome-grid">
+          <article class="welcome-tile">
+            <div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/></svg></div>
+            <b>İlk ürününüzü ekleyin</b>
+            <p>Sadece adı, fiyatı ve görseli ile başlayın — geri kalanı sonradan.</p>
+            <a href="#">Ürün ekle →</a>
+          </article>
+          <article class="welcome-tile">
+            <div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg></div>
+            <b>Mağazanızı kişiselleştirin</b>
+            <p>Tema editörüyle anasayfa, ürün listesi, hakkında sayfasını düzenleyin.</p>
+            <a href="#">Tema editörü →</a>
+          </article>
+          <article class="welcome-tile">
+            <div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div>
+            <b>Entegrasyonları bağlayın</b>
+            <p>Kargo, ödeme, e-posta — kullanmak istediklerinizi tek tıkla aktifleştirin.</p>
+            <a href="#">Entegrasyonlar →</a>
+          </article>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:18px 22px;border-radius:14px;background: linear-gradient(135deg, rgba(99,102,241,.1), rgba(139,92,246,.05));border:1px solid rgba(139,92,246,.3)">
+          <div>
+            <b style="display:block;margin-bottom:2px">Bedava deneme süreniz</b>
+            <span style="font-size:13px;color:var(--text-muted)">14 gün — 12 Haziran 2026'da sona eriyor</span>
+          </div>
+          <a href="plan-sec.html" class="btn btn--ghost btn--sm">Şimdi yükselt</a>
+        </div>
+      </div>
+
+      <!-- NAV -->
+      <div class="ob-nav">
+        <a href="#" class="skip" id="skipBtn">Şimdilik atla</a>
+        <div class="right">
+          <button class="btn btn--ghost" id="prevBtn" style="display:none">← Geri</button>
+          <button class="btn btn--primary" id="nextBtn" data-magnet="0.15">Devam Et →</button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script>
+(function(){
+  const root = document.documentElement;
+  root.setAttribute('data-theme', localStorage.getItem('wixi-theme') || 'dark');
+
+  const steps = document.querySelectorAll('.ob-step');
+  const panels = document.querySelectorAll('.ob-panel');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const curStepEl = document.getElementById('curStep');
+  const skipBtn = document.getElementById('skipBtn');
+  let cur = 1;
+  const max = 4;
+
+  function go(n){
+    if(n < 1) n = 1;
+    if(n > max) n = max;
+    // Mark previous as done
+    steps.forEach((s, i)=>{
+      const sn = parseInt(s.dataset.step, 10);
+      s.classList.remove('active', 'done');
+      if(sn < n) s.classList.add('done');
+      if(sn === n) s.classList.add('active');
+    });
+    panels.forEach(p=>{
+      p.classList.toggle('active', parseInt(p.dataset.panel, 10) === n);
+    });
+    cur = n;
+    curStepEl.textContent = n;
+    prevBtn.style.display = n > 1 ? '' : 'none';
+    if(n === max){
+      nextBtn.innerHTML = 'Panele Git →';
+    } else {
+      nextBtn.innerHTML = 'Devam Et →';
+    }
+  }
+
+  steps.forEach(s => s.addEventListener('click', ()=> go(parseInt(s.dataset.step, 10))));
+  nextBtn.addEventListener('click', ()=>{
+    if(cur === max){ location.href = 'ayarlar/plan.html'; return }
+    go(cur + 1);
+  });
+  prevBtn.addEventListener('click', ()=> go(cur - 1));
+  skipBtn.addEventListener('click', (e)=>{ e.preventDefault(); location.href = 'ayarlar/plan.html' });
+
+  // Sector single-select
+  document.getElementById('sectorGrid').addEventListener('click', (e)=>{
+    const s = e.target.closest('.sector');
+    if(!s) return;
+    document.querySelectorAll('#sectorGrid .sector').forEach(x => x.classList.remove('on'));
+    s.classList.add('on');
+  });
+
+  // Module multi-select with total
+  const modCount = document.getElementById('selModCount');
+  const modTotal = document.getElementById('selModTotal');
+  function updateMods(){
+    const on = document.querySelectorAll('#moduleGrid .on');
+    let total = 0;
+    on.forEach(o => total += parseInt(o.dataset.price, 10) || 0);
+    modCount.textContent = on.length + ' modül';
+    modTotal.textContent = '₺' + total.toLocaleString('tr-TR');
+  }
+  document.getElementById('moduleGrid').addEventListener('click', (e)=>{
+    const s = e.target.closest('.sector');
+    if(!s) return;
+    s.classList.toggle('on');
+    updateMods();
+  });
+  document.getElementById('useRec').addEventListener('click', ()=>{
+    ['eticaret','stok','crm'].forEach(m=>{
+      const tile = document.querySelector(`[data-mod="${m}"]`);
+      if(tile) tile.classList.add('on');
+    });
+    updateMods();
+  });
+
+  // Color & font pickers
+  document.getElementById('swatches').addEventListener('click', (e)=>{
+    const s = e.target.closest('.color-swatch');
+    if(!s) return;
+    document.querySelectorAll('.color-swatch').forEach(x => x.classList.remove('sel'));
+    s.classList.add('sel');
+  });
+  document.getElementById('fontPicker').addEventListener('click', (e)=>{
+    const b = e.target.closest('.sector');
+    if(!b) return;
+    e.preventDefault();
+    document.querySelectorAll('#fontPicker .sector').forEach(x => x.classList.remove('on'));
+    b.classList.add('on');
+  });
+})();
+</script>
+</body>
+</html>

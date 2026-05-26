@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Modüller — Wixi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../../styles.css" />
+<link rel="stylesheet" href="../app.css" />
+<style>
+.mods-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media (max-width: 1100px){.mods-grid{grid-template-columns:1fr 1fr}}
+@media (max-width: 720px){.mods-grid{grid-template-columns:1fr}}
+.mod-row{
+  display:grid;grid-template-columns: 38px 1fr auto;gap:14px;align-items:center;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: var(--surface);
+  border:1px solid var(--border);
+  transition: border-color .2s, background .2s;
+}
+.mod-row:hover{border-color: var(--border-strong)}
+.mod-row.on{
+  background: linear-gradient(135deg, rgba(99,102,241,.07), rgba(139,92,246,.04));
+  border-color: rgba(139,92,246,.35);
+}
+.mod-row__ic{
+  width:38px;height:38px;border-radius:11px;
+  background:var(--surface);border:1px solid var(--border);
+  display:grid;place-items:center;color:var(--text-muted);
+}
+.mod-row.on .mod-row__ic{
+  background:var(--grad-soft);border-color:rgba(139,92,246,.3);color:#c4b5fd;
+}
+.mod-row__info b{display:block;font-size:14px;font-weight:700;letter-spacing:-.01em}
+.mod-row__info span{display:block;font-size:11.5px;color:var(--text-dim);margin-top:1px;font-family:'JetBrains Mono',monospace}
+.mod-row__price{font-size:13.5px;color:var(--text-muted);text-align:right;font-family:'JetBrains Mono',monospace}
+.mod-row__price b{display:block;color:var(--text);font-weight:700;font-size:14.5px}
+.mod-row__toggle{
+  width:42px;height:24px;border-radius:999px;
+  background:rgba(255,255,255,.08);border:1px solid var(--border);
+  position:relative;cursor:pointer;
+  transition: background .25s;
+}
+.mod-row__toggle::after{
+  content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;
+  background:#fff;transition:transform .25s var(--easing);
+}
+.mod-row.on .mod-row__toggle{background:var(--grad);border-color:transparent}
+.mod-row.on .mod-row__toggle::after{transform:translateX(18px)}
+[data-theme="light"] .mod-row__toggle{background:rgba(15,23,42,.1)}
+
+.cat-head{
+  display:flex;align-items:center;justify-content:space-between;
+  margin: 26px 0 12px;flex-wrap:wrap;gap:8px;
+}
+.cat-head h3{margin:0;font-size:15px;font-weight:700;letter-spacing:-.01em;display:flex;align-items:center;gap:10px}
+.cat-head h3 .cnt{
+  font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim);
+  padding:2px 8px;border-radius:5px;background:var(--surface);border:1px solid var(--border);
+}
+.cat-head .small{font-size:12px;color:var(--text-dim)}
+</style>
+</head>
+<body class="page-enter">
+
+<div class="app-shell">
+  <aside class="app-side">
+    <div class="app-side__brand">
+      <span class="mark">W</span><span>WIXI<span style="color:var(--text-muted)">APP</span></span>
+    </div>
+    <div class="app-side__workspace">
+      <div class="wlogo">K</div>
+      <div class="winfo"><b>Kuzey Kahve</b><span>Premium plan</span></div>
+      <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
+    </div>
+
+    <nav class="app-nav">
+      <a href="#"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></span>Genel Bakış</a>
+      <a href="#"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/></svg></span>E-Ticaret <span class="badge">12</span></a>
+      <a href="#"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="9" cy="7" r="4"/><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/></svg></span>CRM</a>
+      <a href="#"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span>İnsan Kaynakları</a>
+      <a href="#"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></span>Muhasebe</a>
+
+      <div class="app-nav__group">
+        <h5>Hesap</h5>
+        <a href="plan.html"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="6" width="20" height="14" rx="2"/><line x1="2" y1="11" x2="22" y2="11"/></svg></span>Plan & Ödeme</a>
+        <a href="faturalar.html"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span>Faturalar</a>
+        <a href="moduller.html" class="active"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span>Modüller</a>
+        <a href="#"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="9" cy="7" r="4"/><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/></svg></span>Kullanıcılar</a>
+        <a href="#"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"/></svg></span>Genel Ayarlar</a>
+      </div>
+    </nav>
+
+    <div class="app-side__user">
+      <div class="av">AY</div>
+      <div class="info"><b>Ahmet Yılmaz</b><span>ahmet@kuzeykahve.com</span></div>
+    </div>
+  </aside>
+
+  <div class="app-main">
+    <header class="app-top">
+      <div>
+        <div class="app-top__crumbs"><a href="plan.html">Hesap</a><span class="sep">/</span> Modüller</div>
+        <div class="app-top__title">Modül Yönetimi</div>
+      </div>
+      <div class="app-top__right">
+        <button class="icon-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/></svg></button>
+        <button class="theme-toggle" id="themeToggle">
+          <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="app-content">
+      <div class="app-page-head">
+        <h1>Modüller</h1>
+        <div class="right">
+          <a href="../../moduller.html" class="btn btn--ghost btn--sm">Tüm katalog →</a>
+        </div>
+      </div>
+
+      <div class="app-tabs">
+        <a href="plan.html">Plan</a>
+        <a href="faturalar.html">Faturalar</a>
+        <a href="moduller.html" class="active">Modüller</a>
+        <a href="#">Ödeme Yöntemleri</a>
+      </div>
+
+      <!-- Banner: premium info -->
+      <div class="card-block glass" style="display:flex;align-items:center;gap:14px;background: linear-gradient(135deg, rgba(99,102,241,.10), rgba(139,92,246,.05));border-color:rgba(139,92,246,.3);margin-bottom:18px">
+        <div style="width:40px;height:40px;border-radius:11px;background:var(--grad);display:grid;place-items:center;color:#fff;flex-shrink:0">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15 9 22 9 17 14 19 21 12 17 5 21 7 14 2 9 9 9 12 2"/></svg>
+        </div>
+        <div style="flex:1">
+          <b style="display:block;font-size:14.5px">Premium plandasınız — tüm modüller dahil</b>
+          <span style="font-size:13px;color:var(--text-muted)">Modülleri istediğiniz an açıp kapatabilirsiniz. Kapalı modüller ücretsizdir.</span>
+        </div>
+        <span style="font-size:13px;color:var(--text);font-weight:600"><span id="activeCount" style="color:#a5b4fc">5</span> / 35 aktif</span>
+      </div>
+
+      <!-- Search + filter -->
+      <div style="display:flex;gap:10px;margin-bottom:6px;flex-wrap:wrap">
+        <div class="field with-ic" style="flex:1;max-width:340px;min-width:240px">
+          <span class="ic" style="top:14px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+          <input id="searchInp" type="search" placeholder="Modül ara..." style="height:38px;font-size:13px" />
+        </div>
+        <div style="display:inline-flex;gap:6px" id="filterTabs">
+          <button class="btn btn--ghost btn--sm active" data-filter="all" style="background:var(--surface-2);color:var(--text)">Tümü</button>
+          <button class="btn btn--ghost btn--sm" data-filter="on">Aktif</button>
+          <button class="btn btn--ghost btn--sm" data-filter="off">Pasif</button>
+        </div>
+      </div>
+
+      <!-- Category 1: Satış -->
+      <div class="cat-head">
+        <h3>Satış & Pazarlama <span class="cnt">8 modül</span></h3>
+        <span class="small">Aktif <b id="sCount" style="color:var(--text)">2</b> / 8</span>
+      </div>
+      <div class="mods-grid">
+        <div class="mod-row on" data-cat="satis">
+          <div class="mod-row__ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/></svg></div>
+          <div class="mod-row__info"><b>E-Ticaret</b><span>v2.4 · son: 2sa önce</span></div>
+          <div class="mod-row__toggle"></div>
+        </div>
+        <div class="mod-row on" data-cat="satis">
+          <div class="mod-row__ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="9" cy="7" r="4"/><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/></svg></div>
+          <div class="mod-row__info"><b>CRM</b><span>v3.1 · son: dün</span></div>
+          <div class="mod-row__toggle"></div>
+        </div>
+        <div class="mod-row" data-cat="satis">
+          <div class="mod-row__ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 4h16v16H4z"/><path d="M22 6 12 13 2 6"/></svg></div>
+          <div class="mod-row__info"><b>E-posta Pazarlama</b><span>Kapalı</span></div>
+          <div class="mod-row__toggle"></div>
+        </div>
+        <div class="mod-row" data-cat="satis">
+          <div class="mod-row__ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+          <div class="mod-row__info"><b>SMS Pazarlama</b><span>Kapalı</span></div>
+          <div class="mod-row__toggle"></div>
+        </div>
+        <div class="mod-row" data-cat="satis">
+          <div class="mod-row__ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+          <div class="mod-row__info"><b>SEO Yöneticisi</b><span>Kapalı</span></div>
+          <div class="mod-row__toggle"></div>
+        </div>
+        <div class="mod-row" data-cat="satis">
+          <div class="mod-row__ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/></svg></div>
+          <div class="mod-row__info"><b>Sosyal Medya</b><span>Kapalı</span></div>
+          <div class="mod-row__toggle"></div>
+        </div>
+        <div class="mod-row" data-cat="satis">
+          <div class="mod-row__ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></div>
+          <div class="mod-row__info"><b>Pazaryeri</b><span>Kapalı</span></div>
+          <div class="mod-row__toggle"></div>
+        </div>
+        <div class="mod-row" data-cat="satis">
+          <div class="mod-row__ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/></svg></div>
+          <div class="mod-row__info"><b>Affiliate</b><span>Beta · Kapalı</span></div>
+          <div class="mod-row__toggle"></div>
+        </div>
+      </div>
+
+      <!-- Category 2: İK -->
+      <div class="cat-head">
+        <h3>İnsan Kaynakları <span class="cnt">5 modül</span></h3>
+        <span class="small">Aktif <b style="color:var(--text)">1</b> / 5</span>
+      </div>
+      <div class="mods-grid">
+        <div class="mod-row on" data-cat="ik">
+          <div class="mod-row__ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+          <div class="mod-row__info"><b>Personel Yönetimi</b><span>v1.8 · son: 3g önce</span></div>
+          <div class="mod-row__toggle"></div>
+        </div>
+        <div class="mod-row" data-cat="ik">
+          <div class="mod-row__ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"/></svg></div>
+          <div class="mod-row__info"><b>İzin & Vardiya</b><span>Kapalı</span></div>
+          <div class="mod-row__toggle"></div>
+        </div>
+        <div class="mod-row" data-cat="ik">
+          <div class="mod-row__ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="6" width="20" height="14" rx="2"/></svg></div>
+          <div class="mod-row__info"><b>Bordro & SGK</b><span>Kapalı</span></div>
+          <div class="mod-row__toggle"></div>
+        </div>
+        <div class="mod-row" data-cat="ik">
+          <div class="mod-row__ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 15 9 22 9 17 14 19 21 12 17 5 21 7 14 2 9 9 9 12 2"/></svg></div>
+          <div class="mod-row__info"><b>Performans</b><span>Kapalı</span></div>
+          <div class="mod-row__toggle"></div>
+        </div>
+        <div class="mod-row" data-cat="ik">
+          <div class="mod-row__ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 11l3 3L22 4"/></svg></div>
+          <div class="mod-row__info"><b>İşe Alım (ATS)</b><span>Kapalı</span></div>
+          <div class="mod-row__toggle"></div>
+        </div>
+      </div>
+
+      <!-- Category 3: Finans -->
+      <div class="cat-head">
+        <h3>Finans <span class="cnt">5 modül</span></h3>
+        <span class="small">Aktif <b style="color:var(--text)">1</b> / 5</span>
+      </div>
+      <div class="mods-grid">
+        <div class="mod-row on" data-cat="finans">
+          <div class="mod-row__ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div>
+          <div class="mod-row__info"><b>Muhasebe</b><span>v2.0 · son: bugün</span></div>
+          <div class="mod-row__toggle"></div>
+        </div>
+        <div class="mod-row" data-cat="finans">
+          <div class="mod-row__ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></div>
+          <div class="mod-row__info"><b>Fatura Yönetimi</b><span>Kapalı</span></div>
+          <div class="mod-row__toggle"></div>
+        </div>
+        <div class="mod-row" data-cat="finans">
+          <div class="mod-row__ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="1" x2="12" y2="23"/></svg></div>
+          <div class="mod-row__info"><b>Gelir-Gider</b><span>Kapalı</span></div>
+          <div class="mod-row__toggle"></div>
+        </div>
+        <div class="mod-row" data-cat="finans">
+          <div class="mod-row__ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></div>
+          <div class="mod-row__info"><b>KDV Beyannamesi</b><span>Kapalı</span></div>
+          <div class="mod-row__toggle"></div>
+        </div>
+        <div class="mod-row" data-cat="finans">
+          <div class="mod-row__ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 3v18h18"/></svg></div>
+          <div class="mod-row__info"><b>Bütçe & Tahmin</b><span>Kapalı</span></div>
+          <div class="mod-row__toggle"></div>
+        </div>
+      </div>
+
+      <!-- Category 4: Stok -->
+      <div class="cat-head">
+        <h3>Stok & Lojistik <span class="cnt">5 modül</span></h3>
+        <span class="small">Aktif <b style="color:var(--text)">1</b> / 5</span>
+      </div>
+      <div class="mods-grid">
+        <div class="mod-row on" data-cat="stok">
+          <div class="mod-row__ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 7 12 3 4 7v10l8 4 8-4z"/></svg></div>
+          <div class="mod-row__info"><b>Stok Yönetimi</b><span>v1.5 · son: 1sa önce</span></div>
+          <div class="mod-row__toggle"></div>
+        </div>
+        <div class="mod-row" data-cat="stok">
+          <div class="mod-row__ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="21 8 21 21 3 21 3 8"/></svg></div>
+          <div class="mod-row__info"><b>Depo & Lokasyon</b><span>Kapalı</span></div>
+          <div class="mod-row__toggle"></div>
+        </div>
+        <div class="mod-row" data-cat="stok">
+          <div class="mod-row__ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="1" y="3" width="15" height="13"/></svg></div>
+          <div class="mod-row__info"><b>Kargo Entegrasyonu</b><span>Kapalı</span></div>
+          <div class="mod-row__toggle"></div>
+        </div>
+        <div class="mod-row" data-cat="stok">
+          <div class="mod-row__ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="16" rx="2"/></svg></div>
+          <div class="mod-row__info"><b>Barkod & Etiket</b><span>Kapalı</span></div>
+          <div class="mod-row__toggle"></div>
+        </div>
+        <div class="mod-row" data-cat="stok">
+          <div class="mod-row__ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="18" r="3"/></svg></div>
+          <div class="mod-row__info"><b>Tedarik Zinciri</b><span>Beta · Kapalı</span></div>
+          <div class="mod-row__toggle"></div>
+        </div>
+      </div>
+
+      <p style="margin-top:32px;text-align:center;font-size:13px;color:var(--text-muted)">
+        Daha fazla modül var — <a href="../../moduller.html" style="color:#a5b4fc;font-weight:600">tüm 35+ modülü kataloğunda görün →</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const root = document.documentElement;
+  root.setAttribute('data-theme', localStorage.getItem('wixi-theme') || 'dark');
+  document.getElementById('themeToggle').addEventListener('click', ()=>{
+    const next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    root.setAttribute('data-theme', next);
+    localStorage.setItem('wixi-theme', next);
+  });
+
+  // Toggle modules
+  const rows = document.querySelectorAll('.mod-row');
+  const activeCountEl = document.getElementById('activeCount');
+  function updateCount(){
+    activeCountEl.textContent = document.querySelectorAll('.mod-row.on').length;
+  }
+  rows.forEach(r=>{
+    r.querySelector('.mod-row__toggle').addEventListener('click', ()=>{
+      r.classList.toggle('on');
+      const span = r.querySelector('.mod-row__info span');
+      if(r.classList.contains('on')){
+        span.textContent = 'Yeni aktif';
+      } else {
+        span.textContent = 'Kapalı';
+      }
+      updateCount();
+    });
+  });
+
+  // Filter tabs
+  const filterTabs = document.querySelectorAll('#filterTabs button');
+  filterTabs.forEach(b=>{
+    b.addEventListener('click', ()=>{
+      filterTabs.forEach(x=>{ x.classList.remove('active'); x.style.background=''; x.style.color='' });
+      b.classList.add('active');
+      b.style.background = 'var(--surface-2)';
+      b.style.color = 'var(--text)';
+      const f = b.dataset.filter;
+      rows.forEach(r=>{
+        if(f === 'all') r.style.display = '';
+        else if(f === 'on') r.style.display = r.classList.contains('on') ? '' : 'none';
+        else r.style.display = !r.classList.contains('on') ? '' : 'none';
+      });
+    });
+  });
+
+  // Search
+  document.getElementById('searchInp').addEventListener('input', (e)=>{
+    const q = e.target.value.trim().toLowerCase();
+    rows.forEach(r=>{
+      const txt = r.textContent.toLowerCase();
+      r.style.display = (!q || txt.includes(q)) ? '' : 'none';
+    });
+  });
+})();
+</script>
+</body>
+</html>

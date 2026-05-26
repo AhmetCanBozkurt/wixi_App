@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Plan Seç — Wixi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../styles.css" />
+<link rel="stylesheet" href="app.css" />
+<style>
+.plans-page{min-height: 100vh; padding-bottom: 60px}
+.plans-page__head{text-align:center; padding: 48px 24px 32px; max-width: 720px; margin: 0 auto}
+.plans-page__head h1{font-size: clamp(34px, 4.5vw, 52px);line-height:1.05;letter-spacing:-.03em;font-weight:800;margin: 16px 0 14px}
+.plans-page__head p{font-size:17px;color:var(--text-muted);margin:0;line-height:1.5}
+
+/* Reuse pricing styles inline */
+.bill-toggle{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:5px;border-radius:999px;
+  background:var(--surface);border:1px solid var(--border);
+  position:relative;margin-top:24px;
+}
+.bill-toggle button{
+  padding: 10px 22px; border-radius:999px;
+  font-size:14px;font-weight:600;color:var(--text-muted);
+  display:inline-flex;align-items:center;gap:8px;
+  transition: color .25s;position:relative;z-index:1;
+}
+.bill-toggle button.active{color:#fff}
+.bill-toggle__pill{
+  position:absolute;top:5px;bottom:5px;
+  background: var(--grad);border-radius: 999px;
+  transition: left .35s var(--easing), width .35s var(--easing);
+  box-shadow: 0 6px 18px -6px rgba(99,102,241,.5);
+}
+.bill-toggle .save{
+  font-size:11px;padding:2px 7px;border-radius:5px;
+  background: rgba(124,228,164,.18);color:var(--success);font-weight:700;
+  border:1px solid rgba(124,228,164,.3);
+}
+
+.plans-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:20px;
+  max-width: 1100px; margin: 32px auto 0; padding: 0 24px;
+}
+@media (max-width: 900px){.plans-grid{grid-template-columns:1fr;max-width:480px}}
+
+.plan{padding: 30px 28px;position:relative;display:flex;flex-direction:column;cursor:pointer;transition: transform .25s var(--easing), border-color .25s}
+.plan:hover{transform:translateY(-4px);border-color:var(--border-strong)}
+.plan.selected{border-color: rgba(139,92,246,.55);background: linear-gradient(180deg, rgba(99,102,241,.08), rgba(139,92,246,.04))}
+.plan.selected::after{
+  content:"✓";position:absolute;top:18px;right:18px;
+  width:28px;height:28px;border-radius:50%;background:var(--grad);
+  color:#fff;display:grid;place-items:center;font-weight:800;
+  box-shadow: 0 6px 16px -4px rgba(99,102,241,.5);
+}
+.plan__ic{
+  width:40px;height:40px;border-radius:11px;
+  background:var(--surface);border:1px solid var(--border);
+  display:grid;place-items:center;color:var(--text-muted);margin-bottom:18px;
+}
+.plan__name{font-size:13px;font-weight:700;color:var(--text-muted);letter-spacing:.06em;text-transform:uppercase}
+.plan__price{display:flex;align-items:baseline;gap:6px;margin:16px 0 4px;font-weight:800;line-height:1}
+.plan__price .currency{font-size:20px;color:var(--text);font-weight:600;align-self:flex-start;margin-top:6px}
+.plan__price .amt{font-size:52px;letter-spacing:-.04em;line-height:1}
+.plan__price .per{font-size:13px;color:var(--text-muted);font-weight:500}
+.plan__old{font-size:12px;color:var(--text-dim);text-decoration:line-through;font-weight:600;margin-top:2px;display:none}
+.plan__old.show{display:block}
+.plan__desc{color:var(--text-muted);font-size:13.5px;line-height:1.5;margin:6px 0 22px}
+.plan ul{list-style:none;padding:0;margin:0 0 22px;display:flex;flex-direction:column;gap:10px;flex:1}
+.plan li{display:flex;align-items:flex-start;gap:9px;font-size:13.5px;color:var(--text)}
+.plan li svg{flex-shrink:0;margin-top:2px;color:#a5b4fc}
+.plan__badge{
+  position:absolute;top:-12px;left:50%;transform:translateX(-50%);
+  padding:5px 12px;border-radius:999px;background:var(--grad);
+  font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#fff;
+  white-space:nowrap;box-shadow: 0 8px 20px -6px rgba(99,102,241,.6);
+}
+
+.continue-bar{
+  position:sticky;bottom:16px;
+  max-width: 760px; margin: 32px auto 0;
+  padding: 18px 24px;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--bg-2) 92%, transparent);
+  border:1px solid var(--border-strong);
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+  backdrop-filter: blur(14px);
+  box-shadow: 0 18px 50px -20px rgba(0,0,0,.5);
+}
+.continue-bar__info b{display:block;font-size:14.5px;font-weight:700;letter-spacing:-.01em}
+.continue-bar__info span{font-size:12.5px;color:var(--text-muted)}
+.continue-bar .btn{flex-shrink:0}
+</style>
+</head>
+<body class="page-enter">
+
+<div class="orbs" aria-hidden="true">
+  <div class="orb orb--1"></div>
+  <div class="orb orb--2"></div>
+</div>
+
+<header class="co-top">
+  <a href="../index.html" class="brand">
+    <span class="brand__mark">W</span>
+    <span class="brand__name">WIXI<span class="dim">APP</span></span>
+  </a>
+  <div class="co-stepper">
+    <div class="step cur"><span class="n"><span>1</span></span><b>Plan</b></div>
+    <div class="sep"></div>
+    <div class="step"><span class="n"><span>2</span></span><b>Ödeme</b></div>
+    <div class="sep"></div>
+    <div class="step"><span class="n"><span>3</span></span><b>Onay</b></div>
+  </div>
+  <button class="theme-toggle" id="themeToggle" aria-label="Tema değiştir">
+    <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+  </button>
+</header>
+
+<main class="plans-page">
+  <div class="plans-page__head">
+    <span class="eyebrow"><span class="dot"></span>Plan Seçimi</span>
+    <h1>İhtiyacınıza uygun <span class="grad-text">planı seçin</span></h1>
+    <p>İstediğiniz an yükseltin veya düşürün. 14 gün ücretsiz başlar, sonra siz karar verirsiniz.</p>
+
+    <div class="bill-toggle" id="billToggle">
+      <span class="bill-toggle__pill" id="billPill"></span>
+      <button class="active" data-mode="m">Aylık</button>
+      <button data-mode="y">Yıllık <span class="save">−%20</span></button>
+    </div>
+  </div>
+
+  <div class="plans-grid">
+    <article class="plan glass" data-plan="standart" data-price-m="499" data-price-y="399">
+      <div class="plan__ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 7v10l8 5 8-5V7z"/></svg></div>
+      <div class="plan__name">Standart</div>
+      <div class="plan__price">
+        <span class="currency">₺</span><span class="amt">499</span><span class="per">/ay</span>
+      </div>
+      <div class="plan__old">₺499/ay</div>
+      <p class="plan__desc">Yeni başlayan girişimciler için temel modül paketi.</p>
+      <ul>
+        <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> 1 modül (E-Ticaret veya CRM)</li>
+        <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> 500 ürün/kayıt</li>
+        <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> 3 kullanıcı</li>
+        <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> E-posta destek</li>
+      </ul>
+      <button class="btn btn--ghost" type="button">Bu planı seç</button>
+    </article>
+
+    <article class="plan glass selected" data-plan="premium" data-price-m="1299" data-price-y="1039">
+      <span class="plan__badge">★ En Popüler</span>
+      <div class="plan__ic" style="background:rgba(139,92,246,.12);color:#c4b5fd;border-color:rgba(139,92,246,.35)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15 9 22 9 17 14 19 21 12 17 5 21 7 14 2 9 9 9 12 2"/></svg></div>
+      <div class="plan__name">Premium</div>
+      <div class="plan__price">
+        <span class="currency">₺</span><span class="amt">1.299</span><span class="per">/ay</span>
+      </div>
+      <div class="plan__old">₺1.299/ay</div>
+      <p class="plan__desc">Büyüyen işletmeler için tüm modüller dahil.</p>
+      <ul>
+        <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> 35+ modülün tamamı</li>
+        <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Sınırsız ürün/kayıt</li>
+        <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> 15 kullanıcı</li>
+        <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Öncelikli canlı destek</li>
+        <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Özel domain + tema editörü</li>
+      </ul>
+      <button class="btn btn--primary" type="button" data-magnet="0.15">Bu planı seç</button>
+    </article>
+
+    <article class="plan glass" data-plan="kurumsal" data-price-m="0" data-price-y="0">
+      <div class="plan__ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></div>
+      <div class="plan__name">Kurumsal</div>
+      <div class="plan__price"><span class="amt" style="font-size:38px">Özel</span></div>
+      <p class="plan__desc">Büyük ekipler ve özel ihtiyaçlar için tailored çözüm.</p>
+      <ul>
+        <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Premium'daki her şey</li>
+        <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Sınırsız kullanıcı</li>
+        <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Adanmış hesap yöneticisi</li>
+        <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> SLA + on-premise</li>
+      </ul>
+      <button class="btn btn--ghost" type="button">Satış ile görüş</button>
+    </article>
+  </div>
+
+  <div class="continue-bar">
+    <div class="continue-bar__info">
+      <b id="cbPlan">Premium plan</b>
+      <span id="cbDetail">Aylık ödeme · ₺1.299/ay · 14 gün ücretsiz</span>
+    </div>
+    <a href="odeme.html" class="btn btn--primary btn--lg" data-magnet="0.15">Ödemeye Geç →</a>
+  </div>
+</main>
+
+<script>
+(function(){
+  const root = document.documentElement;
+  root.setAttribute('data-theme', localStorage.getItem('wixi-theme') || 'dark');
+  document.getElementById('themeToggle').addEventListener('click', ()=>{
+    const next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    root.setAttribute('data-theme', next);
+    localStorage.setItem('wixi-theme', next);
+  });
+
+  // Plan selection
+  const plans = document.querySelectorAll('.plan');
+  const cbPlan = document.getElementById('cbPlan');
+  const cbDetail = document.getElementById('cbDetail');
+  let billMode = 'm';
+
+  function updateBar(){
+    const sel = document.querySelector('.plan.selected');
+    if(!sel) return;
+    const name = sel.querySelector('.plan__name').textContent;
+    const price = parseInt(sel.dataset['price' + (billMode === 'm' ? 'M' : 'Y')], 10);
+    cbPlan.textContent = name + ' plan';
+    if(price > 0){
+      const label = billMode === 'm' ? 'Aylık ödeme' : 'Yıllık ödeme';
+      cbDetail.textContent = `${label} · ₺${price.toLocaleString('tr-TR')}/ay · 14 gün ücretsiz`;
+    } else {
+      cbDetail.textContent = 'Satış ekibimiz size dönüş yapacak';
+    }
+    // store
+    sessionStorage.setItem('wixi-plan', JSON.stringify({plan: sel.dataset.plan, price, mode: billMode}));
+  }
+
+  plans.forEach(p => p.addEventListener('click', ()=>{
+    plans.forEach(x => x.classList.remove('selected'));
+    p.classList.add('selected');
+    updateBar();
+  }));
+
+  // Billing toggle
+  const toggle = document.getElementById('billToggle');
+  const buttons = toggle.querySelectorAll('button');
+  const pill = document.getElementById('billPill');
+  function positionPill(activeBtn){
+    const r = activeBtn.getBoundingClientRect();
+    const pr = toggle.getBoundingClientRect();
+    pill.style.left = (r.left - pr.left) + 'px';
+    pill.style.width = r.width + 'px';
+  }
+  positionPill(toggle.querySelector('button.active'));
+  window.addEventListener('resize', ()=> positionPill(toggle.querySelector('button.active')));
+  buttons.forEach(b => b.addEventListener('click', ()=>{
+    buttons.forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    positionPill(b);
+    billMode = b.dataset.mode;
+    document.querySelectorAll('.plan').forEach(plan=>{
+      const amt = plan.querySelector('.amt');
+      const m = plan.dataset.priceM;
+      const y = plan.dataset.priceY;
+      if(amt && m && m !== '0'){
+        amt.style.opacity = '.4';
+        setTimeout(()=>{
+          amt.textContent = billMode === 'm' ? parseInt(m).toLocaleString('tr-TR') : parseInt(y).toLocaleString('tr-TR');
+          amt.style.opacity = '1';
+        }, 180);
+      }
+      const old = plan.querySelector('.plan__old');
+      if(old){
+        if(billMode === 'y' && m && m !== '0'){
+          old.textContent = '₺'+parseInt(m).toLocaleString('tr-TR')+'/ay';
+          old.classList.add('show');
+        } else old.classList.remove('show');
+      }
+    });
+    updateBar();
+  }));
+
+  updateBar();
+})();
+</script>
+</body>
+</html>

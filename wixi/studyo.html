@@ -1,0 +1,2234 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Stüdyo — Wixi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+<style>
+/* ============================================================
+   STÜDYO — module page styles
+   Distinct accent: cyan secondary alongside the main violet
+   ============================================================ */
+:root{
+  --studio: #06b6d4;
+  --studio-violet: #8b5cf6;
+  --studio-grad: linear-gradient(135deg, #06b6d4 0%, #8b5cf6 60%, #ec4899 100%);
+  --studio-soft: linear-gradient(135deg, rgba(6,182,212,.18), rgba(139,92,246,.18));
+}
+
+.studio-hero{
+  position: relative;
+  padding: 70px 0 90px;
+  overflow: hidden;
+}
+.studio-hero__grid{
+  display:grid;grid-template-columns: 1.1fr 1.4fr;gap:48px;align-items:center;
+}
+@media (max-width: 1040px){.studio-hero__grid{grid-template-columns:1fr;gap:40px}}
+
+.studio-badge{
+  display:inline-flex;align-items:center;gap:10px;
+  padding: 6px 14px 6px 6px;
+  border-radius: 999px;
+  background: var(--surface);
+  border:1px solid var(--border-strong);
+  font-size: 12.5px; font-weight: 600; color: var(--text);
+  backdrop-filter: blur(10px);
+}
+.studio-badge .pill{
+  padding: 3px 9px; border-radius: 999px;
+  background: var(--studio-grad);
+  color: #fff; font-size: 10.5px; font-weight: 700;
+  letter-spacing: .04em; text-transform: uppercase;
+}
+.studio-badge .meta{color: var(--text-muted); font-weight: 500}
+
+.studio-hero h1{
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-size: clamp(46px, 6vw, 78px);
+  line-height: 1.02; letter-spacing: -.03em; font-weight: 800;
+  margin: 22px 0 22px;
+}
+.studio-hero h1 .grad{
+  background: var(--studio-grad);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.studio-hero p.lead{
+  font-size: 18px; line-height: 1.55; color: var(--text-muted);
+  max-width: 480px; margin: 0 0 32px;
+}
+
+.studio-hero__cta{display:flex;flex-wrap:wrap;gap:12px;margin-bottom: 32px}
+.studio-hero__feats{display:flex;flex-wrap:wrap;gap:14px 22px;font-size:13.5px;color:var(--text-muted)}
+.studio-hero__feats span{display:inline-flex;align-items:center;gap:7px}
+.studio-hero__feats svg{color:var(--studio);flex-shrink:0}
+
+/* Hero visual — AI canvas */
+.studio-hero__viz{
+  position:relative; min-height: 540px;
+}
+
+.canvas{
+  position:relative;
+  background: linear-gradient(180deg, rgba(20,24,42,.96), rgba(14,18,32,.96));
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 30px 80px -40px rgba(0,0,0,.6);
+  height: 540px;
+  display:flex; flex-direction:column;
+}
+[data-theme="light"] .canvas{
+  background: linear-gradient(180deg, #ffffff, #fafbff);
+  border-color: var(--border);
+  box-shadow: 0 30px 80px -30px rgba(15,23,42,.15);
+}
+
+.canvas__bar{
+  display:flex;align-items:center;gap:12px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(255,255,255,.015);
+}
+.canvas__dots{display:flex;gap:5px}
+.canvas__dots span{width:9px;height:9px;border-radius:50%}
+.canvas__dots span:nth-child(1){background:#ff5f57}
+.canvas__dots span:nth-child(2){background:#febc2e}
+.canvas__dots span:nth-child(3){background:#28c840}
+.canvas__path{
+  font-family:'JetBrains Mono', monospace;font-size:11px;color:var(--text-dim);
+  flex:1;
+}
+.canvas__live{
+  font-size:10.5px;color:var(--success);font-weight:700;
+  display:inline-flex;align-items:center;gap:5px;letter-spacing:.04em;
+}
+.canvas__live::before{
+  content:"";width:6px;height:6px;border-radius:50%;
+  background: var(--success);box-shadow: 0 0 8px var(--success);
+  animation: pulse-dot 1.5s ease-in-out infinite;
+}
+@keyframes pulse-dot{50%{opacity:.4}}
+
+.canvas__body{
+  flex:1; padding: 20px 22px;
+  display:flex; flex-direction:column; gap:14px;
+  overflow:hidden;
+}
+
+/* AI prompt input */
+.ai-prompt{
+  display:flex;align-items:center;gap:10px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--surface);
+  border:1px solid var(--border-strong);
+  position:relative;overflow:hidden;
+}
+.ai-prompt::before{
+  content:""; position:absolute; inset:-2px; border-radius:inherit; padding:2px;
+  background: var(--studio-grad);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  opacity:0; transition: opacity .4s var(--easing);
+}
+.ai-prompt.active::before{opacity:1}
+.ai-prompt__ic{
+  width:32px;height:32px;border-radius:9px;
+  background: var(--studio-grad);
+  display:grid;place-items:center;color:#fff;flex-shrink:0;
+}
+.ai-prompt__txt{
+  flex:1; font-size:14px;font-family:'JetBrains Mono', monospace;
+  color: var(--text); min-height: 20px; line-height:1.4;
+}
+.ai-prompt__txt .cursor{
+  display:inline-block;width:2px;height:14px;background:var(--studio);
+  vertical-align:middle;margin-left:2px;animation: blink-cursor 1s steps(1) infinite;
+}
+@keyframes blink-cursor{50%{opacity:0}}
+.ai-prompt__send{
+  width:32px;height:32px;border-radius:9px;
+  background: var(--surface);border:1px solid var(--border);
+  display:grid;place-items:center;color:var(--text-muted);flex-shrink:0;
+  transition: background .2s, color .2s;
+}
+.ai-prompt.active .ai-prompt__send{
+  background: var(--studio-grad);color:#fff;border-color:transparent;
+  animation: pulse-send 1s ease-out;
+}
+@keyframes pulse-send{0%{transform:scale(1)}30%{transform:scale(1.15)}100%{transform:scale(1)}}
+
+/* AI status line */
+.ai-status{
+  display:flex;align-items:center;gap:10px;
+  font-size:12px;color:var(--text-muted);
+  padding: 0 6px;min-height: 16px;
+}
+.ai-status .spin{
+  width:14px;height:14px;
+  border:1.5px solid rgba(139,92,246,.25);
+  border-top-color: var(--studio-violet);
+  border-radius:50%;
+  animation: spin-slow .8s linear infinite;
+}
+.ai-status .check{
+  width:14px;height:14px;border-radius:50%;
+  background: var(--success);color:#0a0e1a;
+  display:grid;place-items:center;font-size:9px;font-weight:800;
+}
+
+/* Generated form fields */
+.gen-form{
+  display:flex;flex-direction:column;gap:10px;
+  flex:1;overflow-y:auto;padding-right: 4px;
+}
+.gen-form::-webkit-scrollbar{width:4px}
+.gen-form::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.gen-field{
+  padding: 10px 12px; border-radius: 10px;
+  background: var(--surface);
+  border:1px solid var(--border);
+  opacity:0;transform:translateY(8px);
+  transition: opacity .5s var(--easing), transform .5s var(--easing), border-color .2s;
+}
+.gen-field.in{opacity:1;transform:none}
+.gen-field:hover{border-color: rgba(139,92,246,.35)}
+.gen-field__lbl{font-size:11px;color:var(--text-muted);font-weight:600;display:flex;justify-content:space-between;align-items:center}
+.gen-field__lbl .req{color:var(--danger);font-size:11px}
+.gen-field__lbl .type{
+  font-family:'JetBrains Mono', monospace;font-size:9.5px;color:var(--text-dim);
+  padding: 2px 6px; border-radius: 4px;
+  background: rgba(255,255,255,.03);border:1px solid var(--border);
+}
+[data-theme="light"] .gen-field__lbl .type{background: rgba(15,23,42,.04)}
+.gen-field__ph{
+  margin-top: 6px;
+  height: 10px; border-radius: 4px;
+  background: linear-gradient(90deg, var(--surface) 0%, var(--surface-2) 50%, var(--surface) 100%);
+  background-size: 200% 100%; animation: shimmer 2s linear infinite;
+}
+.gen-field__chips{display:flex;gap:5px;margin-top:6px;flex-wrap:wrap}
+.gen-field__chips span{
+  padding:3px 7px;border-radius:5px;
+  font-size:10px;color:var(--text-muted);
+  background: var(--surface);border:1px solid var(--border);
+}
+.gen-field.choice .gen-field__chips span:first-child{
+  background: var(--studio-soft);color:var(--text);border-color:rgba(139,92,246,.3);
+}
+.gen-field.textarea .gen-field__ph{height:34px}
+
+/* Floating component preview chips */
+.float-comp{
+  position:absolute;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(28,33,55,.96), rgba(18,22,40,.96));
+  border:1px solid rgba(255,255,255,.10);
+  box-shadow: 0 18px 50px -18px rgba(0,0,0,.6);
+  backdrop-filter: blur(14px);
+  font-size:13px;font-weight:600;
+  display:flex;align-items:center;gap:10px;
+  animation: float 6s ease-in-out infinite;
+  z-index: 2;
+}
+.float-comp .ic{
+  width:24px;height:24px;border-radius:7px;
+  background: var(--studio-soft);
+  border:1px solid rgba(139,92,246,.3);
+  color: #c4b5fd;
+  display:grid;place-items:center;
+}
+.float-comp--1{top:30px;left:-20px;--r: -5deg;animation-delay:-1s}
+.float-comp--2{top: 160px;left:-40px;--r: 6deg;animation-delay:-3s}
+.float-comp--3{bottom: 50px;right: -30px;--r: 4deg;animation-delay:-2s}
+[data-theme="light"] .float-comp{
+  background: linear-gradient(180deg, #ffffff, #fafbff);
+  border-color: var(--border);
+  box-shadow: 0 18px 40px -16px rgba(15,23,42,.18);
+}
+
+/* ============================================================
+   COMPONENTS LIBRARY — masonry-ish grid
+   ============================================================ */
+.lib{padding: 100px 0;position:relative}
+.lib__head{text-align:center;max-width:720px;margin:0 auto 56px}
+.lib__head h2{
+  font-family:'Manrope', sans-serif;
+  font-size: clamp(34px, 4.4vw, 50px);
+  line-height:1.05;letter-spacing:-.025em;font-weight:800;
+  margin:14px 0 16px;
+}
+.lib__head p{color:var(--text-muted);font-size:17px;line-height:1.6;margin:0}
+
+.lib__count{
+  display:inline-flex;align-items:baseline;gap:6px;
+  padding: 6px 14px;border-radius:999px;
+  background: var(--studio-soft);
+  border:1px solid rgba(139,92,246,.3);
+  font-family:'JetBrains Mono', monospace;
+  margin-bottom: 18px;
+}
+.lib__count b{
+  font-size: 16px;font-weight:800;
+  background: var(--studio-grad);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.lib__count span{font-size: 12px; color: var(--text-muted)}
+
+.lib__grid{
+  display:grid;grid-template-columns: repeat(6, 1fr); gap: 12px;
+}
+@media (max-width: 1100px){.lib__grid{grid-template-columns: repeat(4, 1fr)}}
+@media (max-width: 720px){.lib__grid{grid-template-columns: repeat(3, 1fr)}}
+@media (max-width: 480px){.lib__grid{grid-template-columns: repeat(2, 1fr)}}
+
+.comp-tile{
+  padding: 18px 14px 16px;
+  display:flex;flex-direction:column;align-items:center;gap:10px;
+  text-align:center;
+  cursor:grab;
+  transition: transform .25s var(--easing), border-color .2s, background .2s;
+  position:relative;overflow:hidden;
+}
+.comp-tile:hover{
+  transform: translateY(-4px) scale(1.02);
+  border-color: rgba(139,92,246,.4);
+  background: var(--surface-2);
+}
+.comp-tile::before{
+  content:""; position:absolute; inset:0;
+  background: radial-gradient(60% 100% at 50% 0%, rgba(139,92,246,.10), transparent 60%);
+  opacity:0; transition: opacity .25s;
+  pointer-events:none;
+}
+.comp-tile:hover::before{opacity:1}
+.comp-tile .ic{
+  width:38px;height:38px;border-radius:11px;
+  background: var(--studio-soft);
+  border:1px solid rgba(139,92,246,.25);
+  color: #c4b5fd;
+  display:grid;place-items:center;
+  transition: transform .3s var(--easing), background .2s;
+}
+.comp-tile:hover .ic{transform: rotate(-6deg) scale(1.1)}
+.comp-tile b{font-size:12.5px;font-weight:700;letter-spacing:-.005em;line-height:1.2}
+.comp-tile span{font-size:10.5px;color:var(--text-dim);line-height:1.3}
+
+/* Specially-colored tiles for variety */
+.comp-tile.cyan .ic{background: rgba(6,182,212,.15);border-color: rgba(6,182,212,.3);color:#67e8f9}
+.comp-tile.pink .ic{background: rgba(236,72,153,.15);border-color: rgba(236,72,153,.3);color:#f9a8d4}
+.comp-tile.amber .ic{background: rgba(245,158,11,.15);border-color: rgba(245,158,11,.3);color:#fcd34d}
+.comp-tile.emerald .ic{background: rgba(16,185,129,.15);border-color: rgba(16,185,129,.3);color:#6ee7b7}
+
+/* ============================================================
+   BUILDER demo — sidebar + canvas with ghost-drag animation
+   ============================================================ */
+.builder{padding: 100px 0; position:relative}
+.builder__shell{
+  display:grid;grid-template-columns: 1fr 1.2fr; gap: 60px;
+  align-items:center;
+}
+@media (max-width: 1040px){.builder__shell{grid-template-columns:1fr;gap:36px}}
+
+.builder__copy h2{
+  font-family:'Manrope', sans-serif;
+  font-size: clamp(32px, 4vw, 46px);
+  line-height:1.05;letter-spacing:-.025em;font-weight:800;
+  margin: 0 0 14px;
+}
+.builder__copy h2 .grad{
+  background: var(--studio-grad);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.builder__copy p.lead{font-size:16px;color:var(--text-muted);line-height:1.55;margin:0 0 24px}
+
+.builder__bullets{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:12px}
+.builder__bullets li{
+  display:flex;gap:14px;align-items:flex-start;
+  padding: 14px 16px; border-radius: 14px;
+  background: var(--surface); border:1px solid var(--border);
+  transition: border-color .2s, transform .2s var(--easing);
+}
+.builder__bullets li:hover{transform:translateX(4px);border-color: rgba(139,92,246,.35)}
+.builder__bullets .b-ic{
+  width:32px;height:32px;border-radius:9px;
+  background: var(--studio-soft);
+  border:1px solid rgba(139,92,246,.3);
+  color: #c4b5fd;
+  display:grid;place-items:center;flex-shrink:0;
+}
+.builder__bullets b{display:block;font-size:14.5px;font-weight:700;margin-bottom:2px}
+.builder__bullets span{font-size:13px;color:var(--text-muted);line-height:1.5}
+
+/* Builder mockup */
+.builder__viz{
+  position:relative;
+  background: linear-gradient(180deg, rgba(20,24,42,.96), rgba(14,18,32,.96));
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:18px; overflow:hidden;
+  box-shadow: 0 30px 80px -40px rgba(0,0,0,.6);
+  height: 600px;
+  display: grid;
+  grid-template-rows: 44px 1fr 32px;
+  grid-template-columns: 188px 1fr 220px;
+  grid-template-areas:
+    "toolbar toolbar toolbar"
+    "sidebar canvas inspector"
+    "status status status";
+}
+@media (max-width: 980px){
+  .builder__viz{
+    grid-template-columns: 160px 1fr;
+    grid-template-areas:
+      "toolbar toolbar"
+      "sidebar canvas"
+      "status status";
+    height:540px;
+  }
+  .builder__viz .builder__inspector{display:none}
+}
+@media (max-width: 600px){
+  .builder__viz{
+    grid-template-columns: 1fr;
+    grid-template-rows: 44px auto 1fr 32px;
+    grid-template-areas:
+      "toolbar"
+      "sidebar"
+      "canvas"
+      "status";
+    height: auto;
+  }
+  .builder__sidebar{
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
+    flex-direction: row;
+    overflow-x: auto;
+    padding: 10px;
+    gap: 6px;
+  }
+  .builder__sidebar h4,
+  .builder__sidebar__search{display:none}
+  .builder__sidebar .sidebar-item{flex-shrink:0;white-space:nowrap}
+  .builder__canvas{padding: 14px 12px;max-height: 460px}
+  .ghost-drag{display:none}
+  .builder__toolbar__viewport{display:none}
+}
+[data-theme="light"] .builder__viz{
+  background: linear-gradient(180deg, #ffffff, #fafbff);
+  border-color: var(--border);
+  box-shadow: 0 30px 80px -30px rgba(15,23,42,.18);
+}
+
+/* Toolbar */
+.builder__toolbar{
+  grid-area: toolbar;
+  display:flex;align-items:center;justify-content:space-between;
+  padding: 0 14px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(255,255,255,.015);
+  gap: 10px;
+}
+.builder__toolbar__left{display:flex;align-items:center;gap:10px;min-width:0}
+.builder__toolbar__form-name{
+  display:flex;align-items:center;gap:8px;
+  font-size:13px;font-weight:700;letter-spacing:-.01em;
+}
+.builder__toolbar__form-name .pen{color:var(--text-dim);transition:color .2s}
+.builder__toolbar__form-name:hover .pen{color:var(--studio-violet)}
+.builder__toolbar__path{
+  font-family:'JetBrains Mono', monospace;
+  font-size:10.5px;color:var(--text-dim);
+  padding:3px 8px;border-radius:5px;
+  background:var(--surface);border:1px solid var(--border);
+}
+@media (max-width: 720px){.builder__toolbar__path{display:none}}
+
+.builder__toolbar__viewport{
+  display:inline-flex;gap:2px;
+  padding:3px;border-radius:8px;
+  background: var(--surface);border:1px solid var(--border);
+}
+.builder__toolbar__viewport button{
+  width: 28px;height: 22px;border-radius:5px;
+  display:grid;place-items:center;color:var(--text-muted);
+  transition: background .2s, color .2s;
+}
+.builder__toolbar__viewport button.on{
+  background: var(--studio-grad);color:#fff;
+  box-shadow: 0 3px 8px -2px rgba(139,92,246,.4);
+}
+
+.builder__toolbar__actions{display:flex;align-items:center;gap:6px}
+.tb-btn{
+  width:28px;height:28px;border-radius:7px;
+  background:transparent;color:var(--text-muted);
+  display:grid;place-items:center;
+  transition:background .15s, color .15s;
+}
+.tb-btn:hover{background:var(--surface);color:var(--text)}
+.tb-btn.disabled{opacity:.35;cursor:not-allowed}
+.tb-publish{
+  padding: 5px 11px;border-radius:7px;
+  background: var(--studio-grad);color:#fff;
+  font-size: 11px; font-weight:800;letter-spacing:.04em;
+  display:inline-flex;align-items:center;gap:5px;
+  box-shadow: 0 6px 14px -4px rgba(139,92,246,.45);
+}
+
+/* Sidebar */
+.builder__sidebar{
+  grid-area: sidebar;
+  padding: 12px 10px;
+  border-right: 1px solid var(--border);
+  background: rgba(255,255,255,.015);
+  display:flex;flex-direction:column;gap:8px;
+  overflow:hidden;
+  position:static;width:auto;top:auto;left:auto;bottom:auto;
+}
+.builder__sidebar__search{
+  position:relative;
+  margin-bottom: 2px;
+}
+.builder__sidebar__search input{
+  width:100%;height:28px;
+  padding: 0 10px 0 28px;
+  border-radius:7px;
+  background: var(--surface);border:1px solid var(--border);
+  color: var(--text);font-size:11.5px;font-family:inherit;
+}
+.builder__sidebar__search input:focus{outline:none;border-color: rgba(139,92,246,.4)}
+.builder__sidebar__search .ic{
+  position:absolute;left:9px;top:50%;transform:translateY(-50%);
+  color:var(--text-dim);
+}
+.builder__sidebar__search .kbd-mini{
+  position:absolute;right:6px;top:50%;transform:translateY(-50%);
+  font-family:'JetBrains Mono',monospace;font-size:9.5px;
+  padding: 1px 5px;border-radius:3px;
+  background: var(--surface-2);border:1px solid var(--border);color:var(--text-dim);
+}
+.builder__sidebar h4{
+  margin: 6px 4px 2px;
+  font-size: 9.5px; text-transform:uppercase; letter-spacing:.08em;
+  color:var(--text-dim); font-weight:700;
+  display:flex;justify-content:space-between;align-items:center;
+}
+.builder__sidebar h4 .cnt{
+  font-family:'JetBrains Mono',monospace;color:var(--text-dim);font-size:9px;
+  background: var(--surface);padding: 1px 5px;border-radius:3px;border:1px solid var(--border);
+}
+.sidebar-item{
+  padding: 7px 9px;border-radius: 7px;
+  display:flex;align-items:center;gap:9px;
+  background: var(--surface);border:1px solid var(--border);
+  font-size: 11.5px;font-weight:600;
+  cursor: grab;
+  transition: background .2s, border-color .2s, transform .15s var(--easing);
+}
+.sidebar-item:hover{background:var(--surface-2);border-color: rgba(139,92,246,.3);transform: translateX(2px)}
+.sidebar-item .ic{
+  width:18px;height:18px;border-radius:5px;
+  background: var(--studio-soft);color:#c4b5fd;
+  display:grid;place-items:center;flex-shrink:0;
+}
+.sidebar-item.dragging-source{
+  opacity:.35;border-style:dashed;
+  animation: drag-source 6s var(--easing) infinite;
+}
+@keyframes drag-source{
+  0%,10%{opacity:1}
+  15%,55%{opacity:.35;border-style:dashed}
+  60%,100%{opacity:1}
+}
+
+/* Canvas */
+.builder__canvas{
+  grid-area: canvas;
+  position:static;top:auto;left:auto;right:auto;bottom:auto;
+  padding: 14px 16px;
+  display:flex;flex-direction:column;gap:8px;
+  overflow-y:auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+.builder__canvas::-webkit-scrollbar{width:4px}
+.builder__canvas::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+.canvas-pages{
+  display:flex;gap:4px;margin-bottom: 4px;
+  font-size: 10.5px;color:var(--text-dim);
+}
+.canvas-pages b{
+  padding: 3px 8px;border-radius: 5px;
+  background: var(--studio-soft);color:#c4b5fd;
+  border:1px solid rgba(139,92,246,.3);
+  font-weight:700;letter-spacing:.02em;
+}
+.canvas-pages span{padding: 3px 0;color:var(--text-dim)}
+
+.canvas-field{
+  padding: 10px 12px; border-radius: 9px;
+  background: var(--surface); border:1px solid var(--border);
+  display:flex;flex-direction:column;gap:6px;
+  position:relative;
+  transition: border-color .2s, background .2s;
+}
+.canvas-field:hover{border-color: rgba(139,92,246,.3)}
+.canvas-field .field-head{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+}
+.canvas-field .field-head b{font-size:11.5px;font-weight:700;display:flex;align-items:center;gap:6px}
+.canvas-field .field-head b .req{color:var(--danger);font-size:11px}
+.canvas-field .field-head .actions{
+  display:flex;gap:2px;opacity:0;transition: opacity .15s;
+}
+.canvas-field:hover .field-head .actions{opacity:1}
+.canvas-field .field-head .actions button{
+  width:18px;height:18px;border-radius:4px;
+  background:transparent;color:var(--text-dim);
+  display:grid;place-items:center;
+}
+.canvas-field .field-head .actions button:hover{background:var(--surface-2);color:var(--text)}
+.canvas-field .input-mock{
+  height:24px;border-radius:5px;
+  background: rgba(255,255,255,.04);border:1px solid var(--border);
+}
+[data-theme="light"] .canvas-field .input-mock{background: rgba(15,23,42,.03)}
+.canvas-field .input-mock.textarea{height:42px}
+.canvas-field .opt-row{
+  display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-muted);
+  padding: 3px 0;
+}
+.canvas-field .opt-row .radio{
+  width:11px;height:11px;border-radius:50%;
+  border:1.5px solid var(--text-dim);
+}
+.canvas-field .opt-row.sel .radio{
+  border-color: var(--studio-violet);position:relative;
+}
+.canvas-field .opt-row.sel .radio::after{
+  content:"";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:5px;height:5px;border-radius:50%;background:var(--studio-violet);
+}
+.canvas-field .opt-row.sel{color:var(--text)}
+.canvas-field.selected{
+  background: var(--studio-soft);
+  border-color: var(--studio-violet);
+  box-shadow: 0 0 0 3px rgba(139,92,246,.18);
+}
+.canvas-field.selected::before{
+  content:"";position:absolute;left:-4px;top:50%;transform:translateY(-50%);
+  width:3px;height:24px;border-radius:2px;background:var(--studio-grad);
+}
+.canvas-field .badge-cond{
+  font-size:9.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+  padding:2px 6px;border-radius:4px;
+  background: rgba(245,158,11,.15);color:#fbbf24;border:1px solid rgba(245,158,11,.3);
+  display:inline-flex;align-items:center;gap:3px;
+}
+.canvas-field .badge-ai{
+  font-size:9.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+  padding:2px 6px;border-radius:4px;
+  background: var(--studio-grad);color:#fff;
+  display:inline-flex;align-items:center;gap:3px;
+}
+
+.canvas-drop{
+  min-height: 50px;
+  border-radius:9px;
+  border: 1.5px dashed var(--border-strong);
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  font-size:11px;color:var(--text-dim);
+  transition: border-color .3s, background .3s;
+  margin-top: 2px;
+}
+.canvas-drop .plus{
+  width:18px;height:18px;border-radius:5px;
+  background: var(--surface);border:1px solid var(--border-strong);
+  display:grid;place-items:center;color:var(--text-muted);
+}
+
+/* Inspector */
+.builder__inspector{
+  grid-area: inspector;
+  border-left: 1px solid var(--border);
+  background: rgba(255,255,255,.015);
+  padding: 12px 12px;
+  display:flex;flex-direction:column;gap:12px;
+  overflow-y: auto;
+}
+.builder__inspector__tabs{
+  display:flex;gap:1px;
+  border:1px solid var(--border);border-radius: 7px;
+  background: var(--surface);
+  padding:2px;
+}
+.builder__inspector__tabs button{
+  flex:1;padding: 5px 6px;
+  font-size: 10.5px; font-weight:600;
+  border-radius: 5px;
+  color: var(--text-muted);
+}
+.builder__inspector__tabs button.on{
+  background: var(--surface-2);color: var(--text);
+}
+.insp-section h5{
+  margin: 0 0 8px;
+  font-size: 9.5px; text-transform:uppercase; letter-spacing:.08em;
+  color: var(--text-dim); font-weight:700;
+}
+.insp-row{
+  margin-bottom: 8px;
+  display:flex;flex-direction:column;gap:4px;
+}
+.insp-row > label{font-size:10.5px;color:var(--text-muted);font-weight:600;letter-spacing:.01em}
+.insp-row input, .insp-row select{
+  width:100%;height:26px;
+  padding: 0 8px;border-radius:5px;
+  background: var(--surface);border:1px solid var(--border);
+  color: var(--text);font-size:11px;font-family:inherit;
+}
+.insp-row input:focus, .insp-row select:focus{outline:none;border-color: rgba(139,92,246,.45)}
+.insp-switch{
+  display:flex;align-items:center;justify-content:space-between;
+  padding: 6px 0;
+}
+.insp-switch span{font-size:11px;color:var(--text)}
+.insp-switch__toggle{
+  width:28px;height:16px;border-radius:999px;
+  background: rgba(255,255,255,.08);
+  border:1px solid var(--border);
+  position:relative;cursor:pointer;
+  transition: background .25s;
+  flex-shrink:0;
+}
+.insp-switch__toggle::after{
+  content:"";position:absolute;top:1px;left:1px;width:12px;height:12px;
+  border-radius:50%;background:#fff;transition:transform .25s var(--easing);
+}
+.insp-switch__toggle.on{background:var(--studio-grad);border-color:transparent}
+.insp-switch__toggle.on::after{transform:translateX(11px)}
+[data-theme="light"] .insp-switch__toggle{background: rgba(15,23,42,.1)}
+.insp-cond{
+  padding: 8px 10px;
+  border-radius: 7px;
+  background: rgba(245,158,11,.06);
+  border:1px solid rgba(245,158,11,.25);
+  font-size:10.5px;color:var(--text-muted);
+  line-height:1.45;
+}
+.insp-cond b{color: var(--text);font-weight:700}
+.insp-cond code{
+  font-family:'JetBrains Mono',monospace;
+  background: rgba(245,158,11,.12);
+  padding: 1px 5px;border-radius: 3px;
+  color:#fbbf24;font-size:10px;
+}
+
+/* Status bar */
+.builder__status{
+  grid-area: status;
+  display:flex;align-items:center;justify-content:space-between;
+  padding: 0 14px;
+  border-top: 1px solid var(--border);
+  background: rgba(255,255,255,.015);
+  font-size: 10.5px; color: var(--text-dim);
+  font-family: 'JetBrains Mono', monospace;
+}
+.builder__status__left{display:flex;align-items:center;gap:14px}
+.builder__status__left span{display:inline-flex;align-items:center;gap:5px}
+.builder__status__left .save-ok{color:var(--success)}
+.builder__status__left .save-ok::before{
+  content:"";width:6px;height:6px;border-radius:50%;
+  background: var(--success);box-shadow: 0 0 6px var(--success);
+}
+.builder__status__right{display:flex;align-items:center;gap:14px}
+
+/* Updated ghost drag — drops onto inspector area now */
+.ghost-drag{
+  position:absolute; top: 64px; left: 70px;
+  padding: 6px 10px;border-radius: 7px;
+  background: var(--studio-grad);
+  color: #fff;
+  font-size: 11px; font-weight: 700;
+  box-shadow: 0 10px 24px -6px rgba(139,92,246,.7);
+  display:flex;align-items:center;gap:7px;
+  z-index: 10;
+  pointer-events:none;
+  animation: drag-loop2 6s var(--easing) infinite;
+}
+.ghost-drag::after{
+  content:""; position:absolute; top:50%; left:50%;
+  width: 12px; height:12px;
+  background: rgba(255,255,255,.5);
+  border-radius:50%;
+  transform: translate(-50%,-50%);
+  animation: ripple 6s var(--easing) infinite;
+}
+@keyframes drag-loop2{
+  0%{top:64px;left:70px;opacity:0;transform:scale(.9)}
+  10%{opacity:1;transform:scale(1)}
+  48%{top:380px;left:370px;opacity:1;transform:scale(1)}
+  53%{top:380px;left:370px;opacity:1;transform:scale(.85)}
+  58%{opacity:0}
+  100%{opacity:0;top:380px;left:370px}
+}
+
+/* ============================================================
+   FLOW BUILDER — node editor with animated SVG paths
+   ============================================================ */
+.flow{padding: 100px 0;position:relative}
+.flow__head{text-align:center;max-width:680px;margin:0 auto 56px}
+.flow__head h2{
+  font-family:'Manrope', sans-serif;
+  font-size: clamp(34px, 4.4vw, 50px);
+  line-height:1.05;letter-spacing:-.025em;font-weight:800;
+  margin:14px 0 14px;
+}
+.flow__head p{font-size:16px;color:var(--text-muted);margin:0;line-height:1.55}
+
+.flow__canvas{
+  position:relative;
+  height: 420px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(20,24,42,.6), rgba(14,18,32,.6));
+  border: 1px solid var(--border);
+  overflow:hidden;
+  backdrop-filter: blur(20px);
+}
+@media (max-width: 720px){
+  .flow__canvas{height: 520px;overflow-x: auto;overflow-y:hidden}
+  .flow__canvas > svg.flow__svg, .flow__canvas > .flow-node{min-width: 720px}
+}
+[data-theme="light"] .flow__canvas{
+  background: linear-gradient(180deg, rgba(255,255,255,.7), rgba(250,251,255,.7));
+}
+.flow__canvas::before{
+  content:""; position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+  background-size: 30px 30px;
+  pointer-events:none;
+}
+[data-theme="light"] .flow__canvas::before{
+  background-image:
+    linear-gradient(rgba(15,23,42,.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15,23,42,.04) 1px, transparent 1px);
+}
+
+.flow-node{
+  position:absolute;
+  width: 200px;
+  padding: 14px;
+  border-radius: 14px;
+  background: var(--surface-strong);
+  border:1px solid var(--border-strong);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 18px 40px -16px rgba(0,0,0,.4);
+  z-index: 2;
+  transition: transform .3s var(--easing), border-color .25s;
+}
+.flow-node:hover{transform: scale(1.05); border-color: rgba(139,92,246,.5)}
+[data-theme="light"] .flow-node{
+  background: #fff;border-color: var(--border);
+  box-shadow: 0 14px 30px -12px rgba(15,23,42,.15);
+}
+.flow-node__head{
+  display:flex;align-items:center;gap:9px;
+  margin-bottom: 8px;
+}
+.flow-node__ic{
+  width:28px;height:28px;border-radius:8px;
+  display:grid;place-items:center;color:#fff;flex-shrink:0;
+}
+.flow-node__lbl{font-size:9.5px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em;font-weight:700}
+.flow-node h5{margin:0;font-size:13px;font-weight:700;letter-spacing:-.01em}
+.flow-node p{margin:6px 0 0;font-size:11px;color:var(--text-muted);line-height:1.4}
+
+.flow-node--trigger{top: 60px; left: 5%}
+.flow-node--trigger .flow-node__ic{background:#10b981}
+.flow-node--cond{top: 60px; left: 32%}
+.flow-node--cond .flow-node__ic{background:#f59e0b}
+.flow-node--crm{top: 30px; right: 5%}
+.flow-node--crm .flow-node__ic{background:var(--studio-grad)}
+.flow-node--email{top: 210px; right: 25%}
+.flow-node--email .flow-node__ic{background:#06b6d4}
+.flow-node--slack{top: 230px; left: 10%}
+.flow-node--slack .flow-node__ic{background:#ec4899}
+
+.flow-node__port{
+  position:absolute;
+  width:10px;height:10px;border-radius:50%;
+  background: var(--studio-violet);
+  border:2px solid var(--bg-1);
+  box-shadow: 0 0 0 2px rgba(139,92,246,.3);
+}
+[data-theme="light"] .flow-node__port{border-color: #fff;background:#7c3aed}
+.flow-node__port.right{right:-5px;top:50%;transform:translateY(-50%)}
+.flow-node__port.left{left:-5px;top:50%;transform:translateY(-50%)}
+
+/* SVG paths between nodes */
+.flow__svg{
+  position:absolute;inset:0;width:100%;height:100%;
+  pointer-events:none;z-index:1;
+}
+.flow__svg path{
+  stroke: url(#flowGrad);
+  stroke-width: 2;
+  fill: none;
+  stroke-linecap: round;
+  stroke-dasharray: 5 5;
+  animation: flow-dash 2s linear infinite;
+  filter: drop-shadow(0 0 4px rgba(139,92,246,.4));
+}
+@keyframes flow-dash{to{stroke-dashoffset: -20}}
+
+/* Particle on path */
+.flow__svg circle.dot{
+  fill: #fff;
+  filter: drop-shadow(0 0 6px var(--studio-violet));
+}
+.flow-trail{
+  animation: flow-particle 4s linear infinite;
+}
+@keyframes flow-particle{
+  0%{opacity:0}
+  10%,90%{opacity:1}
+  100%{opacity:0}
+}
+
+/* ============================================================
+   TEMPLATES — horizontal scrolling cards
+   ============================================================ */
+.tpls{padding: 100px 0; position:relative;overflow:hidden}
+.tpls__head{text-align:center;max-width:680px;margin:0 auto 50px}
+.tpls__head h2{
+  font-family:'Manrope', sans-serif;
+  font-size: clamp(34px, 4.4vw, 50px);
+  line-height:1.05;letter-spacing:-.025em;font-weight:800;margin:14px 0 14px;
+}
+.tpls__head p{font-size:16px;color:var(--text-muted);margin:0}
+
+.tpls__filters{
+  display:inline-flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:18px;
+}
+.tpls__filters button{
+  padding: 7px 14px; border-radius: 999px;
+  background: var(--surface); border:1px solid var(--border);
+  color: var(--text-muted); font-size: 12.5px; font-weight: 600;
+  transition: background .2s, color .2s, border-color .2s;
+}
+.tpls__filters button:hover{color: var(--text);background: var(--surface-2)}
+.tpls__filters button.active{background: var(--studio-grad);color:#fff;border-color:transparent}
+
+.tpls__row{
+  display:flex;gap:18px;overflow-x:auto;
+  padding: 8px 24px; margin: 0 -24px;
+  scrollbar-width: none;
+  scroll-snap-type: x mandatory;
+}
+.tpls__row::-webkit-scrollbar{display:none}
+
+.tpl-card{
+  flex-shrink: 0;
+  width: 280px; height: 320px;
+  border-radius: 16px;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform .35s var(--easing);
+  scroll-snap-align: start;
+}
+.tpl-card:hover{transform: translateY(-6px) scale(1.02)}
+.tpl-card__bg{
+  position:absolute;inset:0;
+  border-radius: inherit;
+}
+.tpl-card.bg-1 .tpl-card__bg{background: linear-gradient(135deg, #6366f1, #8b5cf6)}
+.tpl-card.bg-2 .tpl-card__bg{background: linear-gradient(135deg, #06b6d4, #3b82f6)}
+.tpl-card.bg-3 .tpl-card__bg{background: linear-gradient(135deg, #f59e0b, #ef4444)}
+.tpl-card.bg-4 .tpl-card__bg{background: linear-gradient(135deg, #10b981, #06b6d4)}
+.tpl-card.bg-5 .tpl-card__bg{background: linear-gradient(135deg, #ec4899, #8b5cf6)}
+.tpl-card.bg-6 .tpl-card__bg{background: linear-gradient(135deg, #0f172a, #475569)}
+
+.tpl-card__bg::after{
+  content:""; position:absolute; inset:0;
+  background:
+    radial-gradient(60% 60% at 30% 30%, rgba(255,255,255,.15), transparent 70%),
+    radial-gradient(40% 40% at 80% 80%, rgba(0,0,0,.25), transparent 70%);
+}
+
+.tpl-card__preview{
+  position:absolute;top:18px;left:18px;right:18px;bottom:90px;
+  border-radius: 10px;
+  background: rgba(255,255,255,.92);
+  padding: 14px 16px;
+  display:flex;flex-direction:column;gap:8px;
+  transition: transform .4s var(--easing);
+  transform-origin: top center;
+}
+.tpl-card:hover .tpl-card__preview{transform: translateY(-4px) scale(1.02)}
+.tpl-card__preview h6{
+  margin:0;font-size:13px;font-weight:800;color:#0f172a;letter-spacing:-.01em;
+}
+.tpl-card__preview .line-ph{
+  height: 7px; border-radius: 3px;
+  background: linear-gradient(90deg, #e5e7eb, #f3f4f6);
+}
+.tpl-card__preview .input-ph{
+  height: 26px; border-radius: 6px;
+  background: #f3f4f6;border:1px solid #e5e7eb;
+}
+.tpl-card__preview .btn-ph{
+  height: 28px; border-radius: 7px;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  margin-top: 6px; max-width: 100px;
+}
+
+.tpl-card__meta{
+  position:absolute;left:18px;right:18px;bottom:18px;
+  display:flex;justify-content:space-between;align-items:flex-end;color:#fff;
+}
+.tpl-card__meta b{display:block;font-size:14px;font-weight:700}
+.tpl-card__meta span{font-size:11.5px;opacity:.8}
+.tpl-card__use{
+  padding: 6px 10px;border-radius: 7px;
+  background: rgba(255,255,255,.2);
+  backdrop-filter: blur(10px);
+  font-size: 11px; font-weight: 700;
+  border:1px solid rgba(255,255,255,.3);
+  transition: background .2s;
+}
+.tpl-card:hover .tpl-card__use{background: rgba(255,255,255,.35)}
+
+/* ============================================================
+   INTEGRATION with Wixi modules
+   ============================================================ */
+.integ{padding: 100px 0; position:relative}
+.integ__head{text-align:center;max-width:680px;margin:0 auto 50px}
+.integ__head h2{
+  font-family:'Manrope', sans-serif;
+  font-size: clamp(34px, 4.4vw, 50px);
+  line-height:1.05;letter-spacing:-.025em;font-weight:800;margin:14px 0 14px;
+}
+.integ__head p{font-size:16px;color:var(--text-muted);margin:0}
+
+.integ__diagram{
+  position:relative;
+  max-width: 760px; margin: 0 auto;
+  height: 360px;
+}
+@media (max-width: 600px){
+  .integ__diagram{height: 480px}
+  .integ-node--1, .integ-node--2{top: 10px}
+  .integ-node--3, .integ-node--4{bottom: 10px}
+  .integ-node{padding: 10px 12px}
+  .integ-node b{font-size:12px}
+  .integ-node span{font-size:9.5px}
+}
+.integ-center{
+  position:absolute; top:50%; left:50%; transform: translate(-50%,-50%);
+  z-index: 5;
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  padding: 18px 22px;border-radius: 18px;
+  background: var(--studio-grad);
+  color:#fff;
+  box-shadow: 0 18px 50px -16px rgba(139,92,246,.6);
+}
+.integ-center b{font-size:16px;font-weight:800;letter-spacing:-.01em}
+.integ-center span{font-size:11px;opacity:.85;font-weight:600}
+.integ-center::before{
+  content:""; position:absolute; inset:-8px;
+  border-radius: 24px; border: 1px solid rgba(139,92,246,.4);
+  animation: ring-pulse 3s ease-in-out infinite;
+}
+.integ-center::after{
+  content:""; position:absolute; inset:-20px;
+  border-radius: 28px; border: 1px solid rgba(139,92,246,.2);
+  animation: ring-pulse 3s ease-in-out infinite .5s;
+}
+@keyframes ring-pulse{
+  0%,100%{transform: scale(1); opacity: .7}
+  50%{transform: scale(1.08); opacity: .3}
+}
+
+.integ-node{
+  position:absolute;
+  padding: 12px 14px;border-radius: 14px;
+  background: var(--surface-strong);
+  border:1px solid var(--border-strong);
+  backdrop-filter: blur(10px);
+  display:flex;align-items:center;gap:10px;
+  z-index: 4;
+  transition: transform .3s var(--easing);
+  cursor: default;
+}
+.integ-node:hover{transform: scale(1.06)}
+[data-theme="light"] .integ-node{background:#fff;box-shadow: 0 12px 30px -14px rgba(15,23,42,.18)}
+.integ-node .ic{
+  width:28px;height:28px;border-radius:8px;
+  display:grid;place-items:center;color:#fff;flex-shrink:0;
+}
+.integ-node b{display:block;font-size:13px;font-weight:700;line-height:1.1}
+.integ-node span{font-size:10.5px;color:var(--text-dim)}
+
+.integ-node--1{top: 20px; left: 8%}
+.integ-node--1 .ic{background:linear-gradient(135deg,#6366f1,#8b5cf6)}
+.integ-node--2{top: 20px; right: 8%}
+.integ-node--2 .ic{background:linear-gradient(135deg,#10b981,#06b6d4)}
+.integ-node--3{bottom: 20px; left: 8%}
+.integ-node--3 .ic{background:linear-gradient(135deg,#f59e0b,#ef4444)}
+.integ-node--4{bottom: 20px; right: 8%}
+.integ-node--4 .ic{background:linear-gradient(135deg,#ec4899,#8b5cf6)}
+
+.integ__lines{position:absolute;inset:0;pointer-events:none}
+.integ__lines path{
+  stroke: url(#integGrad);
+  stroke-width: 1.5;
+  fill: none;
+  stroke-dasharray: 4 4;
+  animation: flow-dash 1.5s linear infinite;
+}
+
+/* ============================================================
+   USE CASES
+   ============================================================ */
+.usecases{padding: 80px 0; position:relative}
+.usecases__grid{display:grid;grid-template-columns: repeat(4, 1fr);gap:16px}
+@media (max-width: 900px){.usecases__grid{grid-template-columns:1fr 1fr}}
+@media (max-width: 540px){.usecases__grid{grid-template-columns:1fr}}
+.uc{padding: 24px;display:flex;flex-direction:column;gap:10px;transition: transform .25s var(--easing), border-color .2s}
+.uc:hover{transform:translateY(-4px);border-color: rgba(139,92,246,.4)}
+.uc .ic{
+  width:42px;height:42px;border-radius:12px;
+  background: var(--studio-soft);
+  border:1px solid rgba(139,92,246,.3);
+  color:#c4b5fd;
+  display:grid;place-items:center;margin-bottom: 6px;
+}
+.uc b{font-size:15px;font-weight:700}
+.uc p{margin:0;font-size:13px;color:var(--text-muted);line-height:1.5;flex:1}
+.uc .tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:4px}
+.uc .tags span{
+  font-size:10.5px;padding:3px 7px;border-radius:5px;
+  background: var(--surface);border:1px solid var(--border);
+  color:var(--text-muted);
+}
+
+/* ============================================================
+   PRICING TILE
+   ============================================================ */
+.pricing-tile{padding: 80px 0}
+.pricing-tile__inner{
+  padding: 40px 48px;
+  display:grid;grid-template-columns: 1.2fr 1fr;gap: 32px; align-items:center;
+  background:
+    radial-gradient(60% 100% at 100% 50%, rgba(139,92,246,.20), transparent 60%),
+    radial-gradient(50% 80% at 0% 50%, rgba(6,182,212,.18), transparent 60%),
+    linear-gradient(180deg, rgba(20,24,42,1), rgba(14,18,32,1));
+  border:1px solid rgba(139,92,246,.3);
+  border-radius: 28px;
+  box-shadow: 0 40px 100px -40px rgba(99,102,241,.5);
+}
+@media (max-width: 720px){.pricing-tile__inner{grid-template-columns:1fr;padding: 32px 28px}}
+[data-theme="light"] .pricing-tile__inner{
+  background:
+    radial-gradient(60% 100% at 100% 50%, rgba(139,92,246,.18), transparent 60%),
+    radial-gradient(50% 80% at 0% 50%, rgba(6,182,212,.14), transparent 60%),
+    linear-gradient(180deg, #fff, #fafbff);
+  box-shadow: 0 30px 80px -40px rgba(99,102,241,.3);
+}
+.pricing-tile h3{
+  font-family:'Manrope', sans-serif;
+  font-size: clamp(26px, 3.4vw, 36px);
+  letter-spacing:-.025em;line-height: 1.1;font-weight:800;
+  margin: 6px 0 12px;
+}
+.pricing-tile p{color: var(--text-muted);font-size:14.5px;line-height: 1.55;margin:0 0 18px}
+.pricing-tile ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}
+.pricing-tile li{display:flex;align-items:center;gap:8px;font-size:13.5px}
+.pricing-tile li svg{color:var(--studio);flex-shrink:0}
+.pricing-tile__cta{text-align:center}
+.pricing-tile__cta .price{
+  display:flex;align-items:baseline;gap:4px;justify-content:center;margin-bottom:10px;
+}
+.pricing-tile__cta .price .cur{font-size:18px;color:var(--text-muted);font-weight:600;margin-top:8px}
+.pricing-tile__cta .price b{font-size:54px;font-weight:800;letter-spacing:-.04em;line-height:1}
+.pricing-tile__cta .price span{font-size:13px;color:var(--text-muted);font-weight:500}
+.pricing-tile__cta .add-bonus{font-size:12px;color:var(--success);font-weight:600;margin-top:4px}
+.pricing-tile__cta .btn{width:100%;margin-top:14px}
+
+/* ============================================================
+   CTA + Footer styles inherited
+   ============================================================ */
+.cta-banner{padding: 60px 0 100px}
+.cta-banner__inner{
+  position:relative;overflow:hidden;padding: 64px 48px;border-radius: 28px;
+  background:
+    radial-gradient(60% 80% at 80% 100%, rgba(139,92,246,.4), transparent 60%),
+    radial-gradient(50% 70% at 0% 0%, rgba(99,102,241,.3), transparent 60%),
+    linear-gradient(180deg, rgba(20,24,42,1), rgba(14,18,32,1));
+  border:1px solid rgba(139,92,246,.25);text-align:center;
+  box-shadow: 0 40px 100px -40px rgba(99,102,241,.5);
+}
+.cta-banner__inner::before{
+  content:"";position:absolute;inset:0;
+  background-image: radial-gradient(rgba(255,255,255,.04) 1px, transparent 1px);
+  background-size: 24px 24px;
+  mask-image: radial-gradient(60% 60% at 50% 50%, #000, transparent 80%);pointer-events:none;
+}
+.cta-banner h2{
+  font-family:'Manrope', sans-serif;
+  font-size: clamp(30px, 4vw, 44px);margin:0 0 14px;line-height:1.05;letter-spacing:-.03em;font-weight:800;
+}
+.cta-banner p{color:var(--text-muted);font-size:17px;margin:0 auto 28px;max-width: 520px}
+.cta-banner__btns{display:inline-flex;gap:12px;position:relative;z-index:1;flex-wrap:wrap;justify-content:center}
+</style>
+</head>
+<body class="page-enter">
+
+<div class="orbs" aria-hidden="true">
+  <div class="orb orb--1"></div>
+  <div class="orb orb--2"></div>
+  <div class="orb orb--3"></div>
+</div>
+
+<div class="scroll-progress"><div class="scroll-progress__bar"></div></div>
+
+<header class="nav">
+  <div class="container nav__row">
+    <a href="index.html" class="brand"><span class="brand__mark">W</span><span class="brand__name">WIXI<span class="dim">APP</span></span></a>
+    <nav class="nav__links">
+      <a href="ozellikler.html">Özellikler</a>
+      <a href="moduller.html">Modüller</a>
+      <a href="studyo.html">Stüdyo</a>
+      <a href="fiyatlandirma.html">Fiyatlandırma</a>
+      <a href="sss.html">SSS</a>
+    </nav>
+    <div class="nav__cta">
+      <a href="#" class="btn btn--ghost btn--sm">Giriş Yap</a>
+      <a href="#" class="btn btn--primary btn--sm" data-magnet="0.2">Hemen Başla</a>
+      <button class="nav__burger" aria-label="Menü" aria-expanded="false"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+<div class="nav__drawer" id="navDrawer">
+  <a href="ozellikler.html">Özellikler <span>→</span></a>
+  <a href="moduller.html">Modüller <span>→</span></a>
+  <a href="studyo.html">Stüdyo <span>→</span></a>
+  <a href="fiyatlandirma.html">Fiyatlandırma <span>→</span></a>
+  <a href="sss.html">SSS <span>→</span></a>
+  <div class="row">
+    <a href="#" class="btn btn--ghost">Giriş Yap</a>
+    <a href="#" class="btn btn--primary">Hemen Başla</a>
+  </div>
+</div>
+
+<!-- ============================================================
+     HERO
+     ============================================================ -->
+<section class="studio-hero">
+  <div class="container studio-hero__grid">
+
+    <div class="studio-hero__copy fade-up">
+      <div class="studio-badge">
+        <span class="pill">Yeni Modül</span>
+        <span>Stüdyo</span>
+        <span class="meta">· No-code + AI</span>
+      </div>
+      <h1>
+        Formlarınızı, akışlarınızı<br />
+        <span class="grad">kendiniz tasarlayın.</span>
+      </h1>
+      <p class="lead">Sürükle-bırak builder, 30+ hazır component ve yapay zeka asistanıyla. Tasarımcı, yazılımcı veya dış araç gerekmez.</p>
+
+      <div class="studio-hero__cta">
+        <a href="#" class="btn btn--primary btn--lg" data-magnet="0.2" style="background:var(--studio-grad);box-shadow:0 12px 32px -8px rgba(139,92,246,.5)">Stüdyo'yu Aç →</a>
+        <a href="#" class="btn btn--ghost btn--lg">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor"><path d="M3 1.5v11l9-5.5z"/></svg>
+          2 dk demo izle
+        </a>
+      </div>
+
+      <div class="studio-hero__feats">
+        <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>30+ hazır component</span>
+        <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>AI form üretici</span>
+        <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Görsel flow editör</span>
+        <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>40+ şablon</span>
+      </div>
+    </div>
+
+    <div class="studio-hero__viz scale-in">
+
+      <div class="float-comp float-comp--1">
+        <span class="ic"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M22 6 12 13 2 6"/></svg></span>
+        E-posta alanı
+      </div>
+      <div class="float-comp float-comp--2">
+        <span class="ic"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+        Onay kutusu
+      </div>
+      <div class="float-comp float-comp--3">
+        <span class="ic"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></span>
+        Dosya yükleme
+      </div>
+
+      <div class="canvas">
+        <div class="canvas__bar">
+          <div class="canvas__dots"><span></span><span></span><span></span></div>
+          <div class="canvas__path">wixi.app / stüdyo / yeni-form</div>
+          <span class="canvas__live">CANLI</span>
+        </div>
+        <div class="canvas__body">
+
+          <div class="ai-prompt" id="aiPrompt">
+            <div class="ai-prompt__ic">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15 9 22 9 17 14 19 21 12 17 5 21 7 14 2 9 9 9 12 2"/></svg>
+            </div>
+            <div class="ai-prompt__txt" id="aiText"><span class="cursor"></span></div>
+            <button class="ai-prompt__send">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </button>
+          </div>
+
+          <div class="ai-status" id="aiStatus">
+            <span class="spin"></span>
+            <span id="aiStatusTxt">Düşünüyor...</span>
+          </div>
+
+          <div class="gen-form" id="genForm">
+            <div class="gen-field">
+              <div class="gen-field__lbl">Ad Soyad <span class="type">text</span></div>
+              <div class="gen-field__ph"></div>
+            </div>
+            <div class="gen-field">
+              <div class="gen-field__lbl">E-posta <span class="type">email</span></div>
+              <div class="gen-field__ph"></div>
+            </div>
+            <div class="gen-field">
+              <div class="gen-field__lbl">Telefon <span class="type">phone</span></div>
+              <div class="gen-field__ph"></div>
+            </div>
+            <div class="gen-field choice">
+              <div class="gen-field__lbl">Hangi ürünle ilgileniyorsunuz? <span class="type">radio</span></div>
+              <div class="gen-field__chips">
+                <span>● Premium plan</span>
+                <span>○ Standart plan</span>
+                <span>○ Kurumsal</span>
+              </div>
+            </div>
+            <div class="gen-field textarea">
+              <div class="gen-field__lbl">Mesajınız <span class="type">textarea</span></div>
+              <div class="gen-field__ph"></div>
+            </div>
+            <div class="gen-field">
+              <div class="gen-field__lbl">KVKK onayı <span class="req">*</span> <span class="type">checkbox</span></div>
+              <div class="gen-field__chips">
+                <span>☐ KVKK metnini okudum, onaylıyorum</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============================================================
+     COMPONENTS LIBRARY
+     ============================================================ -->
+<section class="lib">
+  <div class="container">
+    <div class="lib__head fade-up">
+      <span class="lib__count"><b id="compCount">30</b><span>component</span></span>
+      <h2>Her form için <span class="grad-text">doğru parça</span></h2>
+      <p>Basit input'lardan koşullu mantığa, dosya yüklemeden imza alanına — düşündüğünüz her şey hazır.</p>
+    </div>
+
+    <div class="lib__grid">
+      <div class="comp-tile glass fade-up">
+        <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="14" y2="15"/></svg></span>
+        <b>Kısa Metin</b><span>Tek satır</span>
+      </div>
+      <div class="comp-tile glass fade-up">
+        <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="6" width="18" height="13" rx="2"/><line x1="7" y1="11" x2="17" y2="11"/><line x1="7" y1="15" x2="14" y2="15"/></svg></span>
+        <b>Uzun Metin</b><span>Textarea</span>
+      </div>
+      <div class="comp-tile glass cyan fade-up">
+        <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 4h16v16H4z"/><path d="M22 6 12 13 2 6"/></svg></span>
+        <b>E-posta</b><span>Doğrulamalı</span>
+      </div>
+      <div class="comp-tile glass cyan fade-up">
+        <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13 1.05.37 2.07.72 3.06a2 2 0 0 1-.45 2.11L8.09 10.91a16 16 0 0 0 6 6l2.02-2.02a2 2 0 0 1 2.11-.45c1 .35 2.01.59 3.06.72A2 2 0 0 1 22 16.92z"/></svg></span>
+        <b>Telefon</b><span>Maskeli</span>
+      </div>
+      <div class="comp-tile glass fade-up">
+        <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>
+        <b>Sayı</b><span>Range/Step</span>
+      </div>
+      <div class="comp-tile glass amber fade-up">
+        <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
+        <b>Tarih</b><span>Calendar</span>
+      </div>
+
+      <div class="comp-tile glass amber fade-up" data-delay="1">
+        <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
+        <b>Saat</b><span>Time picker</span>
+      </div>
+      <div class="comp-tile glass fade-up" data-delay="1">
+        <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="9"/></svg></span>
+        <b>Tek Seçim</b><span>Radio</span>
+      </div>
+      <div class="comp-tile glass fade-up" data-delay="1">
+        <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="18" height="18" rx="3"/><polyline points="9 12 11 14 16 9"/></svg></span>
+        <b>Çoklu Seçim</b><span>Checkbox</span>
+      </div>
+      <div class="comp-tile glass fade-up" data-delay="1">
+        <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="6 9 12 15 18 9"/></svg></span>
+        <b>Açılır Liste</b><span>Dropdown</span>
+      </div>
+      <div class="comp-tile glass emerald fade-up" data-delay="1">
+        <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="12 2 15 9 22 9 17 14 19 21 12 17 5 21 7 14 2 9 9 9 12 2"/></svg></span>
+        <b>Yıldız Puanı</b><span>1-5 rating</span>
+      </div>
+      <div class="comp-tile glass emerald fade-up" data-delay="1">
+        <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="2" y1="12" x2="22" y2="12"/><circle cx="14" cy="12" r="3"/></svg></span>
+        <b>Slider</b><span>Range bar</span>
+      </div>
+
+      <div class="comp-tile glass pink fade-up" data-delay="2">
+        <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></span>
+        <b>Dosya</b><span>Upload + drop</span>
+      </div>
+      <div class="comp-tile glass pink fade-up" data-delay="2">
+        <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 15s2-2 5-2 5 2 8 2 5-2 5-2"/><path d="M3 9s2-2 5-2 5 2 8 2 5-2 5-2"/></svg></span>
+        <b>İmza</b><span>e-imza pad</span>
+      </div>
+      <div class="comp-tile glass cyan fade-up" data-delay="2">
+        <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
+        <b>Adres</b><span>Harita destekli</span>
+      </div>
+      <div class="comp-tile glass cyan fade-up" data-delay="2">
+        <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>
+        <b>Para</b><span>TL/USD/EUR</span>
+      </div>
+      <div class="comp-tile glass amber fade-up" data-delay="2">
+        <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+        <b>Şifre</b><span>Güvenlik</span>
+      </div>
+      <div class="comp-tile glass amber fade-up" data-delay="2">
+        <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="9"/></svg></span>
+        <b>NPS</b><span>0-10 skor</span>
+      </div>
+
+      <div class="comp-tile glass fade-up" data-delay="3">
+        <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="18" height="14" rx="2"/><polyline points="3 17 9 11 12 14 18 8 21 11"/></svg></span>
+        <b>Resim</b><span>Görsel yükleme</span>
+      </div>
+      <div class="comp-tile glass fade-up" data-delay="3">
+        <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></span>
+        <b>Video</b><span>MP4/embed</span>
+      </div>
+      <div class="comp-tile glass emerald fade-up" data-delay="3">
+        <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></span>
+        <b>Konum</b><span>GPS</span>
+      </div>
+      <div class="comp-tile glass emerald fade-up" data-delay="3">
+        <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></span>
+        <b>Kod / HTML</b><span>Embed</span>
+      </div>
+      <div class="comp-tile glass pink fade-up" data-delay="3">
+        <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 1 3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5z"/></svg></span>
+        <b>Captcha</b><span>Bot koruması</span>
+      </div>
+      <div class="comp-tile glass pink fade-up" data-delay="3">
+        <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/></svg></span>
+        <b>Bölüm</b><span>Çok adımlı</span>
+      </div>
+
+      <!-- + 6 more for full 30 -->
+      <div class="comp-tile glass cyan fade-up" data-delay="4">
+        <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg></span>
+        <b>Tablo</b><span>Sıralı veri</span>
+      </div>
+      <div class="comp-tile glass cyan fade-up" data-delay="4">
+        <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="6 9 12 15 18 9"/><polyline points="6 4 12 10 18 4"/></svg></span>
+        <b>Conditional</b><span>Akıl</span>
+      </div>
+      <div class="comp-tile glass amber fade-up" data-delay="4">
+        <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span>
+        <b>Hesaplama</b><span>Formula</span>
+      </div>
+      <div class="comp-tile glass amber fade-up" data-delay="4">
+        <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="12" cy="12" r="3"/></svg></span>
+        <b>QR Kod</b><span>Oluştur/tara</span>
+      </div>
+      <div class="comp-tile glass emerald fade-up" data-delay="4">
+        <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg></span>
+        <b>+ Daha</b><span>5 component</span>
+      </div>
+      <div class="comp-tile glass pink fade-up" data-delay="4">
+        <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="9"/></svg></span>
+        <b>API Bağla</b><span>Webhook</span>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     BUILDER demo
+     ============================================================ -->
+<section class="builder">
+  <div class="container builder__shell">
+    <div class="builder__copy slide-in-l">
+      <span class="eyebrow" style="margin-bottom:16px"><span class="dot"></span>Sürükle-Bırak Builder</span>
+      <h2>İstediğiniz formu <span class="grad">5 dakikada</span> kurun</h2>
+      <p class="lead">Solda 30+ component, sağda canlı önizleme. Sürükleyin, bırakın, ayarları açın. Kod tek satır yok.</p>
+      <ul class="builder__bullets">
+        <li>
+          <span class="b-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 9 2 12 5 15"/><polyline points="9 5 12 2 15 5"/><polyline points="15 19 12 22 9 19"/><polyline points="19 9 22 12 19 15"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/></svg></span>
+          <div><b>Snap-to-grid</b><span>Her component otomatik hizalanır, ızgara üzerinde tertemiz.</span></div>
+        </li>
+        <li>
+          <span class="b-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></span>
+          <div><b>Anlık canlı önizleme</b><span>Mobil/tablet/masaüstü görünümünü tek tıkla test edin.</span></div>
+        </li>
+        <li>
+          <span class="b-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/><polyline points="6 4 12 10 18 4"/></svg></span>
+          <div><b>Koşullu mantık</b><span>"Eğer X seçilirse, Y'yi göster" tarzı dinamik akışlar.</span></div>
+        </li>
+        <li>
+          <span class="b-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.74 9.74 0 0 0-6.74 2.74L3 8"/><polyline points="3 3 3 8 8 8"/></svg></span>
+          <div><b>Otomatik tema</b><span>Marka rengini seçin, tüm formlar uyum sağlar.</span></div>
+        </li>
+      </ul>
+    </div>
+
+    <div class="builder__viz slide-in-r">
+
+      <!-- TOOLBAR -->
+      <div class="builder__toolbar">
+        <div class="builder__toolbar__left">
+          <div class="builder__toolbar__form-name">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--studio-violet)"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            <span>İletişim Formu</span>
+            <svg class="pen" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
+          </div>
+          <span class="builder__toolbar__path">3 alan · 2. sayfa</span>
+        </div>
+
+        <div class="builder__toolbar__viewport" role="group" aria-label="Görünüm">
+          <button class="on" aria-label="Masaüstü"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></button>
+          <button aria-label="Tablet"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="4" y="2" width="16" height="20" rx="2"/></svg></button>
+          <button aria-label="Mobil"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="6" y="2" width="12" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18.01"/></svg></button>
+        </div>
+
+        <div class="builder__toolbar__actions">
+          <button class="tb-btn" aria-label="Geri al"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-15-6.7L3 13"/></svg></button>
+          <button class="tb-btn disabled" aria-label="İleri al"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 15-6.7L21 13"/></svg></button>
+          <button class="tb-btn" aria-label="Önizleme"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+          <button class="tb-publish">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
+            YAYINLA
+          </button>
+        </div>
+      </div>
+
+      <!-- SIDEBAR -->
+      <aside class="builder__sidebar">
+        <div class="builder__sidebar__search">
+          <span class="ic"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+          <input type="text" placeholder="Component ara..." readonly />
+          <span class="kbd-mini">/</span>
+        </div>
+
+        <h4>Temel <span class="cnt">5</span></h4>
+        <div class="sidebar-item dragging-source">
+          <span class="ic"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="14" y2="15"/></svg></span>
+          Kısa Metin
+        </div>
+        <div class="sidebar-item">
+          <span class="ic"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="6" width="18" height="13" rx="2"/></svg></span>
+          Uzun Metin
+        </div>
+        <div class="sidebar-item">
+          <span class="ic"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 4h16v16H4z"/><path d="M22 6 12 13 2 6"/></svg></span>
+          E-posta
+        </div>
+        <div class="sidebar-item">
+          <span class="ic"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="1" x2="12" y2="23"/></svg></span>
+          Sayı
+        </div>
+
+        <h4>Seçim <span class="cnt">4</span></h4>
+        <div class="sidebar-item">
+          <span class="ic"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="9"/></svg></span>
+          Tek Seçim
+        </div>
+        <div class="sidebar-item">
+          <span class="ic"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="3"/><polyline points="9 12 11 14 16 9"/></svg></span>
+          Çoklu Seçim
+        </div>
+        <div class="sidebar-item">
+          <span class="ic"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
+          Açılır Liste
+        </div>
+
+        <h4>Özel <span class="cnt">8</span></h4>
+        <div class="sidebar-item">
+          <span class="ic"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="14" rx="2"/></svg></span>
+          Dosya
+        </div>
+        <div class="sidebar-item">
+          <span class="ic"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 15s2-2 5-2 5 2 8 2 5-2 5-2"/></svg></span>
+          İmza
+        </div>
+      </aside>
+
+      <!-- GHOST DRAG -->
+      <div class="ghost-drag">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="14" y2="15"/></svg>
+        Kısa Metin
+      </div>
+
+      <!-- CANVAS -->
+      <div class="builder__canvas">
+        <div class="canvas-pages">
+          <b>2 / 3</b>
+          <span>· İletişim Bilgileri</span>
+        </div>
+
+        <div class="canvas-field">
+          <div class="field-head">
+            <b>Ad Soyad <span class="req">*</span></b>
+            <div class="actions">
+              <button aria-label="Çoğalt"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+              <button aria-label="Sil"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/></svg></button>
+            </div>
+          </div>
+          <div class="input-mock"></div>
+        </div>
+
+        <div class="canvas-field selected">
+          <div class="field-head">
+            <b>E-posta <span class="req">*</span> <span class="badge-ai">AI</span></b>
+            <div class="actions" style="opacity:1">
+              <button aria-label="Çoğalt"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+              <button aria-label="Sil"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/></svg></button>
+            </div>
+          </div>
+          <div class="input-mock"></div>
+        </div>
+
+        <div class="canvas-field">
+          <div class="field-head">
+            <b>Bütçe Aralığı</b>
+          </div>
+          <div class="opt-row"><span class="radio"></span><span>₺0 — ₺5.000</span></div>
+          <div class="opt-row sel"><span class="radio"></span><span>₺5.000 — ₺25.000</span></div>
+          <div class="opt-row"><span class="radio"></span><span>₺25.000+</span></div>
+        </div>
+
+        <div class="canvas-field">
+          <div class="field-head">
+            <b>Detay Mesaj</b>
+            <span class="badge-cond">
+              <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="6 9 12 15 18 9"/></svg>
+              KOŞULLU
+            </span>
+          </div>
+          <div class="input-mock textarea"></div>
+        </div>
+
+        <div class="canvas-drop">
+          <span class="plus">+</span>
+          Yeni component ekle veya soldan sürükleyin
+        </div>
+      </div>
+
+      <!-- INSPECTOR -->
+      <aside class="builder__inspector">
+        <div class="builder__inspector__tabs">
+          <button class="on">Ayarlar</button>
+          <button>Mantık</button>
+          <button>Stil</button>
+        </div>
+
+        <div class="insp-section">
+          <h5>Alan</h5>
+          <div class="insp-row">
+            <label>Etiket</label>
+            <input type="text" value="E-posta" />
+          </div>
+          <div class="insp-row">
+            <label>Yer tutucu</label>
+            <input type="text" value="ad@isletme.com" />
+          </div>
+          <div class="insp-row">
+            <label>Yardım metni</label>
+            <input type="text" value="Geri dönüş yapabileceğimiz adres" />
+          </div>
+        </div>
+
+        <div class="insp-section">
+          <h5>Doğrulama</h5>
+          <div class="insp-switch">
+            <span>Zorunlu</span>
+            <button class="insp-switch__toggle on"></button>
+          </div>
+          <div class="insp-switch">
+            <span>E-posta formatı</span>
+            <button class="insp-switch__toggle on"></button>
+          </div>
+          <div class="insp-switch">
+            <span>Şirket alan adı</span>
+            <button class="insp-switch__toggle"></button>
+          </div>
+        </div>
+
+        <div class="insp-section">
+          <h5>Görünürlük</h5>
+          <div class="insp-cond">
+            <b>Eğer</b> <code>Bütçe</code> = <code>₺5K+</code><br />
+            <b>ise göster</b>: bu alan
+          </div>
+        </div>
+      </aside>
+
+      <!-- STATUS BAR -->
+      <div class="builder__status">
+        <div class="builder__status__left">
+          <span class="save-ok">Kaydedildi</span>
+          <span>v1.4</span>
+          <span>3 alan · 2 koşul</span>
+        </div>
+        <div class="builder__status__right">
+          <span>1024 × 720</span>
+          <span>%100</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     FLOW BUILDER
+     ============================================================ -->
+<section class="flow">
+  <div class="container">
+    <div class="flow__head fade-up">
+      <span class="eyebrow"><span class="dot"></span>Akış Editör</span>
+      <h2>Form gönderildi. <span class="grad-text">Şimdi ne olur?</span></h2>
+      <p>Görsel akış editörüyle "if-then-else" mantığı kurun. CRM lead'i oluştur, e-posta gönder, Slack'e bildir, fatura kes.</p>
+    </div>
+
+    <div class="flow__canvas fade-up">
+
+      <svg class="flow__svg" viewBox="0 0 1000 420" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="flowGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#10b981"/>
+            <stop offset="50%" stop-color="#8b5cf6"/>
+            <stop offset="100%" stop-color="#06b6d4"/>
+          </linearGradient>
+        </defs>
+        <!-- Trigger → Condition -->
+        <path d="M 240 130 Q 290 130, 320 130" />
+        <!-- Condition → CRM (top right) -->
+        <path d="M 500 130 Q 650 80, 750 100" />
+        <!-- Condition → Email (bottom right) -->
+        <path d="M 500 130 Q 600 200, 700 270" />
+        <!-- Condition → Slack (bottom left) -->
+        <path d="M 410 180 Q 380 220, 300 290" />
+
+        <!-- Animated particle (loops along path) -->
+        <circle r="3" class="dot">
+          <animateMotion dur="4s" repeatCount="indefinite" path="M 240 130 Q 290 130, 320 130" />
+        </circle>
+        <circle r="3" class="dot">
+          <animateMotion dur="5s" repeatCount="indefinite" begin="1.5s" path="M 500 130 Q 650 80, 750 100" />
+        </circle>
+        <circle r="3" class="dot">
+          <animateMotion dur="5s" repeatCount="indefinite" begin="3s" path="M 500 130 Q 600 200, 700 270" />
+        </circle>
+      </svg>
+
+      <div class="flow-node flow-node--trigger">
+        <div class="flow-node__head">
+          <div class="flow-node__ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+          <div>
+            <div class="flow-node__lbl">Tetikleyici</div>
+            <h5>Form gönderildi</h5>
+          </div>
+        </div>
+        <p>İletişim formu cevaplandığında</p>
+        <span class="flow-node__port right"></span>
+      </div>
+
+      <div class="flow-node flow-node--cond">
+        <span class="flow-node__port left"></span>
+        <div class="flow-node__head">
+          <div class="flow-node__ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+          <div>
+            <div class="flow-node__lbl">Koşul</div>
+            <h5>Bütçe &gt; ₺10K mı?</h5>
+          </div>
+        </div>
+        <p>Cevaba göre dallandır</p>
+        <span class="flow-node__port right"></span>
+      </div>
+
+      <div class="flow-node flow-node--crm">
+        <span class="flow-node__port left"></span>
+        <div class="flow-node__head">
+          <div class="flow-node__ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="9" cy="7" r="4"/><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/></svg></div>
+          <div>
+            <div class="flow-node__lbl">CRM</div>
+            <h5>Sıcak Lead oluştur</h5>
+          </div>
+        </div>
+        <p>Satış ekibine ata</p>
+      </div>
+
+      <div class="flow-node flow-node--email">
+        <span class="flow-node__port left"></span>
+        <div class="flow-node__head">
+          <div class="flow-node__ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 4h16v16H4z"/><path d="M22 6 12 13 2 6"/></svg></div>
+          <div>
+            <div class="flow-node__lbl">E-posta</div>
+            <h5>Hoş geldin yolla</h5>
+          </div>
+        </div>
+        <p>Otomatik karşılama</p>
+      </div>
+
+      <div class="flow-node flow-node--slack">
+        <span class="flow-node__port right"></span>
+        <div class="flow-node__head">
+          <div class="flow-node__ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+          <div>
+            <div class="flow-node__lbl">Slack</div>
+            <h5>#sales kanalına bildir</h5>
+          </div>
+        </div>
+        <p>Anlık bildirim</p>
+      </div>
+
+    </div>
+
+    <div style="text-align:center;margin-top:24px;font-size:13px;color:var(--text-muted)">
+      <b style="color:var(--text)">25+ aksiyon</b> · CRM, E-posta, SMS, Slack, Webhook, Zapier, Google Sheets, Notion, Excel
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     TEMPLATES
+     ============================================================ -->
+<section class="tpls">
+  <div class="container">
+    <div class="tpls__head fade-up">
+      <span class="eyebrow"><span class="dot"></span>Şablon Galerisi</span>
+      <h2>Sıfırdan başlamak <span class="grad-text">istemiyor musunuz?</span></h2>
+      <p>40+ hazır Türkçe şablon. Tek tıkla yükleyin, kendinize göre düzenleyin.</p>
+      <div class="tpls__filters">
+        <button class="active">Tümü</button>
+        <button>Anket</button>
+        <button>Başvuru</button>
+        <button>İletişim</button>
+        <button>E-Ticaret</button>
+        <button>İK</button>
+        <button>Etkinlik</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="container tpls__row-wrap">
+    <div class="tpls__row">
+      <article class="tpl-card bg-1">
+        <div class="tpl-card__bg"></div>
+        <div class="tpl-card__preview">
+          <h6>Müşteri Memnuniyeti Anketi</h6>
+          <div class="line-ph"></div>
+          <div class="input-ph"></div>
+          <div class="input-ph" style="height:18px;width:60%"></div>
+          <div class="input-ph"></div>
+          <div class="btn-ph"></div>
+        </div>
+        <div class="tpl-card__meta">
+          <div>
+            <b>Memnuniyet Anketi</b>
+            <span>10 soru · NPS dahil</span>
+          </div>
+          <span class="tpl-card__use">Kullan →</span>
+        </div>
+      </article>
+
+      <article class="tpl-card bg-2">
+        <div class="tpl-card__bg"></div>
+        <div class="tpl-card__preview">
+          <h6>İletişim Formu</h6>
+          <div class="line-ph"></div>
+          <div class="input-ph"></div>
+          <div class="input-ph"></div>
+          <div class="input-ph" style="height:50px"></div>
+          <div class="btn-ph"></div>
+        </div>
+        <div class="tpl-card__meta">
+          <div>
+            <b>Klasik İletişim</b>
+            <span>5 alan · KVKK dahil</span>
+          </div>
+          <span class="tpl-card__use">Kullan →</span>
+        </div>
+      </article>
+
+      <article class="tpl-card bg-3">
+        <div class="tpl-card__bg"></div>
+        <div class="tpl-card__preview">
+          <h6>İş Başvurusu</h6>
+          <div class="line-ph"></div>
+          <div class="input-ph"></div>
+          <div class="input-ph"></div>
+          <div class="input-ph" style="height:34px"></div>
+          <div class="input-ph" style="height:34px;background:#fef3c7"></div>
+          <div class="btn-ph"></div>
+        </div>
+        <div class="tpl-card__meta">
+          <div>
+            <b>İş Başvurusu</b>
+            <span>CV upload · 8 alan</span>
+          </div>
+          <span class="tpl-card__use">Kullan →</span>
+        </div>
+      </article>
+
+      <article class="tpl-card bg-4">
+        <div class="tpl-card__bg"></div>
+        <div class="tpl-card__preview">
+          <h6>Etkinlik Kaydı</h6>
+          <div class="line-ph"></div>
+          <div class="input-ph"></div>
+          <div class="input-ph"></div>
+          <div class="input-ph" style="height:34px;width:70%"></div>
+          <div class="btn-ph"></div>
+        </div>
+        <div class="tpl-card__meta">
+          <div>
+            <b>Etkinlik Kaydı</b>
+            <span>Konferans, webinar</span>
+          </div>
+          <span class="tpl-card__use">Kullan →</span>
+        </div>
+      </article>
+
+      <article class="tpl-card bg-5">
+        <div class="tpl-card__bg"></div>
+        <div class="tpl-card__preview">
+          <h6>Ön Sipariş</h6>
+          <div class="line-ph"></div>
+          <div class="input-ph"></div>
+          <div class="input-ph" style="height:46px"></div>
+          <div class="input-ph"></div>
+          <div class="btn-ph"></div>
+        </div>
+        <div class="tpl-card__meta">
+          <div>
+            <b>Ön Sipariş</b>
+            <span>Ürün katalog + ödeme</span>
+          </div>
+          <span class="tpl-card__use">Kullan →</span>
+        </div>
+      </article>
+
+      <article class="tpl-card bg-6">
+        <div class="tpl-card__bg"></div>
+        <div class="tpl-card__preview">
+          <h6>Demo Talebi</h6>
+          <div class="line-ph"></div>
+          <div class="input-ph"></div>
+          <div class="input-ph"></div>
+          <div class="input-ph" style="height:34px"></div>
+          <div class="btn-ph"></div>
+        </div>
+        <div class="tpl-card__meta">
+          <div>
+            <b>Demo Talebi</b>
+            <span>B2B satış · Calendly</span>
+          </div>
+          <span class="tpl-card__use">Kullan →</span>
+        </div>
+      </article>
+
+      <article class="tpl-card bg-1">
+        <div class="tpl-card__bg"></div>
+        <div class="tpl-card__preview">
+          <h6>NPS Anketi</h6>
+          <div class="line-ph"></div>
+          <div class="input-ph" style="height:50px"></div>
+          <div class="input-ph"></div>
+          <div class="btn-ph"></div>
+        </div>
+        <div class="tpl-card__meta">
+          <div>
+            <b>NPS Anketi</b>
+            <span>0-10 + açık uçlu</span>
+          </div>
+          <span class="tpl-card__use">Kullan →</span>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     INTEGRATION DIAGRAM
+     ============================================================ -->
+<section class="integ">
+  <div class="container">
+    <div class="integ__head fade-up">
+      <span class="eyebrow"><span class="dot"></span>Wixi ile Entegre</span>
+      <h2>Tek formdan <span class="grad-text">tüm sisteminize</span></h2>
+      <p>Stüdyo'da oluşturduğunuz formlar Wixi modüllerine doğrudan veri akışı sağlar. İzole bir araç değil, ekosistemin parçası.</p>
+    </div>
+
+    <div class="integ__diagram fade-up">
+      <svg class="integ__lines" viewBox="0 0 760 360" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="integGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#06b6d4"/>
+            <stop offset="100%" stop-color="#8b5cf6"/>
+          </linearGradient>
+        </defs>
+        <path d="M 140 60 Q 280 140, 380 180" />
+        <path d="M 620 60 Q 480 140, 380 180" />
+        <path d="M 140 300 Q 280 220, 380 180" />
+        <path d="M 620 300 Q 480 220, 380 180" />
+      </svg>
+
+      <div class="integ-center">
+        <b>Stüdyo</b>
+        <span>Form & Akış</span>
+      </div>
+
+      <div class="integ-node integ-node--1">
+        <div class="ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="4"/><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/></svg></div>
+        <div><b>CRM</b><span>Lead oluştur</span></div>
+      </div>
+
+      <div class="integ-node integ-node--2">
+        <div class="ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/></svg></div>
+        <div><b>E-Ticaret</b><span>Sipariş kaydı</span></div>
+      </div>
+
+      <div class="integ-node integ-node--3">
+        <div class="ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+        <div><b>İK</b><span>Başvuru havuzu</span></div>
+      </div>
+
+      <div class="integ-node integ-node--4">
+        <div class="ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div>
+        <div><b>Muhasebe</b><span>Otomatik fatura</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     USE CASES
+     ============================================================ -->
+<section class="usecases">
+  <div class="container">
+    <div class="section-head fade-up">
+      <span class="eyebrow"><span class="dot"></span>Senaryolar</span>
+      <h2 class="section-title" style="font-family:'Manrope', sans-serif">Hangi durumda <span class="grad-text">kullanılır?</span></h2>
+    </div>
+    <div class="usecases__grid">
+      <article class="uc glass fade-up">
+        <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="4"/><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/></svg></div>
+        <b>Lead Yakalama</b>
+        <p>Web sitenize gömün, CRM'inize otomatik akış sağlayın.</p>
+        <div class="tags"><span>+ CRM</span><span>+ E-posta</span></div>
+      </article>
+      <article class="uc glass fade-up" data-delay="1">
+        <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
+        <b>İş Başvurusu</b>
+        <p>CV yükleme, mülakat takvimi, otomatik filtre.</p>
+        <div class="tags"><span>+ İK</span><span>+ Takvim</span></div>
+      </article>
+      <article class="uc glass fade-up" data-delay="2">
+        <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15 9 22 9 17 14 19 21 12 17 5 21 7 14 2 9 9 9 12 2"/></svg></div>
+        <b>Müşteri Anketleri</b>
+        <p>NPS, sipariş sonrası anketler, anlık raporlar.</p>
+        <div class="tags"><span>+ Rapor</span><span>+ Slack</span></div>
+      </article>
+      <article class="uc glass fade-up" data-delay="3">
+        <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/></svg></div>
+        <b>Etkinlik Kaydı</b>
+        <p>Kontenjan takibi, QR yaka kartı, e-posta hatırlatma.</p>
+        <div class="tags"><span>+ Takvim</span><span>+ QR</span></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     PRICING TILE
+     ============================================================ -->
+<section class="pricing-tile">
+  <div class="container">
+    <div class="pricing-tile__inner fade-up">
+      <div>
+        <span class="eyebrow"><span class="dot"></span>Stüdyo Modülü</span>
+        <h3>Mevcut planınıza ekleyin</h3>
+        <p>Bağımsız ya da diğer Wixi modülleriyle entegre. İhtiyaca göre açın, dilediğiniz zaman kapatın.</p>
+        <ul>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Sınırsız form, sınırsız gönderim</li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> AI form üretici (aylık 100 kullanım)</li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> 30+ component, 40+ şablon</li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Görsel akış editörü, 25+ aksiyon</li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Wixi modülleri ile entegrasyon</li>
+        </ul>
+      </div>
+      <div class="pricing-tile__cta">
+        <div class="price">
+          <span class="cur">₺</span>
+          <b>249</b>
+          <span>/ay</span>
+        </div>
+        <div class="add-bonus">Premium plana dahildir</div>
+        <a href="#" class="btn btn--primary btn--lg" data-magnet="0.15" style="background:var(--studio-grad);box-shadow:0 12px 32px -8px rgba(139,92,246,.5)">14 Gün Ücretsiz Dene →</a>
+        <div style="font-size:11.5px;color:var(--text-dim);margin-top:10px">Kredi kartı gerekmez · İstediğiniz an iptal</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA banner -->
+<section class="cta-banner">
+  <div class="container">
+    <div class="cta-banner__inner fade-up">
+      <h2>İlk formunuzu <span class="grad-text">5 dakikada</span> yayına alın</h2>
+      <p>Sıfır kod, sıfır tasarımcı, sıfır dış araç. Stüdyo ile başlayın.</p>
+      <div class="cta-banner__btns">
+        <a href="#" class="btn btn--primary btn--lg" data-magnet="0.2" style="background:var(--studio-grad)">Stüdyo'yu Aç →</a>
+        <a href="moduller.html" class="btn btn--ghost btn--lg">Diğer modülleri gör</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer__grid">
+      <div class="footer__brand">
+        <a href="index.html" class="brand"><span class="brand__mark">W</span><span class="brand__name">WIXI<span class="dim">APP</span></span></a>
+        <p>KOBİ'ler için modüler SaaS platformu.</p>
+        <div class="footer__social">
+          <a href="#" aria-label="Twitter"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+          <a href="#" aria-label="LinkedIn"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.063 2.063 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0z"/></svg></a>
+          <a href="#" aria-label="Instagram"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
+          <a href="#" aria-label="YouTube"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12z"/></svg></a>
+        </div>
+      </div>
+      <div class="footer__col"><h4>Ürün</h4><ul><li><a href="ozellikler.html">Özellikler</a></li><li><a href="moduller.html">Modüller</a></li><li><a href="studyo.html">Stüdyo</a></li><li><a href="fiyatlandirma.html">Fiyatlandırma</a></li></ul></div>
+      <div class="footer__col"><h4>Kaynaklar</h4><ul><li><a href="sss.html">SSS</a></li><li><a href="#">Yardım Merkezi</a></li><li><a href="#">API</a></li><li><a href="#">Blog</a></li></ul></div>
+      <div class="footer__col"><h4>Şirket</h4><ul><li><a href="hakkimizda.html">Hakkımızda</a></li><li><a href="iletisim.html">İletişim</a></li><li><a href="#">Kariyer</a></li><li><a href="#">Basın</a></li></ul></div>
+      <div class="footer__col"><h4>Yasal</h4><ul><li><a href="kullanim-sartlari.html">Kullanım Şartları</a></li><li><a href="gizlilik.html">Gizlilik</a></li><li><a href="kvkk.html">KVKK</a></li><li><a href="cerezler.html">Çerezler</a></li></ul></div>
+    </div>
+    <div class="footer__bottom">
+      <div>© 2026 Wixi Teknoloji A.Ş. Tüm hakları saklıdır.</div>
+      <div class="legal"><span>🇹🇷 Türkçe</span><span>İstanbul, Türkiye</span></div>
+    </div>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+<script>
+/* AI typing demo */
+(function(){
+  const text = document.getElementById('aiText');
+  const status = document.getElementById('aiStatus');
+  const statusTxt = document.getElementById('aiStatusTxt');
+  const prompt = document.getElementById('aiPrompt');
+  const fields = document.querySelectorAll('.gen-field');
+
+  const prompts = [
+    'KOBİ\'ler için iletişim formu oluştur: ad, e-posta, telefon, mesaj ve KVKK onayı dahil',
+    'Müşteri memnuniyeti anketi yap, 5 yıldız puanlama ve açıklama alanı ekle',
+    'İş başvuru formu: kişisel bilgiler, CV yükleme ve pozisyon seçimi'
+  ];
+
+  let currentPrompt = 0;
+
+  function reset(){
+    fields.forEach(f => f.classList.remove('in'));
+    status.style.display = 'none';
+    text.innerHTML = '<span class="cursor"></span>';
+    prompt.classList.remove('active');
+  }
+
+  function typeText(t, cb){
+    let i = 0;
+    text.innerHTML = '';
+    function step(){
+      if(i <= t.length){
+        text.innerHTML = t.slice(0, i) + '<span class="cursor"></span>';
+        i++;
+        setTimeout(step, 30 + Math.random()*25);
+      } else {
+        text.innerHTML = t;
+        cb();
+      }
+    }
+    step();
+  }
+
+  function runDemo(){
+    reset();
+    prompt.classList.add('active');
+    const txt = prompts[currentPrompt % prompts.length];
+    typeText(txt, ()=>{
+      // Submit pulse
+      setTimeout(()=>{
+        status.style.display = 'flex';
+        statusTxt.textContent = 'AI form oluşturuyor...';
+        // Show fields one by one
+        let i = 0;
+        const showInt = setInterval(()=>{
+          if(i < fields.length){
+            fields[i].classList.add('in');
+            i++;
+          } else {
+            clearInterval(showInt);
+            statusTxt.innerHTML = `<span class="check">✓</span> Form hazır — 6 alan oluşturuldu`;
+            status.querySelector('.spin').remove();
+            setTimeout(()=>{
+              currentPrompt++;
+              runDemo();
+            }, 4500);
+          }
+        }, 250);
+      }, 400);
+    });
+  }
+
+  runDemo();
+})();
+
+/* Component count animation */
+document.getElementById('compCount').setAttribute('data-count','30');
+document.getElementById('compCount').setAttribute('data-suffix','+');
+</script>
+</body>
+</html>
