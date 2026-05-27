@@ -8,6 +8,7 @@ import {
 
 import { useEditor } from '../ThemeBuilder/context/EditorContext';
 import { useWebBuilder } from './hooks/useWebBuilder';
+import { AccordionSection } from '../ThemeBuilder/ThemeEditor';
 import { WebPagesPanel } from './panels/WebPagesPanel';
 import { WebSeoPanel } from './panels/WebSeoPanel';
 import { WebBacklinksPanel } from './panels/WebBacklinksPanel';
@@ -19,31 +20,18 @@ import { EditorCanvas } from '../ThemeBuilder/canvas/EditorCanvas';
 import { Modal } from '../../shared/ui/Modal/Modal';
 import styles from '../ThemeBuilder/ThemeEditor.module.css';
 
-const LEFT_TABS = [
-  { id: 'pages'      as const, label: 'Sayfalar',   Icon: FaFile       },
-  { id: 'components' as const, label: 'Bileşenler', Icon: FaPlus       },
-  { id: 'layers'     as const, label: 'Katmanlar',  Icon: FaLayerGroup },
-];
-
-const RIGHT_TABS = [
-  { id: 'props'      as const, label: 'Özellikler', Icon: FaEdit   },
-  { id: 'seo'        as const, label: 'SEO',         Icon: FaSearch },
-  { id: 'backlinks'  as const, label: 'Bağlantılar', Icon: FaLink   },
-];
-
 function WebBuilderEditorInner() {
   const { state, dispatch } = useEditor();
   const { loadPages, saveAll } = useWebBuilder();
-  // URL'deki :tenantSlug varsa WebBuilderEditorPage zaten localStorage'a yazmış olur
   const activeTenantSlug = localStorage.getItem('wixi-active-tenant') ?? '';
   const previewHref = state.activePage && activeTenantSlug
     ? `/corp/${activeTenantSlug}/${state.activePage.slug}`
     : undefined;
   const [versionModalOpen, setVersionModalOpen] = useState(false);
-  const [leftOpen, setLeftOpen]   = useState(true);
+  const [leftOpen, setLeftOpen] = useState(true);
   const [rightOpen, setRightOpen] = useState(true);
 
-  const canUndo = state._past.length   > 0;
+  const canUndo = state._past.length > 0;
   const canRedo = state._future.length > 0;
 
   useEffect(() => {
@@ -140,30 +128,35 @@ function WebBuilderEditorInner() {
       {/* ── 3-Panel Layout ───────────────────────────────────── */}
       <div className={styles.mainArea}>
 
-        {/* ── Left Sidebar ────────────────────────────────────── */}
-        <div className={`${styles.sidebarLeft} ${!leftOpen ? styles.sidebarCollapsed : ''}`}
-             style={{ overflowY: 'hidden' }}>
-          {/* Tab Bar */}
-          <div className={styles.leftTabBar}>
-            {LEFT_TABS.map(({ id, label, Icon }) => (
-              <button
-                key={id}
-                className={`${styles.leftTab} ${state.leftTab === id ? styles.leftTabActive : ''}`}
-                onClick={() => dispatch({ type: 'SET_LEFT_TAB', tab: id })}
-                title={label}
-                type="button"
-              >
-                <Icon style={{ fontSize: 11, marginBottom: 2 }} />
-                <span>{label}</span>
-              </button>
-            ))}
-          </div>
-          {/* Tab Content */}
-          <div className={styles.leftContent}>
-            {state.leftTab === 'pages'      && <WebPagesPanel />}
-            {state.leftTab === 'components' && <ComponentsPanel excludeCategories={['commerce']} />}
-            {state.leftTab === 'layers'     && <LayersPanel />}
-          </div>
+        {/* ── Left Sidebar — Accordion ────────────────────────── */}
+        <div className={`${styles.sidebarLeft} ${!leftOpen ? styles.sidebarCollapsed : ''}`}>
+          <AccordionSection
+            label="Sayfalar"
+            icon={FaFile}
+            badge={state.pages.length || undefined}
+            defaultOpen
+            height={220}
+          >
+            <WebPagesPanel />
+          </AccordionSection>
+
+          <AccordionSection
+            label="Bileşenler"
+            icon={FaPlus}
+            defaultOpen
+            height={380}
+          >
+            <ComponentsPanel excludeCategories={['commerce']} />
+          </AccordionSection>
+
+          <AccordionSection
+            label="Katmanlar"
+            icon={FaLayerGroup}
+            badge={state.layout.length || undefined}
+            height={300}
+          >
+            <LayersPanel />
+          </AccordionSection>
         </div>
 
         {/* ── Left Toggle ─────────────────────────────────────── */}
@@ -189,30 +182,19 @@ function WebBuilderEditorInner() {
           {rightOpen ? <FaChevronRight /> : <FaChevronLeft />}
         </button>
 
-        {/* ── Right Sidebar ───────────────────────────────────── */}
-        <div className={`${styles.sidebarRight} ${!rightOpen ? styles.sidebarCollapsed : ''}`}
-             style={{ overflowY: 'hidden' }}>
-          {/* Tab Bar */}
-          <div className={styles.rightTabBar}>
-            {RIGHT_TABS.map(({ id, label, Icon }) => (
-              <button
-                key={id}
-                className={`${styles.rightTab} ${state.rightTab === id ? styles.rightTabActive : ''}`}
-                onClick={() => dispatch({ type: 'SET_RIGHT_TAB', tab: id })}
-                title={label}
-                type="button"
-              >
-                <Icon style={{ fontSize: 11, marginBottom: 2 }} />
-                <span>{label}</span>
-              </button>
-            ))}
-          </div>
-          {/* Tab Content */}
-          <div className={styles.rightContent}>
-            {state.rightTab === 'props'     && <PropertiesPanel />}
-            {state.rightTab === 'seo'       && <WebSeoPanel />}
-            {state.rightTab === 'backlinks' && <WebBacklinksPanel />}
-          </div>
+        {/* ── Right Sidebar — Accordion ────────────────────────── */}
+        <div className={`${styles.sidebarRight} ${!rightOpen ? styles.sidebarCollapsed : ''}`}>
+          <AccordionSection label="Özellikler" icon={FaEdit} defaultOpen height={520}>
+            <PropertiesPanel />
+          </AccordionSection>
+
+          <AccordionSection label="SEO" icon={FaSearch} height={440}>
+            <WebSeoPanel />
+          </AccordionSection>
+
+          <AccordionSection label="Bağlantılar" icon={FaLink} height={360}>
+            <WebBacklinksPanel />
+          </AccordionSection>
         </div>
 
       </div>

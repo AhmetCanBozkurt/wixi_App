@@ -288,13 +288,13 @@
 
 .leftTab {
   flex: 1;
-  padding: 0 2px;
+  padding: 0 4px;
   height: 44px;
   background: transparent;
   border: none;
   border-bottom: 2px solid transparent;
   color: var(--editor-text-muted);
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 500;
   cursor: pointer;
   text-align: center;
@@ -307,8 +307,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
-  min-width: 0;
+  gap: 3px;
 }
 
 .leftTab:hover {
