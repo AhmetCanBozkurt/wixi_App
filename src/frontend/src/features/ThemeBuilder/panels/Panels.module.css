@@ -968,3 +968,175 @@
   background: var(--editor-border);
   margin: 4px 0;
 }
+
+/* ── Modal-Based Array Editor (Phase 1) ──────────────── */
+.arrayEditWidget {
+  padding: 12px;
+  background: var(--editor-row-bg, rgba(255,255,255,0.02));
+  border: 1px solid var(--editor-border);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.arrayEditWidgetInfo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: var(--editor-text);
+}
+
+.arrayEditWidgetCount {
+  font-size: 10px;
+  font-weight: 700;
+  background: var(--editor-border);
+  color: var(--editor-text-muted);
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.arrayEditWidgetBtn {
+  width: 100%;
+  padding: 8px;
+  background: rgba(236, 72, 153, 0.1);
+  border: 1px solid rgba(236, 72, 153, 0.3);
+  border-radius: 6px;
+  color: #ec4899;
+  font-weight: 600;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+
+.arrayEditWidgetBtn:hover {
+  background: #ec4899;
+  color: white;
+  border-color: #ec4899;
+}
+
+.modalInnerContent {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-height: 70vh;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.modalCardList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.modalCard {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--editor-border);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.modalCard:hover {
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.modalCardHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  user-select: none;
+}
+
+.modalCardGrip {
+  color: var(--editor-text-muted);
+  cursor: grab;
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+}
+
+.modalCardTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--editor-text);
+  flex: 1;
+  cursor: pointer;
+}
+
+.modalCardActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modalCardChevron {
+  background: transparent;
+  border: none;
+  color: var(--editor-text-muted);
+  cursor: pointer;
+  font-size: 10px;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.modalCardDelete {
+  background: transparent;
+  border: none;
+  color: var(--editor-text-muted);
+  cursor: pointer;
+  font-size: 12px;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  transition: color 0.15s, background-color 0.15s;
+}
+
+.modalCardDelete:hover {
+  color: #ef4444;
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+.modalCardBody {
+  padding: 16px;
+  border-top: 1px solid var(--editor-border);
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.modalInputGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.modalFormRow {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.modalFormRowLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--editor-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.modalCardDragging {
+  opacity: 0.5;
+  border-color: #ec4899;
+}
+

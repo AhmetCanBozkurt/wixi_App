@@ -1,85 +1,34 @@
 import { useState } from 'react';
-import { FaPlus, FaTrash, FaGripVertical, FaCopy, FaCheck } from 'react-icons/fa';
+import { FaPlus, FaTrash, FaGripVertical, FaCopy, FaCheck, FaEdit } from 'react-icons/fa';
 import { useEditor } from '../context/EditorContext';
 import { BLOCK_BY_TYPE } from '../blocks/blockRegistry';
 import type { PropField, BlockDefinition, RowFieldSchema } from '../blocks/blockRegistry';
 import type { LayoutComponent, ThemeConfig } from '../../../entities/StorePage/model/types';
 import styles from './Panels.module.css';
+import { Button, Input, Select, Switch, ImageUpload, ComboBox, Modal } from '../../../shared/ui';
+import Swal from 'sweetalert2';
+import toast from 'react-hot-toast';
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import type { DragEndEvent } from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  verticalListSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 type PropTab = 'props' | 'inspect';
 
 type RowData = Record<string, unknown>;
-
-// ── Inline row editor for json-array fields ───────────────────────────────────
-
-function InlineRowEditor({
-  value,
-  itemSchema,
-  onChange,
-}: {
-  value: unknown;
-  itemSchema: RowFieldSchema[];
-  onChange: (rows: RowData[]) => void;
-}) {
-  const rows: RowData[] = Array.isArray(value) ? (value as RowData[]) : [];
-
-  const update = (idx: number, key: string, val: unknown) => {
-    const next = rows.map((r, i) => (i === idx ? { ...r, [key]: val } : r));
-    onChange(next);
-  };
-
-  const addRow = () => {
-    const blank: RowData = {};
-    itemSchema.forEach((f) => { blank[f.key] = f.type === 'number' ? 0 : ''; });
-    onChange([...rows, blank]);
-  };
-
-  const remove = (idx: number) => onChange(rows.filter((_, i) => i !== idx));
-
-  return (
-    <div className={styles.rowEditor}>
-      {rows.map((row, idx) => (
-        <div key={idx} className={styles.rowItem}>
-          <span className={styles.rowDrag}><FaGripVertical /></span>
-          <div className={styles.rowFields}>
-            {itemSchema.map((f) => (
-              <div key={f.key} className={styles.rowField}>
-                <label className={styles.rowFieldLabel}>{f.label}</label>
-                {f.type === 'textarea' ? (
-                  <textarea
-                    className={styles.textarea}
-                    rows={2}
-                    value={String(row[f.key] ?? '')}
-                    placeholder={f.placeholder}
-                    onChange={(e) => update(idx, f.key, e.target.value)}
-                  />
-                ) : (
-                  <input
-                    type={f.type === 'number' ? 'number' : f.type === 'url' ? 'url' : 'text'}
-                    className={styles.input}
-                    value={String(row[f.key] ?? '')}
-                    placeholder={f.placeholder}
-                    onChange={(e) =>
-                      update(idx, f.key, f.type === 'number' ? Number(e.target.value) : e.target.value)
-                    }
-                  />
-                )}
-              </div>
-            ))}
-          </div>
-          <button className={styles.rowDelete} onClick={() => remove(idx)} title="Sil">
-            <FaTrash />
-          </button>
-        </div>
-      ))}
-      <button className={styles.addRowBtn} onClick={addRow}>
-        <FaPlus /> Satır Ekle
-      </button>
-    </div>
-  );
-}
 
 // ── Image input with preview ──────────────────────────────────────────────────
 
@@ -106,7 +55,7 @@ function ImageInput({ value, onChange }: { value: string; onChange: (v: string) 
   );
 }
 
-// ── Generic prop input ────────────────────────────────────────────────────────
+// ── Generic prop input (non-array fields) ──────────────────────────────────────
 
 function PropInput({
   field,
@@ -118,34 +67,6 @@ function PropInput({
   onChange: (v: unknown) => void;
 }) {
   const strVal = value !== undefined && value !== null ? String(value) : '';
-
-  if (field.type === 'json-array') {
-    if (field.itemSchema && field.itemSchema.length > 0) {
-      return (
-        <InlineRowEditor
-          value={value}
-          itemSchema={field.itemSchema}
-          onChange={onChange}
-        />
-      );
-    }
-    let displayVal = strVal;
-    try { displayVal = JSON.stringify(JSON.parse(strVal), null, 2); } catch { /* keep */ }
-    return (
-      <>
-        <textarea
-          className={styles.textarea}
-          rows={6}
-          value={displayVal}
-          onChange={(e) => {
-            try { onChange(JSON.parse(e.target.value)); } catch { /* keep string while typing */ }
-          }}
-          style={{ fontFamily: 'monospace', fontSize: '11px' }}
-        />
-        <p style={{ fontSize: '10px', color: '#9ca3af', margin: '2px 0 0' }}>JSON array formati</p>
-      </>
-    );
-  }
 
   if (field.type === 'image') {
     return <ImageInput value={strVal} onChange={(v) => onChange(v)} />;
@@ -241,6 +162,283 @@ const GROUP_DOT_CLASS: Record<string, string> = {
 
 const GROUP_ORDER = ['content', 'visual', 'style', 'advanced'] as const;
 
+// ── Sortable row card (nested editor inside modal) ──────────────────────────
+
+function SortableRowCard({
+  id,
+  index,
+  row,
+  itemSchema,
+  isExpanded,
+  onToggleExpand,
+  onUpdateField,
+  onDelete,
+}: {
+  id: string;
+  index: number;
+  row: RowData;
+  itemSchema: RowFieldSchema[];
+  isExpanded: boolean;
+  onToggleExpand: () => void;
+  onUpdateField: (key: string, val: unknown) => void;
+  onDelete: () => void;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+
+  const style = {
+    transform: CSS.Translate.toString(transform),
+    transition,
+  };
+
+  // Inferred card header title from first available text fields
+  const titleField = itemSchema.find((f) => ['title', 'name', 'label', 'heading', 'text'].includes(f.key));
+  const cardTitle = titleField ? String(row[titleField.key] ?? '') : '';
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`${styles.modalCard} ${isDragging ? styles.modalCardDragging : ''}`}
+    >
+      <div className={styles.modalCardHeader}>
+        <span className={styles.modalCardGrip} {...attributes} {...listeners}>
+          <FaGripVertical />
+        </span>
+        <div className={styles.modalCardTitle} onClick={onToggleExpand}>
+          {cardTitle || `Eleman #${index + 1}`}
+        </div>
+        <div className={styles.modalCardActions}>
+          <button
+            className={styles.modalCardChevron}
+            onClick={onToggleExpand}
+            title={isExpanded ? 'Daralt' : 'Genişlet'}
+            type="button"
+          >
+            {isExpanded ? '▲' : '▼'}
+          </button>
+          <button
+            className={styles.modalCardDelete}
+            onClick={onDelete}
+            title="Sil"
+            type="button"
+          >
+            <FaTrash />
+          </button>
+        </div>
+      </div>
+
+      {isExpanded && (
+        <div className={styles.modalCardBody}>
+          <div className={styles.modalInputGrid}>
+            {itemSchema.map((f) => {
+              const isImageField =
+                f.key.toLowerCase().includes('image') ||
+                f.key.toLowerCase().includes('logo') ||
+                f.label.toLowerCase().includes('görsel') ||
+                f.label.toLowerCase().includes('fotoğraf') ||
+                f.label.toLowerCase().includes('logo');
+
+              return (
+                <div key={f.key} className={styles.modalFormRow}>
+                  <label className={styles.modalFormRowLabel}>
+                    {f.label}
+                  </label>
+                  {isImageField ? (
+                    <div className={styles.imageInput}>
+                      <ImageUpload
+                        value={row[f.key] ? String(row[f.key]) : null}
+                        onChange={(base64) => onUpdateField(f.key, base64)}
+                        shape="square"
+                        size={80}
+                        hint="Görsel yükleyin."
+                      />
+                      <Input
+                        type="url"
+                        value={row[f.key] ? String(row[f.key]) : ''}
+                        onChange={(e) => onUpdateField(f.key, e.target.value)}
+                        placeholder="Veya görsel URL'si yapıştırın"
+                      />
+                    </div>
+                  ) : f.type === 'textarea' ? (
+                    <textarea
+                      className={styles.textarea}
+                      rows={3}
+                      value={row[f.key] ? String(row[f.key]) : ''}
+                      onChange={(e) => onUpdateField(f.key, e.target.value)}
+                      placeholder={f.placeholder}
+                    />
+                  ) : (
+                    <Input
+                      type={f.type === 'number' ? 'number' : f.type === 'url' ? 'url' : 'text'}
+                      value={row[f.key] ? String(row[f.key]) : ''}
+                      onChange={(e) =>
+                        onUpdateField(
+                          f.key,
+                          f.type === 'number' ? Number(e.target.value) : e.target.value
+                        )
+                      }
+                      placeholder={f.placeholder}
+                    />
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Array Field Modal (Phase 1) ──────────────────────────────────────────────
+
+function ArrayFieldModal({
+  isOpen,
+  field,
+  rows: initialRows,
+  expandedIdx: initialExpandedIdx,
+  onClose,
+  onSave,
+}: {
+  isOpen: boolean;
+  field: PropField;
+  rows: RowData[];
+  expandedIdx: number | null;
+  onClose: () => void;
+  onSave: (nextRows: RowData[]) => void;
+}) {
+  const [localRows, setLocalRows] = useState<RowData[]>(initialRows);
+  const [expandedRowIdx, setExpandedRowIdx] = useState<number | null>(initialExpandedIdx);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      const oldIndex = parseInt(String(active.id), 10);
+      const newIndex = parseInt(String(over.id), 10);
+      setLocalRows((prev) => {
+        const next = arrayMove(prev, oldIndex, newIndex);
+        if (expandedRowIdx === oldIndex) {
+          setExpandedRowIdx(newIndex);
+        } else if (expandedRowIdx === newIndex) {
+          setExpandedRowIdx(oldIndex);
+        }
+        return next;
+      });
+    }
+  };
+
+  const handleAdd = () => {
+    const blank: RowData = {};
+    if (field.itemSchema) {
+      field.itemSchema.forEach((f) => {
+        blank[f.key] = f.type === 'number' ? 0 : '';
+      });
+    }
+    const next = [...localRows, blank];
+    setLocalRows(next);
+    setExpandedRowIdx(next.length - 1);
+  };
+
+  const handleDelete = (index: number) => {
+    Swal.fire({
+      title: 'Emin misiniz?',
+      text: 'Bu satırı silmek istediğinize emin misiniz?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: 'var(--color-primary, #ec4899)',
+      cancelButtonColor: 'var(--color-danger, #ef4444)',
+      confirmButtonText: 'Evet, sil!',
+      cancelButtonText: 'İptal',
+      background: 'var(--editor-surface, #1e1e1e)',
+      color: 'var(--editor-text, #ffffff)',
+      backdrop: 'rgba(0,0,0,0.5)',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        setLocalRows((prev) => prev.filter((_, i) => i !== index));
+        if (expandedRowIdx === index) {
+          setExpandedRowIdx(null);
+        } else if (expandedRowIdx !== null && expandedRowIdx > index) {
+          setExpandedRowIdx(expandedRowIdx - 1);
+        }
+        toast.success('Kayıt silindi.', {
+          style: {
+            background: 'var(--bg-secondary, #18181b)',
+            color: 'var(--text-main, #ffffff)',
+            border: '1px solid var(--color-success, #10b981)',
+          },
+        });
+      }
+    });
+  };
+
+  const handleUpdateField = (index: number, key: string, val: unknown) => {
+    setLocalRows((prev) =>
+      prev.map((row, idx) => (idx === index ? { ...row, [key]: val } : row))
+    );
+  };
+
+  const sortableItems = localRows.map((_, idx) => String(idx));
+
+  return (
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={`${field.label} Düzenle`}
+      size="lg"
+      footer={
+        <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', width: '100%' }}>
+          <Button variant="ghost" onClick={onClose}>
+            Vazgeç
+          </Button>
+          <Button variant="primary" onClick={() => onSave(localRows)}>
+            Değişiklikleri Kaydet
+          </Button>
+        </div>
+      }
+    >
+      <div className={styles.modalInnerContent}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+          <span style={{ fontSize: '12px', color: 'var(--editor-text-muted)' }}>
+            Sürükleyip bırakarak sıralayabilirsiniz.
+          </span>
+          <Button variant="glass" size="sm" leftIcon={<FaPlus />} onClick={handleAdd}>
+            Yeni Ekle
+          </Button>
+        </div>
+
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <SortableContext items={sortableItems} strategy={verticalListSortingStrategy}>
+            <div className={styles.modalCardList}>
+              {localRows.map((row, idx) => (
+                <SortableRowCard
+                  key={idx}
+                  id={String(idx)}
+                  index={idx}
+                  row={row}
+                  itemSchema={field.itemSchema || []}
+                  isExpanded={expandedRowIdx === idx}
+                  onToggleExpand={() => setExpandedRowIdx(expandedRowIdx === idx ? null : idx)}
+                  onUpdateField={(key, val) => handleUpdateField(idx, key, val)}
+                  onDelete={() => handleDelete(idx)}
+                />
+              ))}
+              {localRows.length === 0 && (
+                <div style={{ textAlign: 'center', padding: '32px', color: 'var(--editor-text-muted)', fontSize: '13px' }}>
+                  Henüz kayıt eklenmemiş. "Yeni Ekle" butonunu kullanarak ekleyebilirsiniz.
+                </div>
+              )}
+            </div>
+          </SortableContext>
+        </DndContext>
+      </div>
+    </Modal>
+  );
+}
+
 // ── PropsTab ──────────────────────────────────────────────────────────────────
 
 function PropsTab({
@@ -249,15 +447,15 @@ function PropsTab({
   selectedPropKey,
   onUpdate,
   onSelectProp,
+  onOpenArrayModal,
 }: {
   comp: LayoutComponent;
   schema: PropField[];
   selectedPropKey: string | null;
   onUpdate: (propKey: string, val: unknown) => void;
   onSelectProp: (propKey: string | null) => void;
+  onOpenArrayModal: (field: PropField) => void;
 }) {
-  const [openSection, setOpenSection] = useState<string | null>(null);
-
   const grouped = schema.reduce<Record<string, PropField[]>>((acc, field) => {
     const g = field.group ?? 'content';
     if (!acc[g]) acc[g] = [];
@@ -320,29 +518,22 @@ function PropsTab({
             })}
 
             {arrayFields.map((field) => {
-              const rows = Array.isArray(comp.props[field.field])
-                ? (comp.props[field.field] as unknown[]).length
-                : 0;
-              const isOpen = openSection === field.field;
+              const rowsVal = comp.props[field.field];
+              const rows = Array.isArray(rowsVal) ? (rowsVal as unknown[]) : [];
+              const count = rows.length;
               return (
-                <div key={field.field} className={styles.arraySectionWrap}>
+                <div key={field.field} className={styles.arrayEditWidget}>
+                  <div className={styles.arrayEditWidgetInfo}>
+                    <label className={styles.propLabel} style={{ margin: 0 }}>{field.label}</label>
+                    <span className={styles.arrayEditWidgetCount}>{count} kayıt</span>
+                  </div>
                   <button
-                    className={styles.arraySectionHeader}
-                    onClick={() => setOpenSection(isOpen ? null : field.field)}
+                    className={styles.arrayEditWidgetBtn}
+                    onClick={() => onOpenArrayModal(field)}
+                    type="button"
                   >
-                    <span>{field.label}</span>
-                    <span className={styles.arrayBadge}>{rows} kayit</span>
-                    <span className={styles.arraySectionChevron}>{isOpen ? '▲' : '▼'}</span>
+                    <FaEdit size={12} /> Düzenle
                   </button>
-                  {isOpen && (
-                    <div className={styles.arraySectionBody}>
-                      <PropInput
-                        field={field}
-                        value={comp.props[field.field]}
-                        onChange={(v) => onUpdate(field.field, v)}
-                      />
-                    </div>
-                  )}
                 </div>
               );
             })}
@@ -451,7 +642,7 @@ function InspectTab({
         <div className={styles.cssOutputBox}>
           <div className={styles.cssOutputHeader}>
             <span>CSS</span>
-            <button className={styles.cssOutputCopyBtn} onClick={onCopy}>
+            <button className={styles.cssOutputCopyBtn} onClick={onCopy} type="button">
               {copied ? (
                 <><FaCheck /> Kopyalandi</>
               ) : (
@@ -476,6 +667,11 @@ export function PropertiesPanel() {
   const comp = layout.find((c) => c.id === selectedComponentId);
   const [propTab, setPropTab] = useState<PropTab>('props');
   const [copied, setCopied] = useState(false);
+
+  // Modal-based array editing state
+  const [editingField, setEditingField] = useState<PropField | null>(null);
+  const [editingRows, setEditingRows] = useState<RowData[]>([]);
+  const [expandedRowIdx, setExpandedRowIdx] = useState<number | null>(null);
 
   if (!comp) {
     return (
@@ -509,12 +705,14 @@ export function PropertiesPanel() {
         <button
           className={`${styles.rightTab} ${propTab === 'props' ? styles.rightTabActive : ''}`}
           onClick={() => setPropTab('props')}
+          type="button"
         >
           Ozellikler
         </button>
         <button
           className={`${styles.rightTab} ${propTab === 'inspect' ? styles.rightTabActive : ''}`}
           onClick={() => setPropTab('inspect')}
+          type="button"
         >
           Incele
         </button>
@@ -540,6 +738,13 @@ export function PropertiesPanel() {
           selectedPropKey={selectedPropKey}
           onUpdate={update}
           onSelectProp={selectProp}
+          onOpenArrayModal={(field) => {
+            const rowsVal = comp.props[field.field];
+            const rows = Array.isArray(rowsVal) ? (rowsVal as RowData[]) : [];
+            setEditingField(field);
+            setEditingRows(JSON.parse(JSON.stringify(rows)));
+            setExpandedRowIdx(rows.length > 0 ? 0 : null);
+          }}
         />
       ) : (
         <InspectTab
@@ -548,6 +753,28 @@ export function PropertiesPanel() {
           theme={theme}
           copied={copied}
           onCopy={handleCopyCss}
+        />
+      )}
+
+      {/* Phase 1: Array Editor Modal */}
+      {editingField && (
+        <ArrayFieldModal
+          isOpen={!!editingField}
+          field={editingField}
+          rows={editingRows}
+          expandedIdx={expandedRowIdx}
+          onClose={() => setEditingField(null)}
+          onSave={(nextRows) => {
+            update(editingField.field, nextRows);
+            setEditingField(null);
+            toast.success('Değişiklikler başarıyla kaydedildi!', {
+              style: {
+                background: 'var(--bg-secondary, #18181b)',
+                color: 'var(--text-main, #ffffff)',
+                border: '1px solid var(--color-success, #10b981)',
+              },
+            });
+          }}
         />
       )}
     </div>
