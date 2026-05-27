@@ -6,10 +6,11 @@ export const CheckoutSuccessPage = () => {
   const [searchParams] = useSearchParams();
 
   const tenant = searchParams.get('tenant') ?? '';
+  const paid = searchParams.get('paid') === 'true';
 
   const handleLoginClick = () => {
-    const loginUrl = tenant 
-      ? `/login?tenant=${encodeURIComponent(tenant)}` 
+    const loginUrl = tenant
+      ? `/login?tenant=${encodeURIComponent(tenant)}`
       : '/login';
     window.location.href = loginUrl;
   };
@@ -21,10 +22,14 @@ export const CheckoutSuccessPage = () => {
           <FaCheckCircle />
         </div>
 
-        <h1 className={styles.title}>Ödemeniz Başarıyla Tamamlandı!</h1>
+        <h1 className={styles.title}>
+          {paid ? 'Ödeme Başarılı ✓' : 'Siparişiniz Alındı!'}
+        </h1>
 
         <p className={styles.description}>
-          Siparişiniz alındı ve mağazanız hazırlanıyor.
+          {paid
+            ? 'Ödemeniz başarıyla tamamlandı. Siparişiniz en kısa sürede hazırlanacak.'
+            : 'Siparişiniz alındı ve mağazanız hazırlanıyor.'}
           <br />
           Aşağıdaki butona tıklayarak mağaza panelinize giriş yapabilirsiniz.
         </p>

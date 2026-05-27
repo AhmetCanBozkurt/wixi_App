@@ -29,6 +29,7 @@ builder.Services.Configure<AppCorsOptions>(builder.Configuration.GetSection(AppC
 builder.Services.Configure<AuthRateLimitOptions>(builder.Configuration.GetSection(AuthRateLimitOptions.SectionName));
 builder.Services.Configure<MailOptions>(builder.Configuration.GetSection(MailOptions.SectionName));
 builder.Services.Configure<StripeOptions>(builder.Configuration.GetSection(StripeOptions.SectionName));
+builder.Services.Configure<Wixi.API.Controllers.Storefront.AppUrlsOptions>(builder.Configuration.GetSection("AppUrls"));
 
 builder.Services.AddWixiCors(builder.Configuration);
 builder.Services.AddWixiRateLimiting(builder.Configuration);

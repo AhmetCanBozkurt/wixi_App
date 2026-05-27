@@ -79,6 +79,7 @@ import { StorefrontOrderSuccessPage } from '../pages/storefront/StorefrontOrderS
 import { StorefrontProductDetailPage } from '../pages/storefront/StorefrontProductDetailPage/StorefrontProductDetailPage';
 import { StorefrontCategoryPage } from '../pages/storefront/StorefrontCategoryPage/StorefrontCategoryPage';
 import { StorefrontAccountPage } from '../pages/storefront/StorefrontAccountPage/StorefrontAccountPage';
+import { PaymentFailedPage } from '../pages/storefront/PaymentFailedPage/PaymentFailedPage';
 import { CRMPage } from '../pages/admin/CRMPage/CRMPage';
 import { VisitManagementPage } from '../pages/admin/VisitManagementPage/VisitManagementPage';
 import { ProjectManagementPage } from '../pages/admin/ProjectManagementPage/ProjectManagementPage';
@@ -176,6 +177,7 @@ const App = () => {
             <Route path="reset-password" element={<StorefrontResetPasswordPage />} />
             <Route path="checkout" element={<StorefrontAuthGuard><StorefrontCheckoutPage /></StorefrontAuthGuard>} />
             <Route path="order-success/:orderNumber" element={<StorefrontOrderSuccessPage />} />
+            <Route path="payment-failed" element={<PaymentFailedPage />} />
             <Route path="account" element={<StorefrontAuthGuard><StorefrontAccountPage /></StorefrontAuthGuard>} />
             <Route path=":pageSlug" element={<StorefrontPage />} />
           </Route>

@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Wixi.Modules.ECommerce.Application.Cargo;
 using Wixi.Modules.ECommerce.Infrastructure.Cargo;
 using Wixi.Modules.ECommerce.Infrastructure.Data;
+using Wixi.Modules.ECommerce.Infrastructure.Services;
 using Wixi.Modules.ECommerce.Infrastructure.Tenant;
 using Wixi.Modules.Core.Infrastructure.Services;
 
@@ -43,6 +44,10 @@ public static class ECommerceModuleExtensions
 
         // Tenant Provisioner — yeni mağaza DB'si oluşturma
         services.AddScoped<Wixi.Modules.Core.Application.Common.Interfaces.ITenantProvisioner, Wixi.Modules.ECommerce.Infrastructure.Services.ECommerceTenantProvisioner>();
+
+        // Iyzipay Ödeme Servisi
+        services.Configure<IyzipayOptions>(configuration.GetSection("Iyzipay"));
+        services.AddScoped<IIyzipayService, IyzipayService>();
 
         // Cargo Providers — IEnumerable<ICargoProvider> ile çözümlenir
         services.AddSingleton<ICargoProvider, ArasCargoProvider>();

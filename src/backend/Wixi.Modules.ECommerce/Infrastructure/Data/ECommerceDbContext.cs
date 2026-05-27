@@ -63,6 +63,9 @@ public class ECommerceDbContext : DbContext
     // Müşteri Şifre Sıfırlama
     public DbSet<WixiCustomerResetToken> CustomerResetTokens => Set<WixiCustomerResetToken>();
 
+    // Ödeme Logları
+    public DbSet<WixiPaymentLog> PaymentLogs => Set<WixiPaymentLog>();
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         // TenantContext doldurulmuşsa tenant DB'sine bağlan
@@ -520,6 +523,26 @@ public class ECommerceDbContext : DbContext
                   .WithMany()
                   .HasForeignKey(e => e.CustomerId)
                   .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // ── WixiPaymentLog ────────────────────────────────────────────
+        modelBuilder.Entity<WixiPaymentLog>(e =>
+        {
+            e.ToTable("WIXI_PAYMENT_LOGS");
+            e.HasKey(x => x.Id);
+            e.HasOne(x => x.Order)
+             .WithMany()
+             .HasForeignKey(x => x.OrderId)
+             .OnDelete(DeleteBehavior.Restrict);
+            e.Property(x => x.ConversationId).HasMaxLength(100);
+            e.Property(x => x.Token).HasMaxLength(500);
+            e.Property(x => x.PaymentId).HasMaxLength(100);
+            e.Property(x => x.Amount).HasPrecision(18, 2);
+            e.Property(x => x.ErrorMessage).HasMaxLength(1000);
+            e.Property(x => x.Gateway).HasMaxLength(50);
+            e.Property(x => x.Currency).HasMaxLength(10);
+            e.HasIndex(x => x.Token);
+            e.HasIndex(x => x.OrderId);
         });
     }
 }
