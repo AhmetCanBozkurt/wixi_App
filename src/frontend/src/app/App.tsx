@@ -27,6 +27,10 @@ import { GizlilikPage, KvkkPage, KullanimSartlariPage, CerezlerPage } from '../p
 import { ForgotPasswordPage } from '../pages/auth/ForgotPasswordPage/ForgotPasswordPage';
 import { ResetPasswordPage } from '../pages/auth/ResetPasswordPage/ResetPasswordPage';
 import { RegisterPage } from '../pages/auth/RegisterPage';
+import { VerificationPage } from '../pages/auth/VerificationPage';
+import { OnboardingPage } from '../pages/storefront/OnboardingPage';
+import { PlanSelectionPage } from '../pages/storefront/PlanSelectionPage';
+import { SaaSCheckoutPage } from '../pages/storefront/SaaSCheckoutPage';
 import { DashboardPage } from '../pages/admin/DashboardPage/DashboardPage';
 import { ApplicationLogsPage } from '../pages/admin/ApplicationLogsPage/ApplicationLogsPage';
 import { LanguageManagementPage } from '../pages/admin/LanguageManagementPage/LanguageManagementPage';
@@ -159,6 +163,10 @@ const App = () => {
           <Route path="/cerezler" element={<CerezlerPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/verify-email" element={<VerificationPage />} />
+          <Route path="/onboarding" element={<OnboardingPage />} />
+          <Route path="/select-plan" element={<PlanSelectionPage />} />
+          <Route path="/checkout/saas" element={<SaaSCheckoutPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/checkout/success" element={<CheckoutSuccessPage />} />

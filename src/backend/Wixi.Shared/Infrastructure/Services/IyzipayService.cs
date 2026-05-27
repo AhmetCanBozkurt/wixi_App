@@ -1,8 +1,9 @@
 using Iyzipay.Model;
 using Iyzipay.Request;
 using Microsoft.Extensions.Options;
+using Wixi.Shared.Configuration;
 
-namespace Wixi.Modules.ECommerce.Infrastructure.Services;
+namespace Wixi.Shared.Infrastructure.Services;
 
 // ── Result Records ────────────────────────────────────────────────────────────
 public record IyzipayCheckoutResult(bool Success, string? CheckoutFormContent, string? Token, string? ErrorMessage);

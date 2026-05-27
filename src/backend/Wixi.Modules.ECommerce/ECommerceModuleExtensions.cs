@@ -5,9 +5,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Wixi.Modules.ECommerce.Application.Cargo;
 using Wixi.Modules.ECommerce.Infrastructure.Cargo;
 using Wixi.Modules.ECommerce.Infrastructure.Data;
-using Wixi.Modules.ECommerce.Infrastructure.Services;
 using Wixi.Modules.ECommerce.Infrastructure.Tenant;
 using Wixi.Modules.Core.Infrastructure.Services;
+using Wixi.Shared.Configuration;
+using Wixi.Shared.Infrastructure.Services;
 
 namespace Wixi.Modules.ECommerce;
 

@@ -75,6 +75,10 @@ builder.Services.AddHostedService<Wixi.Modules.Core.Infrastructure.Services.Subs
 // Stripe
 builder.Services.AddScoped<Wixi.Modules.Core.Application.Common.Interfaces.IStripeService, Wixi.Modules.Core.Infrastructure.Services.StripeService>();
 
+// Iyzipay
+builder.Services.Configure<Wixi.Shared.Configuration.IyzipayOptions>(builder.Configuration.GetSection("Iyzipay"));
+builder.Services.AddScoped<Wixi.Shared.Infrastructure.Services.IIyzipayService, Wixi.Shared.Infrastructure.Services.IyzipayService>();
+
 // TCMB Exchange Rate Service
 builder.Services.AddHttpClient<Wixi.Modules.Core.Application.Common.Interfaces.ITcmbExchangeRateService,
     Wixi.Modules.Core.Infrastructure.Services.TcmbExchangeRateService>(c =>

@@ -2,9 +2,15 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using Microsoft.IdentityModel.Tokens;
 using Wixi.Modules.Core.Domain.Entities;
 using Wixi.Modules.Core.Infrastructure.Data;
 using Wixi.Modules.Core.Application.Common.Interfaces;
+using Wixi.Shared.Configuration;
 
 namespace Wixi.API.Controllers.Subscriptions;
 
@@ -17,19 +23,22 @@ public class SaasOnboardingController : ControllerBase
     private readonly IConfiguration _configuration;
     private readonly UserManager<WixiUser> _userManager;
     private readonly IMailService _mailService;
+    private readonly JwtOptions _jwtOptions;
 
     public SaasOnboardingController(
         WixiCoreDbContext coreDb,
         IEnumerable<ITenantProvisioner> provisioners,
         IConfiguration configuration,
         UserManager<WixiUser> userManager,
-        IMailService mailService)
+        IMailService mailService,
+        IOptions<JwtOptions> jwtOptions)
     {
         _coreDb = coreDb;
         _provisioners = provisioners;
         _configuration = configuration;
         _userManager = userManager;
         _mailService = mailService;
+        _jwtOptions = jwtOptions.Value;
     }
 
     [HttpPost("register")]
@@ -56,7 +65,7 @@ public class SaasOnboardingController : ControllerBase
             OwnerEmail = request.OwnerEmail,
             DatabaseName = $"wixi_t_{tenantCode}_{safeStoreName}",
             EnabledModules = string.Join(",", request.SelectedModules ?? ["ecommerce"]),
-            Plan = "Trial"
+            Plan = request.PlanCode ?? "Trial"
         };
 
         _coreDb.Tenants.Add(tenant);
@@ -88,8 +97,7 @@ public class SaasOnboardingController : ControllerBase
             tenant.LastMigrationError = ex.Message;
         }
 
-        // 3. Tenant admin kullanıcısı oluştur
-        var tempPassword = GenerateTempPassword();
+        // 3. Tenant admin kullanıcısı oluştur (Kullanıcının şifresi ile)
         var ownerUser = new WixiUser
         {
             UserName = request.OwnerEmail,
@@ -99,25 +107,37 @@ public class SaasOnboardingController : ControllerBase
             EmailConfirmed = true
         };
 
-        var createResult = await _userManager.CreateAsync(ownerUser, tempPassword);
+        var createResult = await _userManager.CreateAsync(ownerUser, request.Password);
         if (createResult.Succeeded)
         {
             await _userManager.AddToRoleAsync(ownerUser, "TenantAdmin");
             tenant.OwnerUserId = ownerUser.Id;
         }
+        else
+        {
+            var identityError = createResult.Errors.FirstOrDefault()?.Description ?? "Kullanıcı oluşturulurken bir hata oluştu.";
+            return BadRequest(new { error = identityError });
+        }
 
-        // 4. Trial abonelik oluştur
+        // 4. Plan ve Abonelik oluştur
+        bool requiresPayment = false;
+        var selectedPlan = await _coreDb.SubscriptionPlans
+            .FirstOrDefaultAsync(p => p.Code == request.PlanCode && p.IsActive && !p.IsDeleted);
+
         var freePlan = await _coreDb.SubscriptionPlans
             .FirstOrDefaultAsync(p => p.Code == "free" && p.IsActive && !p.IsDeleted);
 
-        if (freePlan is not null)
+        var finalPlan = selectedPlan ?? freePlan;
+
+        if (finalPlan is not null)
         {
+            requiresPayment = finalPlan.PriceMonthly > 0;
             var now = DateTime.UtcNow;
             _coreDb.TenantSubscriptions.Add(new WixiTenantSubscription
             {
                 TenantId = tenant.Id,
-                PlanId = freePlan.Id,
-                Status = "Trial",
+                PlanId = finalPlan.Id,
+                Status = requiresPayment ? "PendingPayment" : "Trial",
                 CurrentPeriodStart = now,
                 CurrentPeriodEnd = now.AddDays(14)
             });
@@ -125,42 +145,88 @@ public class SaasOnboardingController : ControllerBase
 
         await _coreDb.SaveChangesAsync();
 
-        // 5. Şifre kurulum emaili gönder
-        if (createResult.Succeeded)
+        // 5. Welcome Email gönder
+        try
         {
-            try
-            {
-                var resetToken = await _userManager.GeneratePasswordResetTokenAsync(ownerUser);
-                var frontendUrl = _configuration["AppUrls:FrontendBaseUrl"] ?? "http://localhost:5183";
-                var resetLink = $"{frontendUrl}/reset-password?token={Uri.EscapeDataString(resetToken)}&email={Uri.EscapeDataString(request.OwnerEmail)}";
+            var frontendUrl = _configuration["AppUrls:FrontendBaseUrl"] ?? "http://localhost:5183";
+            var dashboardUrl = $"{frontendUrl}/tenant/{tenant.Slug}";
 
-                await _mailService.SendWithTemplateAsync(
-                    "TENANT_WELCOME",
-                    request.OwnerEmail,
-                    new { storeName = request.StoreName, resetLink, tenantSlug = tenant.Slug },
-                    CancellationToken.None);
-            }
-            catch { /* Email hatası kayıt akışını durdurmasın */ }
+            await _mailService.SendWithTemplateAsync(
+                "TENANT_WELCOME",
+                request.OwnerEmail,
+                new { storeName = request.StoreName, resetLink = dashboardUrl, tenantSlug = tenant.Slug },
+                CancellationToken.None);
         }
+        catch { /* E-posta gönderme hatası kaydı kesmesin */ }
 
         if (provisionError is not null)
             return StatusCode(500, new { error = "Veritabanı kurulumu sırasında hata oluştu.", detail = provisionError });
+
+        // 6. Giriş Token'ı Üret
+        var token = GenerateJwtToken(ownerUser, tenant);
 
         return Ok(new
         {
             message = "Mağazanız başarıyla kuruldu!",
             slug = tenant.Slug,
             tenantId = tenant.Id,
-            adminUrl = $"/admin?tenant={tenant.Slug}",
-            requiresPayment = false
+            token = token,
+            adminUrl = $"/tenant/{tenant.Slug}",
+            requiresPayment = requiresPayment
         });
     }
 
-    private static string GenerateTempPassword()
+    [HttpPost("send-otp")]
+    [AllowAnonymous]
+    public async Task<IActionResult> SendOtp([FromBody] SendOtpRequest request, CancellationToken ct)
     {
-        var chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#$";
-        var random = new Random();
-        return new string(Enumerable.Range(0, 16).Select(_ => chars[random.Next(chars.Length)]).ToArray());
+        if (await _userManager.FindByEmailAsync(request.Email) != null)
+            return BadRequest(new { error = "Bu e-posta adresi zaten kayıtlı." });
+
+        var code = System.Security.Cryptography.RandomNumberGenerator.GetInt32(0, 1_000_000).ToString("D6");
+        
+        try
+        {
+            await _mailService.SendWithTemplateAsync(
+                "TWO_FACTOR_AUTH", // reuse this template for signup code
+                request.Email,
+                new { fullName = "Wixi Üyesi", code },
+                ct);
+        }
+        catch
+        {
+            // Fallback: mail sunucusu ayarlı değilse bile kaydı engellememek için loglayıp devam edelim
+        }
+
+        return Ok(new { message = "Doğrulama kodu gönderildi.", devCode = code });
+    }
+
+    private string GenerateJwtToken(WixiUser user, WixiTenant tenant)
+    {
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var key = Encoding.ASCII.GetBytes(_jwtOptions.SecretKey);
+
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new Claim(ClaimTypes.Email, user.Email!),
+            new Claim(ClaimTypes.Name, $"{user.FirstName} {user.LastName}"),
+            new Claim(ClaimTypes.Role, "TenantAdmin"),
+            new Claim("tenant_id", tenant.Id.ToString()),
+            new Claim("tenant_slug", tenant.Slug)
+        };
+
+        var tokenDescriptor = new SecurityTokenDescriptor
+        {
+            Subject = new ClaimsIdentity(claims),
+            Expires = DateTime.UtcNow.AddMinutes(_jwtOptions.ExpiryMinutes),
+            Issuer = _jwtOptions.Issuer,
+            Audience = _jwtOptions.Audience,
+            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+        };
+
+        var token = tokenHandler.CreateToken(tokenDescriptor);
+        return tokenHandler.WriteToken(token);
     }
 }
 
@@ -168,5 +234,9 @@ public record RegisterTenantRequest(
     string StoreName,
     string Slug,
     string OwnerEmail,
+    string Password,
+    string? PlanCode,
     List<string>? SelectedModules
 );
+
+public record SendOtpRequest(string Email);

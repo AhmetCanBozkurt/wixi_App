@@ -2,7 +2,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Wixi.Modules.ECommerce.Domain.Entities;
 using Wixi.Modules.ECommerce.Infrastructure.Data;
-using Wixi.Modules.ECommerce.Infrastructure.Services;
+using Wixi.Shared.Infrastructure.Services;
 
 namespace Wixi.Modules.ECommerce.Application.Orders.Commands.HandlePaymentCallback;
 
