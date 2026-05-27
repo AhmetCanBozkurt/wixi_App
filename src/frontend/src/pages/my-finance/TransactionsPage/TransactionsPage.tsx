@@ -44,7 +44,7 @@ interface TransactionsApiResponse {
 
 interface CategoriesApiResponse {
   success: boolean;
-  data: { items: CategoryItem[] };
+  data: CategoryItem[]; // backend direkt array döner, { items } wrapper yok
 }
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -127,7 +127,7 @@ export const TransactionsPage = () => {
   const fetchCategories = useCallback(async () => {
     try {
       const res = await apiClient.get<CategoriesApiResponse>('/me/finance/categories');
-      setCategories(res.data.data?.items ?? []);
+      setCategories(res.data.data ?? []);
     } catch {
       setCategories([]);
     }

@@ -26,7 +26,7 @@ interface CategoryItem {
 
 interface CategoriesApiResponse {
   success: boolean;
-  data: { items: CategoryItem[] };
+  data: CategoryItem[]; // backend direkt array döner, { items } wrapper yok
 }
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -87,7 +87,7 @@ export const CategoriesPage = () => {
       const params: Record<string, string> = {};
       if (filterType) params.type = filterType;
       const res = await apiClient.get<CategoriesApiResponse>('/me/finance/categories', { params });
-      setCategories(res.data.data?.items ?? []);
+      setCategories(res.data.data ?? []);
     } catch {
       setCategories([]);
     } finally {
