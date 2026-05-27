@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { FaCode, FaCube } from 'react-icons/fa';
 import { useEditor } from '../context/EditorContext';
 import { useThemeEditor } from '../hooks/useThemeEditor';
@@ -22,13 +22,16 @@ export function CodeEditorPanel({ tenantSlug }: Props) {
     ? state.layout.find(c => c.id === state.selectedComponentId) ?? null
     : null;
 
+  const [prevSelectedComponentId, setPrevSelectedComponentId] = useState<string | null>(null);
+
   // Sync JSON editor when selected component changes
-  useEffect(() => {
+  if (state.selectedComponentId !== prevSelectedComponentId) {
+    setPrevSelectedComponentId(state.selectedComponentId);
     if (selectedComponent) {
       setComponentJson(JSON.stringify(selectedComponent.props, null, 2));
       setJsonError(null);
     }
-  }, [state.selectedComponentId]); // eslint-disable-line react-hooks/exhaustive-deps
+  }
 
   const handleApplyProps = () => {
     if (!selectedComponent) return;

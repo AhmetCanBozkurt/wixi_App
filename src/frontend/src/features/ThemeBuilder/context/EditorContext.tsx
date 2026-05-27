@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useReducer, type Dispatch, type ReactNode } from 'react';
 import type { LayoutComponent, StorePage, StorePageSummary, ThemeConfig, Backlink, GlobalComponentsConfig, ThemeVersionSummary } from '../../../entities/StorePage/model/types';
 import { DEFAULT_THEME } from '../../../entities/StorePage/model/defaultTheme';
@@ -33,7 +34,8 @@ export interface EditorState {
   isLoading: boolean;
   themeVersions: ThemeVersionSummary[];
   versionsLoading: boolean;
-  insertAtIndex: number | null;  // InsertZone pozisyonu — null = sona ekle
+  insertAtIndex: number | null;
+  insertTargetId: string | null;  // Faz 2: hangi container'a eklenecek (null = root)
   // ── History (undo/redo) ───────────────────────────────
   _past: LayoutComponent[][];
   _future: LayoutComponent[][];
@@ -70,9 +72,75 @@ export type EditorAction =
   | { type: 'DUPLICATE_COMPONENT'; id: string }
   | { type: 'COPY_COMPONENT'; id: string }
   | { type: 'PASTE_COMPONENT' }
-  | { type: 'SET_INSERT_INDEX'; index: number | null };
+  | { type: 'SET_INSERT_INDEX'; index: number | null }
+  // ── Faz 2: Nested layout actions ─────────────────────
+  | { type: 'SET_INSERT_TARGET'; id: string | null }
+  | { type: 'REORDER_CHILDREN'; parentId: string; newChildren: LayoutComponent[] }
+  | { type: 'ADD_CHILD_COMPONENT'; parentId: string; component: LayoutComponent; insertAt?: number };
 
 const HISTORY_LIMIT = 50;
+
+// ── Faz 2: Tree helpers ───────────────────────────────────────────────────────
+
+export function findInTree(layout: LayoutComponent[], id: string): LayoutComponent | null {
+  for (const comp of layout) {
+    if (comp.id === id) return comp;
+    if (comp.children) {
+      const found = findInTree(comp.children, id);
+      if (found) return found;
+    }
+  }
+  return null;
+}
+
+function mapInTree(
+  layout: LayoutComponent[],
+  id: string,
+  updater: (c: LayoutComponent) => LayoutComponent,
+): LayoutComponent[] {
+  return layout.map(comp => {
+    if (comp.id === id) return updater(comp);
+    if (comp.children) return { ...comp, children: mapInTree(comp.children, id, updater) };
+    return comp;
+  });
+}
+
+function removeFromTree(layout: LayoutComponent[], id: string): LayoutComponent[] {
+  return layout
+    .filter(c => c.id !== id)
+    .map(c => c.children ? { ...c, children: removeFromTree(c.children, id) } : c);
+}
+
+function deepCloneComp(comp: LayoutComponent): LayoutComponent {
+  return {
+    ...comp,
+    id: crypto.randomUUID(),
+    props: { ...comp.props },
+    children: comp.children?.map(deepCloneComp),
+  };
+}
+
+function duplicateInTree(layout: LayoutComponent[], id: string): LayoutComponent[] | null {
+  const idx = layout.findIndex(c => c.id === id);
+  if (idx !== -1) {
+    const clone = deepCloneComp(layout[idx]);
+    return [
+      ...layout.slice(0, idx + 1),
+      clone,
+      ...layout.slice(idx + 1),
+    ];
+  }
+  let changed = false;
+  const next = layout.map(c => {
+    if (!c.children) return c;
+    const newChildren = duplicateInTree(c.children, id);
+    if (newChildren) { changed = true; return { ...c, children: newChildren }; }
+    return c;
+  });
+  return changed ? next : null;
+}
+
+// ── History helper ────────────────────────────────────────────────────────────
 
 /** Mevcut layout'u geçmişe ekle, geleceği temizle */
 function pushHistory(state: EditorState): EditorState {
@@ -108,6 +176,7 @@ const initialState: EditorState = {
   themeVersions: [],
   versionsLoading: false,
   insertAtIndex: null,
+  insertTargetId: null,
   _past: [],
   _future: [],
   _clipboard: null,
@@ -153,6 +222,25 @@ function reducer(state: EditorState, action: EditorAction): EditorState {
 
     case 'ADD_COMPONENT': {
       const h = pushHistory(state);
+      if (state.insertTargetId) {
+        // Add as child of the selected container
+        const newLayout = mapInTree(h.layout, state.insertTargetId, (parent) => {
+          const children = parent.children ?? [];
+          const at = state.insertAtIndex !== null ? state.insertAtIndex : children.length;
+          return {
+            ...parent,
+            children: [...children.slice(0, at), action.component, ...children.slice(at)],
+          };
+        });
+        return {
+          ...h,
+          layout: newLayout,
+          selectedComponentId: action.component.id,
+          insertAtIndex: null,
+          insertTargetId: null,
+          isDirty: true,
+        };
+      }
       const insertAt = state.insertAtIndex !== null ? state.insertAtIndex : h.layout.length;
       const newLayout = [
         ...h.layout.slice(0, insertAt),
@@ -172,7 +260,7 @@ function reducer(state: EditorState, action: EditorAction): EditorState {
       const h = pushHistory(state);
       return {
         ...h,
-        layout: state.layout.filter(c => c.id !== action.id),
+        layout: removeFromTree(state.layout, action.id),
         selectedComponentId: state.selectedComponentId === action.id ? null : state.selectedComponentId,
         isDirty: true,
       };
@@ -193,7 +281,7 @@ function reducer(state: EditorState, action: EditorAction): EditorState {
       const h = pushHistory(state);
       return {
         ...h,
-        layout: state.layout.map(c => c.id === action.id ? { ...c, props: { ...c.props, ...action.props } } : c),
+        layout: mapInTree(state.layout, action.id, c => ({ ...c, props: { ...c.props, ...action.props } })),
         isDirty: true,
       };
     }
@@ -246,21 +334,13 @@ function reducer(state: EditorState, action: EditorAction): EditorState {
 
     // ── Duplicate ─────────────────────────────────────────
     case 'DUPLICATE_COMPONENT': {
-      const idx = state.layout.findIndex(c => c.id === action.id);
-      if (idx === -1) return state;
-      const original = state.layout[idx];
-      const clone: LayoutComponent = {
-        ...original,
-        id: crypto.randomUUID(),
-        props: { ...original.props },
-      };
       const h = pushHistory(state);
-      const newLayout = [
-        ...state.layout.slice(0, idx + 1),
-        clone,
-        ...state.layout.slice(idx + 1),
-      ];
-      return { ...h, layout: newLayout, selectedComponentId: clone.id, isDirty: true };
+      const result = duplicateInTree(state.layout, action.id);
+      if (!result) return state;
+      // Find the clone id (inserted right after original)
+      const originalIdx = result.findIndex(c => c.id === action.id);
+      const cloneId = originalIdx !== -1 ? result[originalIdx + 1]?.id : undefined;
+      return { ...h, layout: result, selectedComponentId: cloneId ?? action.id, isDirty: true };
     }
 
     // ── Copy ─────────────────────────────────────────────
@@ -294,6 +374,35 @@ function reducer(state: EditorState, action: EditorAction): EditorState {
     case 'SET_INSERT_INDEX':
       return { ...state, insertAtIndex: action.index };
 
+    // ── Faz 2: Nested layout ──────────────────────────────
+    case 'SET_INSERT_TARGET':
+      return { ...state, insertTargetId: action.id };
+
+    case 'REORDER_CHILDREN': {
+      const h = pushHistory(state);
+      return {
+        ...h,
+        layout: mapInTree(state.layout, action.parentId, c => ({ ...c, children: action.newChildren })),
+        isDirty: true,
+      };
+    }
+
+    case 'ADD_CHILD_COMPONENT': {
+      const h = pushHistory(state);
+      const at = action.insertAt ?? Infinity;
+      const newLayout = mapInTree(h.layout, action.parentId, (parent) => {
+        const children = parent.children ?? [];
+        const idx = Math.min(at, children.length);
+        return { ...parent, children: [...children.slice(0, idx), action.component, ...children.slice(idx)] };
+      });
+      return {
+        ...h,
+        layout: newLayout,
+        selectedComponentId: action.component.id,
+        isDirty: true,
+      };
+    }
+
     default: return state;
   }
 }
@@ -317,5 +426,6 @@ export function useEditor() {
     ...ctx,
     selectProp: (propKey: string | null) => ctx.dispatch({ type: 'SELECT_PROP', propKey }),
     setInsertIndex: (index: number | null) => ctx.dispatch({ type: 'SET_INSERT_INDEX', index }),
+    setInsertTarget: (id: string | null) => ctx.dispatch({ type: 'SET_INSERT_TARGET', id }),
   };
 }

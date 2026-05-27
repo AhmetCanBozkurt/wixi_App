@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
-import { useTheme } from '../../../app/providers/ThemeProvider';
 import styles from './OnboardingPage.module.css';
 
 interface ModuleOption {
@@ -54,7 +53,6 @@ export function OnboardingPage() {
   const [selectedFont, setSelectedFont] = useState('jakarta');
 
   const navigate = useNavigate();
-  const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
     const email = sessionStorage.getItem('wixi-signup-email');

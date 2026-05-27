@@ -304,6 +304,73 @@
   outline-color: #ec4899;
 }
 
+/* ── Faz 2: Container Blocks ─────────────────────────── */
+.containerBlock {
+  border: 2px dashed var(--editor-border) !important;
+  background: rgba(255,255,255,0.02) !important;
+}
+
+.containerBlock:hover,
+.containerBlock.selected {
+  border-color: rgba(99,102,241,0.6) !important;
+}
+
+.containerBlock.selected {
+  border-color: #6366f1 !important;
+}
+
+.containerInner {
+  min-height: 48px;
+  padding: 8px;
+}
+
+.nestedBlockList {
+  display: flex;
+  flex-direction: column;
+  min-height: 40px;
+}
+
+.nestedEmptyZone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  border: 2px dashed var(--editor-border);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--editor-text-muted);
+  transition: all 0.15s;
+  margin: 4px 0;
+}
+
+.nestedEmptyZone:hover {
+  border-color: #6366f1;
+  color: #6366f1;
+  background: rgba(99,102,241,0.04);
+}
+
+.nestedAddBtn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: transparent;
+  border: 1px dashed var(--editor-border);
+  border-radius: 4px;
+  color: var(--editor-text-muted);
+  cursor: pointer;
+  font-size: 11px;
+  margin-top: 6px;
+  transition: all 0.15s;
+  align-self: flex-start;
+}
+
+.nestedAddBtn:hover {
+  border-color: #6366f1;
+  color: #6366f1;
+}
+
 /* ── Drag Handle ─────────────────────────────────────── */
 .dragHandle {
   position: absolute;

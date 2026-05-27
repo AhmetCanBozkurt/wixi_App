@@ -4,6 +4,7 @@ export interface LayoutComponent {
   id: string;
   type: string;
   props: Record<string, unknown>;
+  children?: LayoutComponent[];
 }
 
 export interface Backlink {

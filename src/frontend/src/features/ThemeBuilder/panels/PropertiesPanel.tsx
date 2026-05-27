@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { FaPlus, FaTrash, FaGripVertical, FaCopy, FaCheck, FaEdit } from 'react-icons/fa';
-import { useEditor } from '../context/EditorContext';
+import { useEditor, findInTree } from '../context/EditorContext';
 import { BLOCK_BY_TYPE } from '../blocks/blockRegistry';
 import type { PropField, BlockDefinition, RowFieldSchema } from '../blocks/blockRegistry';
 import type { LayoutComponent, ThemeConfig } from '../../../entities/StorePage/model/types';
 import styles from './Panels.module.css';
-import { Button, Input, Select, Switch, ImageUpload, ComboBox, Modal } from '../../../shared/ui';
+import { Button, Input, ImageUpload, Modal } from '../../../shared/ui';
 import Swal from 'sweetalert2';
 import toast from 'react-hot-toast';
 import {
@@ -664,7 +664,7 @@ function InspectTab({
 export function PropertiesPanel() {
   const { state, dispatch, selectProp } = useEditor();
   const { selectedComponentId, layout, theme, selectedPropKey } = state;
-  const comp = layout.find((c) => c.id === selectedComponentId);
+  const comp = selectedComponentId ? findInTree(layout, selectedComponentId) : null;
   const [propTab, setPropTab] = useState<PropTab>('props');
   const [copied, setCopied] = useState(false);
 

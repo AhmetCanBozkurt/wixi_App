@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 import type { MailTemplate } from '../types';
@@ -11,24 +11,26 @@ interface TemplateFormProps {
   onCancel: () => void;
 }
 
+const EMPTY_FORM: Partial<MailTemplate> = { code: '', subject: '', body: '', category: '', isActive: true };
+
 export const TemplateForm: React.FC<TemplateFormProps> = ({
   template,
   onSave,
   onCancel
 }) => {
-  const emptyForm: Partial<MailTemplate> = { code: '', subject: '', body: '', category: '', isActive: true };
-
+  const [prevTemplateId, setPrevTemplateId] = useState<string | undefined>(template?.id);
   const [formData, setFormData] = useState<Partial<MailTemplate>>(
-    template ? { ...template } : emptyForm
+    template ? { ...template } : EMPTY_FORM
   );
 
   const [editorMode, setEditorMode] = useState<'rich' | 'source' | 'preview'>('rich');
 
   // Handles re-open with a different template (edge case)
-  useEffect(() => {
-    setFormData(template ? { ...template } : emptyForm);
+  if (template?.id !== prevTemplateId) {
+    setPrevTemplateId(template?.id);
+    setFormData(template ? { ...template } : EMPTY_FORM);
     setEditorMode('rich');
-  }, [template?.id]);
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

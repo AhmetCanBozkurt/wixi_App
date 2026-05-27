@@ -5,6 +5,7 @@ import {
   FaUsers, FaBriefcase, FaNewspaper, FaHistory, FaTh, FaMapMarkerAlt,
   FaBuilding, FaHandshake, FaDollarSign, FaPhone, FaTrophy,
   FaCheckCircle, FaListAlt, FaBullseye, FaAddressCard, FaStar,
+  FaSquare, FaTable,
 } from 'react-icons/fa';
 import type { IconType } from 'react-icons';
 import type { ThemeConfig } from '../../../entities/StorePage/model/types';
@@ -43,6 +44,7 @@ export interface BlockDefinition {
   defaultProps: Record<string, unknown>;
   propsSchema: PropField[];
   children?: ChildElement[];
+  isContainer?: boolean;
   toCss?: (props: Record<string, unknown>, theme: ThemeConfig) => string;
 }
 
@@ -1545,6 +1547,63 @@ export const BLOCK_REGISTRY: BlockDefinition[] = [
       ].join('\n');
     },
   },
+
+  // ── Container blocks (Faz 2) ─────────────────────────────────────────────────
+  {
+    type: 'section-container',
+    name: 'Bölüm (Section)',
+    category: 'advanced',
+    icon: FaSquare,
+    isContainer: true,
+    defaultProps: {
+      backgroundColor: '',
+      backgroundType: 'transparent',
+      paddingY: '40px',
+      paddingX: '0px',
+    },
+    propsSchema: [
+      { field: 'backgroundType', type: 'select', label: 'Arka Plan', group: 'visual',
+        options: [{ value: 'transparent', label: 'Şeffaf' }, { value: 'color', label: 'Renk' }, { value: 'surface', label: 'Yüzey' }] },
+      { field: 'backgroundColor', type: 'color', label: 'Arka Plan Rengi', group: 'visual' },
+      { field: 'paddingY', type: 'text', label: 'Dikey Boşluk', group: 'style' },
+      { field: 'paddingX', type: 'text', label: 'Yatay Boşluk', group: 'style' },
+    ],
+  },
+  {
+    type: 'grid-row',
+    name: 'Izgara Satırı',
+    category: 'advanced',
+    icon: FaTable,
+    isContainer: true,
+    defaultProps: {
+      columns: 2,
+      gap: '16px',
+      alignItems: 'stretch',
+    },
+    propsSchema: [
+      { field: 'columns', type: 'select', label: 'Kolon Sayısı', group: 'style',
+        options: [{ value: '2', label: '2' }, { value: '3', label: '3' }, { value: '4', label: '4' }, { value: '12', label: '12 (Grid)' }] },
+      { field: 'gap', type: 'text', label: 'Aralık', group: 'style' },
+      { field: 'alignItems', type: 'select', label: 'Dikey Hizalama', group: 'style',
+        options: [{ value: 'stretch', label: 'Uzat' }, { value: 'flex-start', label: 'Üst' }, { value: 'center', label: 'Orta' }, { value: 'flex-end', label: 'Alt' }] },
+    ],
+  },
+  {
+    type: 'grid-column',
+    name: 'Izgara Kolonu',
+    category: 'advanced',
+    icon: FaColumns,
+    isContainer: true,
+    defaultProps: {
+      span: 1,
+      verticalAlign: 'top',
+    },
+    propsSchema: [
+      { field: 'span', type: 'number', label: 'Kolon Genişliği (1-12)', group: 'style' },
+      { field: 'verticalAlign', type: 'select', label: 'Dikey Hizalama', group: 'style',
+        options: [{ value: 'top', label: 'Üst' }, { value: 'middle', label: 'Orta' }, { value: 'bottom', label: 'Alt' }, { value: 'stretch', label: 'Uzat' }] },
+    ],
+  },
 ];
 
 export const BLOCK_BY_TYPE = Object.fromEntries(BLOCK_REGISTRY.map(b => [b.type, b]));
@@ -1558,3 +1617,5 @@ export const BLOCK_CATEGORIES = {
   advanced:  'Gelişmiş',
   corporate: 'Kurumsal',
 } as const;
+
+export const CONTAINER_TYPES = new Set(['section-container', 'grid-row', 'grid-column']);

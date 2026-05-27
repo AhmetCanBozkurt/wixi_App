@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { apiClient } from '../../../shared/api/axiosConfig';
-import { useTheme } from '../../../app/providers/ThemeProvider';
 import styles from './SaaSCheckoutPage.module.css';
 
 export function SaaSCheckoutPage() {
@@ -10,7 +9,6 @@ export function SaaSCheckoutPage() {
   const [tenantSlug, setTenantSlug] = useState('');
   const [planCode, setPlanCode] = useState('');
   const [billingInterval, setBillingInterval] = useState('Monthly');
-  const [storeName, setStoreName] = useState('');
   const [email, setEmail] = useState('');
 
   // Form Fields
@@ -31,7 +29,6 @@ export function SaaSCheckoutPage() {
   const [couponApplied, setCouponApplied] = useState(false);
 
   const navigate = useNavigate();
-  const { theme, toggleTheme } = useTheme();
 
   // Load registration context on mount
   useEffect(() => {
@@ -52,21 +49,13 @@ export function SaaSCheckoutPage() {
     setTenantSlug(storedSlug);
     setPlanCode(storedPlanCode);
     setBillingInterval(storedInterval);
-    setStoreName(storedStoreName);
     setEmail(storedEmail);
 
     setBuyerName(storedStoreName);
     setCompany(storedStoreName);
   }, [navigate]);
 
-  // Load İyzico Checkout Form script when tab is selected
-  useEffect(() => {
-    if (paymentMethod === 'iyzico' && tenantId && planCode && !iyzipayFormLoaded) {
-      initiateIyzipay();
-    }
-  }, [paymentMethod, tenantId, planCode]);
-
-  const initiateIyzipay = async () => {
+  const initiateIyzipay = useCallback(async () => {
     setIsLoadingPayment(true);
     setIyzipayFormLoaded(false);
     try {
@@ -104,7 +93,14 @@ export function SaaSCheckoutPage() {
     } finally {
       setIsLoadingPayment(false);
     }
-  };
+  }, [tenantId, tenantSlug, planCode, billingInterval]);
+
+  // Load İyzico Checkout Form script when tab is selected
+  useEffect(() => {
+    if (paymentMethod === 'iyzico' && tenantId && planCode && !iyzipayFormLoaded) {
+      initiateIyzipay();
+    }
+  }, [paymentMethod, tenantId, planCode, iyzipayFormLoaded, initiateIyzipay]);
 
   const handleStripePay = async () => {
     setIsLoadingPayment(true);

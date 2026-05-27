@@ -9,6 +9,8 @@ import {
   FaMobileAlt,
   FaCopy,
   FaGripVertical,
+  FaPlus,
+  FaLayerGroup,
 } from 'react-icons/fa';
 import {
   DndContext,
@@ -29,7 +31,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { useEditor } from '../context/EditorContext';
 import type { EditorAction } from '../context/EditorContext';
-import { BLOCK_BY_TYPE } from '../blocks/blockRegistry';
+import { BLOCK_BY_TYPE, CONTAINER_TYPES } from '../blocks/blockRegistry';
 import { themeToVars } from '../../../entities/StorePage/model/defaultTheme';
 import type { LayoutComponent, ThemeConfig, GlobalComponentsConfig } from '../../../entities/StorePage/model/types';
 import styles from './EditorCanvas.module.css';
@@ -1119,6 +1121,94 @@ export function MiniRenderer({ comp, theme }: { comp: LayoutComponent; theme: Th
         </div>
       );
 
+    case 'slider':
+      return (
+        <div style={{ padding: '16px', background: theme.colors.surface, borderRadius: '8px', minHeight: '80px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+          <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: theme.colors.primary }} />
+          <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: theme.colors.border }} />
+          <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: theme.colors.border }} />
+          <span style={{ position: 'absolute', fontSize: '0.7rem', color: theme.colors.textMuted }}>Slayt Gösterisi</span>
+        </div>
+      );
+
+    case 'faq': {
+      return (
+        <div style={{ padding: '16px' }}>
+          <h3 data-prop-key="title" style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '12px', color: theme.colors.text }}>{p.title as string}</h3>
+          {[1, 2, 3].map((i) => (
+            <div key={i} style={{ borderBottom: `1px solid ${theme.colors.border}`, padding: '10px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ height: '10px', width: `${55 + i * 10}%`, background: theme.colors.border, borderRadius: '4px' }} />
+              <span style={{ color: theme.colors.textMuted, fontSize: '12px' }}>▼</span>
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    // ── Container blocks (Faz 2) ───────────────────────────────────────────────
+
+    case 'section-container':
+      return (
+        <div style={{
+          padding: '12px',
+          background: (p.backgroundType === 'color' ? (p.backgroundColor as string) : undefined) ?? 'transparent',
+          border: `2px dashed ${theme.colors.border}`,
+          borderRadius: '6px',
+          minHeight: '60px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+          <span style={{ fontSize: '11px', color: theme.colors.textMuted, fontWeight: 600 }}>
+            BÖLÜM — {(comp as { children?: unknown[] }).children?.length ?? 0} bileşen
+          </span>
+        </div>
+      );
+
+    case 'grid-row': {
+      const cols = Number(p.columns ?? 2);
+      return (
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: `repeat(${cols}, 1fr)`,
+          gap: (p.gap as string) ?? '8px',
+          padding: '8px',
+          border: `2px dashed ${theme.colors.border}`,
+          borderRadius: '6px',
+          minHeight: '48px',
+        }}>
+          {Array.from({ length: cols }).map((_, i) => (
+            <div key={i} style={{
+              minHeight: '32px',
+              background: theme.colors.surface,
+              borderRadius: '4px',
+              border: `1px solid ${theme.colors.border}`,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+              <span style={{ fontSize: '10px', color: theme.colors.textMuted }}>Kolon {i + 1}</span>
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    case 'grid-column':
+      return (
+        <div style={{
+          padding: '8px',
+          border: `2px dashed ${theme.colors.border}`,
+          borderRadius: '6px',
+          minHeight: '40px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+          <span style={{ fontSize: '10px', color: theme.colors.textMuted }}>Kolon (span: {String(p.span ?? 1)})</span>
+        </div>
+      );
+
     default:
       return (
         <div style={{ padding: '24px', textAlign: 'center', color: theme.colors.textMuted }}>
@@ -1128,6 +1218,86 @@ export function MiniRenderer({ comp, theme }: { comp: LayoutComponent; theme: Th
   }
 }
 
+// ── NestedBlockList — recursive child renderer ─────────────────────────────────
+
+function NestedBlockList({
+  parentId,
+  children,
+  theme,
+  selectedId,
+  onSelect,
+  onDispatch,
+  depth = 1,
+}: {
+  parentId: string;
+  children: LayoutComponent[];
+  theme: ThemeConfig;
+  selectedId: string | null;
+  onSelect: (id: string, e: React.MouseEvent) => void;
+  onDispatch: (action: Parameters<Dispatch<EditorAction>>[0]) => void;
+  depth?: number;
+}) {
+  const nestedSensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(KeyboardSensor),
+  );
+
+  const handleChildDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      const oldIndex = children.findIndex(c => c.id === String(active.id));
+      const newIndex = children.findIndex(c => c.id === String(over.id));
+      if (oldIndex !== -1 && newIndex !== -1) {
+        onDispatch({ type: 'REORDER_CHILDREN', parentId, newChildren: arrayMove(children, oldIndex, newIndex) });
+      }
+    }
+  };
+
+  const addChild = () => {
+    onDispatch({ type: 'SET_INSERT_TARGET', id: parentId });
+    onDispatch({ type: 'SET_LEFT_TAB', tab: 'components' });
+  };
+
+  return (
+    <div className={styles.nestedBlockList} style={{ marginLeft: depth > 1 ? '8px' : '0' }}>
+      <DndContext
+        sensors={nestedSensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleChildDragEnd}
+      >
+        <SortableContext items={children.map(c => c.id)} strategy={verticalListSortingStrategy}>
+          {children.length === 0 ? (
+            <div className={styles.nestedEmptyZone} onClick={addChild}>
+              <FaLayerGroup style={{ opacity: 0.4, marginRight: '6px' }} />
+              <span>Bileşen eklemek için tıklayın</span>
+            </div>
+          ) : (
+            children.map((child, idx) => (
+              <SortableBlock
+                key={child.id}
+                comp={child}
+                idx={idx}
+                theme={theme}
+                isSelected={child.id === selectedId}
+                selectedId={selectedId}
+                totalCount={children.length}
+                onSelect={onSelect}
+                onDispatch={onDispatch}
+                depth={depth}
+              />
+            ))
+          )}
+        </SortableContext>
+      </DndContext>
+      {children.length > 0 && (
+        <button className={styles.nestedAddBtn} onClick={addChild} type="button" title="Bileşen Ekle">
+          <FaPlus /> Ekle
+        </button>
+      )}
+    </div>
+  );
+}
+
 // ── SortableBlock ─────────────────────────────────────────────────────────────
 
 function SortableBlock({
@@ -1135,17 +1305,21 @@ function SortableBlock({
   idx,
   theme,
   isSelected,
+  selectedId,
   totalCount,
   onSelect,
   onDispatch,
+  depth = 0,
 }: {
   comp: LayoutComponent;
   idx: number;
   theme: ThemeConfig;
   isSelected: boolean;
+  selectedId: string | null;
   totalCount: number;
   onSelect: (id: string, e: React.MouseEvent) => void;
   onDispatch: (action: Parameters<Dispatch<EditorAction>>[0]) => void;
+  depth?: number;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: comp.id });
 
@@ -1157,11 +1331,16 @@ function SortableBlock({
   };
 
   const def = BLOCK_BY_TYPE[comp.type];
+  const isContainer = CONTAINER_TYPES.has(comp.type);
+
+  // Grid-row renders children in a horizontal grid layout
+  const isGridRow = comp.type === 'grid-row';
+  const cols = isGridRow ? Number(comp.props.columns ?? 2) : undefined;
 
   return (
     <div ref={setNodeRef} style={style}>
       <div
-        className={`${styles.blockWrapper} ${isSelected ? styles.selected : ''}`}
+        className={`${styles.blockWrapper} ${isSelected ? styles.selected : ''} ${isContainer ? styles.containerBlock : ''}`}
         onClick={(e) => onSelect(comp.id, e)}
       >
         {/* Drag handle */}
@@ -1215,7 +1394,36 @@ function SortableBlock({
           </div>
         )}
 
-        <MiniRenderer comp={comp} theme={theme} />
+        {isContainer ? (
+          <div
+            className={styles.containerInner}
+            style={isGridRow ? {
+              display: 'grid',
+              gridTemplateColumns: `repeat(${cols}, 1fr)`,
+              gap: (comp.props.gap as string) ?? '8px',
+              alignItems: (comp.props.alignItems as string) ?? 'stretch',
+            } : {
+              paddingTop: (comp.props.paddingY as string) ?? '12px',
+              paddingBottom: (comp.props.paddingY as string) ?? '12px',
+              paddingLeft: (comp.props.paddingX as string) ?? '0',
+              paddingRight: (comp.props.paddingX as string) ?? '0',
+              background: comp.props.backgroundType === 'color' ? (comp.props.backgroundColor as string) : undefined,
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            <NestedBlockList
+              parentId={comp.id}
+              children={comp.children ?? []}
+              theme={theme}
+              selectedId={selectedId}
+              onSelect={onSelect}
+              onDispatch={onDispatch}
+              depth={depth + 1}
+            />
+          </div>
+        ) : (
+          <MiniRenderer comp={comp} theme={theme} />
+        )}
       </div>
     </div>
   );
@@ -1225,7 +1433,7 @@ function SortableBlock({
 
 export function EditorCanvas() {
   const { state, dispatch } = useEditor();
-  const { layout, selectedComponentId, viewport, theme, activePage, globalComponents } = state;
+  const { layout, selectedComponentId, viewport, theme, activePage, globalComponents, insertTargetId } = state;
   const canvasRef = useRef<HTMLDivElement>(null);
   const canvasScrollRef = useRef<HTMLDivElement>(null);
 
@@ -1419,6 +1627,7 @@ export function EditorCanvas() {
                     idx={idx}
                     theme={theme}
                     isSelected={comp.id === selectedComponentId}
+                    selectedId={selectedComponentId}
                     totalCount={layout.length}
                     onSelect={select}
                     onDispatch={dispatch}
