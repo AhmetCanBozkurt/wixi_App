@@ -288,7 +288,7 @@ export function OnboardingPage() {
 
             <div className={styles.recBox}>
               <span className={styles.recIc}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></polygon></svg>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></svg>
               </span>
               <div className={styles.recText}>
                 <b>Önerilen:</b> Seçtiğiniz sektör için <span style={{ color: '#a5b4fc', fontWeight: 'bold' }}>E-Ticaret + Stok + CRM</span> en sık tercih ediliyor.

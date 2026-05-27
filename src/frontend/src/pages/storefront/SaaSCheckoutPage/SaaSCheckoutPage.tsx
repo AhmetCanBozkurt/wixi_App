@@ -326,7 +326,7 @@ export function SaaSCheckoutPage() {
           <h3>Sipariş Özeti</h3>
 
           <div className={styles.coLine}>
-            <span style={{ display: 'flex', align-items: 'center', gap: '8px' }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#8b5cf6' }}></span>
               <span style={{ color: 'var(--text-main)', fontWeight: 600 }}>
                 {planCode === 'starter' ? 'Standart Plan' : 'Premium Plan'}

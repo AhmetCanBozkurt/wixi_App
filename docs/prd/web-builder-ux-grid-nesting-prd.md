@@ -2,7 +2,7 @@
 
 **Tarih:** 2026-05-27  
 **Durum:** Derinlemesine Analiz / Taslak  
-**Versiyon:** 2.0 (Premium UX, Animasyon ve Standart Komponent Entegrasyonu)  
+**Versiyon:** 3.0 (Premium UX, Animasyon ve Standart Komponent Entegrasyonu)  
 
 ---
 
@@ -61,11 +61,30 @@ export interface LayoutComponent {
 
 ---
 
-## 4. Izgara Yapışma (Grid Snapping) ve Kolon Kontrolleri
+## 4. Şema Tabanlı Modal Veri Girişi (Modal-Based Data Entry)
+
+Inline veri girişi yerine, karmaşık veya tekrarlı veri içeren bileşenlerde (SSS, Üyeler, Ürünler) veri girişinin, `ComponentShowcasePage.tsx` dosyasında yer alan **"Premium Modal Yapısı"** ile birebir uyumlu, geniş ve lüks bir pop-up üzerinden yapılması sağlanacaktır.
+
+### 4.1. UX Akışı ve Çalışma Prensibi
+1. Sağ paneldeki Properties Panel'de `json-array` tipi bir alan (örneğin **Ekip Üyeleri**) algılandığında, sıkışık inline form yerine sadece bir özet bilgisi ve devasa bir **"Veriyi Düzenle / Eklemek için Tıkla"** butonu gösterilir.
+2. Butona basıldığında orta ekranda lüks, modern ve `shared/ui` içindeki standart `<Modal size="lg">` bileşeni açılır.
+3. Modal, `ComponentShowcasePage`'deki gibi **grup başlıkları (`sectionHeader`)**, **giriş ızgarası (`inputGrid`)** ve **durum anahtarları (`Switch` / `ImageUpload` / `ComboBox`)** içeren profesyonel bir form düzeniyle render edilir.
+
+### 4.2. Modal İç Yapısı ve Alan Eşlemeleri (Showcase Uyumlu)
+Modal içeriği, düzenlenecek liste elemanlarının her biri için dinamik kartlar (`Card`) halinde render edilir:
+- **Bölüm Başlıkları (`sectionHeader`):** Her veri grubunun üstünde (örn: "Genel Bilgiler", "Sosyal Bağlantılar") ince bir sınır çizgisiyle ayrılmış başlıklar yer alır.
+- **Form Izgarası (`inputGrid`):** Alanlar tek bir satırda sıkışmak yerine, showcase'deki gibi `grid-template-columns: repeat(auto-fit, minmax(240px, 1fr))` yapısıyla yan yana 2 veya 3 kolon halinde hizalanır.
+- **Fotoğraf / Dosya Yükleme (`ImageUpload`):** Logo, profil resimleri ve kapaklar için sürükle-bırak destekli görsel yükleme alanı modal içinde gösterilir.
+- **Açılır Seçenekler (`ComboBox`):** Arama desteğiyle birlikte ilişkili CMS veri şemalarının seçimi ComboBox ile yapılır.
+- **Onay Kutuları & Butonlar (`Button`):** Değişiklikleri Kaydet (`variant="primary"`) ve Vazgeç (`variant="ghost"`) butonları modal'ın standart alt bilgi (footer) alanında yer alır. Eleman silinmek istendiğinde, SweetAlert2 onay kutusu obsidian dark stiliyle tetiklenir.
+
+---
+
+## 5. Izgara Yapışma (Grid Snapping) ve Kolon Kontrolleri
 
 Tasarımcının sayfayı bölümlere ayırırken 12-kolonluk standardı hissetmesi ve sürüklediği bileşenin bu ızgara çizgilerine "yapışması" (snap) sağlanacaktır.
 
-### 4.1. 12-Kolon Izgara Sistemi ve Sürükleme Kılavuzları
+### 5.1. 12-Kolon Izgara Sistemi ve Sürükleme Kılavuzları
 - Canvas üzerinde bir `grid-row` seçildiğinde veya içerisine bir eleman sürüklendiğinde, arka planda hafif saydam 12 adet dikey sütun kılavuzu belirir.
 - Kolon çizgilerine yaklaşma mesafesi (Threshold) 15px olarak belirlenir. Bu sınıra yaklaşan eleman otomatik olarak kolona yapışır (snapping).
 
@@ -76,7 +95,7 @@ Tasarımcının sayfayı bölümlere ayırırken 12-kolonluk standardı hissetme
 └─────────────────────┘
 ```
 
-### 4.2. Genişlik Ayarlama Kulpları (Width Resize Handles)
+### 5.2. Genişlik Ayarlama Kulpları (Width Resize Handles)
 Bileşen seçildiğinde sol ve sağ kenarlarında dikey kulplar belirir. Kullanıcı bu kulpları sürükleyerek elemanın kaç kolon kaplayacağını görsel olarak ayarlar:
 
 ```
@@ -92,17 +111,17 @@ Sürükleme bırakıldığında, `UPDATE_COMPONENT_PROPS` tetiklenerek bileşeni
 
 ---
 
-## 5. Detaylı Arayüz Animasyonları ve Mikroskobik UX Efektleri
+## 6. Detaylı Arayüz Animasyonları ve Mikroskobik UX Efektleri
 
 Builder'ın hantal hissettirmesini önlemek ve premium bir deneyim sunmak için CSS Modules tabanlı akıcı animasyonlar entegre edilmelidir.
 
-### 5.1. Dnd-Kit Sıralama ve Ekleme Animasyonları
+### 6.1. Dnd-Kit Sıralama ve Ekleme Animasyonları
 - **Bileşen Kaydırma (Layout Transitions):** Sürükle-bırak sırasında elemanların yer değiştirmesi, ani zıplamalar yerine yumuşak bir kayma efektiyle gerçekleşir:
   `transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);`
 - **Gölge ve Derinlik (Glow Transition):** Taşınan eleman havaya kalktığında (isDragging) altındaki gölge büyür ve cam efekti belirginleşir:
   `box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 15px var(--color-primary-glow);`
 
-### 5.2. Canvas Üzerindeki Görsel Gösterge Animasyonları
+### 6.2. Canvas Üzerindeki Görsel Gösterge Animasyonları
 - **Aktif Seçim Çerçevesi (Selection Outline Pulse):** Seçilen bileşenin kenarlıkları yavaş bir neon dalgalanması efekti içerir:
   ```css
   @keyframes selectionPulse {
@@ -114,7 +133,7 @@ Builder'ın hantal hissettirmesini önlemek ve premium bir deneyim sunmak için 
 - **Insert Zone Parıldaması:** İki bileşen arasındaki boşluğa sürükleme yapıldığında insert zone çizgisi dikeyde genişler ve parlar:
   `transform: scaleY(1.5); background-color: var(--color-accent);`
 
-### 5.3. Paneller ve Modal Geçişleri
+### 6.3. Paneller and Modal Geçişleri
 - **Sidebar Daralma/Açılma (Slide Transition):** Sol ve sağ paneller gizlendiğinde veya açıldığında canvas alanı yumuşak bir şekilde genişler/daralır:
   `transition: width 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);`
 - **Modal Pop-Up Animasyonu:** Standart Wixi `Modal` açılırken hafif bir büyüme ve opaklık artışı ile gelir:
@@ -127,16 +146,16 @@ Builder'ın hantal hissettirmesini önlemek ve premium bir deneyim sunmak için 
 
 ---
 
-## 6. Profesyonel Builder İçin Eksik Olan Gelişmiş Özellikler
+## 7. Profesyonel Builder İçin Eksik Olan Gelişmiş Özellikler
 
 Daha profesyonel, "Webflow" veya "Shopify Plus" düzeyinde bir arayüz ve altyapı için mevcut sistemdeki eksiklikler ve eklenmesi gereken ana modüller:
 
-### 6.1. Dinamik Veri Bağlama (Dynamic Data Binding & CMS Integration)
+### 7.1. Dinamik Veri Bağlama (Dynamic Data Binding & CMS Integration)
 * **Eksiklik:** Mevcut bileşenlerin içerikleri tamamen statik prop'lar (hardcoded string/resim URL) ile beslenmektedir.
 * **Geliştirme:** Bileşenin bir alanına veri girerken doğrudan veritabanındaki dinamik alanlar bağlanabilmelidir.
   * *Örnek:* Bir Text bloğunun içeriğine `{{CMS.CorpBlog.Latest.Title}}` veya `{{Product.Price}}` bind edilebilmelidir. Arayüzde veri girerken ComboBox içinden bu CMS şemaları seçilebilir olmalıdır.
 
-### 6.2. Görsel CSS Tasarım Müfettişi (Visual CSS Styles Inspector)
+### 7.2. Görsel CSS Tasarım Müfettişi (Visual CSS Styles Inspector)
 * **Eksiklik:** Kullanıcılar şu anda bileşenin margins, paddings, border-width, box-shadow gibi görsel stil detaylarını sadece önceden tanımlanmış kısıtlı Select seçenekleriyle değiştirebilmektedir.
 * **Geliştirme:** Properties Panel'e ek olarak bir "Stil Müfettişi" kutusu konmalıdır. Kullanıcı bir elemana tıkladığında, görsel bir kutu modeli (box-model) üzerinden padding/margin değerlerini sürükleyerek veya rakam yazarak doğrudan değiştirebilmeli ve bu değerler satır içi CSS olarak yazılmalıdır.
 
@@ -151,25 +170,25 @@ Daha profesyonel, "Webflow" veya "Shopify Plus" düzeyinde bir arayüz ve altyap
     └───────────────────────┘
 ```
 
-### 6.3. Sürüm ve Değişiklik Günlüğü (Visual History Log)
+### 7.3. Sürüm ve Değişiklik Günlüğü (Visual History Log)
 * **Eksiklik:** Geri al/Yeniden yap (Undo/Redo) işlemleri sadece klavye kısayolu ile yapılmakta ve arka planda neyin değiştiği görülmemektedir.
 * **Geliştirme:** Versiyon geçmişi modülüne ek olarak, aktif oturumdaki tüm kullanıcı hareketlerini (örn: *"SSS Bloğu Eklendi"*, *"Başlık Yazısı Değiştirildi"*, *"Görsel Boyutu Güncellendi"*) listeleyen görsel bir "Tarihçe Günlüğü" paneli eklenmelidir. Kullanıcı bu listedeki herhangi bir adıma tıklayarak o ana geri dönebilmelidir.
 
-### 6.4. Hazır Şablon Enjeksiyonu (Layout Presets & Wireframes)
+### 7.4. Hazır Şablon Enjeksiyonu (Layout Presets & Wireframes)
 * **Eksiklik:** Sayfaya yeni bir şey eklerken sadece tekil ve boş bileşenler eklenebilmektedir.
 * **Geliştirme:** Sol paneldeki "Bileşenler" sekmesine ek olarak "Hazır Şablonlar" sekmesi gelmelidir. Kullanıcı "Modern İletişim Sayfası", "E-Ticaret Hero Blok + Üçlü Kategori" gibi hazır sayfa şablonlarını tek tıkla sayfaya enjekte edebilmeli, sistem bu şablonu oluşturan iç içe tüm alt ağaç yapısını otomatik üretmelidir.
 
 ---
 
-## 7. Etkilenecek Dosyalar ve Değişiklik Listesi
+## 8. Etkilenecek Dosyalar ve Değişiklik Listesi
 
-### 7.1. Veri Modelleri (Domain & Application)
+### 8.1. Veri Modelleri (Domain & Application)
 - **`src/frontend/src/entities/StorePage/model/types.ts`**
   - `LayoutComponent` interface'ine opsiyonel `children` ağaç yapısı eklenmeli.
 - **`src/backend/.../WixiStoreSettings`**
   - Eğer ağaç yapısına geçilirse backend DTO ve JSON serileştirme test edilmeli.
 
-### 7.2. Frontend Editör Bileşenleri
+### 8.2. Frontend Editör Bileşenleri
 - **`src/frontend/src/features/ThemeBuilder/context/EditorContext.tsx`**
   - Ağaç yapısına uyumlu rekürsif reducer aksiyonları eklenmeli (`ADD_NESTED_COMPONENT`, `MOVE_NESTED_COMPONENT`, `REMOVE_NESTED_COMPONENT`).
 - **`src/frontend/src/features/ThemeBuilder/canvas/EditorCanvas.tsx`**
@@ -182,7 +201,7 @@ Daha profesyonel, "Webflow" veya "Shopify Plus" düzeyinde bir arayüz ve altyap
 
 ---
 
-## 8. Uygulama ve Faz Planı
+## 9. Uygulama ve Faz Planı
 
 Geliştirmenin büyüklüğü göz önüne alınarak 4 aşamalı bir yol haritası önerilmektedir:
 
@@ -207,14 +226,14 @@ Geliştirmenin büyüklüğü göz önüne alınarak 4 aşamalı bir yol haritas
 
 ---
 
-## 9. Doğrulama (Verification) Senaryoları
+## 10. Doğrulama (Verification) Senaryoları
 
-### 9.1. Katman Yerleştirme Doğrulaması
+### 10.1. Katman Yerleştirme Doğrulaması
 1. Sol panelden bir "Bölüm (Section)" bileşeni canvas'a sürüklenir.
 2. Bu bölümün içerisine sol panelden sırasıyla "Izgara Satırı" ve "Kolonlar" bırakılır.
 3. Layers panelinde bu hiyerarşi ağaç yapısı olarak açılıp kapatılarak gözlemlenir.
 
-### 9.2. Şema Modal Doğrulaması
+### 10.2. Şema Modal Doğrulaması
 1. Ekip Üyeleri (team-grid) bileşeni seçilir.
 2. Özellikler panelinde "Üyeleri Düzenle" butonuna tıklanır.
 3. Açılan büyük modal üzerinde yeni bir üye eklenir, isim ve resim yazılır.
