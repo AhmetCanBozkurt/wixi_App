@@ -21,7 +21,7 @@ interface TransactionItem {
   amount: number;
   description: string;
   date: string;
-  type: number;
+  type: string; // "Income" | "Expense"  (JsonStringEnumConverter)
   isInstallment: boolean;
   createdAt: string;
   updatedAt: string;
@@ -30,7 +30,7 @@ interface TransactionItem {
 interface CategoryItem {
   id: string;
   name: string;
-  type: number;
+  type: string; // "Income" | "Expense" | "Both"  (JsonStringEnumConverter)
   color: string;
   icon: string;
   isDefault: boolean;
@@ -261,16 +261,16 @@ export const TransactionsPage = () => {
                         <span
                           className={styles.typeBadge}
                           style={{
-                            background: tx.type === 1 ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)',
-                            color: tx.type === 1 ? '#10b981' : '#ef4444',
+                            background: tx.type === 'Income' ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)',
+                            color: tx.type === 'Income' ? '#10b981' : '#ef4444',
                           }}
                         >
-                          {tx.type === 1 ? 'Gelir' : 'Gider'}
+                          {tx.type === 'Income' ? 'Gelir' : 'Gider'}
                         </span>
                       </td>
                       <td
                         className={styles.amountCell}
-                        style={{ color: tx.type === 1 ? '#10b981' : '#ef4444' }}
+                        style={{ color: tx.type === 'Income' ? '#10b981' : '#ef4444' }}
                       >
                         ₺ {formatAmount(tx.amount)}
                       </td>

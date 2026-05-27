@@ -21,7 +21,7 @@ interface TransactionItem {
   amount: number;
   description: string;
   date: string;
-  type: number;
+  type: string; // "Income" | "Expense"  (JsonStringEnumConverter)
   isInstallment: boolean;
   createdAt: string;
   updatedAt: string;
@@ -30,7 +30,7 @@ interface TransactionItem {
 interface CategoryItem {
   id: string;
   name: string;
-  type: number;
+  type: string; // "Income" | "Expense" | "Both"  (JsonStringEnumConverter)
   color: string;
   icon: string;
   isDefault: boolean;
@@ -51,9 +51,10 @@ interface ErrorResponseData {
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
+// POST/PUT body → enum string values (JsonStringEnumConverter)
 const TYPE_OPTIONS = [
-  { label: 'Gelir', value: '1' },
-  { label: 'Gider', value: '2' },
+  { label: 'Gider', value: 'Expense' },
+  { label: 'Gelir', value: 'Income' },
 ];
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -66,7 +67,7 @@ export const TransactionModal = ({
   categories,
 }: TransactionModalProps) => {
   const [categoryId, setCategoryId] = useState('');
-  const [type, setType] = useState<string>('2');
+  const [type, setType] = useState<string>('Expense');
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
   const [date, setDate] = useState(() => new Date().toISOString().split('T')[0]);
@@ -77,7 +78,7 @@ export const TransactionModal = ({
   useEffect(() => {
     if (isOpen && editItem) {
       setCategoryId(editItem.categoryId ?? '');
-      setType(String(editItem.type));
+      setType(editItem.type); // API returns string enum
       setAmount(String(editItem.amount));
       setDescription(editItem.description ?? '');
       setDate(editItem.date ? editItem.date.split('T')[0] : new Date().toISOString().split('T')[0]);
@@ -85,7 +86,7 @@ export const TransactionModal = ({
       setError('');
     } else if (isOpen && !editItem) {
       setCategoryId('');
-      setType('2');
+      setType('Expense');
       setAmount('');
       setDescription('');
       setDate(new Date().toISOString().split('T')[0]);
@@ -111,7 +112,7 @@ export const TransactionModal = ({
       if (editItem) {
         await apiClient.put(`/me/finance/transactions/${editItem.id}`, {
           categoryId,
-          type: Number(type),
+          type, // string enum: "Income" | "Expense"
           amount: Number(amount),
           description,
           date,
@@ -119,7 +120,7 @@ export const TransactionModal = ({
       } else {
         await apiClient.post('/me/finance/transactions', {
           categoryId,
-          type: Number(type),
+          type, // string enum: "Income" | "Expense"
           amount: Number(amount),
           description,
           date,

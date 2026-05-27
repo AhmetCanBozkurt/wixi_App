@@ -12,7 +12,7 @@ import styles from './CategoriesPage.module.css';
 interface CategoryItem {
   id: string;
   name: string;
-  type: number; // 1=Income, 2=Expense, 3=Both
+  type: string; // "Income" | "Expense" | "Both"  (JsonStringEnumConverter)
   color: string;
   icon: string;
   isDefault: boolean;
@@ -26,16 +26,18 @@ interface CategoriesApiResponse {
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
+// POST/PUT body → enum string values (JsonStringEnumConverter)
 const TYPE_OPTIONS = [
-  { label: 'Gider', value: '2' },
-  { label: 'Gelir', value: '1' },
-  { label: 'Her İkisi', value: '3' },
+  { label: 'Gider', value: 'Expense' },
+  { label: 'Gelir', value: 'Income' },
+  { label: 'Her İkisi', value: 'Both' },
 ];
 
+// GET filter → query param (numeric model binding, enum string name also works)
 const TYPE_FILTER_OPTIONS = [
   { label: '— Tümü —', value: '' },
-  { label: 'Gelir', value: '1' },
-  { label: 'Gider', value: '2' },
+  { label: 'Gelir', value: 'Income' },
+  { label: 'Gider', value: 'Expense' },
 ];
 
 const COLOR_PRESETS = [
@@ -44,9 +46,9 @@ const COLOR_PRESETS = [
   '#64748b', '#374151',
 ];
 
-function getTypeLabel(t: number) {
-  if (t === 1) return 'Gelir';
-  if (t === 2) return 'Gider';
+function getTypeLabel(t: string) {
+  if (t === 'Income') return 'Gelir';
+  if (t === 'Expense') return 'Gider';
   return 'Her İkisi';
 }
 
@@ -65,10 +67,11 @@ export const CategoriesPage = () => {
 
   // Form state
   const [formName, setFormName] = useState('');
-  const [formType, setFormType] = useState('2');
+  const [formType, setFormType] = useState('Expense');
   const [formColor, setFormColor] = useState('#6366f1');
   const [formIcon, setFormIcon] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  /* formType değerleri: 'Expense' | 'Income' | 'Both' */
   const [formError, setFormError] = useState('');
 
   const isFormOpen = createOpen || !!editItem;
@@ -90,12 +93,12 @@ export const CategoriesPage = () => {
   useEffect(() => { fetchCategories(); }, [fetchCategories]);
 
   const openCreate = () => {
-    setFormName(''); setFormType('2'); setFormColor('#6366f1'); setFormIcon(''); setFormError('');
+    setFormName(''); setFormType('Expense'); setFormColor('#6366f1'); setFormIcon(''); setFormError('');
     setCreateOpen(true);
   };
 
   const openEdit = (item: CategoryItem) => {
-    setFormName(item.name); setFormType(String(item.type));
+    setFormName(item.name); setFormType(item.type); // API returns string enum
     setFormColor(item.color || '#6366f1'); setFormIcon(item.icon || ''); setFormError('');
     setEditItem(item);
   };
@@ -107,7 +110,7 @@ export const CategoriesPage = () => {
     if (!formName.trim()) { setFormError('Kategori adı zorunludur.'); return; }
     setIsSaving(true);
     try {
-      const body = { name: formName.trim(), type: Number(formType), color: formColor, icon: formIcon.trim() || '📁' };
+      const body = { name: formName.trim(), type: formType, color: formColor, icon: formIcon.trim() || '📁' };
       if (editItem) {
         await apiClient.put(`/me/finance/categories/${editItem.id}`, body);
       } else {

@@ -13,12 +13,12 @@ interface BudgetItem {
   id: string;
   name: string;
   totalAmount: number;
-  totalSpent: number;      // API field: totalSpent (not spentAmount)
+  totalSpent: number;
   totalRemaining: number;
   startDate: string;
   endDate: string;
-  status: number; // 1=Active, 2=Completed, 3=Cancelled
-  periodType: number; // 1=Monthly, 2=Weekly, 3=Yearly, 4=Custom
+  status: string;     // "Active" | "Completed" | "Cancelled"  (JsonStringEnumConverter)
+  periodType: string; // "Weekly" | "Monthly" | "Yearly"       (JsonStringEnumConverter)
   autoRenew: boolean;
   categoryCount: number;
   notes?: string | null;
@@ -31,18 +31,21 @@ interface BudgetsApiResponse {
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
+// POST/PUT body → enum string values (JsonStringEnumConverter)
+// BudgetPeriodType: Weekly=1, Monthly=2, Yearly=3
 const PERIOD_OPTIONS = [
-  { label: 'Aylık', value: '1' },
-  { label: 'Haftalık', value: '2' },
-  { label: 'Yıllık', value: '3' },
-  { label: 'Özel', value: '4' },
+  { label: 'Aylık',    value: 'Monthly' },
+  { label: 'Haftalık', value: 'Weekly'  },
+  { label: 'Yıllık',   value: 'Yearly'  },
 ];
 
+// GET filter → query param (enum string name)
+// BudgetStatus: Active=1, Completed=2, Cancelled=3
 const STATUS_FILTER_OPTIONS = [
-  { label: '— Tümü —', value: '' },
-  { label: 'Aktif', value: '1' },
-  { label: 'Tamamlandı', value: '2' },
-  { label: 'İptal Edildi', value: '3' },
+  { label: '— Tümü —',    value: ''          },
+  { label: 'Aktif',        value: 'Active'    },
+  { label: 'Tamamlandı',   value: 'Completed' },
+  { label: 'İptal Edildi', value: 'Cancelled' },
 ];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -61,9 +64,9 @@ function getSpentPercent(spent: number, total: number) {
   return Math.min(100, Math.round((spent / total) * 100));
 }
 
-function getStatusLabel(s: number) {
-  if (s === 1) return 'Aktif';
-  if (s === 2) return 'Tamamlandı';
+function getStatusLabel(s: string) {
+  if (s === 'Active')    return 'Aktif';
+  if (s === 'Completed') return 'Tamamlandı';
   return 'İptal';
 }
 
@@ -73,7 +76,7 @@ export const BudgetsPage = () => {
   const [budgets, setBudgets] = useState<BudgetItem[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
-  const [filterStatus, setFilterStatus] = useState('1'); // default: active
+  const [filterStatus, setFilterStatus] = useState('Active'); // default: active
 
   // Modal state
   const [createOpen, setCreateOpen] = useState(false);
@@ -86,7 +89,7 @@ export const BudgetsPage = () => {
   const [formTotal, setFormTotal] = useState('');
   const [formStart, setFormStart] = useState(() => new Date().toISOString().split('T')[0]);
   const [formEnd, setFormEnd] = useState('');
-  const [formPeriod, setFormPeriod] = useState('1');
+  const [formPeriod, setFormPeriod] = useState('Monthly');
   const [formNotes, setFormNotes] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [formError, setFormError] = useState('');
@@ -112,7 +115,7 @@ export const BudgetsPage = () => {
 
   const openCreate = () => {
     setFormName(''); setFormTotal(''); setFormStart(new Date().toISOString().split('T')[0]);
-    setFormEnd(''); setFormPeriod('1'); setFormNotes(''); setFormError('');
+    setFormEnd(''); setFormPeriod('Monthly'); setFormNotes(''); setFormError('');
     setCreateOpen(true);
   };
 
@@ -121,7 +124,7 @@ export const BudgetsPage = () => {
     setFormTotal(String(item.totalAmount));
     setFormStart(item.startDate.split('T')[0]);
     setFormEnd(item.endDate ? item.endDate.split('T')[0] : '');
-    setFormPeriod(String(item.periodType));
+    setFormPeriod(item.periodType); // API returns string enum
     setFormNotes(item.notes ?? '');
     setFormError('');
     setEditItem(item);
@@ -143,7 +146,7 @@ export const BudgetsPage = () => {
         totalAmount: Number(formTotal),
         startDate: formStart,
         endDate: formEnd,
-        periodType: Number(formPeriod),
+        periodType: formPeriod, // string enum: "Monthly" | "Weekly" | "Yearly"
         notes: formNotes.trim() || null,
       };
       if (editItem) {
@@ -222,11 +225,11 @@ export const BudgetsPage = () => {
                   <span
                     className={styles.statusBadge}
                     style={{
-                      background: b.status === 1 ? 'rgba(16,185,129,0.12)' : 'rgba(99,102,241,0.1)',
-                      color: b.status === 1 ? '#10b981' : '#6366f1',
+                      background: b.status === 'Active' ? 'rgba(16,185,129,0.12)' : 'rgba(99,102,241,0.1)',
+                      color: b.status === 'Active' ? '#10b981' : '#6366f1',
                     }}
                   >
-                    {b.status === 2 && <FaCheckCircle style={{ marginRight: 4 }} />}
+                    {b.status === 'Completed' && <FaCheckCircle style={{ marginRight: 4 }} />}
                     {getStatusLabel(b.status)}
                   </span>
                 </div>
