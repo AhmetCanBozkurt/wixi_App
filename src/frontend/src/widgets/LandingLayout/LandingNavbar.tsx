@@ -69,10 +69,13 @@ export function LandingNavbar({ theme, onToggleTheme }: Props) {
     localStorage.setItem('wixi-lang', lang.code);
     localStorage.setItem('landing-lng', lang.code);
     i18n.changeLanguage(lang.code);
-    // Apply RTL direction for Arabic
-    document.documentElement.dir = lang.dir;
-    document.documentElement.lang = lang.code;
   };
+
+  // Sync dir/lang attributes to <html> whenever activeLang changes
+  useEffect(() => {
+    document.documentElement.dir = activeLang.dir;
+    document.documentElement.lang = activeLang.code;
+  }, [activeLang]);
 
   return (
     <>
