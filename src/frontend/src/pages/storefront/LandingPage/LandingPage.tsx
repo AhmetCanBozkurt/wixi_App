@@ -1,7 +1,9 @@
 import { useEffect, useRef, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { LandingLayout } from '../../../widgets/LandingLayout/LandingLayout';
 import { useScrollReveal, useCountUp } from './hooks';
+import { useStatsQuery } from '../../../entities/landing';
 import s from './LandingPage.module.css';
 
 /* ── Arrow SVG ── */
@@ -226,12 +228,20 @@ const dashStats = [
   { label: 'Müşteri', value: '892', delta: '▲ 7.1%' },
 ];
 
-/* ── Stats band data ── */
-const statsData = [
-  { count: '1250', suffix: '+', label: 'Aktif Mağaza', path: 'M2,18 L14,15 L26,17 L38,12 L50,14 L62,8 L74,10 L82,4' },
-  { count: '4.5', decimals: '1', prefix: '₺', suffix: 'M+', label: 'Aylık İşlem', path: 'M2,20 L14,18 L26,14 L38,15 L50,10 L62,11 L74,6 L82,3' },
-  { count: '99.9', decimals: '1', suffix: '%', label: 'Uptime', path: 'M2,6 L14,5 L26,7 L38,4 L50,5 L62,3 L74,4 L82,2' },
-  { count: '24', suffix: '/7', label: 'Canlı Destek', path: 'M2,12 L14,10 L26,14 L38,8 L50,12 L62,6 L74,9 L82,5' },
+/* ── Stats band fallback data (used when API is unavailable) ── */
+const STATS_FALLBACK = [
+  { num: '1.250+', label: 'Aktif Mağaza' },
+  { num: '4.5M+',  label: 'Aylık İşlem' },
+  { num: '%99.9',  label: 'Uptime' },
+  { num: '24/7',   label: 'Canlı Destek' },
+];
+
+/* ── Spark paths per stat position ── */
+const SPARK_PATHS = [
+  'M2,18 L14,15 L26,17 L38,12 L50,14 L62,8 L74,10 L82,4',
+  'M2,20 L14,18 L26,14 L38,15 L50,10 L62,11 L74,6 L82,3',
+  'M2,6 L14,5 L26,7 L38,4 L50,5 L62,3 L74,4 L82,2',
+  'M2,12 L14,10 L26,14 L38,8 L50,12 L62,6 L74,9 L82,5',
 ];
 
 /* ── Marquee brand names ── */
@@ -248,6 +258,13 @@ const marqueeNames = [
 export function LandingPage() {
   useScrollReveal();
   useCountUp();
+
+  const { i18n } = useTranslation();
+  const { data: apiStats } = useStatsQuery(i18n.language);
+
+  const resolvedStats = apiStats
+    ? apiStats.map(s => ({ num: s.displayValue, label: s.label }))
+    : STATS_FALLBACK;
 
   /* Hero spotlight */
   const heroRef = useRef<HTMLElement>(null);
@@ -468,22 +485,13 @@ export function LandingPage() {
             </defs>
           </svg>
           <div className={s.statsGrid}>
-            {statsData.map((stat, i) => (
+            {resolvedStats.map((stat, i) => (
               <div key={stat.label} className={`${s.statItem} fade-up`} data-delay={String(i)}>
-                <div className={s.statNum}>
-                  {stat.prefix}
-                  <span
-                    data-count={stat.count}
-                    data-suffix={stat.suffix}
-                    data-decimals={stat.decimals}
-                  >
-                    0
-                  </span>
-                </div>
+                <div className={s.statNum}>{stat.num}</div>
                 <div className={s.statLbl}>{stat.label}</div>
                 <svg className={s.spark} viewBox="0 0 84 24">
                   <path
-                    d={stat.path}
+                    d={SPARK_PATHS[i % SPARK_PATHS.length]}
                     stroke="url(#sparkG)"
                     strokeWidth="2"
                     fill="none"

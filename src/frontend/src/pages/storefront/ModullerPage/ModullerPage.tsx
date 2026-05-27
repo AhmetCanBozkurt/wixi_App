@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { LandingLayout } from '../../../widgets/LandingLayout/LandingLayout';
 import { useScrollReveal } from '../../../widgets/LandingLayout/useLandingAnimations';
+import { useModulesQuery } from '../../../entities/landing';
+import type { LandingModule } from '../../../entities/landing';
 import s from './ModullerPage.module.css';
 
 /* ── Per-module SVG icons ── */
@@ -47,78 +49,16 @@ function getIcon(id: string) {
   return ICONS[id] ?? ICONS.docs;
 }
 
-type Mod = { id: string; name: string; cat: string; price: number; desc: string; tag?: string };
-
-const FEATURED: Mod[] = [
-  { id: 'eticaret', name: 'E-Ticaret', cat: 'satis', price: 499, desc: 'Online mağaza, ürün, sipariş, stok ve tema editörü. Mağazanızı dakikalar içinde açın.', tag: 'popular' },
-  { id: 'crm', name: 'CRM', cat: 'satis', price: 399, desc: 'Müşteri ilişkileri, fırsat yönetimi, kampanyalar. 360° müşteri profili tek panelde.', tag: 'popular' },
-  { id: 'muhasebe', name: 'Muhasebe', cat: 'finans', price: 349, desc: 'E-fatura, gelir-gider, KDV beyannamesi. GİB entegrasyonu ile uyumlu.', tag: 'new' },
-];
-
-type CatDef = { id: string; label: string; desc: string; color: string; mods: Mod[] };
-
-const CATS: CatDef[] = [
-  { id: 'satis', label: 'Satış & Pazarlama', desc: 'Mağaza, müşteri, kampanya — satış hattını uçtan uca yönetin.', color: '#8b5cf6', mods: [
-    { id: 'eticaret', name: 'E-Ticaret', cat: 'satis', price: 499, desc: 'Online mağaza, ürün, sipariş, stok yönetimi', tag: 'popular' },
-    { id: 'crm', name: 'CRM', cat: 'satis', price: 399, desc: 'Müşteri yönetimi, fırsat takibi, kampanyalar', tag: 'popular' },
-    { id: 'email', name: 'E-posta Pazarlama', cat: 'satis', price: 199, desc: 'Kampanya tasarımı, otomasyonlar, A/B test' },
-    { id: 'sms', name: 'SMS Pazarlama', cat: 'satis', price: 149, desc: 'Toplu SMS, OTP, kampanya bildirimleri' },
-    { id: 'seo', name: 'SEO Yöneticisi', cat: 'satis', price: 249, desc: 'Anahtar kelime takibi, meta yönetimi, sitemap', tag: 'new' },
-    { id: 'social', name: 'Sosyal Medya', cat: 'satis', price: 199, desc: 'Instagram, Facebook, X — planla & yayınla' },
-    { id: 'marketplace', name: 'Pazaryeri', cat: 'satis', price: 299, desc: 'Trendyol, Hepsiburada, N11 senkronizasyonu' },
-    { id: 'affiliate', name: 'Affiliate', cat: 'satis', price: 179, desc: 'Partner ağı, komisyon takibi, link üretici', tag: 'beta' },
-  ]},
-  { id: 'ik', label: 'İnsan Kaynakları', desc: 'Personel, izin, bordro ve performans yönetimi.', color: '#06b6d4', mods: [
-    { id: 'personel', name: 'Personel Yönetimi', cat: 'ik', price: 299, desc: 'Sicil, özlük, organizasyon şeması' },
-    { id: 'izin', name: 'İzin & Vardiya', cat: 'ik', price: 149, desc: 'Onay akışı, takvim, fazla mesai' },
-    { id: 'bordro', name: 'Bordro & SGK', cat: 'ik', price: 249, desc: 'Otomatik bordro, SGK e-bildirge' },
-    { id: 'performans', name: 'Performans', cat: 'ik', price: 199, desc: '360° değerlendirme, OKR/KPI takibi' },
-    { id: 'iseAlim', name: 'İşe Alım (ATS)', cat: 'ik', price: 179, desc: 'Pozisyon, başvuru havuzu, mülakat' },
-  ]},
-  { id: 'finans', label: 'Finans', desc: 'Muhasebe, fatura, KDV — finansal süreçlerin tamamı.', color: '#10b981', mods: [
-    { id: 'muhasebe', name: 'Muhasebe', cat: 'finans', price: 349, desc: 'E-fatura, ön muhasebe, GİB entegrasyonu', tag: 'new' },
-    { id: 'fatura', name: 'Fatura Yönetimi', cat: 'finans', price: 149, desc: 'E-fatura, e-arşiv, otomatik takip' },
-    { id: 'gelirGider', name: 'Gelir-Gider', cat: 'finans', price: 99, desc: 'Kasa, banka, nakit akışı görselleri' },
-    { id: 'kdv', name: 'KDV Beyannamesi', cat: 'finans', price: 149, desc: 'Otomatik KDV-1/2 hazırlama, BA-BS' },
-    { id: 'butce', name: 'Bütçe & Tahmin', cat: 'finans', price: 199, desc: 'Aylık bütçe, sapma analizi, forecast' },
-  ]},
-  { id: 'stok', label: 'Stok & Lojistik', desc: 'Stok, depo, kargo, barkod — operasyonun fiziksel akışı.', color: '#f59e0b', mods: [
-    { id: 'stok', name: 'Stok Yönetimi', cat: 'stok', price: 199, desc: 'Çoklu lokasyon, sayım, kritik seviye uyarı' },
-    { id: 'depo', name: 'Depo & Lokasyon', cat: 'stok', price: 149, desc: 'Raf, koridor bazlı yerleşim, transfer' },
-    { id: 'kargo', name: 'Kargo Entegrasyonu', cat: 'stok', price: 129, desc: 'Aras, Yurtiçi, MNG, PTT — etiket basma' },
-    { id: 'barkod', name: 'Barkod & Etiket', cat: 'stok', price: 99, desc: 'QR, barkod tasarımı, toplu yazdırma' },
-    { id: 'tedarik', name: 'Tedarik Zinciri', cat: 'stok', price: 249, desc: 'Tedarikçi, sipariş tahminleri, lead time', tag: 'beta' },
-  ]},
-  { id: 'destek', label: 'Müşteri Hizmetleri', desc: 'Müşteri destek operasyonu için araçlar.', color: '#ec4899', mods: [
-    { id: 'chat', name: 'Canlı Destek', cat: 'destek', price: 129, desc: 'Mağazanıza chat balonu, agent yönetimi' },
-    { id: 'ticket', name: 'Bilet Sistemi', cat: 'destek', price: 149, desc: 'SLA, atama, kategoriler, otomasyon' },
-    { id: 'kb', name: 'Bilgi Bankası', cat: 'destek', price: 79, desc: 'Public FAQ, makale yönetimi, arama' },
-    { id: 'callcenter', name: 'Çağrı Merkezi', cat: 'destek', price: 299, desc: 'VoIP, IVR, çağrı kayıtları, anketler', tag: 'coming' },
-  ]},
-  { id: 'uretim', label: 'Üretim & Operasyon', desc: 'Üretim atölyeleri için planlama, kalite ve bakım modülleri.', color: '#ef4444', mods: [
-    { id: 'planning', name: 'Üretim Planlama', cat: 'uretim', price: 299, desc: 'İş emri, kapasite, Gantt görselleri' },
-    { id: 'bom', name: 'BOM & Reçete', cat: 'uretim', price: 199, desc: 'Hammadde tüketim, çok seviyeli reçete' },
-    { id: 'kalite', name: 'Kalite Kontrol', cat: 'uretim', price: 179, desc: 'Checklist, hata kategorileri, raporlar' },
-    { id: 'bakim', name: 'Bakım Yönetimi', cat: 'uretim', price: 149, desc: 'Periyodik bakım, arıza kayıtları' },
-  ]},
-  { id: 'verim', label: 'Verimlilik', desc: 'Ekip çalışma araçları — notlar, görevler, dokümanlar.', color: '#6366f1', mods: [
-    { id: 'notes', name: 'Notlar', cat: 'verim', price: 79, desc: 'Ekip notları, etiketleme, arama' },
-    { id: 'tasks', name: 'Görev Takibi', cat: 'verim', price: 99, desc: 'Kanban, sprint, atama, bağımlılıklar' },
-    { id: 'meetings', name: 'Toplantı Yönetimi', cat: 'verim', price: 129, desc: 'Takvim, ajanda, otomatik notlar' },
-    { id: 'docs', name: 'Belge Yönetimi', cat: 'verim', price: 99, desc: 'Sözleşmeler, izinler, versiyonlama' },
-  ]},
-];
-
-const TB_CATS = [
-  { id: 'all', label: 'Tümü', cnt: 35 },
-  { id: 'satis', label: 'Satış & Pazarlama', cnt: 8 },
-  { id: 'ik', label: 'İnsan Kaynakları', cnt: 5 },
-  { id: 'finans', label: 'Finans', cnt: 5 },
-  { id: 'stok', label: 'Stok & Lojistik', cnt: 5 },
-  { id: 'destek', label: 'Müşteri Hizmetleri', cnt: 4 },
-  { id: 'uretim', label: 'Üretim', cnt: 4 },
-  { id: 'verim', label: 'Verimlilik', cnt: 4 },
-];
+/* ── Category metadata (hardcoded labels/colors, modules come from API) ── */
+const CAT_META: Record<string, { label: string; desc: string; color: string }> = {
+  satis:  { label: 'Satış & Pazarlama', desc: 'Mağaza, müşteri, kampanya', color: '#8b5cf6' },
+  ik:     { label: 'İnsan Kaynakları',  desc: 'Personel, izin, bordro',    color: '#06b6d4' },
+  finans: { label: 'Finans',            desc: 'Muhasebe, fatura, KDV',     color: '#10b981' },
+  stok:   { label: 'Stok & Lojistik',  desc: 'Stok, depo, kargo',         color: '#f59e0b' },
+  destek: { label: 'Müşteri Desteği',   desc: 'Chat, ticket, destek',      color: '#3b82f6' },
+  uretim: { label: 'Üretim',            desc: 'Planlama, BOM, kalite',     color: '#ec4899' },
+  verim:  { label: 'Verimlilik',        desc: 'Notlar, görevler, docs',    color: '#6366f1' },
+};
 
 function TagBadge({ tag }: { tag?: string }) {
   if (!tag) return null;
@@ -131,9 +71,11 @@ function TagBadge({ tag }: { tag?: string }) {
 
 export function ModullerPage() {
   useScrollReveal();
-  const [filter, setFilter] = useState('all');
+  const [activeCat, setActiveCat] = useState('all');
   const [search, setSearch] = useState('');
   const [added, setAdded] = useState<Set<string>>(new Set());
+
+  const { data, isLoading } = useModulesQuery();
 
   const toggleAdd = (id: string) => {
     setAdded((prev) => {
@@ -144,34 +86,71 @@ export function ModullerPage() {
     });
   };
 
-  // Find prices for added modules
-  const allMods = CATS.flatMap((c) => c.mods);
-  const featMods = FEATURED;
-  const allModsWithPrice = [...allMods, ...featMods];
-  const selTotal = Array.from(added).reduce((sum, id) => {
-    const mod = allModsWithPrice.find((m) => m.id === id);
-    return sum + (mod?.price ?? 0);
-  }, 0);
+  /* ── Featured: isPopular modules (max 3) ── */
+  const featured = useMemo(() => {
+    return (data ?? []).filter((m) => m.isPopular).slice(0, 3);
+  }, [data]);
 
-  const q = search.trim().toLowerCase();
+  /* ── Unique categories derived from API data ── */
+  const categories = useMemo(() => {
+    const seen = new Set<string>();
+    const result: string[] = [];
+    (data ?? []).forEach((m) => {
+      if (m.category && !seen.has(m.category)) {
+        seen.add(m.category);
+        result.push(m.category);
+      }
+    });
+    return result;
+  }, [data]);
 
-  const visibleCats = CATS.filter((cat) => {
-    if (filter !== 'all' && cat.id !== filter) return false;
-    if (q) return cat.mods.some((m) => m.name.toLowerCase().includes(q) || m.desc.toLowerCase().includes(q));
-    return true;
-  }).map((cat) => ({
-    ...cat,
-    mods: q ? cat.mods.filter((m) => m.name.toLowerCase().includes(q) || m.desc.toLowerCase().includes(q)) : cat.mods,
-  }));
+  /* ── Filtered list based on active cat + search ── */
+  const filtered = useMemo(() => {
+    const base = activeCat === 'all' ? (data ?? []) : (data ?? []).filter((m) => m.category === activeCat);
+    const q = search.trim().toLowerCase();
+    if (!q) return base;
+    return base.filter(
+      (m) =>
+        m.name.toLowerCase().includes(q) ||
+        m.description.toLowerCase().includes(q),
+    );
+  }, [data, activeCat, search]);
 
-  const totalVisible = visibleCats.reduce((acc, c) => acc + c.mods.length, 0);
+  /* ── Group filtered modules by category ── */
+  const grouped = useMemo(() => {
+    const map = new Map<string, LandingModule[]>();
+    filtered.forEach((m) => {
+      const cat = m.category ?? 'diger';
+      if (!map.has(cat)) map.set(cat, []);
+      map.get(cat)!.push(m);
+    });
+    return map;
+  }, [filtered]);
+
+  /* ── Selection total (monthly price) ── */
+  const selTotal = useMemo(() => {
+    return Array.from(added).reduce((sum, id) => {
+      const mod = (data ?? []).find((m) => m.code === id || m.id === id);
+      return sum + (mod?.priceMonthly ?? 0);
+    }, 0);
+  }, [added, data]);
+
+  if (isLoading) {
+    return (
+      <LandingLayout>
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+          <div>Yükleniyor...</div>
+        </div>
+      </LandingLayout>
+    );
+  }
 
   return (
     <LandingLayout>
       <section className={s.hero}>
         <div className="lp-container">
           <span className="lp-eyebrow fade-up"><span className="lp-dot" />Modül Kataloğu</span>
-          <h1 className={`${s.h1} fade-up`} data-delay="1">35+ modül, <span className="lp-grad-text">sınırsız kombinasyon</span></h1>
+          <h1 className={`${s.h1} fade-up`} data-delay="1">{(data?.length ?? 0)}+ modül, <span className="lp-grad-text">sınırsız kombinasyon</span></h1>
           <p className={`${s.lead} fade-up`} data-delay="2">Sadece kullandığınız modüller için ödeyin. İhtiyacınız değiştiğinde tek tıkla açın/kapatın — kurulum yok.</p>
         </div>
       </section>
@@ -184,15 +163,29 @@ export function ModullerPage() {
               <input className={s.tbSearchInput} type="search" placeholder="Modül arayın..." value={search} onChange={(e) => setSearch(e.target.value)} />
             </div>
             <div className={s.tbCats}>
-              {TB_CATS.map((tc) => (
-                <button key={tc.id} className={`${s.tbBtn} ${filter === tc.id ? s.tbBtnOn : ''}`} onClick={() => setFilter(tc.id)}>
-                  {tc.label} <span className={s.tbCnt}>{tc.cnt}</span>
-                </button>
-              ))}
+              <button
+                className={`${s.tbBtn} ${activeCat === 'all' ? s.tbBtnOn : ''}`}
+                onClick={() => setActiveCat('all')}
+              >
+                Tümü <span className={s.tbCnt}>{data?.length ?? 0}</span>
+              </button>
+              {categories.map((cat) => {
+                const meta = CAT_META[cat];
+                const cnt = (data ?? []).filter((m) => m.category === cat).length;
+                return (
+                  <button
+                    key={cat}
+                    className={`${s.tbBtn} ${activeCat === cat ? s.tbBtnOn : ''}`}
+                    onClick={() => setActiveCat(cat)}
+                  >
+                    {meta?.label ?? cat} <span className={s.tbCnt}>{cnt}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
           <div className={s.tbSummary}>
-            <div><strong>{totalVisible}</strong> modül gösteriliyor</div>
+            <div><strong>{filtered.length}</strong> modül gösteriliyor</div>
             {added.size > 0 && (
               <div className={s.selBar}>
                 <b>{added.size}</b> modül seçili
@@ -206,81 +199,102 @@ export function ModullerPage() {
       </div>
 
       {/* Featured */}
-      <section className={s.featured}>
-        <div className="lp-container">
-          <div className={s.featHead}>
-            <h2 className={s.featTitle}>⭐ Popüler</h2>
-            <span className={s.lbl}>En çok kullanılan 3 modül</span>
-          </div>
-          <div className={s.featGrid}>
-            {FEATURED.map((f) => (
-              <article key={f.id} className={`${s.featCard} lp-glass`} style={{ '--accent': f.cat === 'finans' ? '#6ee7b7' : '#c4b5fd', '--accent-soft': f.cat === 'finans' ? 'rgba(16,185,129,.2)' : 'rgba(139,92,246,.2)', '--accent-border': f.cat === 'finans' ? 'rgba(16,185,129,.4)' : 'rgba(139,92,246,.4)' } as React.CSSProperties}>
-                <div className={s.featTop}>
-                  <div className={s.featIc}>{getIcon(f.id)}</div>
-                  <div><TagBadge tag={f.tag} /></div>
-                </div>
-                <h3 className={s.featH3}>{f.name}</h3>
-                <p className={s.featP}>{f.desc}</p>
-                <div className={s.featFoot}>
-                  <div className={s.pricePill}><b>₺{f.price}</b><span>/ay</span></div>
-                  <button
-                    className={`${s.installBtn} ${added.has(f.id) ? s.installAdded : ''}`}
-                    onClick={() => toggleAdd(f.id)}
+      {featured.length > 0 && (
+        <section className={s.featured}>
+          <div className="lp-container">
+            <div className={s.featHead}>
+              <h2 className={s.featTitle}>⭐ Popüler</h2>
+              <span className={s.lbl}>En çok kullanılan {featured.length} modül</span>
+            </div>
+            <div className={s.featGrid}>
+              {featured.map((f) => {
+                const accent = CAT_META[f.category ?? '']?.color ?? '#8b5cf6';
+                return (
+                  <article
+                    key={f.id}
+                    className={`${s.featCard} lp-glass`}
+                    style={{
+                      '--accent': accent,
+                      '--accent-soft': accent + '33',
+                      '--accent-border': accent + '66',
+                    } as React.CSSProperties}
                   >
-                    {added.has(f.id) ? '✓ Eklendi' : 'Ekle'}
-                  </button>
-                </div>
-              </article>
-            ))}
+                    <div className={s.featTop}>
+                      <div className={s.featIc}>{getIcon(f.code)}</div>
+                      <div><TagBadge tag={f.tag} /></div>
+                    </div>
+                    <h3 className={s.featH3}>{f.name}</h3>
+                    <p className={s.featP}>{f.description}</p>
+                    <div className={s.featFoot}>
+                      <div className={s.pricePill}><b>₺{f.priceMonthly}</b><span>/ay</span></div>
+                      <button
+                        className={`${s.installBtn} ${added.has(f.id) ? s.installAdded : ''}`}
+                        onClick={() => toggleAdd(f.id)}
+                      >
+                        {added.has(f.id) ? '✓ Eklendi' : 'Ekle'}
+                      </button>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Category sections */}
       <section className={s.cats}>
         <div className="lp-container">
-          {visibleCats.length === 0 && (
+          {grouped.size === 0 && (
             <div className={s.emptyState}>
               <div className={s.emptyIc}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
               <h4>Sonuç bulunamadı</h4>
               <p>Aramanız veya filtrenizle eşleşen modül yok.</p>
             </div>
           )}
-          {visibleCats.map((cat) => (
-            <div key={cat.id} className={s.catSection} id={cat.id}>
-              <div className={s.catHead}>
-                <div className={s.catTitle}>
-                  <span className={s.catSwatch} style={{ background: cat.color, boxShadow: `0 0 12px ${cat.color}` }} />
-                  <h2>{cat.label}</h2>
-                  <span className={s.catCnt}>{cat.mods.length} modül</span>
+          {Array.from(grouped.entries()).map(([catKey, mods]) => {
+            const meta = CAT_META[catKey] ?? { label: catKey, desc: '', color: '#6366f1' };
+            return (
+              <div key={catKey} className={s.catSection} id={catKey}>
+                <div className={s.catHead}>
+                  <div className={s.catTitle}>
+                    <span className={s.catSwatch} style={{ background: meta.color, boxShadow: `0 0 12px ${meta.color}` }} />
+                    <h2>{meta.label}</h2>
+                    <span className={s.catCnt}>{mods.length} modül</span>
+                  </div>
+                </div>
+                <p className={s.catDesc}>{meta.desc}</p>
+                <div className={s.modGrid}>
+                  {mods.map((mod) => (
+                    <article
+                      key={mod.id}
+                      className={`${s.modCard} lp-glass`}
+                      style={{
+                        '--cat-color': meta.color,
+                        '--accent': meta.color + 'cc',
+                        '--accent-soft': meta.color + '26',
+                        '--accent-border': meta.color + '55',
+                      } as React.CSSProperties}
+                    >
+                      <div className={s.modRow}>
+                        <div className={s.modIc}>{getIcon(mod.code)}</div>
+                        <button
+                          className={`${s.addBtn} ${added.has(mod.id) ? s.addBtnAdded : ''}`}
+                          onClick={() => toggleAdd(mod.id)}
+                          aria-label={added.has(mod.id) ? 'Kaldır' : 'Ekle'}
+                        />
+                      </div>
+                      <h4 className={s.modName}>{mod.name} <TagBadge tag={mod.tag} /></h4>
+                      <p className={s.modDesc}>{mod.description}</p>
+                      <div className={s.modFoot}>
+                        <div className={s.modPrice}><b>₺{mod.priceMonthly}</b><span>/ay</span></div>
+                      </div>
+                    </article>
+                  ))}
                 </div>
               </div>
-              <p className={s.catDesc}>{cat.desc}</p>
-              <div className={s.modGrid}>
-                {cat.mods.map((mod) => (
-                  <article
-                    key={mod.id}
-                    className={`${s.modCard} lp-glass`}
-                    style={{ '--cat-color': cat.color, '--accent': cat.color + 'cc', '--accent-soft': cat.color + '26', '--accent-border': cat.color + '55' } as React.CSSProperties}
-                  >
-                    <div className={s.modRow}>
-                      <div className={s.modIc}>{getIcon(mod.id)}</div>
-                      <button
-                        className={`${s.addBtn} ${added.has(mod.id) ? s.addBtnAdded : ''}`}
-                        onClick={() => toggleAdd(mod.id)}
-                        aria-label={added.has(mod.id) ? 'Kaldır' : 'Ekle'}
-                      />
-                    </div>
-                    <h4 className={s.modName}>{mod.name} <TagBadge tag={mod.tag} /></h4>
-                    <p className={s.modDesc}>{mod.desc}</p>
-                    <div className={s.modFoot}>
-                      <div className={s.modPrice}><b>₺{mod.price}</b><span>/ay</span></div>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </section>
 
@@ -289,7 +303,7 @@ export function ModullerPage() {
         <div className="lp-container">
           <div className={s.bundlesHead}>
             <span className="lp-eyebrow fade-up"><span className="lp-dot" />Hazır Paketler</span>
-            <h2 className="fade-up" data-delay="1">35 modül fazla mı? <span className="lp-grad-text">Hazır paketle başlayın.</span></h2>
+            <h2 className="fade-up" data-delay="1">Çok modül mü? <span className="lp-grad-text">Hazır paketle başlayın.</span></h2>
             <p className="fade-up" data-delay="2">Sektörünüze özel önerilmiş modül kombinasyonları. İstediğiniz an düzenleyin.</p>
           </div>
           <div className={s.bundleGrid}>
@@ -297,7 +311,7 @@ export function ModullerPage() {
               { icons: ['🛒','📦','🚚'], title: 'E-Ticaret Paketi', count: '3 modül · E-Ticaret + Stok + Kargo', desc: 'Online satışa hızla başlamak isteyen mağazalar için.', price: '699', strike: '₺827', save: '−%15', delay: '0' },
               { icons: ['👥','📧','📱'], title: 'Satış & CRM Paketi', count: '3 modül · CRM + E-posta + SMS', desc: 'Müşteri ilişkileri ve pazarlamayı otomatikleştirin.', price: '599', strike: '₺747', save: '−%20', delay: '1' },
               { icons: ['👤','💼','📅'], title: 'İK Paketi', count: '3 modül · Personel + Bordro + İzin', desc: 'İK operasyonunu tek panelden yönetin.', price: '549', strike: '₺697', save: '−%21', delay: '2' },
-              { icons: ['🌟','🛒','👥','💼','📊'], title: 'Tam Paket', count: '35 modül · Hepsi dahil', desc: 'Premium plana eşdeğer — Wixi\'nin tüm modülleri.', price: '1.299', strike: '₺6.500+', save: '−%80', delay: '3' },
+              { icons: ['🌟','🛒','👥','💼','📊'], title: 'Tam Paket', count: `${data?.length ?? 35} modül · Hepsi dahil`, desc: 'Premium plana eşdeğer — Wixi\'nin tüm modülleri.', price: '1.299', strike: '₺6.500+', save: '−%80', delay: '3' },
             ].map((b) => (
               <article key={b.title} className={`${s.bundle} lp-glass fade-up`} data-delay={b.delay}>
                 <div className={s.bundleIcons}>{b.icons.map((ic, i) => <span key={i}>{ic}</span>)}</div>

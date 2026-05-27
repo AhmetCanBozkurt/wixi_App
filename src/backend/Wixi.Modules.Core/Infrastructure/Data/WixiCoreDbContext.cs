@@ -60,6 +60,32 @@ public class WixiCoreDbContext : IdentityDbContext<WixiUser, WixiRole, Guid>
     public DbSet<WixiState> States { get; set; }
     public DbSet<WixiCity> Cities { get; set; }
 
+    // Landing Content
+    public DbSet<WixiFaqCategory> FaqCategories => Set<WixiFaqCategory>();
+    public DbSet<WixiFaqCategoryTranslation> FaqCategoryTranslations => Set<WixiFaqCategoryTranslation>();
+    public DbSet<WixiFaq> Faqs => Set<WixiFaq>();
+    public DbSet<WixiFaqTranslation> FaqTranslations => Set<WixiFaqTranslation>();
+    public DbSet<WixiContactSubmission> ContactSubmissions => Set<WixiContactSubmission>();
+    public DbSet<WixiPlatformStat> PlatformStats => Set<WixiPlatformStat>();
+    public DbSet<WixiPlatformStatTranslation> PlatformStatTranslations => Set<WixiPlatformStatTranslation>();
+
+    // Landing Content — Wave 3
+    public DbSet<WixiLegalDocument> LegalDocuments => Set<WixiLegalDocument>();
+    public DbSet<WixiLegalDocumentTranslation> LegalDocumentTranslations => Set<WixiLegalDocumentTranslation>();
+
+    // Landing Content — Wave 2
+    public DbSet<WixiTeamMember> TeamMembers => Set<WixiTeamMember>();
+    public DbSet<WixiTeamMemberTranslation> TeamMemberTranslations => Set<WixiTeamMemberTranslation>();
+    public DbSet<WixiCompanyMilestone> CompanyMilestones => Set<WixiCompanyMilestone>();
+    public DbSet<WixiCompanyMilestoneTranslation> CompanyMilestoneTranslations => Set<WixiCompanyMilestoneTranslation>();
+    public DbSet<WixiCaseStudy> CaseStudies => Set<WixiCaseStudy>();
+    public DbSet<WixiCaseStudyTranslation> CaseStudyTranslations => Set<WixiCaseStudyTranslation>();
+    public DbSet<WixiRoadmapItem> RoadmapItems => Set<WixiRoadmapItem>();
+    public DbSet<WixiRoadmapItemTranslation> RoadmapItemTranslations => Set<WixiRoadmapItemTranslation>();
+    public DbSet<WixiRoadmapVote> RoadmapVotes => Set<WixiRoadmapVote>();
+    public DbSet<WixiChangelogEntry> ChangelogEntries => Set<WixiChangelogEntry>();
+    public DbSet<WixiChangelogTranslation> ChangelogTranslations => Set<WixiChangelogTranslation>();
+
     // Reference Data — Phase C2
     public DbSet<WixiUnitCategory> UnitCategories { get; set; }
     public DbSet<WixiUnit> Units { get; set; }
@@ -652,6 +678,287 @@ public class WixiCoreDbContext : IdentityDbContext<WixiUser, WixiRole, Guid>
             entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
             entity.Property(e => e.NameEn).HasMaxLength(100);
             entity.Property(e => e.Symbol).HasMaxLength(20);
+        });
+
+        // Landing Content
+
+        builder.Entity<WixiFaqCategory>(entity =>
+        {
+            entity.ToTable("WIXI_FAQ_CATEGORIES");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Slug).IsRequired().HasMaxLength(100);
+            entity.HasIndex(e => e.Slug).IsUnique();
+        });
+
+        builder.Entity<WixiFaqCategoryTranslation>(entity =>
+        {
+            entity.ToTable("WIXI_FAQ_CATEGORY_TRANSLATIONS");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Label).IsRequired().HasMaxLength(200);
+
+            entity.HasOne(e => e.Category)
+                  .WithMany(c => c.Translations)
+                  .HasForeignKey(e => e.CategoryId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.Language)
+                  .WithMany()
+                  .HasForeignKey(e => e.LanguageId)
+                  .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        builder.Entity<WixiFaq>(entity =>
+        {
+            entity.ToTable("WIXI_FAQS");
+            entity.HasKey(e => e.Id);
+
+            entity.HasOne(e => e.Category)
+                  .WithMany(c => c.Faqs)
+                  .HasForeignKey(e => e.CategoryId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<WixiFaqTranslation>(entity =>
+        {
+            entity.ToTable("WIXI_FAQ_TRANSLATIONS");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Question).IsRequired().HasMaxLength(500);
+            entity.Property(e => e.Answer).IsRequired().HasMaxLength(4000);
+
+            entity.HasOne(e => e.Faq)
+                  .WithMany(f => f.Translations)
+                  .HasForeignKey(e => e.FaqId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.Language)
+                  .WithMany()
+                  .HasForeignKey(e => e.LanguageId)
+                  .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        builder.Entity<WixiContactSubmission>(entity =>
+        {
+            entity.ToTable("WIXI_CONTACT_SUBMISSIONS");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.FullName).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.Email).IsRequired().HasMaxLength(256);
+            entity.Property(e => e.Phone).HasMaxLength(30);
+            entity.Property(e => e.Topic).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.Message).IsRequired().HasMaxLength(4000);
+            entity.Property(e => e.Source).HasMaxLength(100);
+        });
+
+        builder.Entity<WixiPlatformStat>(entity =>
+        {
+            entity.ToTable("WIXI_PLATFORM_STATS");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.StatKey).IsRequired().HasMaxLength(100);
+            entity.HasIndex(e => e.StatKey).IsUnique();
+            entity.Property(e => e.DisplayValue).IsRequired().HasMaxLength(50);
+        });
+
+        builder.Entity<WixiPlatformStatTranslation>(entity =>
+        {
+            entity.ToTable("WIXI_PLATFORM_STAT_TRANSLATIONS");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Label).IsRequired().HasMaxLength(200);
+
+            entity.HasOne(e => e.Stat)
+                  .WithMany(s => s.Translations)
+                  .HasForeignKey(e => e.StatId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.Language)
+                  .WithMany()
+                  .HasForeignKey(e => e.LanguageId)
+                  .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // Landing Content — Wave 2
+
+        builder.Entity<WixiTeamMember>(entity =>
+        {
+            entity.ToTable("WIXI_TEAM_MEMBERS");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.FullName).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.Initials).IsRequired().HasMaxLength(10);
+            entity.Property(e => e.AvatarUrl).HasMaxLength(500);
+            entity.Property(e => e.AvatarColor).IsRequired().HasMaxLength(20);
+        });
+
+        builder.Entity<WixiTeamMemberTranslation>(entity =>
+        {
+            entity.ToTable("WIXI_TEAM_MEMBER_TRANSLATIONS");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Role).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.Department).IsRequired().HasMaxLength(100);
+
+            entity.HasOne(e => e.Member)
+                  .WithMany(m => m.Translations)
+                  .HasForeignKey(e => e.MemberId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.Language)
+                  .WithMany()
+                  .HasForeignKey(e => e.LanguageId)
+                  .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        builder.Entity<WixiCompanyMilestone>(entity =>
+        {
+            entity.ToTable("WIXI_COMPANY_MILESTONES");
+            entity.HasKey(e => e.Id);
+        });
+
+        builder.Entity<WixiCompanyMilestoneTranslation>(entity =>
+        {
+            entity.ToTable("WIXI_COMPANY_MILESTONE_TRANSLATIONS");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Title).IsRequired().HasMaxLength(300);
+            entity.Property(e => e.Description).HasMaxLength(1000);
+
+            entity.HasOne(e => e.Milestone)
+                  .WithMany(m => m.Translations)
+                  .HasForeignKey(e => e.MilestoneId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.Language)
+                  .WithMany()
+                  .HasForeignKey(e => e.LanguageId)
+                  .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        builder.Entity<WixiCaseStudy>(entity =>
+        {
+            entity.ToTable("WIXI_CASE_STUDIES");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.ClientSlug).IsRequired().HasMaxLength(100);
+            entity.HasIndex(e => e.ClientSlug).IsUnique();
+            entity.Property(e => e.ClientInitials).IsRequired().HasMaxLength(10);
+            entity.Property(e => e.ClientLogoUrl).HasMaxLength(500);
+            entity.Property(e => e.Industry).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.Metric1Value).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.Metric2Value).IsRequired().HasMaxLength(50);
+        });
+
+        builder.Entity<WixiCaseStudyTranslation>(entity =>
+        {
+            entity.ToTable("WIXI_CASE_STUDY_TRANSLATIONS");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.ClientName).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.Title).IsRequired().HasMaxLength(400);
+            entity.Property(e => e.Description).IsRequired().HasMaxLength(2000);
+            entity.Property(e => e.Metric1Label).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.Metric2Label).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.QuoteText).HasMaxLength(1000);
+            entity.Property(e => e.QuoteAuthor).HasMaxLength(200);
+
+            entity.HasOne(e => e.CaseStudy)
+                  .WithMany(c => c.Translations)
+                  .HasForeignKey(e => e.CaseStudyId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.Language)
+                  .WithMany()
+                  .HasForeignKey(e => e.LanguageId)
+                  .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        builder.Entity<WixiRoadmapItem>(entity =>
+        {
+            entity.ToTable("WIXI_ROADMAP_ITEMS");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Phase).IsRequired().HasMaxLength(20);
+            entity.Property(e => e.PhaseLabel).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.Category).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.PlannedDate).IsRequired().HasMaxLength(100);
+        });
+
+        builder.Entity<WixiRoadmapItemTranslation>(entity =>
+        {
+            entity.ToTable("WIXI_ROADMAP_ITEM_TRANSLATIONS");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Title).IsRequired().HasMaxLength(300);
+            entity.Property(e => e.Description).IsRequired().HasMaxLength(2000);
+
+            entity.HasOne(e => e.Item)
+                  .WithMany(i => i.Translations)
+                  .HasForeignKey(e => e.ItemId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.Language)
+                  .WithMany()
+                  .HasForeignKey(e => e.LanguageId)
+                  .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        builder.Entity<WixiRoadmapVote>(entity =>
+        {
+            entity.ToTable("WIXI_ROADMAP_VOTES");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.SessionToken).IsRequired().HasMaxLength(128);
+            entity.Property(e => e.IpHash).HasMaxLength(128);
+            entity.HasIndex(v => new { v.ItemId, v.SessionToken }).IsUnique();
+
+            entity.HasOne(e => e.Item)
+                  .WithMany(i => i.Votes)
+                  .HasForeignKey(e => e.ItemId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<WixiChangelogEntry>(entity =>
+        {
+            entity.ToTable("WIXI_CHANGELOG_ENTRIES");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Version).IsRequired().HasMaxLength(20);
+            entity.Property(e => e.Tag).IsRequired().HasMaxLength(30);
+        });
+
+        builder.Entity<WixiChangelogTranslation>(entity =>
+        {
+            entity.ToTable("WIXI_CHANGELOG_TRANSLATIONS");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Title).IsRequired().HasMaxLength(300);
+            entity.Property(e => e.Description).IsRequired().HasMaxLength(2000);
+
+            entity.HasOne(e => e.Entry)
+                  .WithMany(e => e.Translations)
+                  .HasForeignKey(e => e.EntryId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.Language)
+                  .WithMany()
+                  .HasForeignKey(e => e.LanguageId)
+                  .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // Landing Content — Wave 3
+
+        builder.Entity<WixiLegalDocument>().ToTable("WIXI_LEGAL_DOCUMENTS");
+        builder.Entity<WixiLegalDocumentTranslation>().ToTable("WIXI_LEGAL_DOCUMENT_TRANSLATIONS");
+
+        builder.Entity<WixiLegalDocument>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Slug).IsRequired().HasMaxLength(50);
+            entity.HasIndex(e => e.Slug);
+            entity.Property(e => e.Version).IsRequired().HasMaxLength(20);
+        });
+
+        builder.Entity<WixiLegalDocumentTranslation>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Title).IsRequired().HasMaxLength(300);
+
+            entity.HasOne(e => e.Document)
+                  .WithMany(d => d.Translations)
+                  .HasForeignKey(e => e.DocumentId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.Language)
+                  .WithMany()
+                  .HasForeignKey(e => e.LanguageId)
+                  .OnDelete(DeleteBehavior.Restrict);
         });
 
         // Reference Data — Phase C2

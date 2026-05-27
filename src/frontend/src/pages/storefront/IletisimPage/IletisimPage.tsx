@@ -1,19 +1,47 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { LandingLayout } from '../../../widgets/LandingLayout/LandingLayout';
 import { useScrollReveal } from '../../../widgets/LandingLayout/useLandingAnimations';
+import { useSubmitContactMutation } from '../../../entities/landing';
 import s from './IletisimPage.module.css';
 
 export function IletisimPage() {
   useScrollReveal();
+  const { t } = useTranslation('landing');
   const [topic, setTopic] = useState('Genel');
   const [sent, setSent] = useState(false);
-  const [sending, setSending] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const mutation = useSubmitContactMutation();
+
+  const nameRef = useRef<HTMLInputElement>(null);
+  const emailRef = useRef<HTMLInputElement>(null);
+  const phoneRef = useRef<HTMLInputElement>(null);
+  const msgRef = useRef<HTMLTextAreaElement>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setSending(true);
-    setTimeout(() => { setSent(true); setSending(false); }, 1100);
+    setErrorMsg(null);
+
+    mutation.mutate(
+      {
+        fullName: nameRef.current?.value ?? '',
+        email: emailRef.current?.value ?? '',
+        phone: phoneRef.current?.value || undefined,
+        topic,
+        message: msgRef.current?.value ?? '',
+      },
+      {
+        onSuccess: () => {
+          setSent(true);
+        },
+        onError: () => {
+          setErrorMsg(t('LANDING_CONTACT_SUBMIT_ERROR'));
+        },
+      },
+    );
   };
+
+  const isPending = mutation.isPending;
 
   return (
     <LandingLayout>
@@ -63,30 +91,62 @@ export function IletisimPage() {
             <div className={s.field}>
               <label>Konu</label>
               <div className={s.topic}>
-                {['Genel', 'Satış', 'Destek', 'Basın'].map((t) => (
-                  <button key={t} type="button" className={topic === t ? s.topicOn : ''} onClick={() => setTopic(t)}>{t}</button>
+                {['Genel', 'Satış', 'Destek', 'Basın'].map((topicOption) => (
+                  <button
+                    key={topicOption}
+                    type="button"
+                    className={topic === topicOption ? s.topicOn : ''}
+                    onClick={() => setTopic(topicOption)}
+                  >
+                    {topicOption}
+                  </button>
                 ))}
               </div>
             </div>
 
             <div className={s.fieldRow}>
-              <div className={s.field}><label htmlFor="cName">Ad Soyad</label><input id="cName" type="text" placeholder="Ahmet Yılmaz" required /></div>
-              <div className={s.field}><label htmlFor="cEmail">E-posta</label><input id="cEmail" type="email" placeholder="ad@isletme.com" required /></div>
+              <div className={s.field}>
+                <label htmlFor="cName">Ad Soyad</label>
+                <input ref={nameRef} id="cName" type="text" placeholder="Ahmet Yılmaz" required />
+              </div>
+              <div className={s.field}>
+                <label htmlFor="cEmail">E-posta</label>
+                <input ref={emailRef} id="cEmail" type="email" placeholder="ad@isletme.com" required />
+              </div>
             </div>
             <div className={s.fieldRow}>
-              <div className={s.field}><label htmlFor="cCompany">Şirket</label><input id="cCompany" type="text" placeholder="ABC Tekstil" /></div>
               <div className={s.field}>
-                <label htmlFor="cSize">Çalışan sayısı</label>
-                <select id="cSize">
-                  <option>1 — 10</option><option>11 — 50</option><option>51 — 200</option><option>200+</option>
-                </select>
+                <label htmlFor="cPhone">Telefon</label>
+                <input ref={phoneRef} id="cPhone" type="tel" placeholder="+90 500 000 00 00" />
+              </div>
+              <div className={s.field}>
+                <label htmlFor="cCompany">Şirket</label>
+                <input id="cCompany" type="text" placeholder="ABC Tekstil" />
               </div>
             </div>
 
-            <div className={s.field}><label htmlFor="cMsg">Mesajınız</label><textarea id="cMsg" placeholder="Nasıl yardımcı olabiliriz?" required /></div>
+            <div className={s.field}>
+              <label htmlFor="cMsg">Mesajınız</label>
+              <textarea ref={msgRef} id="cMsg" placeholder="Nasıl yardımcı olabiliriz?" required />
+            </div>
 
-            <button type="submit" className={`lp-btn lp-btn--primary ${s.sendBtn}`} disabled={sending || sent}>
-              {sent ? '✓ Mesajınız iletildi' : sending ? 'Gönderiliyor...' : 'Mesajı Gönder →'}
+            {sent && (
+              <p style={{ color: '#4ade80', fontSize: '0.9rem', margin: '8px 0' }}>
+                {t('LANDING_CONTACT_SUBMIT_SUCCESS')}
+              </p>
+            )}
+            {errorMsg && (
+              <p style={{ color: '#f87171', fontSize: '0.9rem', margin: '8px 0' }}>
+                {errorMsg}
+              </p>
+            )}
+
+            <button
+              type="submit"
+              className={`lp-btn lp-btn--primary ${s.sendBtn}`}
+              disabled={isPending || sent}
+            >
+              {sent ? '✓ Mesajınız iletildi' : isPending ? 'Gönderiliyor...' : 'Mesajı Gönder →'}
             </button>
           </form>
 
@@ -95,12 +155,15 @@ export function IletisimPage() {
               <h3>Ofisimiz</h3>
               <div className={s.sideRow}><strong>Wixi Teknoloji A.Ş.</strong><span>Cumhuriyet Mah. Halaskargazi Cad. No: 38 / Şişli, İstanbul</span></div>
               <div className={s.sideRow}><strong>Mesai saatleri</strong><span>Hafta içi 09:00 — 18:00</span></div>
-              <div className={s.sideRow}><strong>Vergi & MERSİS</strong><span>VKN: 1234567890</span></div>
+              <div className={s.sideRow}><strong>Vergi &amp; MERSİS</strong><span>VKN: 1234567890</span></div>
               <div className={s.cMap}>
                 <div className={s.cMapPin}>
                   <div className={s.cMapPulse} />
                   <div className={s.cMapDot}>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                      <circle cx="12" cy="10" r="3" />
+                    </svg>
                   </div>
                 </div>
               </div>

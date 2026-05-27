@@ -121,11 +121,28 @@ Menüler `WIXI_MENUS` + `WIXI_MENU_TRANSLATIONS` tablolarına direkt SQL ile ekl
 ### Bağlantı Bilgileri
 ```
 Server : 78.188.86.124,1533
-DB     : Wixi_App
+DB     : Wixi_App_TEST   ← Manuel SQL her zaman TEST DB'ye çalıştırılır
+DB     : Wixi_App        ← Prod DB (CI/CD pipeline tarafından yönetilir, direkt bağlanılmaz)
 User   : Wixi_App / Wixi_App12.
 ```
 
-### Sabit ID'ler (üretim + test DB aynı)
+> ⚠️ **Kural:** El ile çalıştırılan tüm SQL scriptleri (menü ekleme, seed vb.) **`Wixi_App_TEST`** veritabanına uygulanır. `Wixi_App` (prod) yalnızca deploy pipeline'ı tarafından güncellenir.
+
+### Sabit ID'ler
+
+> ⚠️ **TEST ve PROD DB'lerinin ID'leri FARKLIDIR.** Doğru DB'ye göre doğru ID seti kullanılır.
+
+#### TEST DB (`Wixi_App_TEST`)
+```sql
+-- Admin kullanıcı
+DECLARE @adminId UNIQUEIDENTIFIER = 'A649A4BE-E7D6-4C70-53CD-08DEB53255B1';
+-- Türkçe dil (tr-TR)
+DECLARE @trId    UNIQUEIDENTIFIER = '24071C53-2B52-42B9-9FAE-FA60B65B37AA';
+-- İngilizce dil (en-US)
+DECLARE @enId    UNIQUEIDENTIFIER = '5AA1D063-B1CE-46BC-9772-363A650E484E';
+```
+
+#### PROD DB (`Wixi_App`) — CI/CD pipeline tarafından yönetilir
 ```sql
 -- Admin kullanıcı
 DECLARE @adminId UNIQUEIDENTIFIER = '2CEB2FC2-7818-45AE-1AE4-08DE9698C0CB';
@@ -137,9 +154,10 @@ DECLARE @enId    UNIQUEIDENTIFIER = 'D2608AF2-E718-489D-A90F-A8009A1A5ED7';
 
 ### Şablon: Klasör + Alt Menü Ekle
 ```sql
-DECLARE @adminId UNIQUEIDENTIFIER = '2CEB2FC2-7818-45AE-1AE4-08DE9698C0CB';
-DECLARE @trId    UNIQUEIDENTIFIER = 'F105229B-2D91-43C1-95B6-B344BCEC4D0F';
-DECLARE @enId    UNIQUEIDENTIFIER = 'D2608AF2-E718-489D-A90F-A8009A1A5ED7';
+-- TEST DB ID'leriyle örnek:
+DECLARE @adminId UNIQUEIDENTIFIER = 'A649A4BE-E7D6-4C70-53CD-08DEB53255B1';
+DECLARE @trId    UNIQUEIDENTIFIER = '24071C53-2B52-42B9-9FAE-FA60B65B37AA';
+DECLARE @enId    UNIQUEIDENTIFIER = '5AA1D063-B1CE-46BC-9772-363A650E484E';
 DECLARE @now     DATETIME2        = GETUTCDATE();
 
 -- 1. Klasör (folder)

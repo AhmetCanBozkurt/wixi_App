@@ -28,6 +28,12 @@ public class WixiModule : IAuditable
     public bool IsPopular { get; set; } = false;
     public int SortOrder { get; set; } = 0;
 
+    /// <summary>Modülün kategorisi: satis | ik | finans | stok | destek | uretim | verim</summary>
+    public string? Category { get; set; }
+
+    /// <summary>Öne çıkan rozet: popular | new | beta | null</summary>
+    public string? Tag { get; set; }
+
     // IAuditable
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public string? CreatedByUser { get; set; }

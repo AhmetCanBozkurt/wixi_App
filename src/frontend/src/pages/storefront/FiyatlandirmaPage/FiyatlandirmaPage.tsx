@@ -2,37 +2,8 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { LandingLayout } from '../../../widgets/LandingLayout/LandingLayout';
 import { useScrollReveal } from '../../../widgets/LandingLayout/useLandingAnimations';
+import { usePlansQuery } from '../../../entities/landing';
 import s from './FiyatlandirmaPage.module.css';
-
-const PLANS = [
-  {
-    name: 'Standart',
-    monthly: 499,
-    yearly: 399,
-    desc: 'Dijitale yeni başlayan tek mağaza işletmeleri için.',
-    features: ['E-Ticaret modülü', '5.000 ürün', 'Standart tema editörü', '3 kullanıcı', 'E-posta desteği', 'Temel analitik'],
-    popular: false,
-    cta: 'Ücretsiz Başla',
-  },
-  {
-    name: 'Premium',
-    monthly: 1299,
-    yearly: 1039,
-    desc: 'Büyüyen işletmeler ve çok kanallı satış yapanlar için.',
-    features: ['Tüm Standart özellikler', 'Sınırsız ürün', '5 modül seçimi', '15 kullanıcı', 'Öncelikli destek (ort. 30sn)', 'Gelişmiş analitik', 'Pazaryeri entegrasyonu', 'API erişimi'],
-    popular: true,
-    cta: 'Ücretsiz Başla',
-  },
-  {
-    name: 'Kurumsal',
-    monthly: 0,
-    yearly: 0,
-    desc: '50+ kişilik ekipler ve özel gereksinimi olan şirketler.',
-    features: ['Tüm Premium özellikler', 'Sınırsız modül', 'Sınırsız kullanıcı', 'Özel SLA', 'Dedicated account manager', 'Özel entegrasyonlar', 'Eğitim & onboarding'],
-    popular: false,
-    cta: 'Teklif Al',
-  },
-];
 
 const TABLE_ROWS = [
   { label: 'Ürün limiti', standart: '5.000', premium: 'Sınırsız', kurumsal: 'Sınırsız' },
@@ -54,6 +25,7 @@ export function FiyatlandirmaPage() {
   useScrollReveal();
   const [yearly, setYearly] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const { data: plans, isLoading } = usePlansQuery();
 
   return (
     <LandingLayout>
@@ -75,41 +47,57 @@ export function FiyatlandirmaPage() {
 
       <section className={s.plans}>
         <div className="lp-container">
-          <div className={s.planGrid}>
-            {PLANS.map((p, i) => (
-              <article
-                key={p.name}
-                className={`${s.planCard} lp-glass fade-up ${p.popular ? s.planPopular : ''}`}
-                data-delay={String(i)}
-              >
-                {p.popular && <div className={s.popularBadge}>En Popüler</div>}
-                <div className={s.planTop}>
-                  <h2 className={s.planName}>{p.name}</h2>
-                  <p className={s.planDesc}>{p.desc}</p>
-                  <div className={s.planPrice}>
-                    {p.monthly === 0 ? (
-                      <span className={s.customPrice}>Özel Fiyat</span>
-                    ) : (
-                      <>
-                        <span className={s.currency}>₺</span>
-                        <span className={s.amount}>{yearly ? p.yearly : p.monthly}</span>
-                        <span className={s.period}>/ay</span>
-                      </>
-                    )}
-                  </div>
-                  {yearly && p.monthly > 0 && (
-                    <div className={s.yearNote}>Yıllık ₺{(p.yearly * 12).toLocaleString('tr')} faturalanır</div>
-                  )}
-                </div>
-                <a href="/login" className={`lp-btn ${p.popular ? 'lp-btn--primary' : 'lp-btn--ghost'} ${s.planCta}`}>{p.cta}</a>
-                <ul className={s.planFeatures}>
-                  {p.features.map((f) => (
-                    <li key={f}><span className={s.fCheck}>✓</span>{f}</li>
-                  ))}
-                </ul>
-              </article>
-            ))}
-          </div>
+          {isLoading ? (
+            <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--text-muted)' }}>Yükleniyor...</div>
+          ) : (
+            <div className={s.planGrid}>
+              {(plans ?? []).map((p, i) => {
+                let features: string[] = [];
+                try {
+                  features = JSON.parse(p.featuresJson);
+                } catch {
+                  features = [];
+                }
+                const isPopular = p.code === 'premium' || (plans?.length === 3 && i === 1);
+                const isEnterprise = p.priceMonthly === 0;
+
+                return (
+                  <article
+                    key={p.id}
+                    className={`${s.planCard} lp-glass fade-up ${isPopular ? s.planPopular : ''}`}
+                    data-delay={String(i)}
+                  >
+                    {isPopular && <div className={s.popularBadge}>En Popüler</div>}
+                    <div className={s.planTop}>
+                      <h2 className={s.planName}>{p.name}</h2>
+                      <div className={s.planPrice}>
+                        {isEnterprise ? (
+                          <span className={s.customPrice}>Özel Fiyat</span>
+                        ) : (
+                          <>
+                            <span className={s.currency}>₺</span>
+                            <span className={s.amount}>{yearly ? p.priceYearly : p.priceMonthly}</span>
+                            <span className={s.period}>/ay</span>
+                          </>
+                        )}
+                      </div>
+                      {yearly && !isEnterprise && (
+                        <div className={s.yearNote}>Yıllık ₺{(p.priceYearly * 12).toLocaleString('tr')} faturalanır</div>
+                      )}
+                    </div>
+                    <a href="/login" className={`lp-btn ${isPopular ? 'lp-btn--primary' : 'lp-btn--ghost'} ${s.planCta}`}>
+                      {isEnterprise ? 'Teklif Al' : 'Ücretsiz Başla'}
+                    </a>
+                    <ul className={s.planFeatures}>
+                      {features.map((f) => (
+                        <li key={f}><span className={s.fCheck}>✓</span>{f}</li>
+                      ))}
+                    </ul>
+                  </article>
+                );
+              })}
+            </div>
+          )}
         </div>
       </section>
 
@@ -125,7 +113,7 @@ export function FiyatlandirmaPage() {
               <thead>
                 <tr>
                   <th></th>
-                  {PLANS.map((p) => <th key={p.name}>{p.name}</th>)}
+                  {(plans ?? []).map((p) => <th key={p.id}>{p.name}</th>)}
                 </tr>
               </thead>
               <tbody>

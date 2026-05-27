@@ -1,36 +1,31 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { LandingLayout } from '../../../widgets/LandingLayout/LandingLayout';
 import { useScrollReveal, useCountUp } from '../../../widgets/LandingLayout/useLandingAnimations';
+import { useAboutQuery } from '../../../entities/landing';
 import s from './HakkimizdaPage.module.css';
 
-const TEAM = [
-  { initials: 'EÖ', name: 'Emre Özcan', role: 'Kurucu Ortak, CEO', dept: 'kurucu', g: 'g1' },
-  { initials: 'SD', name: 'Selin Demir', role: 'Kurucu Ortak, CTO', dept: 'kurucu', g: 'g2' },
-  { initials: 'MK', name: 'Mehmet Kaya', role: 'Ürün Direktörü', dept: 'urun', g: 'g3' },
-  { initials: 'ZK', name: 'Zeynep Koç', role: 'Tasarım Lideri', dept: 'urun', g: 'g4' },
-  { initials: 'AY', name: 'Ahmet Yıldız', role: 'Lead Backend Engineer', dept: 'urun', g: 'g5' },
-  { initials: 'EK', name: 'Elif Kurt', role: 'Frontend Engineer', dept: 'urun', g: 'g6' },
-  { initials: 'BÇ', name: 'Burak Çelik', role: 'Satış Müdürü', dept: 'satis', g: 'g7' },
-  { initials: 'FG', name: 'Fatma Güven', role: 'Pazarlama Müdürü', dept: 'satis', g: 'g8' },
-  { initials: 'OD', name: 'Onur Demirel', role: 'Destek Lideri', dept: 'destek', g: 'g1' },
-  { initials: 'CY', name: 'Ceren Yılmaz', role: 'Müşteri Başarı Uzmanı', dept: 'destek', g: 'g3' },
-  { initials: 'LA', name: 'Levent Akın', role: 'DevOps Engineer', dept: 'urun', g: 'g4' },
-];
-
-const FILTERS = [
-  { key: 'all', label: 'Tümü' },
-  { key: 'kurucu', label: 'Kurucular' },
-  { key: 'urun', label: 'Ürün & Mühendislik' },
-  { key: 'satis', label: 'Satış & Pazarlama' },
-  { key: 'destek', label: 'Destek' },
-];
+const GRADIENT_CLASSES = ['g1', 'g2', 'g3', 'g4', 'g5', 'g6'] as const;
 
 export function HakkimizdaPage() {
   useScrollReveal();
   useCountUp();
+  const { i18n } = useTranslation();
   const [dept, setDept] = useState('all');
+  const { data, isLoading } = useAboutQuery(i18n.language);
 
-  const visible = TEAM.filter((m) => dept === 'all' || m.dept === dept);
+  const departments = data
+    ? ['all', ...Array.from(new Set(data.team.map((m) => m.department)))]
+    : ['all'];
+
+  const getDeptLabel = (key: string): string => {
+    if (key === 'all') return 'Tümü';
+    return key.charAt(0).toUpperCase() + key.slice(1);
+  };
+
+  const visibleTeam = data
+    ? data.team.filter((m) => dept === 'all' || m.department === dept)
+    : [];
 
   return (
     <LandingLayout>
@@ -128,22 +123,13 @@ export function HakkimizdaPage() {
 
           <div className={s.timeline}>
             <div className={s.tlLine} />
-            {[
-              { year: '2022', title: 'Kuruluş', pill: 'Başlangıç', major: true, desc: 'Emre Özcan ve Selin Demir, kendi kafelerini yönetirken yaşadıkları teknoloji sorunlarını çözmek için Wixi\'yi kurdular. İlk versiyon: 1 modül (E-Ticaret) ve 3 müşteri.' },
-              { year: '2023', title: 'İlk 100 müşteri', major: false, desc: 'CRM modülü eklendi. Ekip 12 kişiye ulaştı, Kadıköy\'de ilk ofis açıldı.' },
-              { year: '2024', title: 'Seri A Yatırım', pill: '₺3M', major: true, desc: 'Türkiye\'nin önde gelen VC fonlarından toplam ₺3M tutarında yatırım alındı. İnsan Kaynakları modülü, çok dilli destek ve Trendyol/Hepsiburada entegrasyonları geldi.' },
-              { year: '2025', title: 'Bin işletme barajı', major: false, desc: '1.000 aktif müşteri sayısına ulaşıldı. Şişli\'deki yeni merkez ofise taşınıldı. Mobil uygulamalar yayınlandı.' },
-              { year: '2026', title: 'Stüdyo + AI çağı', pill: 'Bugün', major: true, desc: 'Stüdyo modülüyle no-code form/akış builder kullanıma sunuldu. AI form üretici beta\'dan yayına alındı. Modül sayısı 35\'e çıktı.' },
-              { year: '→', title: 'Yakında', major: false, desc: 'Muhasebe modülü (Q2 2026), açık API marketplace\'i ve KOBİ kredi entegrasyonu.' },
-            ].map((item) => (
-              <article key={item.year} className={`${s.tlItem} ${item.major ? s.tlMajor : ''} fade-up`}>
+            {isLoading && <div>Yükleniyor...</div>}
+            {data?.milestones.map((item) => (
+              <article key={item.id} className={`${s.tlItem} fade-up`}>
                 <div className={s.tlDot}>{item.year}</div>
                 <div className={s.tlBody}>
-                  <h4>
-                    {item.title}
-                    {item.pill && <span className={s.tlPill}>{item.pill}</span>}
-                  </h4>
-                  <p>{item.desc}</p>
+                  <h4>{item.title}</h4>
+                  {item.description && <p>{item.description}</p>}
                 </div>
               </article>
             ))}
@@ -184,23 +170,28 @@ export function HakkimizdaPage() {
             <h2 className={s.teamH2}>Wixi'yi <span className="lp-grad-text">yapanlar</span></h2>
             <p>42 kişilik ekibimizden bir kesit.</p>
             <div className={s.filter}>
-              {FILTERS.map((f) => (
-                <button key={f.key} className={dept === f.key ? s.filterOn : ''} onClick={() => setDept(f.key)}>
-                  {f.label}
+              {departments.map((key) => (
+                <button key={key} className={dept === key ? s.filterOn : ''} onClick={() => setDept(key)}>
+                  {getDeptLabel(key)}
                 </button>
               ))}
             </div>
           </div>
 
+          {isLoading && <div>Yükleniyor...</div>}
+
           <div className={s.teamGrid}>
-            {visible.map((m) => (
-              <article key={m.name} className={`${s.member} lp-glass fade-up`}>
-                <div className={`${s.av} ${s[m.g as keyof typeof s]}`}>{m.initials}</div>
-                <strong>{m.name}</strong>
-                <span className={s.role}>{m.role}</span>
-                <span className={s.deptTag}>{m.dept === 'kurucu' ? 'Kurucu' : m.dept === 'urun' ? 'Ürün' : m.dept === 'satis' ? 'Satış' : 'Destek'}</span>
-              </article>
-            ))}
+            {visibleTeam.map((m, idx) => {
+              const gradClass = GRADIENT_CLASSES[idx % GRADIENT_CLASSES.length];
+              return (
+                <article key={m.id} className={`${s.member} lp-glass fade-up`}>
+                  <div className={`${s.av} ${s[gradClass as keyof typeof s]}`}>{m.initials}</div>
+                  <strong>{m.fullName}</strong>
+                  <span className={s.role}>{m.role}</span>
+                  <span className={s.deptTag}>{m.department}</span>
+                </article>
+              );
+            })}
             <article className={s.joinUs}>
               <span className={s.plus}>+</span>
               <strong>Sen de katıl</strong>

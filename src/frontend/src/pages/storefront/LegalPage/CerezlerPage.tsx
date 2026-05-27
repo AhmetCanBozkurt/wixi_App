@@ -1,6 +1,8 @@
 import { LandingLayout } from '../../../widgets/LandingLayout/LandingLayout';
 import { useScrollReveal } from '../../../widgets/LandingLayout/useLandingAnimations';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { useLegalQuery } from '../../../entities/landing';
 import s from './LegalPage.module.css';
 
 const SECTIONS = [
@@ -15,6 +17,10 @@ const INFO_ICON = (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
   </svg>
+);
+
+const SPINNER = (
+  <span style={{ display: 'inline-block', width: 18, height: 18, border: '2px solid rgba(255,255,255,0.2)', borderTopColor: '#8b5cf6', borderRadius: '50%', animation: 'spin 0.7s linear infinite', verticalAlign: 'middle', marginLeft: 8 }} />
 );
 
 type CookieRow = { name: string; purpose: string; duration: string; type: string };
@@ -52,16 +58,136 @@ const COOKIE_TABLE: { category: string; desc: string; rows: CookieRow[] }[] = [
 
 export function CerezlerPage() {
   useScrollReveal();
+  const { i18n } = useTranslation();
+  const { data: doc, isLoading } = useLegalQuery('cookies', i18n.language);
+
+  const title = doc?.title ?? 'Çerez Politikası';
+  const effectiveDate = doc?.effectiveDate ?? '1 Mayıs 2026';
+
+  const contentSection = doc?.contentHtml && doc.contentHtml.length > 50
+    ? <div className={s.content} dangerouslySetInnerHTML={{ __html: doc.contentHtml }} />
+    : (
+      <div className={s.content}>
+        <div className={s.callout}>
+          <div className={s.calloutIc}>{INFO_ICON}</div>
+          <p>Bu Çerez Politikası, 6698 sayılı KVKK ve ilgili mevzuat kapsamında hazırlanmıştır. Sitemizi kullanmaya devam ederek zorunlu çerezlerin kullanımını kabul etmiş sayılırsınız.</p>
+        </div>
+
+        <div className={s.section} id="cerez-nedir">
+          <h2 className={s.sectionH2}><span className={s.sectionNum}>01</span>Çerez Nedir?</h2>
+          <p>Çerezler, ziyaret ettiğiniz web sitesi tarafından tarayıcınıza yerleştirilen küçük metin dosyalarıdır. Siteyi her ziyaret ettiğinizde bu dosyalar tarayıcınız tarafından siteye iletilir.</p>
+          <p>Çerezler çeşitli amaçlarla kullanılır:</p>
+          <ul>
+            <li><strong>Oturum yönetimi:</strong> Giriş durumunuzu ve tercihlerinizi hatırlama</li>
+            <li><strong>Güvenlik:</strong> Kimlik doğrulama ve kötüye kullanımı önleme</li>
+            <li><strong>Analitik:</strong> Site kullanımını anlama ve geliştirme</li>
+            <li><strong>Kişiselleştirme:</strong> İçerik ve reklamları tercihlerinize göre uyarlama</li>
+          </ul>
+          <h3 className={s.sectionH3}>Çerez Türleri</h3>
+          <ul>
+            <li><strong>Oturum çerezleri:</strong> Tarayıcı kapandığında silinir.</li>
+            <li><strong>Kalıcı çerezler:</strong> Belirlenen süre boyunca cihazınızda saklanır.</li>
+            <li><strong>Birinci taraf çerezler:</strong> Wixi tarafından doğrudan yerleştirilir.</li>
+            <li><strong>Üçüncü taraf çerezler:</strong> Entegre hizmet sağlayıcılar tarafından yerleştirilir.</li>
+          </ul>
+        </div>
+
+        <div className={s.section} id="kullanilan-cerezler">
+          <h2 className={s.sectionH2}><span className={s.sectionNum}>02</span>Kullanılan Çerezler</h2>
+          <p>Wixi platformunda kullanılan çerezler aşağıda kategorilere göre listelenmiştir:</p>
+
+          {COOKIE_TABLE.map((cat) => (
+            <div key={cat.category} style={{ marginBottom: '28px' }}>
+              <h3 className={s.sectionH3}>{cat.category}</h3>
+              <p>{cat.desc}</p>
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+                  <thead>
+                    <tr style={{ borderBottom: '1px solid var(--lp-border)' }}>
+                      <th style={{ textAlign: 'left', padding: '8px 12px', color: 'var(--lp-text)', fontWeight: 700, whiteSpace: 'nowrap' }}>Çerez Adı</th>
+                      <th style={{ textAlign: 'left', padding: '8px 12px', color: 'var(--lp-text)', fontWeight: 700 }}>Amaç</th>
+                      <th style={{ textAlign: 'left', padding: '8px 12px', color: 'var(--lp-text)', fontWeight: 700, whiteSpace: 'nowrap' }}>Süre</th>
+                      <th style={{ textAlign: 'left', padding: '8px 12px', color: 'var(--lp-text)', fontWeight: 700 }}>Tür</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {cat.rows.map((row) => (
+                      <tr key={row.name} style={{ borderBottom: '1px solid var(--lp-border)' }}>
+                        <td style={{ padding: '10px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: '12px', color: '#c4b5fd' }}>{row.name}</td>
+                        <td style={{ padding: '10px 12px', color: 'var(--lp-text-muted)' }}>{row.purpose}</td>
+                        <td style={{ padding: '10px 12px', color: 'var(--lp-text-muted)', whiteSpace: 'nowrap' }}>{row.duration}</td>
+                        <td style={{ padding: '10px 12px', color: 'var(--lp-text-muted)' }}>{row.type}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className={s.section} id="ucuncu-taraf">
+          <h2 className={s.sectionH2}><span className={s.sectionNum}>03</span>Üçüncü Taraf Çerezleri</h2>
+          <p>Wixi bazı üçüncü taraf hizmetleri entegre etmektedir. Bu hizmetler kendi çerez politikaları kapsamında çerez yerleştirebilir:</p>
+          <ul>
+            <li><strong>Google Analytics:</strong> Site trafiği analizi — <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Google Gizlilik Politikası</a></li>
+            <li><strong>Facebook Pixel:</strong> Reklam dönüşüm takibi — <a href="https://www.facebook.com/privacy/policy" target="_blank" rel="noopener noreferrer">Meta Gizlilik Politikası</a></li>
+            <li><strong>HubSpot:</strong> CRM ve form entegrasyonu — <a href="https://legal.hubspot.com/privacy-policy" target="_blank" rel="noopener noreferrer">HubSpot Gizlilik Politikası</a></li>
+            <li><strong>İyzico / PayTR:</strong> Ödeme sayfası çerezleri — ilgili sağlayıcının politikası geçerlidir</li>
+          </ul>
+          <div className={s.callout}>
+            <div className={s.calloutIc}>{INFO_ICON}</div>
+            <p>Üçüncü taraf çerezleri yalnızca analitik ve pazarlama tercihlerinizi kabul etmeniz halinde etkinleştirilir. Zorunlu çerezler bu kapsamın dışındadır.</p>
+          </div>
+        </div>
+
+        <div className={s.section} id="yonetim">
+          <h2 className={s.sectionH2}><span className={s.sectionNum}>04</span>Çerez Yönetimi</h2>
+          <h3 className={s.sectionH3}>Tercih Paneli</h3>
+          <p>Sitemizin alt kısmındaki "Çerez Tercihleri" bağlantısını tıklayarak analitik ve pazarlama çerezlerini istediğiniz zaman etkinleştirebilir veya devre dışı bırakabilirsiniz. Zorunlu çerezler devre dışı bırakılamaz.</p>
+          <h3 className={s.sectionH3}>Tarayıcı Ayarları</h3>
+          <p>Tarayıcınızın ayarlarından tüm çerezleri engelleyebilir veya silebilirsiniz. Ancak bu durum platformun bazı işlevlerinin düzgün çalışmamasına yol açabilir:</p>
+          <ul>
+            <li><strong>Chrome:</strong> Ayarlar &gt; Gizlilik ve Güvenlik &gt; Çerezler</li>
+            <li><strong>Firefox:</strong> Ayarlar &gt; Gizlilik ve Güvenlik &gt; Çerezler ve Site Verileri</li>
+            <li><strong>Safari:</strong> Tercihler &gt; Gizlilik &gt; Çerezleri Yönet</li>
+            <li><strong>Edge:</strong> Ayarlar &gt; Çerezler ve Site İzinleri</li>
+          </ul>
+          <h3 className={s.sectionH3}>Opt-Out Araçları</h3>
+          <ul>
+            <li>Google Analytics Opt-out: <a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener noreferrer">tools.google.com/dlpage/gaoptout</a></li>
+            <li>Dijital Reklamcılık Tercih Merkezi: <a href="https://www.youronlinechoices.com" target="_blank" rel="noopener noreferrer">youronlinechoices.com</a></li>
+          </ul>
+        </div>
+
+        <div className={s.section} id="iletisim">
+          <h2 className={s.sectionH2}><span className={s.sectionNum}>05</span>İletişim</h2>
+          <p>Çerez politikamız hakkında sorularınız için bizimle iletişime geçebilirsiniz:</p>
+          <ul>
+            <li><strong>E-posta:</strong> <a href="mailto:gizlilik@wixi.app">gizlilik@wixi.app</a></li>
+            <li><strong>Adres:</strong> Wixi Teknoloji A.Ş., Maslak Mah. Büyükdere Cad. No:255, 34398 Sarıyer/İstanbul</li>
+            <li><strong>Panel üzerinden:</strong> Hesap &gt; Gizlilik &gt; Çerez Tercihleri</li>
+          </ul>
+          <div className={s.callout}>
+            <div className={s.calloutIc}>{INFO_ICON}</div>
+            <p>Bu politika güncellenebildiği için zaman zaman kontrol etmenizi öneririz. Önemli değişiklikler platform bildirimi veya e-posta aracılığıyla duyurulur.</p>
+          </div>
+        </div>
+      </div>
+    );
+
   return (
     <LandingLayout>
       <section className={s.hero}>
         <div className="lp-container">
           <span className="lp-eyebrow fade-up"><span className="lp-dot" />Yasal</span>
-          <h1 className={`${s.h1} fade-up`} data-delay="1">Çerez Politikası</h1>
+          <h1 className={`${s.h1} fade-up`} data-delay="1">
+            {isLoading ? <>Çerez Politikası {SPINNER}</> : title}
+          </h1>
           <p className={`${s.heroP} fade-up`} data-delay="2">Wixi'nin çerezleri nasıl kullandığını ve tercihlerinizi nasıl yönetebileceğinizi açıklıyoruz.</p>
           <div className={`${s.meta} fade-up`} data-delay="3">
-            <span><b>Son güncelleme:</b> 1 Mayıs 2026</span>
-            <span><b>Yürürlük tarihi:</b> 1 Mayıs 2026</span>
+            <span><b>Son güncelleme:</b> {effectiveDate}</span>
+            <span><b>Yürürlük tarihi:</b> {effectiveDate}</span>
           </div>
           <div className={`${s.tabs} fade-up`} data-delay="4">
             <Link to="/gizlilik" className={s.tabLink}>Gizlilik</Link>
@@ -81,114 +207,7 @@ export function CerezlerPage() {
                 <a key={sec.id} href={`#${sec.id}`} className={s.tocLink}>{sec.num} {sec.title}</a>
               ))}
             </aside>
-
-            <div className={s.content}>
-              <div className={s.callout}>
-                <div className={s.calloutIc}>{INFO_ICON}</div>
-                <p>Bu Çerez Politikası, 6698 sayılı KVKK ve ilgili mevzuat kapsamında hazırlanmıştır. Sitemizi kullanmaya devam ederek zorunlu çerezlerin kullanımını kabul etmiş sayılırsınız.</p>
-              </div>
-
-              <div className={s.section} id="cerez-nedir">
-                <h2 className={s.sectionH2}><span className={s.sectionNum}>01</span>Çerez Nedir?</h2>
-                <p>Çerezler, ziyaret ettiğiniz web sitesi tarafından tarayıcınıza yerleştirilen küçük metin dosyalarıdır. Siteyi her ziyaret ettiğinizde bu dosyalar tarayıcınız tarafından siteye iletilir.</p>
-                <p>Çerezler çeşitli amaçlarla kullanılır:</p>
-                <ul>
-                  <li><strong>Oturum yönetimi:</strong> Giriş durumunuzu ve tercihlerinizi hatırlama</li>
-                  <li><strong>Güvenlik:</strong> Kimlik doğrulama ve kötüye kullanımı önleme</li>
-                  <li><strong>Analitik:</strong> Site kullanımını anlama ve geliştirme</li>
-                  <li><strong>Kişiselleştirme:</strong> İçerik ve reklamları tercihlerinize göre uyarlama</li>
-                </ul>
-                <h3 className={s.sectionH3}>Çerez Türleri</h3>
-                <ul>
-                  <li><strong>Oturum çerezleri:</strong> Tarayıcı kapandığında silinir.</li>
-                  <li><strong>Kalıcı çerezler:</strong> Belirlenen süre boyunca cihazınızda saklanır.</li>
-                  <li><strong>Birinci taraf çerezler:</strong> Wixi tarafından doğrudan yerleştirilir.</li>
-                  <li><strong>Üçüncü taraf çerezler:</strong> Entegre hizmet sağlayıcılar tarafından yerleştirilir.</li>
-                </ul>
-              </div>
-
-              <div className={s.section} id="kullanilan-cerezler">
-                <h2 className={s.sectionH2}><span className={s.sectionNum}>02</span>Kullanılan Çerezler</h2>
-                <p>Wixi platformunda kullanılan çerezler aşağıda kategorilere göre listelenmiştir:</p>
-
-                {COOKIE_TABLE.map((cat) => (
-                  <div key={cat.category} style={{ marginBottom: '28px' }}>
-                    <h3 className={s.sectionH3}>{cat.category}</h3>
-                    <p>{cat.desc}</p>
-                    <div style={{ overflowX: 'auto' }}>
-                      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
-                        <thead>
-                          <tr style={{ borderBottom: '1px solid var(--lp-border)' }}>
-                            <th style={{ textAlign: 'left', padding: '8px 12px', color: 'var(--lp-text)', fontWeight: 700, whiteSpace: 'nowrap' }}>Çerez Adı</th>
-                            <th style={{ textAlign: 'left', padding: '8px 12px', color: 'var(--lp-text)', fontWeight: 700 }}>Amaç</th>
-                            <th style={{ textAlign: 'left', padding: '8px 12px', color: 'var(--lp-text)', fontWeight: 700, whiteSpace: 'nowrap' }}>Süre</th>
-                            <th style={{ textAlign: 'left', padding: '8px 12px', color: 'var(--lp-text)', fontWeight: 700 }}>Tür</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {cat.rows.map((row) => (
-                            <tr key={row.name} style={{ borderBottom: '1px solid var(--lp-border)' }}>
-                              <td style={{ padding: '10px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: '12px', color: '#c4b5fd' }}>{row.name}</td>
-                              <td style={{ padding: '10px 12px', color: 'var(--lp-text-muted)' }}>{row.purpose}</td>
-                              <td style={{ padding: '10px 12px', color: 'var(--lp-text-muted)', whiteSpace: 'nowrap' }}>{row.duration}</td>
-                              <td style={{ padding: '10px 12px', color: 'var(--lp-text-muted)' }}>{row.type}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className={s.section} id="ucuncu-taraf">
-                <h2 className={s.sectionH2}><span className={s.sectionNum}>03</span>Üçüncü Taraf Çerezleri</h2>
-                <p>Wixi bazı üçüncü taraf hizmetleri entegre etmektedir. Bu hizmetler kendi çerez politikaları kapsamında çerez yerleştirebilir:</p>
-                <ul>
-                  <li><strong>Google Analytics:</strong> Site trafiği analizi — <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Google Gizlilik Politikası</a></li>
-                  <li><strong>Facebook Pixel:</strong> Reklam dönüşüm takibi — <a href="https://www.facebook.com/privacy/policy" target="_blank" rel="noopener noreferrer">Meta Gizlilik Politikası</a></li>
-                  <li><strong>HubSpot:</strong> CRM ve form entegrasyonu — <a href="https://legal.hubspot.com/privacy-policy" target="_blank" rel="noopener noreferrer">HubSpot Gizlilik Politikası</a></li>
-                  <li><strong>İyzico / PayTR:</strong> Ödeme sayfası çerezleri — ilgili sağlayıcının politikası geçerlidir</li>
-                </ul>
-                <div className={s.callout}>
-                  <div className={s.calloutIc}>{INFO_ICON}</div>
-                  <p>Üçüncü taraf çerezleri yalnızca analitik ve pazarlama tercihlerinizi kabul etmeniz halinde etkinleştirilir. Zorunlu çerezler bu kapsamın dışındadır.</p>
-                </div>
-              </div>
-
-              <div className={s.section} id="yonetim">
-                <h2 className={s.sectionH2}><span className={s.sectionNum}>04</span>Çerez Yönetimi</h2>
-                <h3 className={s.sectionH3}>Tercih Paneli</h3>
-                <p>Sitemizin alt kısmındaki "Çerez Tercihleri" bağlantısını tıklayarak analitik ve pazarlama çerezlerini istediğiniz zaman etkinleştirebilir veya devre dışı bırakabilirsiniz. Zorunlu çerezler devre dışı bırakılamaz.</p>
-                <h3 className={s.sectionH3}>Tarayıcı Ayarları</h3>
-                <p>Tarayıcınızın ayarlarından tüm çerezleri engelleyebilir veya silebilirsiniz. Ancak bu durum platformun bazı işlevlerinin düzgün çalışmamasına yol açabilir:</p>
-                <ul>
-                  <li><strong>Chrome:</strong> Ayarlar &gt; Gizlilik ve Güvenlik &gt; Çerezler</li>
-                  <li><strong>Firefox:</strong> Ayarlar &gt; Gizlilik ve Güvenlik &gt; Çerezler ve Site Verileri</li>
-                  <li><strong>Safari:</strong> Tercihler &gt; Gizlilik &gt; Çerezleri Yönet</li>
-                  <li><strong>Edge:</strong> Ayarlar &gt; Çerezler ve Site İzinleri</li>
-                </ul>
-                <h3 className={s.sectionH3}>Opt-Out Araçları</h3>
-                <ul>
-                  <li>Google Analytics Opt-out: <a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener noreferrer">tools.google.com/dlpage/gaoptout</a></li>
-                  <li>Dijital Reklamcılık Tercih Merkezi: <a href="https://www.youronlinechoices.com" target="_blank" rel="noopener noreferrer">youronlinechoices.com</a></li>
-                </ul>
-              </div>
-
-              <div className={s.section} id="iletisim">
-                <h2 className={s.sectionH2}><span className={s.sectionNum}>05</span>İletişim</h2>
-                <p>Çerez politikamız hakkında sorularınız için bizimle iletişime geçebilirsiniz:</p>
-                <ul>
-                  <li><strong>E-posta:</strong> <a href="mailto:gizlilik@wixi.app">gizlilik@wixi.app</a></li>
-                  <li><strong>Adres:</strong> Wixi Teknoloji A.Ş., Maslak Mah. Büyükdere Cad. No:255, 34398 Sarıyer/İstanbul</li>
-                  <li><strong>Panel üzerinden:</strong> Hesap &gt; Gizlilik &gt; Çerez Tercihleri</li>
-                </ul>
-                <div className={s.callout}>
-                  <div className={s.calloutIc}>{INFO_ICON}</div>
-                  <p>Bu politika güncellenebildiği için zaman zaman kontrol etmenizi öneririz. Önemli değişiklikler platform bildirimi veya e-posta aracılığıyla duyurulur.</p>
-                </div>
-              </div>
-            </div>
+            {contentSection}
           </div>
         </div>
       </section>

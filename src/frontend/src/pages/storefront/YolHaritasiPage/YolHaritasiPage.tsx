@@ -1,66 +1,36 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { LandingLayout } from '../../../widgets/LandingLayout/LandingLayout';
 import { useScrollReveal } from '../../../widgets/LandingLayout/useLandingAnimations';
+import { useRoadmapQuery, useVoteRoadmapMutation } from '../../../entities/landing';
+import { getSessionToken } from '../../../shared/utils/sessionToken';
 import s from './YolHaritasiPage.module.css';
 
-type RmItem = { title: string; cat: string; desc: string; date: string; votes: string; shipped?: boolean; now?: boolean };
-type RmCol = { id: string; label: string; status: string; colClass: string; items: RmItem[] };
+const PHASE_LABELS: Record<string, { label: string; statusClass: string }> = {
+  shipped: { label: 'Tamamlandı', statusClass: s.colShipped },
+  now:     { label: 'Şimdi',      statusClass: s.colNow },
+  next:    { label: 'Sırada',     statusClass: s.colNext },
+  later:   { label: 'Daha sonra', statusClass: s.colLater },
+};
 
-const COLS: RmCol[] = [
-  {
-    id: 'shipped', label: 'Tamamlandı', status: 'Q4 2025', colClass: s.colShipped,
-    items: [
-      { title: 'Stüdyo Modülü', cat: 'Yeni Modül', desc: 'Sürükle-bırak form + akış builder, AI form üretici, 30+ component.', date: '15 Mayıs 2026', votes: '✓ Yayında', shipped: true },
-      { title: 'Mobil Yönetici App', cat: 'Platform', desc: 'iOS + Android, sipariş yönetimi, push bildirim.', date: 'Mart 2026', votes: '✓ Yayında', shipped: true },
-      { title: 'Çok Dilli Yönetim', cat: 'Lokalizasyon', desc: '12 dilde mağaza yönetimi, otomatik çeviri.', date: 'Şubat 2026', votes: '✓ Yayında', shipped: true },
-    ],
-  },
-  {
-    id: 'now', label: 'Şimdi', status: 'Q1 2026', colClass: s.colNow,
-    items: [
-      { title: 'Muhasebe Modülü', cat: 'Yeni Modül', desc: 'E-fatura, gelir-gider, KDV beyannamesi, GİB entegrasyonu.', date: 'Beklenen: Mayıs 2026', votes: '▲ 847', now: true },
-      { title: 'API Marketplace', cat: 'Geliştirici', desc: '3. parti geliştiriciler için modül marketplace.', date: 'Beklenen: Haziran 2026', votes: '▲ 423' },
-      { title: 'Çağrı Merkezi Beta', cat: 'Yeni Modül', desc: 'VoIP, IVR, çağrı kayıtları — destek operasyonu için.', date: 'Beklenen: Haziran 2026', votes: '▲ 312' },
-    ],
-  },
-  {
-    id: 'next', label: 'Sırada', status: 'Q2 2026', colClass: s.colNext,
-    items: [
-      { title: 'Üretim Modülü', cat: 'Yeni Modül', desc: 'İş emri, BOM, kalite kontrol — atölye ve üretici KOBİ\'ler için.', date: 'Q3 2026', votes: '▲ 568' },
-      { title: 'AI Asistan', cat: 'AI', desc: 'Panelinize özel: "Geçen ay en çok satan ne?" tarzı sohbet.', date: 'Q3 2026', votes: '▲ 1.2K' },
-      { title: 'KOBİ Kredi Modülü', cat: 'Finans', desc: 'Bankalar ile entegre kredi başvuru ve takip.', date: 'Q3 2026', votes: '▲ 289' },
-      { title: 'White-label', cat: 'Kurumsal', desc: 'Tam markalama, kendi domainde sunum.', date: 'Q3 2026', votes: '▲ 178' },
-    ],
-  },
-  {
-    id: 'later', label: 'Daha sonra', status: '2026+', colClass: s.colLater,
-    items: [
-      { title: 'Mağaza POS', cat: 'Donanım', desc: 'Fiziksel mağaza için Wixi-uyumlu POS terminali.', date: '2027', votes: '▲ 92' },
-      { title: 'Wixi Akademi', cat: 'Eğitim', desc: 'KOBİ sahipleri için ücretsiz online eğitim platformu.', date: '2027', votes: '▲ 156' },
-      { title: 'Marketplace Listesi', cat: 'Pazarlama', desc: 'Wixi mağazalarının sergilendiği marka pazaryeri.', date: '2027', votes: '▲ 64' },
-    ],
-  },
-];
-
-const CHANGELOG = [
-  { version: 'v2.8.0', date: 'Mayıs 2026', title: 'Stüdyo AI Form Üretici', tag: 'feature', tagLabel: 'Yeni Özellik', desc: 'Türkçe açıklama ile saniyeler içinde hazır form oluşturun. Alan tipleri, doğrulama kuralları ve zorunluluklar otomatik belirlenir.' },
-  { version: 'v2.7.5', date: 'Nisan 2026', title: 'Kargo Entegrasyonu Genişletildi', tag: 'improvement', tagLabel: 'İyileştirme', desc: 'HepsiJET ve UPS Türkiye API entegrasyonu eklendi. Etiket önizleme özelliği geliştirildi.' },
-  { version: 'v2.7.2', date: 'Nisan 2026', title: 'Dashboard Hız Optimizasyonu', tag: 'improvement', tagLabel: 'İyileştirme', desc: 'Ana panel yüklenme süresi ortalama %40 azaltıldı. Lazy loading ve veri önbellekleme iyileştirildi.' },
-  { version: 'v2.7.0', date: 'Mart 2026', title: 'Mobil Yönetici App v1.0', tag: 'feature', tagLabel: 'Yeni Özellik', desc: 'iOS ve Android için Wixi Yönetici uygulaması yayınlandı. Sipariş yönetimi, stok güncelleme ve CRM bildirimleri destekleniyor.' },
-  { version: 'v2.6.8', date: 'Mart 2026', title: 'E-fatura Yazdırma Hatası Düzeltildi', tag: 'fix', tagLabel: 'Düzeltme', desc: 'Bazı tarayıcılarda PDF e-fatura görüntülemede yaşanan boş sayfa sorunu giderildi.' },
-];
+const TAG_CLASS: Record<string, string> = {
+  feature:     'tagFeature',
+  improvement: 'tagImprovement',
+  fix:         'tagFix',
+};
 
 export function YolHaritasiPage() {
   useScrollReveal();
+  const { i18n } = useTranslation();
   const [voted, setVoted] = useState<Set<string>>(new Set());
+  const { data, isLoading } = useRoadmapQuery(i18n.language);
+  const voteMutation = useVoteRoadmapMutation();
 
-  const toggleVote = (key: string) => {
-    setVoted((prev) => {
-      const n = new Set(prev);
-      if (n.has(key)) n.delete(key); else n.add(key);
-      return n;
-    });
+  const handleVote = (itemId: string, isShipped: boolean) => {
+    if (isShipped || voted.has(itemId)) return;
+    setVoted((prev) => new Set(prev).add(itemId));
+    voteMutation.mutate({ itemId, sessionToken: getSessionToken() });
   };
 
   return (
@@ -81,37 +51,40 @@ export function YolHaritasiPage() {
 
       <section className={s.cols}>
         <div className="lp-container">
+          {isLoading && <div>Yükleniyor...</div>}
           <div className={s.colsGrid}>
-            {COLS.map((col, ci) => (
-              <div key={col.id} className={`${s.rmCol} lp-glass ${col.colClass} fade-up`} data-delay={String(ci)}>
-                <div className={s.rmColHead}>
-                  <h3>{col.label}</h3>
-                  <span className={s.rmStatus}>{col.status}</span>
+            {data?.phases.map((col, ci) => {
+              const phaseStyle = PHASE_LABELS[col.phaseId] ?? { label: col.phaseLabel, statusClass: '' };
+              return (
+                <div key={col.phaseId} className={`${s.rmCol} lp-glass ${phaseStyle.statusClass} fade-up`} data-delay={String(ci)}>
+                  <div className={s.rmColHead}>
+                    <h3>{phaseStyle.label}</h3>
+                    <span className={s.rmStatus}>{col.phaseLabel}</span>
+                  </div>
+                  {col.items.map((item) => {
+                    const isVoted = voted.has(item.id);
+                    return (
+                      <div key={item.id} className={`${s.rmItem} ${item.isShipped ? s.rmItemShipped : ''}`}>
+                        <div className={s.rmItemHead}>
+                          <b>{item.isShipped ? '✓ ' : ''}{item.title}</b>
+                          <span className={s.rmItemCat}>{item.category}</span>
+                        </div>
+                        <p>{item.description}</p>
+                        <div className={s.rmItemFoot}>
+                          <span className={s.rmItemDate}>{item.plannedDate}</span>
+                          <button
+                            className={`${s.rmVote} ${item.isShipped || isVoted ? s.rmVoteDone : ''}`}
+                            onClick={() => handleVote(item.id, item.isShipped)}
+                          >
+                            {item.isShipped ? '✓ Yayında' : `▲ ${item.voteCount}`}
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
-                {col.items.map((item, ii) => {
-                  const key = `${col.id}-${ii}`;
-                  const isVoted = voted.has(key);
-                  return (
-                    <div key={key} className={`${s.rmItem} ${item.shipped ? s.rmItemShipped : ''} ${item.now ? s.rmItemNow : ''}`}>
-                      <div className={s.rmItemHead}>
-                        <b>{item.shipped ? '✓ ' : ''}{item.title}</b>
-                        <span className={s.rmItemCat}>{item.cat}</span>
-                      </div>
-                      <p>{item.desc}</p>
-                      <div className={s.rmItemFoot}>
-                        <span className={s.rmItemDate}>{item.date}</span>
-                        <button
-                          className={`${s.rmVote} ${item.shipped || isVoted ? s.rmVoteDone : ''}`}
-                          onClick={() => !item.shipped && toggleVote(key)}
-                        >
-                          {item.votes}
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
@@ -149,21 +122,25 @@ export function YolHaritasiPage() {
             <p>Her yeni sürümde neler değişti, hangi sorunlar giderildi.</p>
           </div>
           <div className="lp-glass">
-            {CHANGELOG.map((c) => (
-              <div key={c.version} className={s.changeItem}>
-                <div className={s.changeDate}>
-                  <b>{c.version}</b>
-                  {c.date}
+            {isLoading && <div>Yükleniyor...</div>}
+            {data?.changelog.map((c) => {
+              const tagClass = TAG_CLASS[c.tag] ?? 'tagFix';
+              return (
+                <div key={c.id} className={s.changeItem}>
+                  <div className={s.changeDate}>
+                    <b>{c.version}</b>
+                    {c.releaseDate}
+                  </div>
+                  <div className={s.changeBody}>
+                    <h4>
+                      {c.title}
+                      <span className={s[tagClass as keyof typeof s]}>{c.tag}</span>
+                    </h4>
+                    <p>{c.description}</p>
+                  </div>
                 </div>
-                <div className={s.changeBody}>
-                  <h4>
-                    {c.title}
-                    <span className={c.tag === 'feature' ? s.tagFeature : c.tag === 'improvement' ? s.tagImprovement : s.tagFix}>{c.tagLabel}</span>
-                  </h4>
-                  <p>{c.desc}</p>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>

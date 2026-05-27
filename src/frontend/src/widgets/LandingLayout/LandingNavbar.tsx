@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import s from './LandingNavbar.module.css';
+import { LanguageSwitcher } from './LanguageSwitcher';
 
 interface Props {
   theme: 'dark' | 'light';
@@ -8,12 +10,12 @@ interface Props {
 }
 
 const NAV_LINKS = [
-  { href: '/ozellikler', label: 'Özellikler' },
-  { href: '/moduller', label: 'Modüller' },
-  { href: '/studyo', label: 'Stüdyo' },
-  { href: '/fiyatlandirma', label: 'Fiyatlandırma' },
-  { href: '/nasil-calisir', label: 'Nasıl Çalışır?' },
-  { href: '/sss', label: 'SSS' },
+  { href: '/ozellikler', label: 'Özellikler', i18nKey: 'LANDING_NAV_FEATURES' },
+  { href: '/moduller', label: 'Modüller', i18nKey: '' },
+  { href: '/studyo', label: 'Stüdyo', i18nKey: '' },
+  { href: '/fiyatlandirma', label: 'Fiyatlandırma', i18nKey: 'LANDING_NAV_PRICING' },
+  { href: '/nasil-calisir', label: 'Nasıl Çalışır?', i18nKey: 'LANDING_NAV_HOW_IT_WORKS' },
+  { href: '/sss', label: 'SSS', i18nKey: 'LANDING_NAV_FAQ' },
 ];
 
 interface Lang { code: string; label: string; flag: string; dir: 'ltr' | 'rtl' }
@@ -26,6 +28,7 @@ const LANGUAGES: Lang[] = [
 ];
 
 export function LandingNavbar({ theme, onToggleTheme }: Props) {
+  const { i18n, t } = useTranslation('landing');
   const [scrolled, setScrolled] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
@@ -64,6 +67,8 @@ export function LandingNavbar({ theme, onToggleTheme }: Props) {
     setActiveLang(lang);
     setLangOpen(false);
     localStorage.setItem('wixi-lang', lang.code);
+    localStorage.setItem('landing-lng', lang.code);
+    i18n.changeLanguage(lang.code);
     // Apply RTL direction for Arabic
     document.documentElement.dir = lang.dir;
     document.documentElement.lang = lang.code;
@@ -85,7 +90,7 @@ export function LandingNavbar({ theme, onToggleTheme }: Props) {
                 to={link.href}
                 className={location.pathname === link.href ? `${s.link} ${s.active}` : s.link}
               >
-                {link.label}
+                {link.i18nKey ? t(link.i18nKey) : link.label}
               </Link>
             ))}
           </nav>
@@ -131,11 +136,12 @@ export function LandingNavbar({ theme, onToggleTheme }: Props) {
             </div>
 
             <Link to="/login" className={`lp-btn lp-btn--ghost lp-btn--sm ${s.loginBtn}`}>
-              Giriş Yap
+              {t('LANDING_NAV_LOGIN')}
             </Link>
             <Link to="/register" className="lp-btn lp-btn--primary lp-btn--sm">
-              Hemen Başla
+              {t('LANDING_NAV_START')}
             </Link>
+            <LanguageSwitcher />
             <button
               className={s.themeToggle}
               aria-label="Tema değiştir"
@@ -175,7 +181,7 @@ export function LandingNavbar({ theme, onToggleTheme }: Props) {
             className={s.drawerLink}
             onClick={() => setDrawerOpen(false)}
           >
-            {link.label} <span>→</span>
+            {link.i18nKey ? t(link.i18nKey) : link.label} <span>→</span>
           </Link>
         ))}
         {/* Mobile lang switcher */}
@@ -192,10 +198,10 @@ export function LandingNavbar({ theme, onToggleTheme }: Props) {
         </div>
         <div className={s.drawerRow}>
           <Link to="/login" className="lp-btn lp-btn--ghost" onClick={() => setDrawerOpen(false)}>
-            Giriş Yap
+            {t('LANDING_NAV_LOGIN')}
           </Link>
           <Link to="/register" className="lp-btn lp-btn--primary" onClick={() => setDrawerOpen(false)}>
-            Hemen Başla
+            {t('LANDING_NAV_START')}
           </Link>
         </div>
       </div>

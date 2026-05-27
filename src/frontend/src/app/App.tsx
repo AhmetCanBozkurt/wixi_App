@@ -1,5 +1,11 @@
+import './i18n';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ErrorBoundary } from './providers/ErrorBoundary';
+
+const queryClient = new QueryClient({
+  defaultOptions: { queries: { staleTime: 5 * 60 * 1000, retry: 1 } },
+});
 import { ThemeProvider } from './providers/ThemeProvider';
 import { Toaster } from 'react-hot-toast';
 import { AuthGuard } from './providers/AuthGuard';
@@ -100,6 +106,14 @@ import { ServicesPage } from '../pages/admin/DefinitionsPage/ServicesPage';
 import { ProductDescriptionsPage } from '../pages/admin/DefinitionsPage/ProductDescriptionsPage';
 import { HsCodesPage } from '../pages/admin/DefinitionsPage/HsCodesPage';
 import { SystemOverviewPage } from '../pages/admin/SystemOverviewPage/SystemOverviewPage';
+import FaqManagementPage from '../pages/admin/ContentManagement/FaqManagementPage';
+import ContactInboxPage from '../pages/admin/ContentManagement/ContactInboxPage';
+import PlanManagementPage from '../pages/admin/ContentManagement/PlanManagementPage';
+import TeamManagementPage from '../pages/admin/ContentManagement/TeamManagementPage';
+import CaseStudyManagementPage from '../pages/admin/ContentManagement/CaseStudyManagementPage';
+import RoadmapManagementPage from '../pages/admin/ContentManagement/RoadmapManagementPage';
+import ChangelogManagementPage from '../pages/admin/ContentManagement/ChangelogManagementPage';
+import LegalContentManagementPage from '../pages/admin/ContentManagement/LegalContentManagementPage';
 import WebBuilderEditorPage from '../pages/corporate/WebBuilderEditorPage/WebBuilderEditorPage';
 import { CorpSitePage } from '../pages/corporate/CorpSitePage/CorpSitePage';
 import BlogManagementPage from '../pages/corporate/BlogManagementPage/BlogManagementPage';
@@ -111,6 +125,7 @@ import { CategoriesPage } from '../pages/my-finance/CategoriesPage/CategoriesPag
 
 const App = () => {
   return (
+    <QueryClientProvider client={queryClient}>
     <ThemeProvider>
     <ErrorBoundary>
       <Toaster
@@ -237,6 +252,14 @@ const App = () => {
               <Route path="system-overview" element={<SystemOverviewPage />} />
               <Route path="corp/blog" element={<BlogManagementPage />} />
               <Route path="corp/forms" element={<FormManagementPage />} />
+              <Route path="content/faq" element={<FaqManagementPage />} />
+              <Route path="content/contacts" element={<ContactInboxPage />} />
+              <Route path="content/plans" element={<PlanManagementPage />} />
+              <Route path="content/team" element={<TeamManagementPage />} />
+              <Route path="content/cases" element={<CaseStudyManagementPage />} />
+              <Route path="content/roadmap" element={<RoadmapManagementPage />} />
+              <Route path="content/changelog" element={<ChangelogManagementPage />} />
+              <Route path="content/legal" element={<LegalContentManagementPage />} />
               {/* ── Kişisel Finans ──────────────────────────────────── */}
               <Route path="finance" element={<PersonalFinanceDashboardPage />} />
               <Route path="finance/transactions" element={<TransactionsPage />} />
@@ -248,6 +271,7 @@ const App = () => {
       </BrowserRouter>
     </ErrorBoundary>
     </ThemeProvider>
+    </QueryClientProvider>
   );
 };
 

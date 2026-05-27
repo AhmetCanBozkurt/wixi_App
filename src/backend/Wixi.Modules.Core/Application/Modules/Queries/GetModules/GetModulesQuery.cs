@@ -22,7 +22,9 @@ public record ModuleDto(
     string? FeaturesJson,
     string? ColorAccent,
     bool IsPopular,
-    int SortOrder
+    int SortOrder,
+    string? Category,
+    string? Tag
 );
 
 public class GetModulesQueryHandler : IRequestHandler<GetModulesQuery, List<ModuleDto>>
@@ -60,7 +62,9 @@ public class GetModulesQueryHandler : IRequestHandler<GetModulesQuery, List<Modu
                 m.FeaturesJson,
                 m.ColorAccent,
                 m.IsPopular,
-                m.SortOrder
+                m.SortOrder,
+                m.Category,
+                m.Tag
             ))
             .ToListAsync(cancellationToken);
     }
