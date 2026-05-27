@@ -1,11 +1,14 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Wixi.Modules.ECommerce.Application.Orders.Dto;
+using Wixi.Modules.ECommerce.Domain.Entities;
 using Wixi.Modules.ECommerce.Infrastructure.Data;
 
 namespace Wixi.Modules.ECommerce.Application.Orders.Queries.GetOrders;
 
-public record GetOrdersQuery(string? Search = null) : IRequest<List<OrderDto>>;
+public record GetOrdersQuery(
+    string? Search = null,
+    OrderStatus? StatusFilter = null) : IRequest<List<OrderDto>>;
 
 public class GetOrdersQueryHandler : IRequestHandler<GetOrdersQuery, List<OrderDto>>
 {
@@ -24,10 +27,16 @@ public class GetOrdersQueryHandler : IRequestHandler<GetOrdersQuery, List<OrderD
 
         if (!string.IsNullOrWhiteSpace(request.Search))
         {
-            query = query.Where(o => 
-                o.OrderNumber.Contains(request.Search) || 
-                o.Customer.FirstName.Contains(request.Search) || 
-                o.Customer.LastName.Contains(request.Search));
+            query = query.Where(o =>
+                o.OrderNumber.Contains(request.Search) ||
+                o.Customer.FirstName.Contains(request.Search) ||
+                o.Customer.LastName.Contains(request.Search) ||
+                o.Customer.Email.Contains(request.Search));
+        }
+
+        if (request.StatusFilter.HasValue)
+        {
+            query = query.Where(o => o.Status == request.StatusFilter.Value);
         }
 
         return await query
@@ -42,6 +51,8 @@ public class GetOrdersQueryHandler : IRequestHandler<GetOrdersQuery, List<OrderD
                 TotalAmount = o.TotalAmount,
                 Currency = o.Currency,
                 Status = o.Status,
+                TrackingNumber = o.TrackingNumber,
+                ShippingProvider = o.ShippingProvider,
                 CreatedAt = o.CreatedAt
             })
             .ToListAsync(ct);
