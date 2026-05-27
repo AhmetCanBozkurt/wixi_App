@@ -1,8 +1,17 @@
 # Production ortamı — dış SQL Server kullanır, restart always
 # Reverse proxy: mevcut nginx (host makinede) -> 5181 (backend) ve 3000 (frontend)
+#
+# Required env vars (injected via .env.prod from deploy-prod.yml):
+#   PROD_DB_CONNECTION, PROD_JWT_SECRET, PROD_STRIPE_SECRET_KEY,
+#   PROD_STRIPE_PUBLISHABLE_KEY, PROD_IYZIPAY_API_KEY, PROD_IYZIPAY_SECRET_KEY,
+#   PROD_IYZIPAY_BASE_URL, PROD_FRONTEND_URL, PROD_API_URL,
+#   MAIL_HOST, MAIL_PORT, MAIL_USERNAME, MAIL_PASSWORD, APP_VERSION
 
 services:
   backend:
+    build:
+      context: ./src/backend
+      dockerfile: Wixi.API/Dockerfile
     image: wixi-backend:${APP_VERSION:-latest}
     restart: always
     ports:
@@ -16,6 +25,9 @@ services:
       JwtSettings__ExpiryMinutes: "60"
       Stripe__SecretKey: "${PROD_STRIPE_SECRET_KEY}"
       Stripe__PublishableKey: "${PROD_STRIPE_PUBLISHABLE_KEY}"
+      Iyzipay__ApiKey: "${PROD_IYZIPAY_API_KEY}"
+      Iyzipay__SecretKey: "${PROD_IYZIPAY_SECRET_KEY}"
+      Iyzipay__BaseUrl: "${PROD_IYZIPAY_BASE_URL}"
       Mail__Host: "${MAIL_HOST}"
       Mail__Port: "${MAIL_PORT}"
       Mail__Username: "${MAIL_USERNAME}"
@@ -33,6 +45,10 @@ services:
         max-file: "5"
 
   frontend:
+    build:
+      context: ./src/frontend
+      args:
+        VITE_API_URL: "${PROD_API_URL}"
     image: wixi-frontend:${APP_VERSION:-latest}
     restart: always
     ports:

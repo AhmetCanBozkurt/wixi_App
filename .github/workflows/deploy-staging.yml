@@ -27,6 +27,9 @@ jobs:
           STAGING_JWT_SECRET=${{ secrets.STAGING_JWT_SECRET }}
           STAGING_API_URL=${{ secrets.STAGING_API_URL }}
           STAGING_FRONTEND_URL=${{ secrets.STAGING_FRONTEND_URL }}
+          STAGING_IYZIPAY_API_KEY=${{ secrets.STAGING_IYZIPAY_API_KEY }}
+          STAGING_IYZIPAY_SECRET_KEY=${{ secrets.STAGING_IYZIPAY_SECRET_KEY }}
+          STAGING_IYZIPAY_BASE_URL=${{ secrets.STAGING_IYZIPAY_BASE_URL }}
           MAIL_HOST=${{ secrets.MAIL_HOST }}
           MAIL_PORT=${{ secrets.MAIL_PORT }}
           MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}
@@ -57,6 +60,16 @@ jobs:
             2>&1 | Tee-Object -Variable migOut
           if ($LASTEXITCODE -ne 0) {
             Write-Host "FAIL: WebBuilderDbContext migration failed"; Write-Host $migOut; exit 1
+          }
+
+          # ECommerce DB (ECommerceDbContext)
+          dotnet ef database update `
+            --project src/backend/Wixi.Modules.ECommerce/Wixi.Modules.ECommerce.csproj `
+            --startup-project src/backend/Wixi.API/Wixi.API.csproj `
+            --context ECommerceDbContext `
+            2>&1 | Tee-Object -Variable migOut
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "FAIL: ECommerceDbContext migration failed"; Write-Host $migOut; exit 1
           }
 
           Write-Host "All migrations OK"
