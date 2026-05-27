@@ -9,6 +9,7 @@ import {
   FaCopy,
   FaGripVertical,
   FaPlus,
+  FaChevronRight,
 } from 'react-icons/fa';
 import {
   DndContext,
@@ -34,6 +35,7 @@ import type { LayoutComponent, LayoutColumn, LayoutRow, ThemeConfig, GlobalCompo
 import styles from './EditorCanvas.module.css';
 
 const VIEWPORT_WIDTHS = { desktop: '100%', tablet: '768px', mobile: '375px' } as const;
+type Viewport = 'desktop' | 'tablet' | 'mobile';
 
 // ── Navbar Canvas Preview ─────────────────────────────────────────────────────
 
@@ -643,6 +645,62 @@ export function MiniRenderer({ comp, theme }: { comp: LayoutComponent; theme: Th
   }
 }
 
+// ── BreadcrumbsBar ────────────────────────────────────────────────────────────
+
+function BreadcrumbsBar() {
+  const { state, dispatch } = useEditor();
+  const { layout, selectedRowId, selectedColumnId, selectedComponentId } = state;
+
+  if (!selectedRowId) return null;
+  const rowIdx = layout.findIndex(r => r.id === selectedRowId);
+  if (rowIdx === -1) return null;
+  const row = layout[rowIdx];
+
+  const colIdx = selectedColumnId ? row.columns.findIndex(c => c.id === selectedColumnId) : -1;
+  const col = colIdx >= 0 ? row.columns[colIdx] : null;
+  const comp = col?.component ?? null;
+  const blockDef = comp ? BLOCK_BY_TYPE[comp.type] : null;
+
+  return (
+    <div className={styles.breadcrumbs}>
+      <button
+        className={`${styles.breadcrumbItem} ${!selectedColumnId ? styles.breadcrumbActive : ''}`}
+        onClick={() => dispatch({ type: 'SELECT_ROW', rowId: selectedRowId })}
+        type="button"
+      >
+        Satır {rowIdx + 1}
+      </button>
+      {col && (
+        <>
+          <FaChevronRight className={styles.breadcrumbSep} />
+          <button
+            className={`${styles.breadcrumbItem} ${selectedColumnId && !selectedComponentId ? styles.breadcrumbActive : ''}`}
+            onClick={() => {
+              dispatch({ type: 'SELECT_COLUMN', rowId: selectedRowId, columnId: selectedColumnId });
+              dispatch({ type: 'SELECT_COMPONENT', id: null });
+            }}
+            type="button"
+          >
+            Kolon {colIdx + 1}
+          </button>
+        </>
+      )}
+      {comp && (
+        <>
+          <FaChevronRight className={styles.breadcrumbSep} />
+          <button
+            className={`${styles.breadcrumbItem} ${selectedComponentId ? styles.breadcrumbActive : ''}`}
+            onClick={() => dispatch({ type: 'SELECT_COMPONENT', id: comp.id })}
+            type="button"
+          >
+            {blockDef?.name ?? comp.type}
+          </button>
+        </>
+      )}
+    </div>
+  );
+}
+
 // ── RowInsertZone ─────────────────────────────────────────────────────────────
 
 function RowInsertZone({ index, onInsert }: { index: number; onInsert: (i: number) => void }) {
@@ -715,6 +773,7 @@ interface ColumnWrapperProps {
   rowGridRef: React.RefObject<HTMLDivElement | null>;
   nextColumn: LayoutColumn | null;
   onResize: (leftColId: string, rightColId: string, newLeft: number, newRight: number) => void;
+  viewport: Viewport;
 }
 
 function ColumnWrapper({
@@ -729,7 +788,9 @@ function ColumnWrapper({
   rowGridRef,
   nextColumn,
   onResize,
+  viewport,
 }: ColumnWrapperProps) {
+  const effectiveSpan = viewport === 'mobile' ? 12 : column.span;
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     onSelectColumn(rowId, column.id);
@@ -748,7 +809,7 @@ function ColumnWrapper({
   return (
     <div
       className={`${styles.columnWrapper} ${isSelected ? styles.columnSelected : ''}`}
-      style={{ gridColumn: `span ${column.span}`, position: 'relative' }}
+      style={{ gridColumn: `span ${effectiveSpan}`, position: 'relative' }}
       onClick={handleClick}
     >
       <span className={styles.spanBadge}>{column.span}/12</span>
@@ -814,6 +875,7 @@ interface RowWrapperProps {
   onSelectColumn: (rowId: string, colId: string) => void;
   onSelectComponent: (id: string | null) => void;
   onInsertRowAt: (index: number) => void;
+  viewport: Viewport;
 }
 
 function RowWrapper({
@@ -829,6 +891,7 @@ function RowWrapper({
   onSelectColumn,
   onSelectComponent,
   onInsertRowAt,
+  viewport,
 }: RowWrapperProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: row.id });
   const rowGridRef = useRef<HTMLDivElement>(null);
@@ -959,6 +1022,7 @@ function RowWrapper({
             rowGridRef={rowGridRef}
             nextColumn={colIdx < columnsWithLocalSpans.length - 1 ? columnsWithLocalSpans[colIdx + 1] : null}
             onResize={handleResize}
+            viewport={viewport}
           />
         ))}
       </div>
@@ -1091,9 +1155,12 @@ export function EditorCanvas() {
         </div>
       </div>
 
+      {/* Breadcrumbs */}
+      <BreadcrumbsBar />
+
       {/* Canvas area */}
       <div className={styles.canvasScroll} ref={canvasScrollRef}>
-        <div className={styles.canvas} style={{ maxWidth: VIEWPORT_WIDTHS[viewport] }} ref={canvasRef}>
+        <div className={`${styles.canvas} ${styles[viewport]}`} style={{ maxWidth: VIEWPORT_WIDTHS[viewport] }} ref={canvasRef}>
 
           <CanvasNavbarPreview
             config={globalComponents.navbar}
@@ -1133,6 +1200,7 @@ export function EditorCanvas() {
                       }
                     }}
                     onInsertRowAt={handleInsertRowAt}
+                    viewport={viewport}
                   />
                   <RowInsertZone index={idx + 1} onInsert={handleInsertRowAt} />
                 </Fragment>

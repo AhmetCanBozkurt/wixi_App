@@ -65,6 +65,17 @@
   min-height: 400px;
   overflow: visible;
   transition: max-width 0.3s ease;
+  container-type: inline-size;
+  container-name: canvas-viewport;
+}
+
+/* Viewport class modifiers — mobile stacks all columns */
+.mobile .rowGrid {
+  grid-template-columns: 1fr !important;
+}
+
+.tablet .rowGrid {
+  grid-template-columns: repeat(6, 1fr) !important;
 }
 
 .emptyCanvas {
@@ -99,8 +110,24 @@
   overflow: visible;  /* toolbar taşabilsin */
 }
 
+/* ── Animations ──────────────────────────────────────── */
+@keyframes selectionPulse {
+  0%   { outline-color: #ec4899; box-shadow: 0 0 0 0 rgba(236,72,153,0); }
+  50%  { outline-color: #f472b6; box-shadow: 0 0 0 4px rgba(236,72,153,0.15); }
+  100% { outline-color: #ec4899; box-shadow: 0 0 0 0 rgba(236,72,153,0); }
+}
+
+@keyframes rowSelectionPulse {
+  0%   { outline-color: #6366f1; box-shadow: 0 0 0 0 rgba(99,102,241,0); }
+  50%  { outline-color: #818cf8; box-shadow: 0 0 0 4px rgba(99,102,241,0.15); }
+  100% { outline-color: #6366f1; box-shadow: 0 0 0 0 rgba(99,102,241,0); }
+}
+
 .blockWrapper:hover { outline-color: rgba(236,72,153,0.4); }
-.selected { outline-color: #ec4899 !important; }
+.selected {
+  outline-color: #ec4899 !important;
+  animation: selectionPulse 2s ease-in-out infinite;
+}
 
 .blockLabel {
   display: none;
@@ -313,7 +340,10 @@
 }
 
 .rowWrapper:hover { outline-color: rgba(99,102,241,0.3); }
-.rowSelected { outline-color: #6366f1 !important; }
+.rowSelected {
+  outline-color: #6366f1 !important;
+  animation: rowSelectionPulse 2s ease-in-out infinite;
+}
 
 .rowGrid {
   display: grid;
@@ -483,7 +513,10 @@
   transition: background 0.15s;
 }
 
-.rowInsertZone:hover .rowInsertLine { background: #6366f1; }
+.rowInsertZone:hover .rowInsertLine {
+  background: #6366f1;
+  box-shadow: 0 0 8px rgba(99,102,241,0.6);
+}
 
 .rowInsertBtn {
   display: none;
@@ -531,3 +564,45 @@
 
 .blockWrapper:hover .dragHandle,
 .selected .dragHandle { display: flex; }
+
+/* ── Breadcrumbs ─────────────────────────────────────── */
+.breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 16px;
+  background: var(--editor-surface);
+  border-bottom: 1px solid var(--editor-border);
+  font-size: 11px;
+  flex-shrink: 0;
+  min-height: 28px;
+}
+
+.breadcrumbItem {
+  background: transparent;
+  border: none;
+  color: var(--editor-text-muted);
+  cursor: pointer;
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: all 0.12s;
+  white-space: nowrap;
+}
+
+.breadcrumbItem:hover {
+  background: rgba(255,255,255,0.06);
+  color: var(--editor-text);
+}
+
+.breadcrumbActive {
+  color: #ec4899 !important;
+  font-weight: 600;
+}
+
+.breadcrumbSep {
+  color: var(--editor-text-muted);
+  opacity: 0.4;
+  font-size: 9px;
+  flex-shrink: 0;
+}
