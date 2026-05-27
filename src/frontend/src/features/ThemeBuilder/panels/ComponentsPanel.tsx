@@ -177,8 +177,8 @@ function BlockPreviewTooltip({
 // ── ComponentsPanel ────────────────────────────────────────────────────────────
 
 export function ComponentsPanel({ excludeCategories }: ComponentsPanelProps = {}) {
-  const { state, dispatch, setInsertIndex } = useEditor();
-  const { insertAtIndex } = state;
+  const { state, dispatch, setInsertRowIndex } = useEditor();
+  const { insertAtRowIndex: insertAtIndex } = state;
   const [query, setQuery] = useState('');
 
   // Hover preview state
@@ -255,7 +255,7 @@ export function ComponentsPanel({ excludeCategories }: ComponentsPanelProps = {}
         }}>
           <span>📌 {insertAtIndex + 1}. sıraya eklenecek</span>
           <button
-            onClick={() => setInsertIndex(null)}
+            onClick={() => setInsertRowIndex(null)}
             style={{ background: 'transparent', border: 'none', color: '#ec4899', cursor: 'pointer', fontSize: '14px', lineHeight: 1, padding: '0 2px' }}
             type="button"
             title="Pozisyonu temizle — sona ekle"

@@ -1,6 +1,6 @@
 import { lazy, Suspense, useState } from 'react';
 import { FaCode, FaCube } from 'react-icons/fa';
-import { useEditor } from '../context/EditorContext';
+import { useEditor, findComponentInRows } from '../context/EditorContext';
 import { useThemeEditor } from '../hooks/useThemeEditor';
 import { Button } from '../../../shared/ui/Button/Button';
 import styles from './CodeEditorPanel.module.css';
@@ -19,7 +19,7 @@ export function CodeEditorPanel({ tenantSlug }: Props) {
   const [jsonError, setJsonError] = useState<string | null>(null);
 
   const selectedComponent = state.selectedComponentId
-    ? state.layout.find(c => c.id === state.selectedComponentId) ?? null
+    ? findComponentInRows(state.layout, state.selectedComponentId)
     : null;
 
   const [prevSelectedComponentId, setPrevSelectedComponentId] = useState<string | null>(null);
@@ -37,7 +37,7 @@ export function CodeEditorPanel({ tenantSlug }: Props) {
     if (!selectedComponent) return;
     try {
       const parsed = JSON.parse(componentJson) as Record<string, unknown>;
-      dispatch({ type: 'UPDATE_COMPONENT_PROPS', id: selectedComponent.id, props: parsed });
+      dispatch({ type: 'UPDATE_COMPONENT_PROPS', componentId: selectedComponent.id, props: parsed });
       setJsonError(null);
     } catch {
       setJsonError('Geçersiz JSON formatı.');

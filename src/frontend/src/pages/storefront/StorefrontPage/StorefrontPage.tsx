@@ -4,7 +4,8 @@ import toast from 'react-hot-toast';
 import styles from './StorefrontPage.module.css';
 import { storefrontApi } from '../../../entities/StorePage/api/storePageApi';
 import { DEFAULT_THEME, themeToVars, mergeTheme } from '../../../entities/StorePage/model/defaultTheme';
-import type { StorePage, ThemeConfig, LayoutComponent, Backlink } from '../../../entities/StorePage/model/types';
+import type { StorePage, ThemeConfig, LayoutComponent, LayoutRow, Backlink } from '../../../entities/StorePage/model/types';
+import { migrateLayout } from '../../../features/ThemeBuilder/context/EditorContext';
 
 // ── Block renderers ───────────────────────────────────────────────────────────
 
@@ -1291,7 +1292,7 @@ export const StorefrontPage = () => {
 
   const [page, setPage] = useState<StorePage | null>(null);
   const [theme, setTheme] = useState<ThemeConfig>(DEFAULT_THEME);
-  const [layout, setLayout] = useState<LayoutComponent[]>([]);
+  const [layout, setLayout] = useState<LayoutRow[]>([]);
   const [backlinks, setBacklinks] = useState<Backlink[]>([]);
   const [customCss, setCustomCss] = useState('');
   const [customJs, setCustomJs] = useState('');
@@ -1356,7 +1357,8 @@ export const StorefrontPage = () => {
 
         if (pageData.layoutConfigJson) {
           try {
-            setLayout(JSON.parse(pageData.layoutConfigJson) as LayoutComponent[]);
+            const raw = JSON.parse(pageData.layoutConfigJson);
+            setLayout(migrateLayout(raw));
           } catch {
             setLayout([]);
           }
@@ -1414,10 +1416,35 @@ export const StorefrontPage = () => {
           </div>
         )}
 
-        {layout.map(comp => (
-          <section key={comp.id} className={styles.section} id={`block-${comp.id}`}>
-            <BlockRenderer comp={comp} theme={theme} tenantSlug={tenantSlug!} />
-          </section>
+        {layout.map(row => (
+          <div
+            key={row.id}
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(12, 1fr)',
+              backgroundColor: row.props.backgroundColor || undefined,
+              backgroundImage: row.props.backgroundImage ? `url(${row.props.backgroundImage})` : undefined,
+              paddingTop: row.props.paddingY || undefined,
+              paddingBottom: row.props.paddingY || undefined,
+              paddingLeft: row.props.paddingX || undefined,
+              paddingRight: row.props.paddingX || undefined,
+              maxWidth: row.props.fullWidth ? '100%' : undefined,
+            }}
+          >
+            {row.columns.map(col => (
+              col.component ? (
+                <section
+                  key={col.id}
+                  id={`block-${col.component.id}`}
+                  style={{ gridColumn: `span ${col.span}` }}
+                >
+                  <BlockRenderer comp={col.component} theme={theme} tenantSlug={tenantSlug!} />
+                </section>
+              ) : (
+                <div key={col.id} style={{ gridColumn: `span ${col.span}` }} />
+              )
+            ))}
+          </div>
         ))}
 
         {backlinks.length > 0 && (

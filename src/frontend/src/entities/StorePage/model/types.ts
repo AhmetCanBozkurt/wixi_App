@@ -4,7 +4,26 @@ export interface LayoutComponent {
   id: string;
   type: string;
   props: Record<string, unknown>;
-  children?: LayoutComponent[];
+}
+
+export interface LayoutRowProps {
+  backgroundColor?: string;
+  backgroundImage?: string;
+  paddingY?: string;
+  paddingX?: string;
+  fullWidth?: boolean;
+}
+
+export interface LayoutColumn {
+  id: string;
+  span: number; // 1-12
+  component: LayoutComponent | null;
+}
+
+export interface LayoutRow {
+  id: string;
+  columns: LayoutColumn[];
+  props: LayoutRowProps;
 }
 
 export interface Backlink {

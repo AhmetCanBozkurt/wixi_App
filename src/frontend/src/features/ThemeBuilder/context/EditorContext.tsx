@@ -1,6 +1,17 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useReducer, type Dispatch, type ReactNode } from 'react';
-import type { LayoutComponent, StorePage, StorePageSummary, ThemeConfig, Backlink, GlobalComponentsConfig, ThemeVersionSummary } from '../../../entities/StorePage/model/types';
+import type {
+  LayoutComponent,
+  LayoutRow,
+  LayoutColumn,
+  LayoutRowProps,
+  StorePage,
+  StorePageSummary,
+  ThemeConfig,
+  Backlink,
+  GlobalComponentsConfig,
+  ThemeVersionSummary,
+} from '../../../entities/StorePage/model/types';
 import { DEFAULT_THEME } from '../../../entities/StorePage/model/defaultTheme';
 
 export type Viewport = 'desktop' | 'tablet' | 'mobile';
@@ -17,7 +28,7 @@ export interface SeoState {
 export interface EditorState {
   pages: StorePageSummary[];
   activePage: StorePage | null;
-  layout: LayoutComponent[];
+  layout: LayoutRow[];
   theme: ThemeConfig;
   backlinks: Backlink[];
   seo: SeoState;
@@ -25,6 +36,8 @@ export interface EditorState {
   customCss: string;
   customJs: string;
   selectedComponentId: string | null;
+  selectedRowId: string | null;
+  selectedColumnId: string | null;
   selectedPropKey: string | null;
   viewport: Viewport;
   leftTab: LeftTab;
@@ -34,115 +47,119 @@ export interface EditorState {
   isLoading: boolean;
   themeVersions: ThemeVersionSummary[];
   versionsLoading: boolean;
-  insertAtIndex: number | null;
-  insertTargetId: string | null;  // Faz 2: hangi container'a eklenecek (null = root)
-  // ── History (undo/redo) ───────────────────────────────
-  _past: LayoutComponent[][];
-  _future: LayoutComponent[][];
+  insertAtRowIndex: number | null;
+  insertTargetRowId: string | null;
+  _past: LayoutRow[][];
+  _future: LayoutRow[][];
   _clipboard: LayoutComponent | null;
 }
 
 export type EditorAction =
   | { type: 'SET_PAGES'; pages: StorePageSummary[] }
   | { type: 'SET_ACTIVE_PAGE'; page: StorePage }
-  | { type: 'SET_LAYOUT'; layout: LayoutComponent[] }
+  | { type: 'SET_LAYOUT'; layout: LayoutRow[] }
   | { type: 'SET_THEME'; theme: ThemeConfig }
   | { type: 'SET_BACKLINKS'; backlinks: Backlink[] }
   | { type: 'SET_SEO'; seo: SeoState }
-  | { type: 'ADD_COMPONENT'; component: LayoutComponent }
-  | { type: 'REMOVE_COMPONENT'; id: string }
-  | { type: 'MOVE_COMPONENT'; id: string; direction: 'up' | 'down' }
-  | { type: 'UPDATE_COMPONENT_PROPS'; id: string; props: Record<string, unknown> }
-  | { type: 'SELECT_COMPONENT'; id: string | null }
-  | { type: 'SELECT_PROP'; propKey: string | null }
-  | { type: 'SET_VIEWPORT'; viewport: Viewport }
-  | { type: 'SET_LEFT_TAB'; tab: LeftTab }
-  | { type: 'SET_RIGHT_TAB'; tab: RightTab }
-  | { type: 'SET_DIRTY'; dirty: boolean }
-  | { type: 'SET_SAVING'; saving: boolean }
-  | { type: 'SET_LOADING'; loading: boolean }
   | { type: 'SET_GLOBAL_COMPONENTS'; globalComponents: GlobalComponentsConfig }
   | { type: 'SET_CUSTOM_CSS'; css: string }
   | { type: 'SET_CUSTOM_JS'; js: string }
   | { type: 'SET_THEME_VERSIONS'; versions: ThemeVersionSummary[] }
   | { type: 'SET_VERSIONS_LOADING'; loading: boolean }
-  // ── History actions ───────────────────────────────────
-  | { type: 'UNDO' }
-  | { type: 'REDO' }
-  | { type: 'DUPLICATE_COMPONENT'; id: string }
-  | { type: 'COPY_COMPONENT'; id: string }
+  | { type: 'SET_DIRTY'; dirty: boolean }
+  | { type: 'SET_SAVING'; saving: boolean }
+  | { type: 'SET_LOADING'; loading: boolean }
+  // Component ekleme (ComponentsPanel değişmeden kalır)
+  | { type: 'ADD_COMPONENT'; component: LayoutComponent }
+  // Row actions
+  | { type: 'REMOVE_ROW'; rowId: string }
+  | { type: 'MOVE_ROW'; rowId: string; direction: 'up' | 'down' }
+  | { type: 'UPDATE_ROW_PROPS'; rowId: string; props: Partial<LayoutRowProps> }
+  | { type: 'REORDER_ROWS'; rows: LayoutRow[] }
+  // Column actions
+  | { type: 'ADD_COLUMN_TO_ROW'; rowId: string; component?: LayoutComponent }
+  | { type: 'REMOVE_COLUMN'; rowId: string; columnId: string }
+  | { type: 'UPDATE_COLUMN_SPAN'; rowId: string; columnId: string; span: number; siblingId?: string; siblingSpan?: number }
+  | { type: 'REORDER_COLUMNS'; rowId: string; columns: LayoutColumn[] }
+  // Component actions
+  | { type: 'UPDATE_COMPONENT_PROPS'; componentId: string; props: Record<string, unknown> }
+  | { type: 'REMOVE_COMPONENT'; componentId: string }
+  | { type: 'DUPLICATE_COMPONENT'; componentId: string }
+  | { type: 'COPY_COMPONENT'; componentId: string }
   | { type: 'PASTE_COMPONENT' }
-  | { type: 'SET_INSERT_INDEX'; index: number | null }
-  // ── Faz 2: Nested layout actions ─────────────────────
-  | { type: 'SET_INSERT_TARGET'; id: string | null }
-  | { type: 'REORDER_CHILDREN'; parentId: string; newChildren: LayoutComponent[] }
-  | { type: 'ADD_CHILD_COMPONENT'; parentId: string; component: LayoutComponent; insertAt?: number };
+  // Selection
+  | { type: 'SELECT_COMPONENT'; id: string | null }
+  | { type: 'SELECT_ROW'; rowId: string | null }
+  | { type: 'SELECT_COLUMN'; rowId: string | null; columnId: string | null }
+  | { type: 'SELECT_PROP'; propKey: string | null }
+  // UI
+  | { type: 'SET_VIEWPORT'; viewport: Viewport }
+  | { type: 'SET_LEFT_TAB'; tab: LeftTab }
+  | { type: 'SET_RIGHT_TAB'; tab: RightTab }
+  | { type: 'SET_INSERT_ROW_INDEX'; index: number | null }
+  | { type: 'SET_INSERT_TARGET_ROW'; rowId: string | null }
+  // History
+  | { type: 'UNDO' }
+  | { type: 'REDO' };
 
 const HISTORY_LIMIT = 50;
 
-// ── Faz 2: Tree helpers ───────────────────────────────────────────────────────
+// ── Helpers (exported) ────────────────────────────────────────────────────────
 
-export function findInTree(layout: LayoutComponent[], id: string): LayoutComponent | null {
-  for (const comp of layout) {
-    if (comp.id === id) return comp;
-    if (comp.children) {
-      const found = findInTree(comp.children, id);
-      if (found) return found;
+export function findComponentInRows(layout: LayoutRow[], id: string): LayoutComponent | null {
+  for (const row of layout) {
+    for (const col of row.columns) {
+      if (col.component?.id === id) return col.component;
     }
   }
   return null;
 }
 
-function mapInTree(
-  layout: LayoutComponent[],
-  id: string,
-  updater: (c: LayoutComponent) => LayoutComponent,
-): LayoutComponent[] {
-  return layout.map(comp => {
-    if (comp.id === id) return updater(comp);
-    if (comp.children) return { ...comp, children: mapInTree(comp.children, id, updater) };
-    return comp;
-  });
+export function findColumnInRows(
+  layout: LayoutRow[],
+  componentId: string,
+): { row: LayoutRow; column: LayoutColumn } | null {
+  for (const row of layout) {
+    for (const col of row.columns) {
+      if (col.component?.id === componentId) return { row, column: col };
+    }
+  }
+  return null;
 }
 
-function removeFromTree(layout: LayoutComponent[], id: string): LayoutComponent[] {
-  return layout
-    .filter(c => c.id !== id)
-    .map(c => c.children ? { ...c, children: removeFromTree(c.children, id) } : c);
+export function migrateLayout(data: unknown): LayoutRow[] {
+  if (!Array.isArray(data) || data.length === 0) return [];
+  // Already LayoutRow[] format?
+  if (data[0] && typeof data[0] === 'object' && 'columns' in (data[0] as object)) {
+    return data as LayoutRow[];
+  }
+  // Old LayoutComponent[] — each becomes a row with a single span-12 column
+  return (data as LayoutComponent[]).map(comp => ({
+    id: crypto.randomUUID(),
+    columns: [{ id: crypto.randomUUID(), span: 12, component: comp }],
+    props: {},
+  }));
+}
+
+// ── Internal helpers ──────────────────────────────────────────────────────────
+
+function evenSpans(count: number): number[] {
+  if (count <= 0) return [];
+  const base = Math.floor(12 / count);
+  const rem = 12 % count;
+  return Array.from({ length: count }, (_, i) => base + (i < rem ? 1 : 0));
+}
+
+function redistributeSpans(columns: LayoutColumn[]): LayoutColumn[] {
+  if (columns.length === 0) return [];
+  const spans = evenSpans(columns.length);
+  return columns.map((col, i) => ({ ...col, span: spans[i] }));
 }
 
 function deepCloneComp(comp: LayoutComponent): LayoutComponent {
-  return {
-    ...comp,
-    id: crypto.randomUUID(),
-    props: { ...comp.props },
-    children: comp.children?.map(deepCloneComp),
-  };
+  return { ...comp, id: crypto.randomUUID(), props: { ...comp.props } };
 }
 
-function duplicateInTree(layout: LayoutComponent[], id: string): LayoutComponent[] | null {
-  const idx = layout.findIndex(c => c.id === id);
-  if (idx !== -1) {
-    const clone = deepCloneComp(layout[idx]);
-    return [
-      ...layout.slice(0, idx + 1),
-      clone,
-      ...layout.slice(idx + 1),
-    ];
-  }
-  let changed = false;
-  const next = layout.map(c => {
-    if (!c.children) return c;
-    const newChildren = duplicateInTree(c.children, id);
-    if (newChildren) { changed = true; return { ...c, children: newChildren }; }
-    return c;
-  });
-  return changed ? next : null;
-}
-
-// ── History helper ────────────────────────────────────────────────────────────
-
-/** Mevcut layout'u geçmişe ekle, geleceği temizle */
 function pushHistory(state: EditorState): EditorState {
   const past = [...state._past, state.layout];
   return {
@@ -151,6 +168,8 @@ function pushHistory(state: EditorState): EditorState {
     _future: [],
   };
 }
+
+// ── Initial state ─────────────────────────────────────────────────────────────
 
 const initialState: EditorState = {
   pages: [],
@@ -166,6 +185,8 @@ const initialState: EditorState = {
   customCss: '',
   customJs: '',
   selectedComponentId: null,
+  selectedRowId: null,
+  selectedColumnId: null,
   selectedPropKey: null,
   viewport: 'desktop',
   leftTab: 'pages',
@@ -175,18 +196,19 @@ const initialState: EditorState = {
   isLoading: true,
   themeVersions: [],
   versionsLoading: false,
-  insertAtIndex: null,
-  insertTargetId: null,
+  insertAtRowIndex: null,
+  insertTargetRowId: null,
   _past: [],
   _future: [],
   _clipboard: null,
 };
 
+// ── Reducer ───────────────────────────────────────────────────────────────────
+
 function reducer(state: EditorState, action: EditorAction): EditorState {
   switch (action.type) {
 
     case 'SET_PAGES': {
-      // Sync activePage.isPublished if it's in the updated list
       const updated = state.activePage
         ? action.pages.find(p => p.id === state.activePage!.id)
         : undefined;
@@ -197,7 +219,7 @@ function reducer(state: EditorState, action: EditorAction): EditorState {
     }
 
     case 'SET_ACTIVE_PAGE': {
-      let layout: LayoutComponent[] = [];
+      let layout: LayoutRow[] = [];
       let backlinks: Backlink[] = [];
       const seo: SeoState = {
         metaTitle: action.page.metaTitle ?? '',
@@ -205,10 +227,29 @@ function reducer(state: EditorState, action: EditorAction): EditorState {
         metaKeywords: action.page.metaKeywords ?? '',
         openGraphImageUrl: action.page.openGraphImageUrl ?? '',
       };
-      try { layout = action.page.layoutConfigJson ? JSON.parse(action.page.layoutConfigJson) as LayoutComponent[] : []; } catch { layout = []; }
-      try { backlinks = action.page.backlinksJson ? JSON.parse(action.page.backlinksJson) as Backlink[] : []; } catch { backlinks = []; }
-      // Sayfa değişince geçmişi sıfırla
-      return { ...state, activePage: action.page, layout, backlinks, seo, selectedComponentId: null, isDirty: false, _past: [], _future: [] };
+      try {
+        layout = action.page.layoutConfigJson
+          ? migrateLayout(JSON.parse(action.page.layoutConfigJson))
+          : [];
+      } catch { layout = []; }
+      try {
+        backlinks = action.page.backlinksJson
+          ? JSON.parse(action.page.backlinksJson) as Backlink[]
+          : [];
+      } catch { backlinks = []; }
+      return {
+        ...state,
+        activePage: action.page,
+        layout,
+        backlinks,
+        seo,
+        selectedComponentId: null,
+        selectedRowId: null,
+        selectedColumnId: null,
+        isDirty: false,
+        _past: [],
+        _future: [],
+      };
     }
 
     case 'SET_LAYOUT': {
@@ -219,55 +260,73 @@ function reducer(state: EditorState, action: EditorAction): EditorState {
     case 'SET_THEME': return { ...state, theme: action.theme, isDirty: true };
     case 'SET_BACKLINKS': return { ...state, backlinks: action.backlinks, isDirty: true };
     case 'SET_SEO': return { ...state, seo: action.seo, isDirty: true };
+    case 'SET_GLOBAL_COMPONENTS': return { ...state, globalComponents: action.globalComponents, isDirty: true };
+    case 'SET_CUSTOM_CSS': return { ...state, customCss: action.css, isDirty: true };
+    case 'SET_CUSTOM_JS': return { ...state, customJs: action.js, isDirty: true };
+    case 'SET_THEME_VERSIONS': return { ...state, themeVersions: action.versions };
+    case 'SET_VERSIONS_LOADING': return { ...state, versionsLoading: action.loading };
+    case 'SET_DIRTY': return { ...state, isDirty: action.dirty };
+    case 'SET_SAVING': return { ...state, isSaving: action.saving };
+    case 'SET_LOADING': return { ...state, isLoading: action.loading };
 
     case 'ADD_COMPONENT': {
       const h = pushHistory(state);
-      if (state.insertTargetId) {
-        // Add as child of the selected container
-        const newLayout = mapInTree(h.layout, state.insertTargetId, (parent) => {
-          const children = parent.children ?? [];
-          const at = state.insertAtIndex !== null ? state.insertAtIndex : children.length;
-          return {
-            ...parent,
-            children: [...children.slice(0, at), action.component, ...children.slice(at)],
+      if (state.insertTargetRowId) {
+        // Add as new column in existing row
+        const newLayout = h.layout.map(row => {
+          if (row.id !== state.insertTargetRowId) return row;
+          const newCol: LayoutColumn = {
+            id: crypto.randomUUID(),
+            span: 1,
+            component: action.component,
           };
+          const updated = redistributeSpans([...row.columns, newCol]);
+          return { ...row, columns: updated };
         });
         return {
           ...h,
           layout: newLayout,
           selectedComponentId: action.component.id,
-          insertAtIndex: null,
-          insertTargetId: null,
+          insertAtRowIndex: null,
+          insertTargetRowId: null,
           isDirty: true,
         };
       }
-      const insertAt = state.insertAtIndex !== null ? state.insertAtIndex : h.layout.length;
+      // Create a new row with a single span-12 column
+      const insertAt = state.insertAtRowIndex !== null ? state.insertAtRowIndex : h.layout.length;
+      const newRow: LayoutRow = {
+        id: crypto.randomUUID(),
+        columns: [{ id: crypto.randomUUID(), span: 12, component: action.component }],
+        props: {},
+      };
       const newLayout = [
         ...h.layout.slice(0, insertAt),
-        action.component,
+        newRow,
         ...h.layout.slice(insertAt),
       ];
       return {
         ...h,
         layout: newLayout,
         selectedComponentId: action.component.id,
-        insertAtIndex: null,
+        insertAtRowIndex: null,
         isDirty: true,
       };
     }
 
-    case 'REMOVE_COMPONENT': {
+    case 'REMOVE_ROW': {
       const h = pushHistory(state);
       return {
         ...h,
-        layout: removeFromTree(state.layout, action.id),
-        selectedComponentId: state.selectedComponentId === action.id ? null : state.selectedComponentId,
+        layout: state.layout.filter(r => r.id !== action.rowId),
+        selectedRowId: state.selectedRowId === action.rowId ? null : state.selectedRowId,
+        selectedColumnId: null,
+        selectedComponentId: null,
         isDirty: true,
       };
     }
 
-    case 'MOVE_COMPONENT': {
-      const idx = state.layout.findIndex(c => c.id === action.id);
+    case 'MOVE_ROW': {
+      const idx = state.layout.findIndex(r => r.id === action.rowId);
       if (idx === -1) return state;
       const target = action.direction === 'up' ? idx - 1 : idx + 1;
       if (target < 0 || target >= state.layout.length) return state;
@@ -277,17 +336,191 @@ function reducer(state: EditorState, action: EditorAction): EditorState {
       return { ...h, layout: newLayout, isDirty: true };
     }
 
-    case 'UPDATE_COMPONENT_PROPS': {
+    case 'UPDATE_ROW_PROPS': {
       const h = pushHistory(state);
       return {
         ...h,
-        layout: mapInTree(state.layout, action.id, c => ({ ...c, props: { ...c.props, ...action.props } })),
+        layout: state.layout.map(row =>
+          row.id === action.rowId
+            ? { ...row, props: { ...row.props, ...action.props } }
+            : row
+        ),
         isDirty: true,
       };
     }
 
+    case 'REORDER_ROWS': {
+      const h = pushHistory(state);
+      return { ...h, layout: action.rows, isDirty: true };
+    }
+
+    case 'ADD_COLUMN_TO_ROW': {
+      const h = pushHistory(state);
+      const newLayout = h.layout.map(row => {
+        if (row.id !== action.rowId) return row;
+        const newCol: LayoutColumn = {
+          id: crypto.randomUUID(),
+          span: 1,
+          component: action.component ?? null,
+        };
+        return { ...row, columns: redistributeSpans([...row.columns, newCol]) };
+      });
+      return {
+        ...h,
+        layout: newLayout,
+        selectedComponentId: action.component?.id ?? state.selectedComponentId,
+        isDirty: true,
+      };
+    }
+
+    case 'REMOVE_COLUMN': {
+      const h = pushHistory(state);
+      const newLayout: LayoutRow[] = [];
+      for (const row of h.layout) {
+        if (row.id !== action.rowId) {
+          newLayout.push(row);
+          continue;
+        }
+        const remaining = row.columns.filter(c => c.id !== action.columnId);
+        if (remaining.length === 0) {
+          // Row becomes empty — drop it
+          continue;
+        }
+        newLayout.push({ ...row, columns: redistributeSpans(remaining) });
+      }
+      return {
+        ...h,
+        layout: newLayout,
+        selectedColumnId: state.selectedColumnId === action.columnId ? null : state.selectedColumnId,
+        selectedComponentId: null,
+        isDirty: true,
+      };
+    }
+
+    case 'UPDATE_COLUMN_SPAN': {
+      const h = pushHistory(state);
+      const newLayout = h.layout.map(row => {
+        if (row.id !== action.rowId) return row;
+        return {
+          ...row,
+          columns: row.columns.map(col => {
+            if (col.id === action.columnId) return { ...col, span: action.span };
+            if (action.siblingId && col.id === action.siblingId && action.siblingSpan !== undefined) {
+              return { ...col, span: action.siblingSpan };
+            }
+            return col;
+          }),
+        };
+      });
+      return { ...h, layout: newLayout, isDirty: true };
+    }
+
+    case 'REORDER_COLUMNS': {
+      const h = pushHistory(state);
+      const newLayout = h.layout.map(row =>
+        row.id === action.rowId ? { ...row, columns: action.columns } : row
+      );
+      return { ...h, layout: newLayout, isDirty: true };
+    }
+
+    case 'UPDATE_COMPONENT_PROPS': {
+      const h = pushHistory(state);
+      const newLayout = h.layout.map(row => ({
+        ...row,
+        columns: row.columns.map(col => {
+          if (col.component?.id !== action.componentId) return col;
+          return {
+            ...col,
+            component: { ...col.component, props: { ...col.component.props, ...action.props } },
+          };
+        }),
+      }));
+      return { ...h, layout: newLayout, isDirty: true };
+    }
+
+    case 'REMOVE_COMPONENT': {
+      const h = pushHistory(state);
+      const newLayout: LayoutRow[] = [];
+      for (const row of h.layout) {
+        const remaining = row.columns.filter(c => c.component?.id !== action.componentId);
+        if (remaining.length === 0) continue; // drop empty row
+        newLayout.push({ ...row, columns: redistributeSpans(remaining) });
+      }
+      return {
+        ...h,
+        layout: newLayout,
+        selectedComponentId: state.selectedComponentId === action.componentId ? null : state.selectedComponentId,
+        isDirty: true,
+      };
+    }
+
+    case 'DUPLICATE_COMPONENT': {
+      const location = findColumnInRows(state.layout, action.componentId);
+      if (!location) return state;
+      const h = pushHistory(state);
+      const clone = deepCloneComp(location.column.component!);
+      const cloneRow: LayoutRow = {
+        id: crypto.randomUUID(),
+        columns: [{ id: crypto.randomUUID(), span: 12, component: clone }],
+        props: {},
+      };
+      const rowIdx = h.layout.findIndex(r => r.id === location.row.id);
+      const newLayout = [
+        ...h.layout.slice(0, rowIdx + 1),
+        cloneRow,
+        ...h.layout.slice(rowIdx + 1),
+      ];
+      return { ...h, layout: newLayout, selectedComponentId: clone.id, isDirty: true };
+    }
+
+    case 'COPY_COMPONENT': {
+      const comp = findComponentInRows(state.layout, action.componentId);
+      if (!comp) return state;
+      return { ...state, _clipboard: { ...comp, props: { ...comp.props } } };
+    }
+
+    case 'PASTE_COMPONENT': {
+      if (!state._clipboard) return state;
+      const clone: LayoutComponent = {
+        ...state._clipboard,
+        id: crypto.randomUUID(),
+        props: { ...state._clipboard.props },
+      };
+      const h = pushHistory(state);
+      let insertIdx = h.layout.length;
+      if (state.selectedComponentId) {
+        const loc = findColumnInRows(h.layout, state.selectedComponentId);
+        if (loc) {
+          const rowIdx = h.layout.findIndex(r => r.id === loc.row.id);
+          if (rowIdx !== -1) insertIdx = rowIdx + 1;
+        }
+      }
+      const newRow: LayoutRow = {
+        id: crypto.randomUUID(),
+        columns: [{ id: crypto.randomUUID(), span: 12, component: clone }],
+        props: {},
+      };
+      const newLayout = [
+        ...h.layout.slice(0, insertIdx),
+        newRow,
+        ...h.layout.slice(insertIdx),
+      ];
+      return { ...h, layout: newLayout, selectedComponentId: clone.id, isDirty: true };
+    }
+
     case 'SELECT_COMPONENT':
-      return { ...state, selectedComponentId: action.id, selectedPropKey: null, rightTab: action.id ? 'props' : state.rightTab };
+      return {
+        ...state,
+        selectedComponentId: action.id,
+        selectedPropKey: null,
+        rightTab: action.id ? 'props' : state.rightTab,
+      };
+
+    case 'SELECT_ROW':
+      return { ...state, selectedRowId: action.rowId, selectedColumnId: null, selectedComponentId: null };
+
+    case 'SELECT_COLUMN':
+      return { ...state, selectedRowId: action.rowId, selectedColumnId: action.columnId };
 
     case 'SELECT_PROP':
       return { ...state, selectedPropKey: action.propKey };
@@ -295,16 +528,13 @@ function reducer(state: EditorState, action: EditorAction): EditorState {
     case 'SET_VIEWPORT': return { ...state, viewport: action.viewport };
     case 'SET_LEFT_TAB': return { ...state, leftTab: action.tab };
     case 'SET_RIGHT_TAB': return { ...state, rightTab: action.tab };
-    case 'SET_DIRTY': return { ...state, isDirty: action.dirty };
-    case 'SET_SAVING': return { ...state, isSaving: action.saving };
-    case 'SET_LOADING': return { ...state, isLoading: action.loading };
-    case 'SET_GLOBAL_COMPONENTS': return { ...state, globalComponents: action.globalComponents, isDirty: true };
-    case 'SET_CUSTOM_CSS': return { ...state, customCss: action.css, isDirty: true };
-    case 'SET_CUSTOM_JS': return { ...state, customJs: action.js, isDirty: true };
-    case 'SET_THEME_VERSIONS': return { ...state, themeVersions: action.versions };
-    case 'SET_VERSIONS_LOADING': return { ...state, versionsLoading: action.loading };
 
-    // ── Undo ─────────────────────────────────────────────
+    case 'SET_INSERT_ROW_INDEX':
+      return { ...state, insertAtRowIndex: action.index };
+
+    case 'SET_INSERT_TARGET_ROW':
+      return { ...state, insertTargetRowId: action.rowId };
+
     case 'UNDO': {
       if (state._past.length === 0) return state;
       const past = [...state._past];
@@ -318,7 +548,6 @@ function reducer(state: EditorState, action: EditorAction): EditorState {
       };
     }
 
-    // ── Redo ─────────────────────────────────────────────
     case 'REDO': {
       if (state._future.length === 0) return state;
       const future = [...state._future];
@@ -332,80 +561,11 @@ function reducer(state: EditorState, action: EditorAction): EditorState {
       };
     }
 
-    // ── Duplicate ─────────────────────────────────────────
-    case 'DUPLICATE_COMPONENT': {
-      const h = pushHistory(state);
-      const result = duplicateInTree(state.layout, action.id);
-      if (!result) return state;
-      // Find the clone id (inserted right after original)
-      const originalIdx = result.findIndex(c => c.id === action.id);
-      const cloneId = originalIdx !== -1 ? result[originalIdx + 1]?.id : undefined;
-      return { ...h, layout: result, selectedComponentId: cloneId ?? action.id, isDirty: true };
-    }
-
-    // ── Copy ─────────────────────────────────────────────
-    case 'COPY_COMPONENT': {
-      const comp = state.layout.find(c => c.id === action.id);
-      if (!comp) return state;
-      return { ...state, _clipboard: { ...comp, props: { ...comp.props } } };
-    }
-
-    // ── Paste ─────────────────────────────────────────────
-    case 'PASTE_COMPONENT': {
-      if (!state._clipboard) return state;
-      const clone: LayoutComponent = {
-        ...state._clipboard,
-        id: crypto.randomUUID(),
-        props: { ...state._clipboard.props },
-      };
-      const selIdx = state.selectedComponentId
-        ? state.layout.findIndex(c => c.id === state.selectedComponentId)
-        : -1;
-      const insertAt = selIdx >= 0 ? selIdx + 1 : state.layout.length;
-      const h = pushHistory(state);
-      const newLayout = [
-        ...state.layout.slice(0, insertAt),
-        clone,
-        ...state.layout.slice(insertAt),
-      ];
-      return { ...h, layout: newLayout, selectedComponentId: clone.id, isDirty: true };
-    }
-
-    case 'SET_INSERT_INDEX':
-      return { ...state, insertAtIndex: action.index };
-
-    // ── Faz 2: Nested layout ──────────────────────────────
-    case 'SET_INSERT_TARGET':
-      return { ...state, insertTargetId: action.id };
-
-    case 'REORDER_CHILDREN': {
-      const h = pushHistory(state);
-      return {
-        ...h,
-        layout: mapInTree(state.layout, action.parentId, c => ({ ...c, children: action.newChildren })),
-        isDirty: true,
-      };
-    }
-
-    case 'ADD_CHILD_COMPONENT': {
-      const h = pushHistory(state);
-      const at = action.insertAt ?? Infinity;
-      const newLayout = mapInTree(h.layout, action.parentId, (parent) => {
-        const children = parent.children ?? [];
-        const idx = Math.min(at, children.length);
-        return { ...parent, children: [...children.slice(0, idx), action.component, ...children.slice(idx)] };
-      });
-      return {
-        ...h,
-        layout: newLayout,
-        selectedComponentId: action.component.id,
-        isDirty: true,
-      };
-    }
-
     default: return state;
   }
 }
+
+// ── Context ───────────────────────────────────────────────────────────────────
 
 interface EditorContextValue {
   state: EditorState;
@@ -425,7 +585,7 @@ export function useEditor() {
   return {
     ...ctx,
     selectProp: (propKey: string | null) => ctx.dispatch({ type: 'SELECT_PROP', propKey }),
-    setInsertIndex: (index: number | null) => ctx.dispatch({ type: 'SET_INSERT_INDEX', index }),
-    setInsertTarget: (id: string | null) => ctx.dispatch({ type: 'SET_INSERT_TARGET', id }),
+    setInsertRowIndex: (index: number | null) => ctx.dispatch({ type: 'SET_INSERT_ROW_INDEX', index }),
+    setInsertTargetRow: (rowId: string | null) => ctx.dispatch({ type: 'SET_INSERT_TARGET_ROW', rowId }),
   };
 }

@@ -304,72 +304,206 @@
   outline-color: #ec4899;
 }
 
-/* ── Faz 2: Container Blocks ─────────────────────────── */
-.containerBlock {
-  border: 2px dashed var(--editor-border) !important;
-  background: rgba(255,255,255,0.02) !important;
+/* ── Row Wrapper ─────────────────────────────────────── */
+.rowWrapper {
+  position: relative;
+  outline: 2px solid transparent;
+  outline-offset: 0;
+  transition: outline-color 0.15s;
 }
 
-.containerBlock:hover,
-.containerBlock.selected {
-  border-color: rgba(99,102,241,0.6) !important;
+.rowWrapper:hover { outline-color: rgba(99,102,241,0.3); }
+.rowSelected { outline-color: #6366f1 !important; }
+
+.rowGrid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  min-height: 80px;
 }
 
-.containerBlock.selected {
-  border-color: #6366f1 !important;
-}
-
-.containerInner {
-  min-height: 48px;
-  padding: 8px;
-}
-
-.nestedBlockList {
+.rowToolbar {
+  position: absolute;
+  top: -34px;
+  left: 0;
   display: flex;
-  flex-direction: column;
-  min-height: 40px;
+  gap: 2px;
+  background: var(--editor-surface);
+  border: 1px solid var(--editor-border);
+  border-radius: 6px 6px 6px 0;
+  padding: 3px;
+  z-index: 25;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s;
 }
 
-.nestedEmptyZone {
+.rowWrapper:hover .rowToolbar,
+.rowSelected .rowToolbar {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.rowDragHandle {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 48px;
-  border: 2px dashed var(--editor-border);
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 12px;
+  width: 22px;
+  height: 26px;
   color: var(--editor-text-muted);
-  transition: all 0.15s;
-  margin: 4px 0;
+  cursor: grab;
+  font-size: 10px;
 }
 
-.nestedEmptyZone:hover {
-  border-color: #6366f1;
-  color: #6366f1;
-  background: rgba(99,102,241,0.04);
+.rowDragHandle:active { cursor: grabbing; }
+
+/* ── Column Wrapper ──────────────────────────────────── */
+.columnWrapper {
+  position: relative;
+  min-height: 80px;
+  outline: 1px solid transparent;
+  outline-offset: -1px;
+  transition: outline-color 0.15s;
+  overflow: visible;
 }
 
-.nestedAddBtn {
+.columnWrapper:hover { outline-color: rgba(236,72,153,0.35); }
+.columnSelected { outline-color: #ec4899 !important; }
+
+.emptyColumn {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 4px;
-  padding: 4px 10px;
-  background: transparent;
-  border: 1px dashed var(--editor-border);
-  border-radius: 4px;
-  color: var(--editor-text-muted);
+  justify-content: center;
+  gap: 6px;
+  min-height: 80px;
+  height: 100%;
+  border: 2px dashed rgba(255,255,255,0.12);
   cursor: pointer;
   font-size: 11px;
-  margin-top: 6px;
+  color: rgba(255,255,255,0.3);
+  background: rgba(255,255,255,0.02);
   transition: all 0.15s;
-  align-self: flex-start;
 }
 
-.nestedAddBtn:hover {
-  border-color: #6366f1;
-  color: #6366f1;
+.emptyColumn:hover {
+  border-color: #ec4899;
+  color: #ec4899;
+  background: rgba(236,72,153,0.04);
 }
+
+.spanBadge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: rgba(99,102,241,0.8);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 0 0 0 4px;
+  pointer-events: none;
+  z-index: 10;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.columnWrapper:hover .spanBadge,
+.columnSelected .spanBadge { opacity: 1; }
+
+.colDeleteBtn {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  background: rgba(239,68,68,0.9);
+  color: #fff;
+  border: none;
+  border-radius: 0 0 4px 0;
+  cursor: pointer;
+  font-size: 9px;
+  z-index: 15;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.columnWrapper:hover .colDeleteBtn,
+.columnSelected .colDeleteBtn { opacity: 1; }
+.colDeleteBtn:hover { background: #dc2626; }
+
+/* ── Column Resize Handle ────────────────────────────── */
+.colResizeHandle {
+  position: absolute;
+  top: 0;
+  right: -3px;
+  bottom: 0;
+  width: 6px;
+  cursor: col-resize;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.colResizeHandle::after {
+  content: '';
+  width: 2px;
+  height: 32px;
+  background: rgba(99,102,241,0.5);
+  border-radius: 1px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.colResizeHandle:hover::after { opacity: 1; background: #6366f1; }
+
+/* ── Row Insert Zone ─────────────────────────────────── */
+.rowInsertZone {
+  position: relative;
+  height: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: height 0.15s;
+}
+
+.rowInsertZone:hover { height: 36px; }
+
+.rowInsertLine {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: rgba(99,102,241,0.3);
+  transition: background 0.15s;
+}
+
+.rowInsertZone:hover .rowInsertLine { background: #6366f1; }
+
+.rowInsertBtn {
+  display: none;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 14px;
+  background: #6366f1;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  position: relative;
+  z-index: 1;
+}
+
+.rowInsertZone:hover .rowInsertBtn { display: flex; }
+.rowInsertBtn:hover { background: #4f46e5; }
 
 /* ── Drag Handle ─────────────────────────────────────── */
 .dragHandle {

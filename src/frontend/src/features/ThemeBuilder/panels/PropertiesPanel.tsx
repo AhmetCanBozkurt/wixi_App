@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { FaPlus, FaTrash, FaGripVertical, FaCopy, FaCheck, FaEdit } from 'react-icons/fa';
-import { useEditor, findInTree } from '../context/EditorContext';
+import { useEditor, findComponentInRows, findColumnInRows } from '../context/EditorContext';
 import { BLOCK_BY_TYPE } from '../blocks/blockRegistry';
 import type { PropField, BlockDefinition, RowFieldSchema } from '../blocks/blockRegistry';
 import type { LayoutComponent, ThemeConfig } from '../../../entities/StorePage/model/types';
@@ -659,12 +659,170 @@ function InspectTab({
   );
 }
 
+// ── Row Settings Panel ────────────────────────────────────────────────────────
+
+function RowSettingsPanel() {
+  const { state, dispatch } = useEditor();
+  const { layout, selectedRowId } = state;
+  const row = layout.find(r => r.id === selectedRowId);
+
+  if (!row) return null;
+
+  const p = row.props;
+  const update = (key: string, val: unknown) => {
+    dispatch({ type: 'UPDATE_ROW_PROPS', rowId: row.id, props: { [key]: val } });
+  };
+
+  return (
+    <div className={styles.propList}>
+      <div className={styles.propGroupSection}>
+        <div className={styles.propGroupSectionHeader}>
+          <span className={`${styles.propGroupDot} ${styles.propGroupDotVisual}`} />
+          Arka Plan
+        </div>
+        <div className={styles.propGroup}>
+          <label className={styles.propLabel}>Arka Plan Rengi</label>
+          <div className={styles.colorRow}>
+            <input
+              type="color"
+              value={String(p.backgroundColor || '#ffffff')}
+              onChange={e => update('backgroundColor', e.target.value)}
+              className={styles.colorSwatch}
+            />
+            <input
+              type="text"
+              value={String(p.backgroundColor || '')}
+              onChange={e => update('backgroundColor', e.target.value)}
+              className={styles.colorText}
+              placeholder="#ffffff veya transparent"
+            />
+          </div>
+        </div>
+        <div className={styles.propGroup}>
+          <label className={styles.propLabel}>Arka Plan Gorsel URL</label>
+          <input
+            type="url"
+            className={styles.input}
+            value={String(p.backgroundImage || '')}
+            onChange={e => update('backgroundImage', e.target.value)}
+            placeholder="https://..."
+          />
+        </div>
+      </div>
+
+      <div className={styles.propGroupSection}>
+        <div className={styles.propGroupSectionHeader}>
+          <span className={`${styles.propGroupDot} ${styles.propGroupDotStyle}`} />
+          Bosluk
+        </div>
+        <div className={styles.propGroup}>
+          <label className={styles.propLabel}>Dikey Bosluk (paddingY)</label>
+          <input
+            type="text"
+            className={styles.input}
+            value={String(p.paddingY || '')}
+            onChange={e => update('paddingY', e.target.value)}
+            placeholder="40px"
+          />
+        </div>
+        <div className={styles.propGroup}>
+          <label className={styles.propLabel}>Yatay Bosluk (paddingX)</label>
+          <input
+            type="text"
+            className={styles.input}
+            value={String(p.paddingX || '')}
+            onChange={e => update('paddingX', e.target.value)}
+            placeholder="0px"
+          />
+        </div>
+      </div>
+
+      <div className={styles.propGroupSection}>
+        <div className={styles.propGroupSectionHeader}>
+          <span className={`${styles.propGroupDot} ${styles.propGroupDotAdvanced}`} />
+          Diger
+        </div>
+        <div className={styles.propGroup}>
+          <label className={styles.toggleRow}>
+            <input
+              type="checkbox"
+              checked={Boolean(p.fullWidth)}
+              onChange={e => update('fullWidth', e.target.checked)}
+            />
+            <span>Tam Genislik</span>
+          </label>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Column Settings Panel ─────────────────────────────────────────────────────
+
+function ColumnSettingsPanel() {
+  const { state, dispatch } = useEditor();
+  const { layout, selectedColumnId, selectedRowId } = state;
+
+  const row = layout.find(r => r.id === selectedRowId);
+  const col = row?.columns.find(c => c.id === selectedColumnId);
+
+  if (!row || !col) return null;
+
+  return (
+    <div className={styles.propList}>
+      <div className={styles.propGroupSection}>
+        <div className={styles.propGroupSectionHeader}>
+          <span className={`${styles.propGroupDot} ${styles.propGroupDotStyle}`} />
+          Kolon Ayarlari
+        </div>
+        <div className={styles.propGroup}>
+          <label className={styles.propLabel}>Genislik (1–12)</label>
+          <input
+            type="range"
+            min={1}
+            max={12}
+            value={col.span}
+            onChange={e => dispatch({ type: 'UPDATE_COLUMN_SPAN', rowId: row.id, columnId: col.id, span: Number(e.target.value) })}
+            style={{ width: '100%' }}
+          />
+          <span style={{ fontSize: '11px', color: 'var(--editor-text-muted)' }}>{col.span} / 12</span>
+        </div>
+      </div>
+
+      <div style={{ padding: '8px 12px' }}>
+        <button
+          style={{
+            width: '100%',
+            padding: '6px',
+            background: 'rgba(239,68,68,0.1)',
+            color: '#ef4444',
+            border: '1px solid rgba(239,68,68,0.3)',
+            borderRadius: '6px',
+            cursor: 'pointer',
+            fontSize: '12px',
+            fontWeight: 600,
+          }}
+          onClick={() => dispatch({ type: 'REMOVE_COLUMN', rowId: row.id, columnId: col.id })}
+          type="button"
+        >
+          Kolonu Sil
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ── Main panel ────────────────────────────────────────────────────────────────
 
 export function PropertiesPanel() {
   const { state, dispatch, selectProp } = useEditor();
-  const { selectedComponentId, layout, theme, selectedPropKey } = state;
-  const comp = selectedComponentId ? findInTree(layout, selectedComponentId) : null;
+  const { selectedComponentId, selectedRowId, selectedColumnId, layout, theme, selectedPropKey } = state;
+
+  const comp = selectedComponentId ? findComponentInRows(layout, selectedComponentId) : null;
+  const colContext = selectedColumnId && !selectedComponentId
+    ? findColumnInRows(layout, selectedColumnId)
+    : null;
+
   const [propTab, setPropTab] = useState<PropTab>('props');
   const [copied, setCopied] = useState(false);
 
@@ -672,6 +830,30 @@ export function PropertiesPanel() {
   const [editingField, setEditingField] = useState<PropField | null>(null);
   const [editingRows, setEditingRows] = useState<RowData[]>([]);
   const [expandedRowIdx, setExpandedRowIdx] = useState<number | null>(null);
+
+  // Row selected — no component, no column
+  if (selectedRowId && !selectedComponentId && !selectedColumnId) {
+    return (
+      <div className={styles.panel}>
+        <div className={styles.panelHeader} style={{ borderBottom: '1px solid var(--editor-border)' }}>
+          <span>Satir Ayarlari</span>
+        </div>
+        <RowSettingsPanel />
+      </div>
+    );
+  }
+
+  // Column selected — no component
+  if ((selectedColumnId || colContext) && !selectedComponentId) {
+    return (
+      <div className={styles.panel}>
+        <div className={styles.panelHeader} style={{ borderBottom: '1px solid var(--editor-border)' }}>
+          <span>Kolon Ayarlari</span>
+        </div>
+        <ColumnSettingsPanel />
+      </div>
+    );
+  }
 
   if (!comp) {
     return (
@@ -687,7 +869,7 @@ export function PropertiesPanel() {
   const schema = def?.propsSchema ?? [];
 
   const update = (propKey: string, val: unknown) => {
-    dispatch({ type: 'UPDATE_COMPONENT_PROPS', id: comp.id, props: { [propKey]: val } });
+    dispatch({ type: 'UPDATE_COMPONENT_PROPS', componentId: comp.id, props: { [propKey]: val } });
   };
 
   const handleCopyCss = () => {
@@ -695,7 +877,7 @@ export function PropertiesPanel() {
     navigator.clipboard.writeText(css).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    }).catch(() => { /* clipboard erişimi başarısız — sessizce geç */ });
+    }).catch(() => { /* clipboard erisimi basarisiz */ });
   };
 
   return (
@@ -767,7 +949,7 @@ export function PropertiesPanel() {
           onSave={(nextRows) => {
             update(editingField.field, nextRows);
             setEditingField(null);
-            toast.success('Değişiklikler başarıyla kaydedildi!', {
+            toast.success('Degisiklikler basariyla kaydedildi!', {
               style: {
                 background: 'var(--bg-secondary, #18181b)',
                 color: 'var(--text-main, #ffffff)',

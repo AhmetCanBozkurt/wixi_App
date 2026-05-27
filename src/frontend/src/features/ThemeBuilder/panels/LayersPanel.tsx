@@ -1,5 +1,4 @@
 import { useState, Fragment } from 'react';
-import type { Dispatch } from 'react';
 import {
   FaArrowUp,
   FaArrowDown,
@@ -10,126 +9,26 @@ import {
   FaWindowMinimize,
   FaChevronRight,
   FaChevronDown,
+  FaPlus,
 } from 'react-icons/fa';
 import { useEditor } from '../context/EditorContext';
-import type { EditorAction } from '../context/EditorContext';
-import { BLOCK_BY_TYPE, CONTAINER_TYPES } from '../blocks/blockRegistry';
-import type { LayoutComponent } from '../../../entities/StorePage/model/types';
+import { BLOCK_BY_TYPE } from '../blocks/blockRegistry';
+import type { LayoutRow } from '../../../entities/StorePage/model/types';
 import styles from './Panels.module.css';
 
-// ── Nested layer row (recursive, for container children) ──────────────────────
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
-function NestedLayerRow({
-  comp,
-  depth,
-  selectedComponentId,
-  selectedPropKey,
-  expanded,
-  onToggleExpand,
-  onSelectBlock,
-  dispatch,
-}: {
-  comp: LayoutComponent;
-  depth: number;
-  selectedComponentId: string | null;
-  selectedPropKey: string | null;
-  expanded: Set<string>;
-  onToggleExpand: (id: string) => void;
-  onSelectBlock: (id: string) => void;
-  dispatch: Dispatch<EditorAction>;
-}) {
-  const def = BLOCK_BY_TYPE[comp.type];
-  const Icon = def?.icon;
-  const isSelected = comp.id === selectedComponentId;
-  const isExpanded = expanded.has(comp.id);
-  const isContainer = CONTAINER_TYPES.has(comp.type);
-  const nestedChildren = comp.children ?? [];
-
-  return (
-    <Fragment>
-      <div
-        className={`${styles.layerItem} ${isSelected && !selectedPropKey ? styles.layerItemActive : ''}`}
-        style={{ paddingLeft: `${8 + depth * 16}px` }}
-        onClick={() => onSelectBlock(comp.id)}
-      >
-        {isContainer ? (
-          <button
-            className={styles.layerExpandBtn}
-            onClick={e => { e.stopPropagation(); onToggleExpand(comp.id); }}
-            type="button"
-            title={isExpanded ? 'Kapat' : 'Aç'}
-          >
-            {isExpanded ? <FaChevronDown /> : <FaChevronRight />}
-          </button>
-        ) : (
-          <span className={styles.layerExpandPlaceholder} />
-        )}
-
-        <span className={styles.layerIcon}>
-          {Icon ? <Icon /> : <FaLayerGroup />}
-        </span>
-
-        <div className={styles.layerInfo}>
-          <span className={styles.layerName}>{def?.name ?? comp.type}</span>
-        </div>
-
-        <div className={styles.layerActions} onClick={e => e.stopPropagation()}>
-          <button
-            className={styles.layerBtn}
-            onClick={() => dispatch({ type: 'DUPLICATE_COMPONENT', id: comp.id })}
-            title="Çoğalt"
-            type="button"
-          >
-            <FaCopy />
-          </button>
-          <button
-            className={`${styles.layerBtn} ${styles.layerBtnDanger}`}
-            onClick={() => dispatch({ type: 'REMOVE_COMPONENT', id: comp.id })}
-            title="Sil"
-            type="button"
-          >
-            <FaTrash />
-          </button>
-        </div>
-      </div>
-
-      {isContainer && isExpanded && (
-        nestedChildren.length === 0 ? (
-          <div
-            className={styles.layerItem}
-            style={{ paddingLeft: `${8 + (depth + 1) * 16}px`, cursor: 'default', opacity: 0.45 }}
-          >
-            <span className={styles.layerExpandPlaceholder} />
-            <span className={styles.layerIcon}><FaLayerGroup /></span>
-            <div className={styles.layerInfo}>
-              <span className={styles.layerSubtitle}>Boş konteyner</span>
-            </div>
-          </div>
-        ) : (
-          nestedChildren.map(child => (
-            <NestedLayerRow
-              key={child.id}
-              comp={child}
-              depth={depth + 1}
-              selectedComponentId={selectedComponentId}
-              selectedPropKey={selectedPropKey}
-              expanded={expanded}
-              onToggleExpand={onToggleExpand}
-              onSelectBlock={onSelectBlock}
-              dispatch={dispatch}
-            />
-          ))
-        )
-      )}
-    </Fragment>
-  );
+function rowSubtitle(row: LayoutRow): string {
+  const filled = row.columns.filter(c => c.component !== null).length;
+  const total = row.columns.length;
+  return `${filled}/${total} kolon dolu`;
 }
 
 // ── Main LayersPanel ──────────────────────────────────────────────────────────
 
 export function LayersPanel() {
-  const { state, dispatch, selectProp } = useEditor();
-  const { layout, selectedComponentId, selectedPropKey } = state;
+  const { state, dispatch } = useEditor();
+  const { layout, selectedComponentId, selectedRowId, selectedColumnId } = state;
 
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [selectedFixed, setSelectedFixed] = useState<'navbar' | 'footer' | null>(null);
@@ -137,15 +36,9 @@ export function LayersPanel() {
   const toggleExpand = (id: string) => {
     setExpanded(prev => {
       const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
+      if (next.has(id)) { next.delete(id); } else { next.add(id); }
       return next;
     });
-  };
-
-  const handleSelectBlock = (id: string) => {
-    setSelectedFixed(null);
-    dispatch({ type: 'SELECT_COMPONENT', id });
-    dispatch({ type: 'SET_RIGHT_TAB', tab: 'props' });
   };
 
   const handleSelectFixed = (which: 'navbar' | 'footer') => {
@@ -154,10 +47,22 @@ export function LayersPanel() {
     dispatch({ type: 'SET_LEFT_TAB', tab: 'global' });
   };
 
-  const handleSelectChild = (compId: string, propKey: string) => {
-    dispatch({ type: 'SELECT_COMPONENT', id: compId });
+  const handleSelectRow = (rowId: string) => {
+    setSelectedFixed(null);
+    dispatch({ type: 'SELECT_ROW', rowId });
     dispatch({ type: 'SET_RIGHT_TAB', tab: 'props' });
-    selectProp(propKey);
+  };
+
+  const handleSelectBlock = (componentId: string) => {
+    setSelectedFixed(null);
+    dispatch({ type: 'SELECT_COMPONENT', id: componentId });
+    dispatch({ type: 'SET_RIGHT_TAB', tab: 'props' });
+  };
+
+  const handleSelectColumn = (rowId: string, columnId: string) => {
+    setSelectedFixed(null);
+    dispatch({ type: 'SELECT_COLUMN', rowId, columnId });
+    dispatch({ type: 'SET_RIGHT_TAB', tab: 'props' });
   };
 
   return (
@@ -169,7 +74,7 @@ export function LayersPanel() {
 
       <div className={styles.layerList}>
 
-        {/* Sabit: Navbar */}
+        {/* Fixed: Navbar */}
         <div
           className={`${styles.layerFixedRow} ${selectedFixed === 'navbar' ? styles.layerFixedRowActive : ''}`}
           onClick={() => handleSelectFixed('navbar')}
@@ -187,92 +92,71 @@ export function LayersPanel() {
         {layout.length === 0 && (
           <div className={styles.noSelection} style={{ padding: '16px', fontSize: '12px' }}>
             <FaLayerGroup style={{ fontSize: '20px', opacity: 0.3 }} />
-            <span>Bileşen yok — sol panelden ekleyin</span>
+            <span>Satir yok — sol panelden blok ekleyin</span>
           </div>
         )}
 
-        {layout.map((comp, idx) => {
-          const def = BLOCK_BY_TYPE[comp.type];
-          const Icon = def?.icon;
-          const isSelected = comp.id === selectedComponentId;
-          const isExpanded = expanded.has(comp.id);
-          const isContainer = CONTAINER_TYPES.has(comp.type);
-
-          // Prop children (blockRegistry) for non-container blocks
-          const propChildren = !isContainer ? (def?.children ?? []) : [];
-          // Nested LayoutComponent children for container blocks
-          const nestedChildren = isContainer ? (comp.children ?? []) : [];
-          const hasExpandable = propChildren.length > 0 || isContainer;
-
-          const rawSubtitle =
-            (comp.props.title as string | undefined) ??
-            (comp.props.message as string | undefined) ??
-            (comp.props.html as string | undefined) ??
-            '';
-          const subtitle = rawSubtitle.replace(/<[^>]+>/g, '').slice(0, 35);
+        {layout.map((row, rowIdx) => {
+          const isRowExpanded = expanded.has(row.id);
+          const isRowSelected = row.id === selectedRowId && !selectedComponentId && !selectedColumnId;
+          const subtitle = rowSubtitle(row);
 
           return (
-            <Fragment key={comp.id}>
-              {/* Root block row */}
+            <Fragment key={row.id}>
+              {/* Row header */}
               <div
-                className={`${styles.layerItem} ${isSelected && !selectedPropKey ? styles.layerItemActive : ''}`}
-                onClick={() => handleSelectBlock(comp.id)}
+                className={`${styles.layerItem} ${isRowSelected ? styles.layerItemActive : ''}`}
+                onClick={() => handleSelectRow(row.id)}
               >
-                {hasExpandable ? (
-                  <button
-                    className={styles.layerExpandBtn}
-                    onClick={e => { e.stopPropagation(); toggleExpand(comp.id); }}
-                    type="button"
-                    title={isExpanded ? 'Kapat' : 'Aç'}
-                  >
-                    {isExpanded ? <FaChevronDown /> : <FaChevronRight />}
-                  </button>
-                ) : (
-                  <span className={styles.layerExpandPlaceholder} />
-                )}
+                <button
+                  className={styles.layerExpandBtn}
+                  onClick={e => { e.stopPropagation(); toggleExpand(row.id); }}
+                  type="button"
+                  title={isRowExpanded ? 'Kapat' : 'Ac'}
+                >
+                  {isRowExpanded ? <FaChevronDown /> : <FaChevronRight />}
+                </button>
 
-                <span className={styles.layerIndex}>{idx + 1}</span>
+                <span className={styles.layerIndex}>{rowIdx + 1}</span>
 
-                <span className={styles.layerIcon}>
-                  {Icon ? <Icon /> : <FaLayerGroup />}
-                </span>
+                <span className={styles.layerIcon}><FaLayerGroup /></span>
 
                 <div className={styles.layerInfo}>
-                  <span className={styles.layerName}>{def?.name ?? comp.type}</span>
-                  {subtitle && <span className={styles.layerSubtitle}>{subtitle}</span>}
+                  <span className={styles.layerName}>Satir</span>
+                  <span className={styles.layerSubtitle}>{subtitle}</span>
                 </div>
 
                 <div className={styles.layerActions} onClick={e => e.stopPropagation()}>
                   <button
                     className={styles.layerBtn}
-                    disabled={idx === 0}
-                    onClick={() => dispatch({ type: 'MOVE_COMPONENT', id: comp.id, direction: 'up' })}
-                    title="Yukarı Taşı"
+                    disabled={rowIdx === 0}
+                    onClick={() => dispatch({ type: 'MOVE_ROW', rowId: row.id, direction: 'up' })}
+                    title="Yukari Tasimak"
                     type="button"
                   >
                     <FaArrowUp />
                   </button>
                   <button
                     className={styles.layerBtn}
-                    disabled={idx === layout.length - 1}
-                    onClick={() => dispatch({ type: 'MOVE_COMPONENT', id: comp.id, direction: 'down' })}
-                    title="Aşağı Taşı"
+                    disabled={rowIdx === layout.length - 1}
+                    onClick={() => dispatch({ type: 'MOVE_ROW', rowId: row.id, direction: 'down' })}
+                    title="Asagi Tasimak"
                     type="button"
                   >
                     <FaArrowDown />
                   </button>
                   <button
                     className={styles.layerBtn}
-                    onClick={() => dispatch({ type: 'DUPLICATE_COMPONENT', id: comp.id })}
-                    title="Çoğalt"
+                    onClick={() => dispatch({ type: 'ADD_COLUMN_TO_ROW', rowId: row.id })}
+                    title="Kolon Ekle"
                     type="button"
                   >
-                    <FaCopy />
+                    <FaPlus />
                   </button>
                   <button
                     className={`${styles.layerBtn} ${styles.layerBtnDanger}`}
-                    onClick={() => dispatch({ type: 'REMOVE_COMPONENT', id: comp.id })}
-                    title="Sil"
+                    onClick={() => dispatch({ type: 'REMOVE_ROW', rowId: row.id })}
+                    title="Satiri Sil"
                     type="button"
                   >
                     <FaTrash />
@@ -280,58 +164,80 @@ export function LayersPanel() {
                 </div>
               </div>
 
-              {/* Prop children (blockRegistry — non-container blocks) */}
-              {propChildren.length > 0 && isExpanded && (
+              {/* Columns (expanded) */}
+              {isRowExpanded && (
                 <div className={styles.layerChildList}>
-                  {propChildren.map(child => {
-                    const isChildActive = isSelected && selectedPropKey === child.key;
+                  {row.columns.map((col, colIdx) => {
+                    const comp = col.component;
+                    const def = comp ? BLOCK_BY_TYPE[comp.type] : undefined;
+                    const Icon = def?.icon;
+                    const isColSelected = col.id === selectedColumnId && !selectedComponentId;
+                    const isCompSelected = comp ? comp.id === selectedComponentId : false;
+
                     return (
-                      <div
-                        key={child.key}
-                        className={`${styles.layerChildRow} ${isChildActive ? styles.layerChildRowActive : ''}`}
-                        onClick={e => { e.stopPropagation(); handleSelectChild(comp.id, child.key); }}
-                      >
-                        <span className={styles.layerChildDot} />
-                        <span>{child.label}</span>
-                        {child.selector && (
-                          <span style={{ marginLeft: 'auto', fontSize: '9px', opacity: 0.5, fontFamily: 'monospace' }}>
-                            {child.selector}
+                      <Fragment key={col.id}>
+                        {/* Column row */}
+                        <div
+                          className={`${styles.layerChildRow} ${isColSelected ? styles.layerChildRowActive : ''}`}
+                          onClick={e => {
+                            e.stopPropagation();
+                            if (comp) {
+                              handleSelectBlock(comp.id);
+                            } else {
+                              handleSelectColumn(row.id, col.id);
+                            }
+                          }}
+                        >
+                          <span className={styles.layerChildDot} />
+                          <span className={styles.layerIcon} style={{ fontSize: '10px', opacity: 0.6 }}>
+                            {Icon ? <Icon /> : <FaLayerGroup />}
                           </span>
-                        )}
-                      </div>
+                          <span
+                            className={isCompSelected ? styles.layerName : undefined}
+                            style={{ flex: 1, fontSize: '11px' }}
+                          >
+                            {comp ? (def?.name ?? comp.type) : `Bos kolon ${colIdx + 1}`}
+                          </span>
+                          <span style={{ fontSize: '9px', opacity: 0.45, fontFamily: 'monospace', flexShrink: 0, marginRight: '4px' }}>
+                            {col.span}/12
+                          </span>
+                          <div className={styles.layerActions} onClick={e => e.stopPropagation()}>
+                            {comp && (
+                              <>
+                                <button
+                                  className={styles.layerBtn}
+                                  onClick={() => dispatch({ type: 'DUPLICATE_COMPONENT', componentId: comp.id })}
+                                  title="Cogalt"
+                                  type="button"
+                                >
+                                  <FaCopy />
+                                </button>
+                                <button
+                                  className={`${styles.layerBtn} ${styles.layerBtnDanger}`}
+                                  onClick={() => dispatch({ type: 'REMOVE_COMPONENT', componentId: comp.id })}
+                                  title="Sil"
+                                  type="button"
+                                >
+                                  <FaTrash />
+                                </button>
+                              </>
+                            )}
+                            {!comp && (
+                              <button
+                                className={`${styles.layerBtn} ${styles.layerBtnDanger}`}
+                                onClick={() => dispatch({ type: 'REMOVE_COLUMN', rowId: row.id, columnId: col.id })}
+                                title="Kolonu Sil"
+                                type="button"
+                              >
+                                <FaTrash />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </Fragment>
                     );
                   })}
                 </div>
-              )}
-
-              {/* Container children (nested LayoutComponents) */}
-              {isContainer && isExpanded && (
-                nestedChildren.length === 0 ? (
-                  <div
-                    className={styles.layerItem}
-                    style={{ paddingLeft: '32px', cursor: 'default', opacity: 0.45 }}
-                  >
-                    <span className={styles.layerExpandPlaceholder} />
-                    <span className={styles.layerIcon}><FaLayerGroup /></span>
-                    <div className={styles.layerInfo}>
-                      <span className={styles.layerSubtitle}>Boş konteyner</span>
-                    </div>
-                  </div>
-                ) : (
-                  nestedChildren.map(child => (
-                    <NestedLayerRow
-                      key={child.id}
-                      comp={child}
-                      depth={1}
-                      selectedComponentId={selectedComponentId}
-                      selectedPropKey={selectedPropKey}
-                      expanded={expanded}
-                      onToggleExpand={toggleExpand}
-                      onSelectBlock={handleSelectBlock}
-                      dispatch={dispatch}
-                    />
-                  ))
-                )
               )}
             </Fragment>
           );
@@ -339,7 +245,7 @@ export function LayersPanel() {
 
         {layout.length > 0 && <div className={styles.layerDivider} />}
 
-        {/* Sabit: Footer */}
+        {/* Fixed: Footer */}
         <div
           className={`${styles.layerFixedRow} ${selectedFixed === 'footer' ? styles.layerFixedRowActive : ''}`}
           onClick={() => handleSelectFixed('footer')}
