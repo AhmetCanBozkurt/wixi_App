@@ -80,15 +80,9 @@ jobs:
             Write-Host "FAIL: WebBuilderDbContext migration failed"; Write-Host $migOut; exit 1
           }
 
-          # ECommerce DB (ECommerceDbContext)
-          dotnet ef database update `
-            --project src/backend/Wixi.Modules.ECommerce/Wixi.Modules.ECommerce.csproj `
-            --startup-project src/backend/Wixi.API/Wixi.API.csproj `
-            --context ECommerceDbContext `
-            2>&1 | Tee-Object -Variable migOut
-          if ($LASTEXITCODE -ne 0) {
-            Write-Host "FAIL: ECommerceDbContext migration failed"; Write-Host $migOut; exit 1
-          }
+          # NOT: ECommerceDbContext per-tenant DB kullanır.
+          # Migration'lar tenant provision edildiğinde ECommerceTenantProvisioner tarafından uygulanır.
+          # Bu pipeline'dan çalıştırılmaz.
 
           Write-Host "All migrations OK"
 
