@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
+import type { AxiosError } from 'axios';
 import { FaPlus, FaPencilAlt, FaTrashAlt, FaCheckCircle, FaClock } from 'react-icons/fa';
 import { Button } from '../../../shared/ui/Button/Button';
 import { Modal } from '../../../shared/ui/Modal/Modal';
@@ -6,6 +7,10 @@ import { Input } from '../../../shared/ui/Input/Input';
 import { Select } from '../../../shared/ui/Select/Select';
 import apiClient from '../../../shared/api/axiosConfig';
 import styles from './BudgetsPage.module.css';
+
+interface ErrorResponseData {
+  message?: string;
+}
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -156,8 +161,9 @@ export const BudgetsPage = () => {
       }
       handleClose();
       fetchBudgets();
-    } catch {
-      setFormError('Bir hata oluştu, tekrar deneyin.');
+    } catch (err) {
+      const axiosErr = err as AxiosError<ErrorResponseData>;
+      setFormError(axiosErr.response?.data?.message ?? 'Bir hata oluştu, tekrar deneyin.');
     } finally {
       setIsSaving(false);
     }
