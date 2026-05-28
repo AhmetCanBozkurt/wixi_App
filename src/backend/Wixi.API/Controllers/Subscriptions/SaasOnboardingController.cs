@@ -45,48 +45,107 @@ public class SaasOnboardingController : ControllerBase
     [AllowAnonymous]
     public async Task<IActionResult> RegisterTenant([FromBody] RegisterTenantRequest request)
     {
+        // Önce tüm validasyonlar — hiçbir DB yazısı yok
         if (await _coreDb.Tenants.AnyAsync(t => t.Slug == request.Slug))
             return BadRequest(new { error = "Bu mağaza adı (URL) zaten alınmış." });
 
         if (await _userManager.FindByEmailAsync(request.OwnerEmail) != null)
             return BadRequest(new { error = "Bu e-posta adresi zaten kayıtlı." });
 
+        var selectedPlan = await _coreDb.SubscriptionPlans
+            .FirstOrDefaultAsync(p => p.Code == request.PlanCode && p.IsActive && !p.IsDeleted);
+
+        var freePlan = await _coreDb.SubscriptionPlans
+            .FirstOrDefaultAsync(p => p.Code == "free" && p.IsActive && !p.IsDeleted);
+
+        var finalPlan = selectedPlan ?? freePlan;
+
         var yearStr = DateTime.UtcNow.Year.ToString();
         var count = await _coreDb.Tenants.CountAsync(t => t.TenantCode.StartsWith(yearStr)) + 1;
         var tenantCode = $"{yearStr}{count:D3}";
         var safeStoreName = System.Text.RegularExpressions.Regex.Replace(request.StoreName, "[^a-zA-Z0-9]", "");
 
-        // 1. Tenant kaydı
-        var tenant = new WixiTenant
+        var masterConn = _configuration.GetConnectionString("DefaultConnection");
+        var connBuilder = new Microsoft.Data.SqlClient.SqlConnectionStringBuilder(masterConn!)
         {
-            TenantCode = tenantCode,
-            Name = request.StoreName,
-            Slug = request.Slug,
-            OwnerEmail = request.OwnerEmail,
-            DatabaseName = $"wixi_t_{tenantCode}_{safeStoreName}",
-            EnabledModules = string.Join(",", request.SelectedModules ?? ["ecommerce"]),
-            Plan = request.PlanCode ?? "Trial"
+            InitialCatalog = $"wixi_t_{tenantCode}_{safeStoreName}"
         };
 
-        _coreDb.Tenants.Add(tenant);
-        await _coreDb.SaveChangesAsync();
+        WixiUser ownerUser;
+        WixiTenant tenant;
+        bool requiresPayment = false;
 
-        // 2. Veritabanı provisioning
+        // 1–3. Tenant + User + Subscription tek transaction içinde
+        await using var tx = await _coreDb.Database.BeginTransactionAsync();
+        try
+        {
+            tenant = new WixiTenant
+            {
+                TenantCode = tenantCode,
+                Name = request.StoreName,
+                Slug = request.Slug,
+                OwnerEmail = request.OwnerEmail,
+                DatabaseName = $"wixi_t_{tenantCode}_{safeStoreName}",
+                ConnectionString = connBuilder.ConnectionString,
+                EnabledModules = string.Join(",", request.SelectedModules ?? ["ecommerce"]),
+                Plan = request.PlanCode ?? "Trial"
+            };
+            _coreDb.Tenants.Add(tenant);
+
+            ownerUser = new WixiUser
+            {
+                UserName = request.OwnerEmail,
+                Email = request.OwnerEmail,
+                FirstName = request.StoreName,
+                LastName = "Admin",
+                EmailConfirmed = true
+            };
+
+            // UserManager aynı WixiCoreDbContext'i kullandığından ambient transaction'a katılır
+            var createResult = await _userManager.CreateAsync(ownerUser, request.Password);
+            if (!createResult.Succeeded)
+            {
+                await tx.RollbackAsync();
+                var identityError = createResult.Errors.FirstOrDefault()?.Description ?? "Kullanıcı oluşturulurken bir hata oluştu.";
+                return BadRequest(new { error = identityError });
+            }
+
+            await _userManager.AddToRoleAsync(ownerUser, "TenantAdmin");
+            tenant.OwnerUserId = ownerUser.Id;
+
+            if (finalPlan is not null)
+            {
+                requiresPayment = finalPlan.PriceMonthly > 0;
+                var now = DateTime.UtcNow;
+                _coreDb.TenantSubscriptions.Add(new WixiTenantSubscription
+                {
+                    TenantId = tenant.Id,
+                    PlanId = finalPlan.Id,
+                    Status = requiresPayment ? "PendingPayment" : "Trial",
+                    CurrentPeriodStart = now,
+                    CurrentPeriodEnd = now.AddDays(14)
+                });
+            }
+
+            await _coreDb.SaveChangesAsync();
+            await tx.CommitAsync();
+        }
+        catch (Exception ex)
+        {
+            await tx.RollbackAsync();
+            return StatusCode(500, new { error = "Kayıt sırasında bir hata oluştu.", detail = ex.Message });
+        }
+
+        // 4. DB Provisioning — DDL olduğundan transaction dışında yapılır.
+        //    Başarısız olursa tenant/user kayıtları korunur, admin retry edebilir.
         string? provisionError = null;
         try
         {
-            var masterConn = _configuration.GetConnectionString("DefaultConnection");
-            var connBuilder = new Microsoft.Data.SqlClient.SqlConnectionStringBuilder(masterConn!)
-            {
-                InitialCatalog = tenant.DatabaseName
-            };
-            tenant.ConnectionString = connBuilder.ConnectionString;
-
             var selectedModules = request.SelectedModules ?? ["ecommerce"];
             foreach (var provisioner in _provisioners)
             {
                 if (selectedModules.Contains(provisioner.ModuleName))
-                    await provisioner.ProvisionAsync(tenant.Id.ToString(), tenant.ConnectionString, tenant.DatabaseName);
+                    await provisioner.ProvisionAsync(tenant.Id.ToString(), tenant.ConnectionString!, tenant.DatabaseName);
             }
 
             tenant.IsMigrated = true;
@@ -97,55 +156,9 @@ public class SaasOnboardingController : ControllerBase
             tenant.LastMigrationError = ex.Message;
         }
 
-        // 3. Tenant admin kullanıcısı oluştur (Kullanıcının şifresi ile)
-        var ownerUser = new WixiUser
-        {
-            UserName = request.OwnerEmail,
-            Email = request.OwnerEmail,
-            FirstName = request.StoreName,
-            LastName = "Admin",
-            EmailConfirmed = true
-        };
-
-        var createResult = await _userManager.CreateAsync(ownerUser, request.Password);
-        if (createResult.Succeeded)
-        {
-            await _userManager.AddToRoleAsync(ownerUser, "TenantAdmin");
-            tenant.OwnerUserId = ownerUser.Id;
-        }
-        else
-        {
-            var identityError = createResult.Errors.FirstOrDefault()?.Description ?? "Kullanıcı oluşturulurken bir hata oluştu.";
-            return BadRequest(new { error = identityError });
-        }
-
-        // 4. Plan ve Abonelik oluştur
-        bool requiresPayment = false;
-        var selectedPlan = await _coreDb.SubscriptionPlans
-            .FirstOrDefaultAsync(p => p.Code == request.PlanCode && p.IsActive && !p.IsDeleted);
-
-        var freePlan = await _coreDb.SubscriptionPlans
-            .FirstOrDefaultAsync(p => p.Code == "free" && p.IsActive && !p.IsDeleted);
-
-        var finalPlan = selectedPlan ?? freePlan;
-
-        if (finalPlan is not null)
-        {
-            requiresPayment = finalPlan.PriceMonthly > 0;
-            var now = DateTime.UtcNow;
-            _coreDb.TenantSubscriptions.Add(new WixiTenantSubscription
-            {
-                TenantId = tenant.Id,
-                PlanId = finalPlan.Id,
-                Status = requiresPayment ? "PendingPayment" : "Trial",
-                CurrentPeriodStart = now,
-                CurrentPeriodEnd = now.AddDays(14)
-            });
-        }
-
         await _coreDb.SaveChangesAsync();
 
-        // 5. Welcome Email gönder
+        // 5. Welcome Email
         try
         {
             var frontendUrl = _configuration["AppUrls:FrontendBaseUrl"] ?? "http://localhost:5183";
@@ -160,7 +173,7 @@ public class SaasOnboardingController : ControllerBase
         catch { /* E-posta gönderme hatası kaydı kesmesin */ }
 
         if (provisionError is not null)
-            return StatusCode(500, new { error = "Veritabanı kurulumu sırasında hata oluştu.", detail = provisionError });
+            return StatusCode(207, new { error = "Hesabınız oluşturuldu ancak mağaza veritabanı kurulamadı. Lütfen destek ile iletişime geçin.", detail = provisionError, slug = tenant.Slug, tenantId = tenant.Id });
 
         // 6. Giriş Token'ı Üret
         var token = GenerateJwtToken(ownerUser, tenant);
