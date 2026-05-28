@@ -4,7 +4,7 @@ import { SiStripe } from 'react-icons/si';
 import { toast } from 'react-hot-toast';
 import { apiClient } from '../../../../shared/api/axiosConfig';
 import { Button, Input, Select } from '../../../../shared/ui';
-import s from '../storeAdmin.shared.module.css';
+import s from './storeAdmin.shared.module.css';
 import ps from './StorePaymentSettingsPage.module.css';
 
 interface TenantPaymentSettings {
