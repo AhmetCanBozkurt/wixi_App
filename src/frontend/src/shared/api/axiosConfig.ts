@@ -21,9 +21,12 @@ apiClient.interceptors.request.use((config) => {
   config.headers['Accept-Language'] = lang;
   
   // E-Ticaret için aktif mağaza seçimi
-  const tenantSlug = localStorage.getItem('wixi-active-tenant');
-  if (tenantSlug) {
-    config.headers['X-Tenant-Slug'] = tenantSlug;
+  // Per-request header takes precedence — only fall back to localStorage if not already set
+  if (!config.headers['X-Tenant-Slug']) {
+    const tenantSlug = localStorage.getItem('wixi-active-tenant');
+    if (tenantSlug) {
+      config.headers['X-Tenant-Slug'] = tenantSlug;
+    }
   }
 
   return config;
