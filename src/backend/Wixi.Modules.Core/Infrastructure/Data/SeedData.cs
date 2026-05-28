@@ -748,6 +748,7 @@ public static class SeedData
         // 10. Seed module tenant menus
         await SeedEcommerceModuleMenusAsync(context);
         await SeedCoreModuleMenusAsync(context);
+        await SeedWebBuilderModuleMenusAsync(context);
     }
 
     private static async Task SeedEcommerceModuleMenusAsync(WixiCoreDbContext context)
@@ -760,58 +761,89 @@ public static class SeedData
         var ecommerce = await context.Modules.FirstOrDefaultAsync(m => m.Code == "ecommerce" && m.IsActive);
         if (ecommerce is not null)
         {
+            // E-Ticaret klasörü
+            var ecomFolder = await context.ModuleMenus
+                .FirstOrDefaultAsync(m => m.ModuleId == ecommerce.Id && m.Path == "folder" && m.ParentId == null);
+            if (ecomFolder is null)
+            {
+                ecomFolder = new WixiModuleMenu
+                {
+                    ModuleId = ecommerce.Id, Path = "folder", Icon = "FaStore",
+                    IconColor = "#3b82f6", SortOrder = 10, VisibleToTenant = true,
+                };
+                ecomFolder.Translations.Add(new WixiModuleMenuTranslation { LanguageId = trLang.Id, Title = "E-Ticaret" });
+                if (enLang is not null)
+                    ecomFolder.Translations.Add(new WixiModuleMenuTranslation { LanguageId = enLang.Id, Title = "E-Commerce" });
+                context.ModuleMenus.Add(ecomFolder);
+                await context.SaveChangesAsync();
+            }
+
             var ecomMenus = new[]
             {
-                new { Path = "/tenant/{tenantSlug}",                  Icon = "FaTachometerAlt",     Color = "#6366f1", Sort = 10,  Tr = "Gösterge Paneli",       En = "Dashboard"            },
-                new { Path = "/tenant/{tenantSlug}/orders",           Icon = "FaShoppingCart",      Color = "#3b82f6", Sort = 20,  Tr = "Siparişler",            En = "Orders"               },
-                new { Path = "/tenant/{tenantSlug}/customers",        Icon = "FaUsers",             Color = "#10b981", Sort = 30,  Tr = "Müşteriler",            En = "Customers"            },
-                new { Path = "/tenant/{tenantSlug}/products",         Icon = "FaBoxOpen",           Color = "#f59e0b", Sort = 40,  Tr = "Ürünler",               En = "Products"             },
-                new { Path = "/tenant/{tenantSlug}/categories",       Icon = "FaLayerGroup",        Color = "#f59e0b", Sort = 50,  Tr = "Kategoriler",           En = "Categories"           },
-                new { Path = "/tenant/{tenantSlug}/brands",           Icon = "FaTrademark",         Color = "#f59e0b", Sort = 60,  Tr = "Markalar",              En = "Brands"               },
-                new { Path = "/tenant/{tenantSlug}/testimonials",     Icon = "FaStar",              Color = "#8b5cf6", Sort = 70,  Tr = "Yorumlar",              En = "Testimonials"         },
-                new { Path = "/tenant/{tenantSlug}/promo-banners",    Icon = "FaBullhorn",          Color = "#ec4899", Sort = 80,  Tr = "Promosyon Bannerları",  En = "Promo Banners"        },
-                new { Path = "/tenant/{tenantSlug}/sliders",          Icon = "FaImages",            Color = "#8b5cf6", Sort = 90,  Tr = "Sliderlar",             En = "Sliders"              },
-                new { Path = "/tenant/{tenantSlug}/faq",              Icon = "FaQuestionCircle",    Color = "#06b6d4", Sort = 100, Tr = "SSS",                   En = "FAQ"                  },
-                new { Path = "/tenant/{tenantSlug}/contact-submissions", Icon = "FaEnvelope",       Color = "#10b981", Sort = 110, Tr = "İletişim Talepleri",    En = "Contact Submissions"  },
-                new { Path = "/tenant/{tenantSlug}/theme-editor",     Icon = "FaPaintBrush",        Color = "#94a3b8", Sort = 120, Tr = "Tema Editörü",          En = "Theme Editor"         },
-                new { Path = "/tenant/{tenantSlug}/settings",         Icon = "FaCog",               Color = "#94a3b8", Sort = 130, Tr = "Ayarlar",               En = "Settings"             },
-                new { Path = "/tenant/{tenantSlug}/billing",          Icon = "FaFileInvoiceDollar", Color = "#94a3b8", Sort = 140, Tr = "Faturalama",            En = "Billing"              },
-                new { Path = "/tenant/{tenantSlug}/stock",            Icon = "FaBoxOpen",           Color = "#10b981", Sort = 25,  Tr = "Stok Yönetimi",         En = "Stock Management"     },
-                new { Path = "/tenant/{tenantSlug}/stock/report",     Icon = "FaWarehouse",         Color = "#6366f1", Sort = 26,  Tr = "Depo Raporu",           En = "Warehouse Report"     },
-                new { Path = "/tenant/{tenantSlug}/cari",             Icon = "FaAddressBook",       Color = "#f59e0b", Sort = 27,  Tr = "Cari Hesaplar",         En = "Accounts"             },
-                new { Path = "/tenant/{tenantSlug}/discounts",        Icon = "FaTag",               Color = "#ec4899", Sort = 28,  Tr = "Kampanyalar",           En = "Discounts"            },
-                new { Path = "/tenant/{tenantSlug}/analytics",        Icon = "FaChartBar",          Color = "#3b82f6", Sort = 29,  Tr = "Analitik",              En = "Analytics"            },
-                new { Path = "/tenant/{tenantSlug}/media",            Icon = "FaImages",            Color = "#8b5cf6", Sort = 30,  Tr = "Medya",                 En = "Media"                },
+                new { Path = "/tenant/{tenantSlug}",                     Icon = "FaTachometerAlt",     Color = "#6366f1", Sort = 10,  Tr = "Gösterge Paneli",      En = "Dashboard"           },
+                new { Path = "/tenant/{tenantSlug}/orders",              Icon = "FaShoppingCart",      Color = "#3b82f6", Sort = 20,  Tr = "Siparişler",           En = "Orders"              },
+                new { Path = "/tenant/{tenantSlug}/stock",               Icon = "FaBoxOpen",           Color = "#10b981", Sort = 25,  Tr = "Stok Yönetimi",        En = "Stock Management"    },
+                new { Path = "/tenant/{tenantSlug}/stock/report",        Icon = "FaWarehouse",         Color = "#6366f1", Sort = 26,  Tr = "Depo Raporu",          En = "Warehouse Report"    },
+                new { Path = "/tenant/{tenantSlug}/cari",                Icon = "FaAddressBook",       Color = "#f59e0b", Sort = 27,  Tr = "Cari Hesaplar",        En = "Accounts"            },
+                new { Path = "/tenant/{tenantSlug}/discounts",           Icon = "FaTag",               Color = "#ec4899", Sort = 28,  Tr = "Kampanyalar",          En = "Discounts"           },
+                new { Path = "/tenant/{tenantSlug}/analytics",           Icon = "FaChartBar",          Color = "#3b82f6", Sort = 29,  Tr = "Analitik",             En = "Analytics"           },
+                new { Path = "/tenant/{tenantSlug}/customers",           Icon = "FaUsers",             Color = "#10b981", Sort = 30,  Tr = "Müşteriler",           En = "Customers"           },
+                new { Path = "/tenant/{tenantSlug}/media",               Icon = "FaImages",            Color = "#8b5cf6", Sort = 35,  Tr = "Medya",                En = "Media"               },
+                new { Path = "/tenant/{tenantSlug}/products",            Icon = "FaBoxOpen",           Color = "#f59e0b", Sort = 40,  Tr = "Ürünler",              En = "Products"            },
+                new { Path = "/tenant/{tenantSlug}/categories",          Icon = "FaLayerGroup",        Color = "#f59e0b", Sort = 50,  Tr = "Kategoriler",          En = "Categories"          },
+                new { Path = "/tenant/{tenantSlug}/brands",              Icon = "FaTrademark",         Color = "#f59e0b", Sort = 60,  Tr = "Markalar",             En = "Brands"              },
+                new { Path = "/tenant/{tenantSlug}/testimonials",        Icon = "FaStar",              Color = "#8b5cf6", Sort = 70,  Tr = "Yorumlar",             En = "Testimonials"        },
+                new { Path = "/tenant/{tenantSlug}/promo-banners",       Icon = "FaBullhorn",          Color = "#ec4899", Sort = 80,  Tr = "Promosyon Bannerları", En = "Promo Banners"       },
+                new { Path = "/tenant/{tenantSlug}/sliders",             Icon = "FaImages",            Color = "#8b5cf6", Sort = 90,  Tr = "Sliderlar",            En = "Sliders"             },
+                new { Path = "/tenant/{tenantSlug}/faq",                 Icon = "FaQuestionCircle",    Color = "#06b6d4", Sort = 100, Tr = "SSS",                  En = "FAQ"                 },
+                new { Path = "/tenant/{tenantSlug}/contact-submissions", Icon = "FaEnvelope",          Color = "#10b981", Sort = 110, Tr = "İletişim Talepleri",   En = "Contact Submissions" },
+                new { Path = "/tenant/{tenantSlug}/theme-editor",        Icon = "FaPaintBrush",        Color = "#94a3b8", Sort = 120, Tr = "Tema Editörü",         En = "Theme Editor"        },
+                new { Path = "/tenant/{tenantSlug}/settings",            Icon = "FaCog",               Color = "#94a3b8", Sort = 130, Tr = "Ayarlar",              En = "Settings"            },
+                new { Path = "/tenant/{tenantSlug}/billing",             Icon = "FaFileInvoiceDollar", Color = "#94a3b8", Sort = 140, Tr = "Faturalama",           En = "Billing"             },
             };
 
             foreach (var def in ecomMenus)
             {
                 if (await context.ModuleMenus.AnyAsync(m => m.Path == def.Path && m.ModuleId == ecommerce.Id))
                     continue;
-
                 var menu = new WixiModuleMenu
                 {
-                    ModuleId        = ecommerce.Id,
-                    Path            = def.Path,
-                    Icon            = def.Icon,
-                    IconColor       = def.Color,
-                    SortOrder       = def.Sort,
-                    VisibleToTenant = true,
+                    ModuleId = ecommerce.Id, ParentId = ecomFolder.Id,
+                    Path = def.Path, Icon = def.Icon, IconColor = def.Color,
+                    SortOrder = def.Sort, VisibleToTenant = true,
                 };
                 menu.Translations.Add(new WixiModuleMenuTranslation { LanguageId = trLang.Id, Title = def.Tr });
                 if (enLang is not null)
                     menu.Translations.Add(new WixiModuleMenuTranslation { LanguageId = enLang.Id, Title = def.En });
                 context.ModuleMenus.Add(menu);
             }
+            await context.SaveChangesAsync();
         }
 
         // ── CRM module menus ─────────────────────────────────────────────
         var crm = await context.Modules.FirstOrDefaultAsync(m => m.Code == "crm" && m.IsActive);
         if (crm is not null)
         {
+            // CRM klasörü
+            var crmFolder = await context.ModuleMenus
+                .FirstOrDefaultAsync(m => m.ModuleId == crm.Id && m.Path == "folder" && m.ParentId == null);
+            if (crmFolder is null)
+            {
+                crmFolder = new WixiModuleMenu
+                {
+                    ModuleId = crm.Id, Path = "folder", Icon = "FaUsers",
+                    IconColor = "#10b981", SortOrder = 20, VisibleToTenant = true,
+                };
+                crmFolder.Translations.Add(new WixiModuleMenuTranslation { LanguageId = trLang.Id, Title = "CRM" });
+                if (enLang is not null)
+                    crmFolder.Translations.Add(new WixiModuleMenuTranslation { LanguageId = enLang.Id, Title = "CRM" });
+                context.ModuleMenus.Add(crmFolder);
+                await context.SaveChangesAsync();
+            }
+
             var crmMenus = new[]
             {
-                new { Path = "/tenant/{tenantSlug}/crm/contacts", Icon = "FaAddressBook", Color = "#10b981", Sort = 10, Tr = "Kişiler",  En = "Contacts" },
+                new { Path = "/tenant/{tenantSlug}/crm/contacts", Icon = "FaAddressBook", Color = "#10b981", Sort = 10, Tr = "Kişiler",   En = "Contacts" },
                 new { Path = "/tenant/{tenantSlug}/crm/deals",    Icon = "FaHandshake",   Color = "#10b981", Sort = 20, Tr = "Fırsatlar", En = "Deals"    },
             };
 
@@ -819,24 +851,19 @@ public static class SeedData
             {
                 if (await context.ModuleMenus.AnyAsync(m => m.Path == def.Path && m.ModuleId == crm.Id))
                     continue;
-
                 var menu = new WixiModuleMenu
                 {
-                    ModuleId        = crm.Id,
-                    Path            = def.Path,
-                    Icon            = def.Icon,
-                    IconColor       = def.Color,
-                    SortOrder       = def.Sort,
-                    VisibleToTenant = true,
+                    ModuleId = crm.Id, ParentId = crmFolder.Id,
+                    Path = def.Path, Icon = def.Icon, IconColor = def.Color,
+                    SortOrder = def.Sort, VisibleToTenant = true,
                 };
                 menu.Translations.Add(new WixiModuleMenuTranslation { LanguageId = trLang.Id, Title = def.Tr });
                 if (enLang is not null)
                     menu.Translations.Add(new WixiModuleMenuTranslation { LanguageId = enLang.Id, Title = def.En });
                 context.ModuleMenus.Add(menu);
             }
+            await context.SaveChangesAsync();
         }
-
-        await context.SaveChangesAsync();
     }
 
     private static async Task SeedCoreModuleMenusAsync(WixiCoreDbContext context)
@@ -848,25 +875,90 @@ public static class SeedData
         var core = await context.Modules.FirstOrDefaultAsync(m => m.Code == "core" && m.IsActive);
         if (core is null) return;
 
+        // Ödeme klasörü
+        var coreFolder = await context.ModuleMenus
+            .FirstOrDefaultAsync(m => m.ModuleId == core.Id && m.Path == "folder" && m.ParentId == null);
+        if (coreFolder is null)
+        {
+            coreFolder = new WixiModuleMenu
+            {
+                ModuleId = core.Id, Path = "folder", Icon = "FaLink",
+                IconColor = "#3b82f6", SortOrder = 30, VisibleToTenant = true,
+            };
+            coreFolder.Translations.Add(new WixiModuleMenuTranslation { LanguageId = trLang.Id, Title = "Ödeme" });
+            if (enLang is not null)
+                coreFolder.Translations.Add(new WixiModuleMenuTranslation { LanguageId = enLang.Id, Title = "Payment" });
+            context.ModuleMenus.Add(coreFolder);
+            await context.SaveChangesAsync();
+        }
+
         var coreMenus = new[]
         {
-            new { Path = "/tenant/{tenantSlug}/payment-settings", Icon = "FaCreditCard", Color = "#10b981", Sort = 150, Tr = "Ödeme Entegrasyonu", En = "Payment Settings" },
-            new { Path = "/tenant/{tenantSlug}/payments",         Icon = "FaHistory",    Color = "#3b82f6", Sort = 160, Tr = "Ödeme Geçmişi",      En = "Payment History"  },
+            new { Path = "/tenant/{tenantSlug}/payment-settings", Icon = "FaCreditCard", Color = "#10b981", Sort = 10, Tr = "Ödeme Entegrasyonu", En = "Payment Settings" },
+            new { Path = "/tenant/{tenantSlug}/payments",         Icon = "FaHistory",    Color = "#3b82f6", Sort = 20, Tr = "Ödeme Geçmişi",      En = "Payment History"  },
         };
 
         foreach (var def in coreMenus)
         {
             if (await context.ModuleMenus.AnyAsync(m => m.Path == def.Path && m.ModuleId == core.Id))
                 continue;
-
             var menu = new WixiModuleMenu
             {
-                ModuleId        = core.Id,
-                Path            = def.Path,
-                Icon            = def.Icon,
-                IconColor       = def.Color,
-                SortOrder       = def.Sort,
-                VisibleToTenant = true,
+                ModuleId = core.Id, ParentId = coreFolder.Id,
+                Path = def.Path, Icon = def.Icon, IconColor = def.Color,
+                SortOrder = def.Sort, VisibleToTenant = true,
+            };
+            menu.Translations.Add(new WixiModuleMenuTranslation { LanguageId = trLang.Id, Title = def.Tr });
+            if (enLang is not null)
+                menu.Translations.Add(new WixiModuleMenuTranslation { LanguageId = enLang.Id, Title = def.En });
+            context.ModuleMenus.Add(menu);
+        }
+
+        await context.SaveChangesAsync();
+    }
+
+    private static async Task SeedWebBuilderModuleMenusAsync(WixiCoreDbContext context)
+    {
+        var trLang = await context.Languages.FirstOrDefaultAsync(l => l.Code == "tr-TR");
+        var enLang = await context.Languages.FirstOrDefaultAsync(l => l.Code == "en-US");
+        if (trLang is null) return;
+
+        var wb = await context.Modules.FirstOrDefaultAsync(m => m.Code == "webbuilder" && m.IsActive);
+        if (wb is null) return;
+
+        // Kurumsal Site klasörü
+        var wbFolder = await context.ModuleMenus
+            .FirstOrDefaultAsync(m => m.ModuleId == wb.Id && m.Path == "folder" && m.ParentId == null);
+        if (wbFolder is null)
+        {
+            wbFolder = new WixiModuleMenu
+            {
+                ModuleId = wb.Id, Path = "folder", Icon = "FaGlobe",
+                IconColor = "#06b6d4", SortOrder = 40, VisibleToTenant = true,
+            };
+            wbFolder.Translations.Add(new WixiModuleMenuTranslation { LanguageId = trLang.Id, Title = "Kurumsal Site" });
+            if (enLang is not null)
+                wbFolder.Translations.Add(new WixiModuleMenuTranslation { LanguageId = enLang.Id, Title = "Corporate Site" });
+            context.ModuleMenus.Add(wbFolder);
+            await context.SaveChangesAsync();
+        }
+
+        var wbMenus = new[]
+        {
+            new { Path = "/corp/builder",     Icon = "FaEdit",      Color = "#06b6d4", Sort = 10, Tr = "Web Editörü",    En = "Web Editor"      },
+            new { Path = "/admin/corp/blog",  Icon = "FaNewspaper", Color = "#10b981", Sort = 20, Tr = "Blog Yönetimi",  En = "Blog Management" },
+            new { Path = "/admin/corp/forms", Icon = "FaWpforms",   Color = "#f59e0b", Sort = 30, Tr = "Form Yönetimi",  En = "Form Management" },
+        };
+
+        foreach (var def in wbMenus)
+        {
+            if (await context.ModuleMenus.AnyAsync(m => m.Path == def.Path && m.ModuleId == wb.Id))
+                continue;
+            var menu = new WixiModuleMenu
+            {
+                ModuleId = wb.Id, ParentId = wbFolder.Id,
+                Path = def.Path, Icon = def.Icon, IconColor = def.Color,
+                SortOrder = def.Sort, VisibleToTenant = true,
             };
             menu.Translations.Add(new WixiModuleMenuTranslation { LanguageId = trLang.Id, Title = def.Tr });
             if (enLang is not null)
