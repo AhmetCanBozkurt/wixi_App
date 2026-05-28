@@ -48,19 +48,31 @@ function CanvasNavbarPreview({
   isSelected: boolean;
   onClick: () => void;
 }) {
+  const links = config.links && config.links.length > 0 
+    ? config.links 
+    : [
+        { label: 'Anasayfa', href: '/' },
+        { label: 'Ürünler', href: '/products' },
+        { label: 'Hakkında', href: '/about' }
+      ];
+
   return (
     <div
       className={`${styles.canvasNavbar} ${isSelected ? styles.canvasNavbarSelected : ''}`}
       onClick={onClick}
       title="Navbar'ı düzenle (Global sekmesi)"
     >
-      <span className={styles.canvasNavbarLogo}>
-        {config.logoPosition === 'center' ? '— LOGO —' : 'LOGO'}
-      </span>
+      <div className={styles.canvasNavbarLogo}>
+        {config.logoUrl ? (
+          <img src={config.logoUrl} alt="Logo" style={{ maxHeight: '28px', display: 'block' }} />
+        ) : (
+          <span>{config.logoText || (config.logoPosition === 'center' ? '— LOGO —' : 'LOGO')}</span>
+        )}
+      </div>
       <div className={styles.canvasNavbarLinks}>
-        <span className={styles.canvasNavbarLink}>Anasayfa</span>
-        <span className={styles.canvasNavbarLink}>Ürünler</span>
-        <span className={styles.canvasNavbarLink}>Hakkında</span>
+        {links.map((link, i) => (
+          <span key={i} className={styles.canvasNavbarLink}>{link.label}</span>
+        ))}
         {config.showSearch && <span className={styles.canvasNavbarLink}>🔍</span>}
       </div>
     </div>
@@ -78,20 +90,53 @@ function CanvasFooterPreview({
   isSelected: boolean;
   onClick: () => void;
 }) {
+  const defaultCols = [
+    { title: 'Kurumsal', links: [{ label: 'Hakkımızda', href: '/about' }, { label: 'İletişim', href: '/contact' }] },
+    { title: 'Destek', links: [{ label: 'Yardım', href: '/help' }, { label: 'SSS', href: '/faq' }] },
+    { title: 'Yasal', links: [{ label: 'Gizlilik', href: '/privacy' }, { label: 'Şartlar', href: '/terms' }] },
+    { title: 'Mağaza', links: [{ label: 'Yeni Gelenler', href: '/new' }, { label: 'İndirimdekiler', href: '/sale' }] }
+  ];
+
+  const columnsCount = config.columnCount || 3;
+  const columns = Array.from({ length: columnsCount }).map((_, i) => {
+    return (config.columns && config.columns[i]) || defaultCols[i] || { title: `Kolon ${i + 1}`, links: [] };
+  });
+
+  const socials = config.socialLinks && config.socialLinks.length > 0
+    ? config.socialLinks
+    : [
+        { platform: 'facebook', url: 'https://facebook.com' },
+        { platform: 'instagram', url: 'https://instagram.com' }
+      ];
+
   return (
     <div
       className={`${styles.canvasFooter} ${isSelected ? styles.canvasFooterSelected : ''}`}
       onClick={onClick}
       title="Footer'ı düzenle (Global sekmesi)"
     >
-      <div style={{ display: 'flex', justifyContent: 'space-around', marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
-        {Array.from({ length: config.columnCount }).map((_, i) => (
-          <div key={i} style={{ fontSize: '10px', color: 'var(--editor-text-muted)' }}>
-            Kolon {i + 1}
+      <div style={{ display: 'grid', gridTemplateColumns: `repeat(${columnsCount}, 1fr)`, gap: '16px', marginBottom: '16px', textAlign: 'left' }}>
+        {columns.map((col, idx) => (
+          <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <h4 style={{ fontSize: '11px', fontWeight: 600, color: 'var(--editor-text)', marginBottom: '4px', textTransform: 'uppercase' }}>{col.title}</h4>
+            {col.links && col.links.map((link, lIdx) => (
+              <span key={lIdx} style={{ fontSize: '10px', color: 'var(--editor-text-muted)', cursor: 'pointer' }}>{link.label}</span>
+            ))}
           </div>
         ))}
       </div>
-      <div style={{ borderTop: '1px solid var(--editor-border)', paddingTop: '8px', fontSize: '11px' }}>
+
+      {config.showSocials && (
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', marginBottom: '12px' }}>
+          {socials.map((soc, i) => (
+            <span key={i} style={{ fontSize: '11px', color: 'var(--editor-text-muted)' }}>
+              {soc.platform.toUpperCase()}
+            </span>
+          ))}
+        </div>
+      )}
+
+      <div style={{ borderTop: '1px solid var(--editor-border)', paddingTop: '12px', fontSize: '11px' }}>
         {config.copyrightText || '© 2024 Mağaza Adı'}
       </div>
     </div>

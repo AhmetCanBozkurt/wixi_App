@@ -77,6 +77,9 @@ export interface NavbarConfig {
   showLanguagePicker: boolean;
   customCss?: string;
   customJs?: string;
+  logoText?: string;
+  logoUrl?: string;
+  links?: { label: string; href: string }[];
 }
 
 export interface FooterConfig {
@@ -86,6 +89,8 @@ export interface FooterConfig {
   copyrightText: string;
   customCss?: string;
   customJs?: string;
+  columns?: { title: string; links: { label: string; href: string }[] }[];
+  socialLinks?: { platform: 'facebook' | 'instagram' | 'twitter' | 'linkedin' | 'youtube'; url: string }[];
 }
 
 export interface GlobalComponentsConfig {

@@ -200,8 +200,39 @@ const initialState: EditorState = {
   backlinks: [],
   seo: { metaTitle: '', metaDescription: '', metaKeywords: '', openGraphImageUrl: '' },
   globalComponents: {
-    navbar: { layout: 'classic', logoPosition: 'left', isSticky: true, showSearch: true, showLanguagePicker: true, customCss: '', customJs: '' },
-    footer: { columnCount: 3, showSocials: true, showNewsletter: false, copyrightText: '', customCss: '', customJs: '' },
+    navbar: {
+      layout: 'classic',
+      logoPosition: 'left',
+      isSticky: true,
+      showSearch: true,
+      showLanguagePicker: true,
+      customCss: '',
+      customJs: '',
+      logoText: 'LOGO',
+      logoUrl: '',
+      links: [
+        { label: 'Anasayfa', href: '/' },
+        { label: 'Ürünler', href: '/products' },
+        { label: 'Hakkında', href: '/about' }
+      ]
+    },
+    footer: {
+      columnCount: 3,
+      showSocials: true,
+      showNewsletter: false,
+      copyrightText: '',
+      customCss: '',
+      customJs: '',
+      columns: [
+        { title: 'Kurumsal', links: [{ label: 'Hakkımızda', href: '/about' }, { label: 'İletişim', href: '/contact' }] },
+        { title: 'Destek', links: [{ label: 'Yardım', href: '/help' }, { label: 'SSS', href: '/faq' }] },
+        { title: 'Yasal', links: [{ label: 'Gizlilik', href: '/privacy' }, { label: 'Şartlar', href: '/terms' }] }
+      ],
+      socialLinks: [
+        { platform: 'facebook', url: 'https://facebook.com' },
+        { platform: 'instagram', url: 'https://instagram.com' }
+      ]
+    },
   },
   customCss: '',
   customJs: '',
