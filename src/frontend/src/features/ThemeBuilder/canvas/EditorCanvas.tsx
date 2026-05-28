@@ -143,6 +143,36 @@ function CanvasFooterPreview({
   );
 }
 
+const buildDesignStyles = (compProps: Record<string, any> | undefined): React.CSSProperties => {
+  if (!compProps) return {};
+  const s: React.CSSProperties = {};
+  if (compProps.backgroundColor) s.backgroundColor = String(compProps.backgroundColor);
+  if (compProps.textColor) s.color = String(compProps.textColor);
+  
+  // Padding
+  if (compProps.paddingTop !== undefined && compProps.paddingTop !== '') s.paddingTop = String(compProps.paddingTop);
+  if (compProps.paddingRight !== undefined && compProps.paddingRight !== '') s.paddingRight = String(compProps.paddingRight);
+  if (compProps.paddingBottom !== undefined && compProps.paddingBottom !== '') s.paddingBottom = String(compProps.paddingBottom);
+  if (compProps.paddingLeft !== undefined && compProps.paddingLeft !== '') s.paddingLeft = String(compProps.paddingLeft);
+  
+  // Margin
+  if (compProps.marginTop !== undefined && compProps.marginTop !== '') s.marginTop = String(compProps.marginTop);
+  if (compProps.marginRight !== undefined && compProps.marginRight !== '') s.marginRight = String(compProps.marginRight);
+  if (compProps.marginBottom !== undefined && compProps.marginBottom !== '') s.marginBottom = String(compProps.marginBottom);
+  if (compProps.marginLeft !== undefined && compProps.marginLeft !== '') s.marginLeft = String(compProps.marginLeft);
+
+  // Border
+  if (compProps.borderStyle && compProps.borderStyle !== 'none') s.borderStyle = compProps.borderStyle as any;
+  if (compProps.borderWidth !== undefined && compProps.borderWidth !== '') s.borderWidth = String(compProps.borderWidth);
+  if (compProps.borderColor) s.borderColor = String(compProps.borderColor);
+  if (compProps.borderRadius !== undefined && compProps.borderRadius !== '') s.borderRadius = String(compProps.borderRadius);
+
+  // Shadow
+  if (compProps.boxShadow && compProps.boxShadow !== 'none') s.boxShadow = String(compProps.boxShadow);
+
+  return s;
+};
+
 // ── NestedComponentWrapper ───────────────────────────────────────────────────
 
 function NestedComponentWrapper({ comp, theme }: { comp: LayoutComponent; theme: ThemeConfig }) {
@@ -157,10 +187,13 @@ function NestedComponentWrapper({ comp, theme }: { comp: LayoutComponent; theme:
     dispatch({ type: 'SET_RIGHT_TAB', tab: 'props' });
   };
 
+  const designStyles = buildDesignStyles(comp.props);
+
   return (
     <div
       className={`${styles.nestedWrapper} ${isSelected ? styles.nestedSelected : ''}`}
       onClick={handleClick}
+      style={designStyles}
     >
       {isSelected && (
         <div className={styles.nestedToolbar} onClick={(e) => e.stopPropagation()}>
@@ -1067,7 +1100,7 @@ function ColumnWrapper({
       {column.component ? (
         <div
           className={`${styles.blockWrapper} ${column.component.id === selectedComponentId ? styles.selected : ''}`}
-          style={{ outline: 'none' }}
+          style={{ outline: 'none', ...buildDesignStyles(column.component.props) }}
         >
           <MiniRenderer comp={column.component} theme={theme} />
         </div>

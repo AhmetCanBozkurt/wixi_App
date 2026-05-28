@@ -16,7 +16,7 @@ import { DEFAULT_THEME } from '../../../entities/StorePage/model/defaultTheme';
 
 export type Viewport = 'desktop' | 'tablet' | 'mobile';
 export type LeftTab = 'pages' | 'components' | 'layers' | 'theme' | 'global' | 'code';
-export type RightTab = 'props' | 'seo' | 'backlinks';
+export type RightTab = 'props' | 'seo' | 'backlinks' | 'design';
 
 export interface SeoState {
   metaTitle: string;
