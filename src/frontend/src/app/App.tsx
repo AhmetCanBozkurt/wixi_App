@@ -120,6 +120,7 @@ import RoadmapManagementPage from '../pages/admin/ContentManagement/RoadmapManag
 import ChangelogManagementPage from '../pages/admin/ContentManagement/ChangelogManagementPage';
 import LegalContentManagementPage from '../pages/admin/ContentManagement/LegalContentManagementPage';
 import { PaymentSettingsPage } from '../pages/admin/PaymentSettingsPage';
+import { StorePaymentSettingsPage } from '../pages/store-admin/StoreAdminPage/pages/StorePaymentSettingsPage';
 import WebBuilderEditorPage from '../pages/corporate/WebBuilderEditorPage/WebBuilderEditorPage';
 import { CorpSitePage } from '../pages/corporate/CorpSitePage/CorpSitePage';
 import BlogManagementPage from '../pages/corporate/BlogManagementPage/BlogManagementPage';
@@ -212,6 +213,7 @@ const App = () => {
               <Route path="discounts" element={<StoreDiscountsPage />} />
               <Route path="analytics" element={<StoreAnalyticsPage />} />
               <Route path="media" element={<StoreMediaPage />} />
+              <Route path="payment-settings" element={<StorePaymentSettingsPage />} />
             </Route>
           </Route>
           <Route element={<AuthGuard />}>

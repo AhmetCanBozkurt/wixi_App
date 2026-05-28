@@ -64,6 +64,42 @@ public class PaymentSettingsProvider : IPaymentSettingsProvider
         return _iyzipayOptions.Value;
     }
 
+    public async Task<IyzipayOptions> GetIyzipayOptionsForTenantAsync(Guid tenantId, CancellationToken ct = default)
+    {
+        var ts = await _db.TenantPaymentSettings
+            .FirstOrDefaultAsync(s => s.TenantId == tenantId, ct);
+
+        if (ts?.IyzipayApiKey != null && ts.ActiveGateway != "platform_default")
+        {
+            return new IyzipayOptions
+            {
+                ApiKey = _protector.Unprotect(ts.IyzipayApiKey) ?? string.Empty,
+                SecretKey = _protector.Unprotect(ts.IyzipaySecretKey) ?? string.Empty,
+                BaseUrl = ts.IyzipayBaseUrl
+            };
+        }
+
+        return await GetIyzipayOptionsAsync(ct);
+    }
+
+    public async Task<StripeOptions> GetStripeOptionsForTenantAsync(Guid tenantId, CancellationToken ct = default)
+    {
+        var ts = await _db.TenantPaymentSettings
+            .FirstOrDefaultAsync(s => s.TenantId == tenantId, ct);
+
+        if (ts?.StripeSecretKey != null && ts.ActiveGateway != "platform_default")
+        {
+            return new StripeOptions
+            {
+                SecretKey = _protector.Unprotect(ts.StripeSecretKey) ?? string.Empty,
+                PublishableKey = _protector.Unprotect(ts.StripePublishableKey) ?? string.Empty,
+                WebhookSecret = _protector.Unprotect(ts.StripeWebhookSecret) ?? string.Empty
+            };
+        }
+
+        return await GetStripeOptionsAsync(ct);
+    }
+
     private async Task<WixiPlatformPaymentSetting?> GetSettingAsync(CancellationToken ct)
     {
         if (_loaded) return _cached;
