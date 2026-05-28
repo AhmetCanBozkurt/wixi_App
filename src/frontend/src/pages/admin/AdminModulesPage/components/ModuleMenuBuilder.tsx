@@ -20,23 +20,12 @@ interface Language {
   code: string;
 }
 
-const SYSTEM_PAGES = [
-  { name: '[ GRUP / BAŞLIK / KLASÖR ]', path: 'folder' },
-  { name: 'Dashboard (Ana Sayfa)', path: '/admin' },
-  { name: 'Ziyaret & Randevu Yönetimi', path: '/admin/visits' },
-  { name: 'CRM & Cari Yönetimi', path: '/admin/crm' },
-  { name: 'Proje & Görev Yönetimi', path: '/admin/projects' },
-  { name: 'Destek & Ticket Yönetimi', path: '/admin/support' },
-  { name: 'Stok & Envanter Yönetimi', path: '/admin/inventory' },
-  { name: 'Kullanıcı Yönetimi', path: '/admin/users' },
-  { name: 'Rol & Yetki Yönetimi', path: '/admin/roles' },
-  { name: 'Modül Yönetimi', path: '/admin/modules' },
-  { name: 'Audit Log (Sistem)', path: '/admin/audit' },
-  { name: 'Döviz Yönetimi', path: '/admin/currencies' },
-  { name: 'Uygulama Logları (Debug)', path: '/admin/logs' },
-  { name: 'E-Ticaret Özeti', path: '/tenant/{tenantSlug}/ecommerce/dashboard' },
-  { name: 'Ürün Yönetimi (Mağaza)', path: '/tenant/{tenantSlug}/ecommerce/products' },
-];
+interface SystemPage {
+  id: string;
+  path: string;
+  name: string;
+  group?: string;
+}
 
 const POPULAR_ICONS = Object.keys(FaIconsList).filter(key => key.startsWith('Fa')).slice(0, 100);
 
@@ -47,6 +36,7 @@ interface ModuleMenuBuilderProps {
 export const ModuleMenuBuilder: React.FC<ModuleMenuBuilderProps> = ({ moduleId }) => {
   const [treeData, setTreeData] = useState<NodeModel<any>[]>([]);
   const [languages, setLanguages] = useState<Language[]>([]);
+  const [systemPages, setSystemPages] = useState<SystemPage[]>([]);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -67,13 +57,15 @@ export const ModuleMenuBuilder: React.FC<ModuleMenuBuilderProps> = ({ moduleId }
   const fetchData = useCallback(async () => {
     if (!moduleId) return;
     try {
-      const [menuData, langData] = await Promise.all([
+      const [menuData, langData, pagesData] = await Promise.all([
         moduleService.getModuleMenus(moduleId),
         apiClient.get<any>("/Language"),
+        apiClient.get<{ items: SystemPage[] }>("/ref/system-pages"),
       ]);
 
       const langs = langData.data?.items || langData.data || [];
       setLanguages(langs);
+      setSystemPages(pagesData.data?.items || []);
 
       const mapped: NodeModel<any>[] = [];
       const flatten = (items: ModuleMenuDto[], parentId: string = "0") => {
@@ -265,7 +257,7 @@ export const ModuleMenuBuilder: React.FC<ModuleMenuBuilderProps> = ({ moduleId }
                       label="Yol (Path)"
                       value={formData.path}
                       onChange={val => setFormData({ ...formData, path: val as string })}
-                      options={SYSTEM_PAGES.map(p => ({ label: p.name, value: p.path }))}
+                      options={systemPages.map(p => ({ label: p.group ? `[${p.group}] ${p.name}` : p.name, value: p.path }))}
                     />
                   </div>
 
