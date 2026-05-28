@@ -681,15 +681,26 @@ public static class SeedData
                 FeaturesJson = """["Kanban & liste görünümü","Görev atama & son tarih","Sprint yönetimi","Öncelik seviyeleri","İlerleme raporları","Zaman takibi"]"""
             };
 
-            await context.Modules.AddRangeAsync(ecommerce, crm, notes, tasks);
+            var core = new WixiModule
+            {
+                Code = "core",
+                Name = "Core",
+                Description = "Platform temel modülü — her tenant için dahildir.",
+                IsPublic = false,
+                SortOrder = 0,
+                ColorAccent = "#6366f1"
+            };
+
+            await context.Modules.AddRangeAsync(core, ecommerce, crm, notes, tasks);
             await context.SaveChangesAsync();
         }
 
         // 9. Sync existing TenantAdmin users
         await SyncTenantIdsAsync(context);
 
-        // 10. Seed ecommerce module tenant menus (stock & warehouse pages)
+        // 10. Seed module tenant menus
         await SeedEcommerceModuleMenusAsync(context);
+        await SeedCoreModuleMenusAsync(context);
     }
 
     private static async Task SeedEcommerceModuleMenusAsync(WixiCoreDbContext context)
@@ -776,6 +787,44 @@ public static class SeedData
                     menu.Translations.Add(new WixiModuleMenuTranslation { LanguageId = enLang.Id, Title = def.En });
                 context.ModuleMenus.Add(menu);
             }
+        }
+
+        await context.SaveChangesAsync();
+    }
+
+    private static async Task SeedCoreModuleMenusAsync(WixiCoreDbContext context)
+    {
+        var trLang = await context.Languages.FirstOrDefaultAsync(l => l.Code == "tr-TR");
+        var enLang = await context.Languages.FirstOrDefaultAsync(l => l.Code == "en-US");
+        if (trLang is null) return;
+
+        var core = await context.Modules.FirstOrDefaultAsync(m => m.Code == "core" && m.IsActive);
+        if (core is null) return;
+
+        var coreMenus = new[]
+        {
+            new { Path = "/tenant/{tenantSlug}/payment-settings", Icon = "FaCreditCard", Color = "#10b981", Sort = 150, Tr = "Ödeme Entegrasyonu", En = "Payment Settings" },
+            new { Path = "/tenant/{tenantSlug}/payments",         Icon = "FaHistory",    Color = "#3b82f6", Sort = 160, Tr = "Ödeme Geçmişi",      En = "Payment History"  },
+        };
+
+        foreach (var def in coreMenus)
+        {
+            if (await context.ModuleMenus.AnyAsync(m => m.Path == def.Path && m.ModuleId == core.Id))
+                continue;
+
+            var menu = new WixiModuleMenu
+            {
+                ModuleId        = core.Id,
+                Path            = def.Path,
+                Icon            = def.Icon,
+                IconColor       = def.Color,
+                SortOrder       = def.Sort,
+                VisibleToTenant = true,
+            };
+            menu.Translations.Add(new WixiModuleMenuTranslation { LanguageId = trLang.Id, Title = def.Tr });
+            if (enLang is not null)
+                menu.Translations.Add(new WixiModuleMenuTranslation { LanguageId = enLang.Id, Title = def.En });
+            context.ModuleMenus.Add(menu);
         }
 
         await context.SaveChangesAsync();
