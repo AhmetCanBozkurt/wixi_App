@@ -890,20 +890,29 @@ interface ColResizeHandleProps {
 }
 
 function ColResizeHandle({ leftColId, rightColId, leftSpan, rightSpan, onResize, rowGridRef }: ColResizeHandleProps) {
+  const [isResizing, setIsResizing] = useState(false);
+  const [dragSpans, setDragSpans] = useState<{ left: number; right: number } | null>(null);
+
   const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     const startX = e.clientX;
     const total = leftSpan + rightSpan;
+    setIsResizing(true);
+    setDragSpans({ left: leftSpan, right: rightSpan });
 
     const onMouseMove = (ev: MouseEvent) => {
       const rowWidth = rowGridRef.current?.offsetWidth ?? 800;
       const unitW = rowWidth / 12;
       const delta = Math.round((ev.clientX - startX) / unitW);
       const newLeft = Math.max(1, Math.min(total - 1, leftSpan + delta));
-      onResize(leftColId, rightColId, newLeft, total - newLeft);
+      const newRight = total - newLeft;
+      setDragSpans({ left: newLeft, right: newRight });
+      onResize(leftColId, rightColId, newLeft, newRight);
     };
     const onMouseUp = () => {
+      setIsResizing(false);
+      setDragSpans(null);
       document.removeEventListener('mousemove', onMouseMove);
       document.removeEventListener('mouseup', onMouseUp);
     };
@@ -916,7 +925,13 @@ function ColResizeHandle({ leftColId, rightColId, leftSpan, rightSpan, onResize,
       className={styles.colResizeHandle}
       onMouseDown={handleMouseDown}
       title="Kolon genişliğini ayarla"
-    />
+    >
+      {isResizing && dragSpans && (
+        <span className={styles.resizeBadge}>
+          {dragSpans.left} : {dragSpans.right}
+        </span>
+      )}
+    </div>
   );
 }
 
@@ -1039,6 +1054,7 @@ interface RowWrapperProps {
   onSelectComponent: (id: string | null) => void;
   onInsertRowAt: (index: number) => void;
   viewport: Viewport;
+  isDraggingRow: boolean;
 }
 
 function RowWrapper({
@@ -1055,6 +1071,7 @@ function RowWrapper({
   onSelectComponent,
   onInsertRowAt,
   viewport,
+  isDraggingRow,
 }: RowWrapperProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: row.id });
   const rowGridRef = useRef<HTMLDivElement>(null);
@@ -1170,8 +1187,17 @@ function RowWrapper({
           paddingBottom: row.props.paddingY ?? '0',
           paddingLeft: row.props.paddingX ?? '0',
           paddingRight: row.props.paddingX ?? '0',
+          position: 'relative',
         }}
       >
+        {/* Render 12 column guides when selected or globally dragging */}
+        {(isRowSelected || isDraggingRow) && (
+          <div className={styles.gridGuides}>
+            {Array.from({ length: 12 }).map((_, i) => (
+              <div key={i} className={styles.gridGuideLine} />
+            ))}
+          </div>
+        )}
         {columnsWithLocalSpans.map((col, colIdx) => (
           <ColumnWrapper
             key={col.id}
@@ -1205,6 +1231,7 @@ export function EditorCanvas() {
   const canvasScrollRef = useRef<HTMLDivElement>(null);
 
   const [canvasSelectedSection, setCanvasSelectedSection] = useState<'navbar' | 'footer' | null>(null);
+  const [isDraggingRow, setIsDraggingRow] = useState(false);
 
   const stateRef = useRef(state);
   useEffect(() => { stateRef.current = state; });
@@ -1341,7 +1368,15 @@ export function EditorCanvas() {
             </div>
           )}
 
-          <DndContext sensors={sensors} onDragEnd={handleDragEnd} collisionDetection={closestCenter}>
+          <DndContext
+            sensors={sensors}
+            onDragStart={() => setIsDraggingRow(true)}
+            onDragEnd={(e) => {
+              setIsDraggingRow(false);
+              handleDragEnd(e);
+            }}
+            collisionDetection={closestCenter}
+          >
             <SortableContext items={layout.map(r => r.id)} strategy={verticalListSortingStrategy}>
               <RowInsertZone index={0} onInsert={handleInsertRowAt} />
               {layout.map((row, idx) => (
@@ -1367,6 +1402,7 @@ export function EditorCanvas() {
                     }}
                     onInsertRowAt={handleInsertRowAt}
                     viewport={viewport}
+                    isDraggingRow={isDraggingRow}
                   />
                   <RowInsertZone index={idx + 1} onInsert={handleInsertRowAt} />
                 </Fragment>

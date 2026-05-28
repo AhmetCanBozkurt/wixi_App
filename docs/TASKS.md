@@ -19,8 +19,8 @@
 # Wixi Web Builder UX, Grid & Nesting - Görev Listesi
 
 - [x] Faz 1: Şema Tabanlı Modal Veri Girişi Entegrasyonu (Quick Win)
-- [ ] Faz 2: Kapsayıcı Katmanlar & Nested Layout Mimarisi
-- [ ] Faz 3: Izgara Yapışma (Grid Snapping) & Sürükleme Kılavuzları
+- [x] Faz 2: Kapsayıcı Katmanlar & Nested Layout Mimarisi
+- [x] Faz 3: Izgara Yapışma (Grid Snapping) & Sürükleme Kılavuzları
 - [ ] Faz 4: Viewport Duyarlılık Çözümü & Premium Efektler
 - [ ] Faz 5: İleri Seviye AI Entegrasyonu & SaaS Kredi Modeli
 - [ ] Faz 6: Custom HTML Şablon Pazarı (Marketplace & Presets)

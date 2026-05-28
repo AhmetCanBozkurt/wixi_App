@@ -655,3 +655,40 @@
   background: rgba(239, 68, 68, 0.15);
   color: #ef4444;
 }
+
+/* ── Grid Snapping & Guidelines ──────────────────────── */
+.gridGuides {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.gridGuideLine {
+  background: rgba(99, 102, 241, 0.02);
+  border-left: 1px dashed rgba(99, 102, 241, 0.12);
+  border-right: 1px dashed rgba(99, 102, 241, 0.12);
+  height: 100%;
+}
+
+.resizeBadge {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #ec4899;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 6px;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 100;
+}
