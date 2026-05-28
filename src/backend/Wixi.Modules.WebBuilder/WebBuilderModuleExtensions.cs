@@ -2,7 +2,9 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Wixi.Modules.Core.Application.Common.Interfaces;
 using Wixi.Modules.WebBuilder.Infrastructure.Data;
+using Wixi.Modules.WebBuilder.Infrastructure.Services;
 
 namespace Wixi.Modules.WebBuilder;
 
@@ -15,6 +17,8 @@ public static class WebBuilderModuleExtensions
 
         services.AddMediatR(cfg =>
             cfg.RegisterServicesFromAssembly(typeof(WebBuilderModuleExtensions).Assembly));
+
+        services.AddScoped<ITenantProvisioner, WebBuilderTenantProvisioner>();
 
         return services;
     }
