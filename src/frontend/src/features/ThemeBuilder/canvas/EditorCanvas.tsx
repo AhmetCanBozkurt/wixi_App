@@ -141,6 +141,8 @@ function NestedComponentWrapper({ comp, theme }: { comp: LayoutComponent; theme:
 export function MiniRenderer({ comp, theme }: { comp: LayoutComponent; theme: ThemeConfig }) {
   const p = comp.props;
   const def = BLOCK_BY_TYPE[comp.type];
+  const { state } = useEditor();
+  const { viewport } = state;
 
   switch (comp.type) {
     case 'hero':
@@ -192,13 +194,14 @@ export function MiniRenderer({ comp, theme }: { comp: LayoutComponent; theme: Th
         </div>
       );
 
-    case 'featured-products':
+    case 'featured-products': {
+      const colsCount = viewport === 'mobile' ? 1 : viewport === 'tablet' ? 2 : Math.min(Number(p.columns ?? 4), 4);
       return (
         <div style={{ padding: '16px' }}>
           <h3 data-prop-key="title" style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '12px', color: theme.colors.text }}>
             {p.title as string}
           </h3>
-          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(Number(p.columns ?? 4), 4)}, 1fr)`, gap: '8px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${colsCount}, 1fr)`, gap: '8px' }}>
             {Array.from({ length: Math.min(Number(p.limit ?? 4), 8) }).map((_, i) => (
               <div key={i} style={{ background: theme.colors.surface, borderRadius: theme.borderRadius.card, overflow: 'hidden', border: `1px solid ${theme.colors.border}` }}>
                 <div style={{ height: '60px', background: theme.colors.border }} />
@@ -211,12 +214,14 @@ export function MiniRenderer({ comp, theme }: { comp: LayoutComponent; theme: Th
           </div>
         </div>
       );
+    }
 
-    case 'categories-grid':
+    case 'categories-grid': {
+      const colsCount = viewport === 'mobile' ? 2 : viewport === 'tablet' ? 3 : Math.min(Number(p.columns ?? 3), 4);
       return (
         <div style={{ padding: '16px' }}>
           <h3 data-prop-key="title" style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '12px' }}>{p.title as string}</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(Number(p.columns ?? 3), 4)}, 1fr)`, gap: '8px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${colsCount}, 1fr)`, gap: '8px' }}>
             {Array.from({ length: Math.min(Number(p.limit ?? 6), 6) }).map((_, i) => (
               <div key={i} style={{ background: theme.colors.surface, borderRadius: theme.borderRadius.card, padding: '12px', textAlign: 'center', border: `1px solid ${theme.colors.border}` }}>
                 <div style={{ width: '40px', height: '40px', borderRadius: theme.borderRadius.md, background: theme.colors.border, margin: '0 auto 6px' }} />
@@ -226,17 +231,20 @@ export function MiniRenderer({ comp, theme }: { comp: LayoutComponent; theme: Th
           </div>
         </div>
       );
+    }
 
-    case 'text-image':
+    case 'text-image': {
+      const isMobile = viewport === 'mobile';
       return (
-        <div style={{ display: 'flex', gap: '16px', padding: '16px', flexDirection: p.imagePosition === 'right' ? 'row' : 'row-reverse' }}>
+        <div style={{ display: 'flex', gap: '16px', padding: '16px', flexDirection: isMobile ? 'column' : (p.imagePosition === 'right' ? 'row' : 'row-reverse') }}>
           <div style={{ flex: 1 }}>
             <h3 data-prop-key="title" style={{ fontWeight: 700, marginBottom: '8px', color: theme.colors.text }}>{p.title as string}</h3>
             <p data-prop-key="text" style={{ fontSize: '0.8rem', color: theme.colors.textMuted, lineHeight: 1.6 }}>{String(p.text ?? '').slice(0, 120)}...</p>
           </div>
-          <div style={{ flex: 1, borderRadius: theme.borderRadius.lg, background: p.imageUrl ? `url("${p.imageUrl as string}") center/cover` : theme.colors.surface, minHeight: '100px', border: `1px solid ${theme.colors.border}` }} />
+          <div style={{ flex: 1, borderRadius: theme.borderRadius.lg, background: p.imageUrl ? `url("${p.imageUrl as string}") center/cover` : theme.colors.surface, minHeight: '120px', border: `1px solid ${theme.colors.border}` }} />
         </div>
       );
+    }
 
     case 'stats-bar': {
       const items = (p.items as { value: string; label: string }[]) ?? [];
@@ -254,10 +262,11 @@ export function MiniRenderer({ comp, theme }: { comp: LayoutComponent; theme: Th
 
     case 'testimonials': {
       const items = (p.items as { name: string; quote: string; rating: number }[]) ?? [];
+      const isMobile = viewport === 'mobile';
       return (
         <div style={{ padding: '16px' }}>
           <h3 data-prop-key="title" style={{ fontWeight: 700, marginBottom: '12px', fontSize: '0.95rem' }}>{p.title as string}</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '8px' }}>
             {items.slice(0, 2).map((t, i) => (
               <div key={i} style={{ background: theme.colors.surface, padding: '10px', borderRadius: theme.borderRadius.md, border: `1px solid ${theme.colors.border}` }}>
                 <div style={{ color: theme.colors.accent, fontSize: '11px', marginBottom: '6px' }}>{'★'.repeat(t.rating ?? 5)}</div>
@@ -396,11 +405,12 @@ export function MiniRenderer({ comp, theme }: { comp: LayoutComponent; theme: Th
     case 'team-grid': {
       const members = (p.items as { name: string; role: string; bio?: string; imageUrl?: string }[]) ?? [];
       const cols = Number(p.columns ?? 3);
+      const colsCount = viewport === 'mobile' ? 1 : viewport === 'tablet' ? 2 : Math.min(cols, 4);
       return (
         <div style={{ padding: '16px' }}>
           <h3 data-prop-key="title" style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '4px', color: theme.colors.text }}>{p.title as string}</h3>
           {!!p.subtitle && <p style={{ fontSize: '0.72rem', color: theme.colors.textMuted, marginBottom: '12px' }}>{String(p.subtitle).slice(0, 70)}…</p>}
-          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(cols, 4)}, 1fr)`, gap: '8px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${colsCount}, 1fr)`, gap: '8px' }}>
             {members.slice(0, Math.min(cols, 4)).map((m, i) => (
               <div key={i} style={{ background: theme.colors.surface, borderRadius: theme.borderRadius.card, border: `1px solid ${theme.colors.border}`, padding: '10px', textAlign: 'center' }}>
                 {m.imageUrl ? (
@@ -420,10 +430,11 @@ export function MiniRenderer({ comp, theme }: { comp: LayoutComponent; theme: Th
     case 'services-grid': {
       const services = (p.items as { title: string; description: string; iconColor?: string }[]) ?? [];
       const cols = Number(p.columns ?? 3);
+      const colsCount = viewport === 'mobile' ? 1 : viewport === 'tablet' ? 2 : Math.min(cols, 3);
       return (
         <div style={{ padding: '16px' }}>
           <h3 data-prop-key="title" style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '4px', color: theme.colors.text }}>{p.title as string}</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(cols, 3)}, 1fr)`, gap: '8px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${colsCount}, 1fr)`, gap: '8px' }}>
             {services.slice(0, Math.min(cols, 6)).map((s, i) => (
               <div key={i} style={{ background: theme.colors.surface, borderRadius: theme.borderRadius.card, border: `1px solid ${theme.colors.border}`, padding: '12px' }}>
                 <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: s.iconColor ?? theme.colors.primary, opacity: 0.15, marginBottom: '8px' }} />
@@ -439,10 +450,11 @@ export function MiniRenderer({ comp, theme }: { comp: LayoutComponent; theme: Th
     case 'features-highlight': {
       const features = (p.items as { title: string; description: string; color?: string }[]) ?? [];
       const cols = Number(p.columns ?? 3);
+      const colsCount = viewport === 'mobile' ? 1 : viewport === 'tablet' ? 2 : Math.min(cols, 3);
       return (
         <div style={{ padding: '16px' }}>
           <h3 data-prop-key="title" style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '4px', color: theme.colors.text }}>{p.title as string}</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(cols, 3)}, 1fr)`, gap: '8px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${colsCount}, 1fr)`, gap: '8px' }}>
             {features.slice(0, Math.min(cols, 6)).map((f, i) => (
               <div key={i} style={{ background: theme.colors.surface, borderRadius: theme.borderRadius.card, border: `1px solid ${theme.colors.border}`, padding: '12px', display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
                 <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: f.color ?? theme.colors.primary, flexShrink: 0, opacity: 0.85 }} />
@@ -459,10 +471,11 @@ export function MiniRenderer({ comp, theme }: { comp: LayoutComponent; theme: Th
 
     case 'process-steps': {
       const steps = (p.steps as { stepNumber: string; title: string; description: string }[]) ?? [];
+      const isMobile = viewport === 'mobile';
       return (
         <div style={{ padding: '16px' }}>
           <h3 data-prop-key="title" style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '4px', color: theme.colors.text }}>{p.title as string}</h3>
-          <div style={{ display: 'flex', flexDirection: p.orientation === 'vertical' ? 'column' : 'row', gap: '8px', overflowX: 'hidden' }}>
+          <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : (p.orientation === 'vertical' ? 'column' : 'row'), gap: '8px', overflowX: 'hidden' }}>
             {steps.slice(0, 4).map((s, i) => (
               <div key={i} style={{ flex: 1, background: theme.colors.surface, border: `1px solid ${theme.colors.border}`, borderRadius: theme.borderRadius.card, padding: '10px' }}>
                 <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: theme.colors.primary, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 700, marginBottom: '8px' }}>{s.stepNumber}</div>
@@ -477,10 +490,11 @@ export function MiniRenderer({ comp, theme }: { comp: LayoutComponent; theme: Th
 
     case 'pricing-plans': {
       const plans = (p.plans as { name: string; price: string; currency: string; highlighted?: boolean; badge?: string }[]) ?? [];
+      const colsCount = viewport === 'mobile' ? 1 : viewport === 'tablet' ? 2 : Math.min(plans.length, 3);
       return (
         <div style={{ padding: '16px' }}>
           <h3 data-prop-key="title" style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '4px', textAlign: 'center', color: theme.colors.text }}>{p.title as string}</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(plans.length, 3)}, 1fr)`, gap: '8px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${colsCount}, 1fr)`, gap: '8px' }}>
             {plans.slice(0, 3).map((pl, i) => (
               <div key={i} style={{ background: theme.colors.surface, borderRadius: theme.borderRadius.card, border: `2px solid ${pl.highlighted ? theme.colors.primary : theme.colors.border}`, padding: '12px', textAlign: 'center' }}>
                 <div style={{ fontSize: '0.75rem', fontWeight: 700, color: theme.colors.text, marginBottom: '6px' }}>{pl.name}</div>
@@ -590,10 +604,11 @@ export function MiniRenderer({ comp, theme }: { comp: LayoutComponent; theme: Th
 
     case 'blog-list': {
       const cols = Number(p.columns ?? 3);
+      const colsCount = viewport === 'mobile' ? 1 : viewport === 'tablet' ? 2 : Math.min(cols, 3);
       return (
         <div style={{ padding: '16px' }}>
           <h3 data-prop-key="title" style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '4px', color: theme.colors.text }}>{p.title as string}</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(cols, 3)}, 1fr)`, gap: '8px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${colsCount}, 1fr)`, gap: '8px' }}>
             {Array.from({ length: Math.min(Number(p.limit ?? 3), 3) }).map((_, i) => (
               <div key={i} style={{ background: theme.colors.surface, border: `1px solid ${theme.colors.border}`, borderRadius: theme.borderRadius.card, overflow: 'hidden' }}>
                 <div style={{ height: '60px', background: theme.colors.border }} />
@@ -629,10 +644,11 @@ export function MiniRenderer({ comp, theme }: { comp: LayoutComponent; theme: Th
     case 'portfolio-grid': {
       const items = (p.items as { title: string; category: string; imageUrl?: string }[]) ?? [];
       const cols = Number(p.columns ?? 3);
+      const colsCount = viewport === 'mobile' ? 1 : viewport === 'tablet' ? 2 : Math.min(cols, 3);
       return (
         <div style={{ padding: '16px' }}>
           <h3 data-prop-key="title" style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '4px', color: theme.colors.text }}>{p.title as string}</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(cols, 3)}, 1fr)`, gap: '8px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${colsCount}, 1fr)`, gap: '8px' }}>
             {items.slice(0, Math.min(cols, 6)).map((it, i) => (
               <div key={i} style={{ background: theme.colors.surface, border: `1px solid ${theme.colors.border}`, borderRadius: theme.borderRadius.card, overflow: 'hidden' }}>
                 {it.imageUrl ? (
