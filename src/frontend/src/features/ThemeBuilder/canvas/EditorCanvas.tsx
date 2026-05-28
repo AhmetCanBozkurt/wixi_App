@@ -1369,7 +1369,8 @@ export function EditorCanvas() {
 
       {/* Canvas area */}
       <div className={styles.canvasScroll} ref={canvasScrollRef}>
-        <div className={`${styles.canvas} ${styles[viewport]}`} style={{ maxWidth: VIEWPORT_WIDTHS[viewport] }} ref={canvasRef}>
+        <div className={styles.canvasContainer}>
+          <div className={`${styles.canvas} ${styles[viewport]}`} style={{ maxWidth: VIEWPORT_WIDTHS[viewport] }} ref={canvasRef}>
 
           <CanvasNavbarPreview
             config={globalComponents.navbar}
@@ -1434,5 +1435,6 @@ export function EditorCanvas() {
         </div>
       </div>
     </div>
+  </div>
   );
 }
