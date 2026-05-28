@@ -287,7 +287,7 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse }: SidebarProps) => {
               <span className={styles.menuText}>{item.title}</span>
             </NavLink>
           )}
-          {!isCollapsed && item.path !== '#' && !isTenantMode && !opensNewTab && (
+          {!isCollapsed && item.path !== '#' && !opensNewTab && (
             <button
               className={`${styles.favStarBtn} ${favorites.includes(item.path) ? styles.isFav : ''}`}
               onClick={() => toggleFavorite(item.path)}
@@ -356,7 +356,7 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse }: SidebarProps) => {
       <nav className={styles.navArea}>
         {loading && !isCollapsed && <div style={{ padding: '20px', color: '#fff', opacity: 0.5 }}>Yükleniyor...</div>}
 
-        {favoriteItems.length > 0 && !searchQuery && !isTenantMode && (
+        {favoriteItems.length > 0 && !searchQuery && (
           <div className={styles.favoritesSection}>
             {!isCollapsed && (
               <div className={styles.sectionLabel}>
