@@ -39,7 +39,10 @@ public class StoreAdminMenusController : ControllerBase
             return NotFound(new { error = "Tenant bulunamadı." });
 
         var enabledModules = (tenant.EnabledModules ?? "ecommerce")
-            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Append("core")          // core her zaman dahil — tenant seçiminden bağımsız
+            .Distinct()
+            .ToArray();
 
         // Aktif TR dil kaydı
         var trLang = await _db.Languages.FirstOrDefaultAsync(l => l.Code == "tr-TR", ct);

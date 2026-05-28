@@ -87,7 +87,9 @@ public class SaasOnboardingController : ControllerBase
                 OwnerEmail = request.OwnerEmail,
                 DatabaseName = $"wixi_t_{tenantCode}_{safeStoreName}",
                 ConnectionString = connBuilder.ConnectionString,
-                EnabledModules = string.Join(",", request.SelectedModules ?? ["ecommerce"]),
+                EnabledModules = string.Join(",",
+                    (request.SelectedModules ?? ["ecommerce"])
+                    .Append("core").Distinct()),
                 Plan = request.PlanCode ?? "Trial"
             };
             _coreDb.Tenants.Add(tenant);
