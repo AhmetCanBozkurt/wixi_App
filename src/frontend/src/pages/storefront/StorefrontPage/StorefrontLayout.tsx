@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Outlet, useParams } from 'react-router-dom';
 import { storefrontApi } from '../../../entities/StorePage/api/storePageApi';
-import { DEFAULT_THEME, mergeTheme, themeToVars } from '../../../entities/StorePage/model/defaultTheme';
+import { DEFAULT_THEME, DARK_MODE_SF_OVERRIDES, mergeTheme, themeToVars } from '../../../entities/StorePage/model/defaultTheme';
+import { useTheme } from '../../../app/providers/ThemeProvider';
 import type { StorePageSummary, StoreSettings, ThemeConfig } from '../../../entities/StorePage/model/types';
 import { useCustomerStore } from '../../../entities/Customer/model/store';
 import { setSfTenant } from '../../../shared/api/storefrontApiClient';
@@ -15,6 +16,7 @@ export const StorefrontLayout = () => {
   const [pages, setPages] = useState<StorePageSummary[]>([]);
   const [theme, setTheme] = useState<ThemeConfig>(DEFAULT_THEME);
   const { hydrate } = useCustomerStore();
+  const { theme: colorMode } = useTheme();
 
   useEffect(() => {
     if (!tenantSlug) return;
@@ -46,13 +48,18 @@ export const StorefrontLayout = () => {
     });
   }, [tenantSlug]);
 
-  // Inject CSS variables
+  // Inject CSS variables — re-run on both tenant theme and light/dark mode changes
   useEffect(() => {
     const vars = themeToVars(theme);
     for (const [key, value] of Object.entries(vars)) {
       document.documentElement.style.setProperty(key, value);
     }
-  }, [theme]);
+    if (colorMode === 'dark') {
+      for (const [key, value] of Object.entries(DARK_MODE_SF_OVERRIDES)) {
+        document.documentElement.style.setProperty(key, value);
+      }
+    }
+  }, [theme, colorMode]);
 
   return (
     <div className={styles.layout}>

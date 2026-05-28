@@ -19,20 +19,11 @@ import { CodeEditorPanel } from './panels/CodeEditorPanel';
 import { PropertiesPanel } from './panels/PropertiesPanel';
 import { SeoPanel } from './panels/SeoPanel';
 import { BacklinksPanel } from './panels/BacklinksPanel';
+import { VersionHistoryPanel } from './panels/VersionHistoryPanel';
 import { DesignPanel } from '../WebBuilder/panels/DesignPanel';
 import { EditorCanvas } from './canvas/EditorCanvas';
 import { Modal } from '../../shared/ui/Modal/Modal';
 import styles from './ThemeEditor.module.css';
-
-// Stub for VersionHistoryPanel until it is implemented
-function VersionHistoryPanel({ tenantSlug, onClose }: { tenantSlug: string; onClose: () => void }) {
-  return (
-    <div style={{ padding: '24px', textAlign: 'center', color: 'var(--editor-text-muted)' }}>
-      <p>Versiyon geçmişi yakında eklenecek.</p>
-      <button onClick={onClose} style={{ marginTop: '12px', padding: '8px 16px', background: 'var(--editor-accent)', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>Kapat</button>
-    </div>
-  );
-}
 
 function ThemeEditorInner({ tenantSlug }: { tenantSlug: string }) {
   const { state, dispatch } = useEditor();

@@ -70,6 +70,14 @@ export function themeToVars(theme: ThemeConfig): Record<string, string> {
   };
 }
 
+export const DARK_MODE_SF_OVERRIDES: Record<string, string> = {
+  '--sf-color-bg': '#0d1117',
+  '--sf-color-surface': '#161b22',
+  '--sf-color-text': '#e6edf3',
+  '--sf-color-text-muted': '#8b949e',
+  '--sf-color-border': 'rgba(255,255,255,0.10)',
+};
+
 export function mergeTheme(base: ThemeConfig, override: Partial<ThemeConfig>): ThemeConfig {
   return {
     colors: { ...base.colors, ...override.colors },
