@@ -167,7 +167,7 @@ export function useWebBuilder() {
       // Map CorpPageVersionSummary to ThemeVersionSummary shape for the shared context
       dispatch({ type: 'SET_THEME_VERSIONS', versions: res.data.map((v, idx) => ({
         id: idx,
-        versionNumber: idx + 1,
+        versionNumber: res.data.length - idx,
         versionLabel: v.checkpointLabel,
         versionType: 'checkpoint' as const,
         isPublished: false,
@@ -220,7 +220,7 @@ export function useWebBuilder() {
       const res = await webBuilderApi.getVersions(state.activePage.id);
       dispatch({ type: 'SET_THEME_VERSIONS', versions: res.data.map((v, idx) => ({
         id: idx,
-        versionNumber: idx + 1,
+        versionNumber: res.data.length - idx,
         versionLabel: v.checkpointLabel,
         versionType: 'checkpoint' as const,
         isPublished: false,

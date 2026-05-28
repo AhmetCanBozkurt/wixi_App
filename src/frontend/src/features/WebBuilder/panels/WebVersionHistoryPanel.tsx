@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { FaHistory } from 'react-icons/fa';
+import { FaHistory, FaRocket } from 'react-icons/fa';
 import { useEditor } from '../../ThemeBuilder/context/EditorContext';
 import { useWebBuilder } from '../hooks/useWebBuilder';
 import { Button } from '../../../shared/ui/Button/Button';
@@ -87,6 +87,16 @@ export function WebVersionHistoryPanel({ onClose }: Props) {
                 </div>
               </div>
             </div>
+
+            <button
+              className={styles.publishBtn}
+              onClick={() => setRollbackId(v._versionId ?? null)}
+              type="button"
+              title="Bu versiyonu geri yükle"
+            >
+              <FaRocket style={{ fontSize: 10 }} />
+              Geri Yükle
+            </button>
           </li>
         ))}
       </ul>

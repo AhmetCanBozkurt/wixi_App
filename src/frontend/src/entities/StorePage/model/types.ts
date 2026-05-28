@@ -111,6 +111,7 @@ export interface ThemeVersionSummary {
   restoredFromVersionId: number | null;
   changedByEmail: string | null;
   createdAt: string;
+  _versionId?: string | null;
 }
 
 export interface ThemeVersionDetail extends ThemeVersionSummary {
