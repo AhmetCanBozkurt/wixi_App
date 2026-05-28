@@ -70,15 +70,9 @@ jobs:
             Write-Host "FAIL: WixiCoreDbContext migration failed"; Write-Host $migOut; exit 1
           }
 
-          # Web Builder DB (WebBuilderDbContext)
-          dotnet ef database update `
-            --project src/backend/Wixi.Modules.WebBuilder/Wixi.Modules.WebBuilder.csproj `
-            --startup-project src/backend/Wixi.API/Wixi.API.csproj `
-            --context WebBuilderDbContext `
-            2>&1 | Tee-Object -Variable migOut
-          if ($LASTEXITCODE -ne 0) {
-            Write-Host "FAIL: WebBuilderDbContext migration failed"; Write-Host $migOut; exit 1
-          }
+          # NOT: WebBuilderDbContext artık per-tenant izole DB kullanır (ECommerce ile aynı strateji).
+          # WB tabloları uygulama startup'ında MigrateAllTenantDbsAsync() üzerinden her tenant'a ayrı ayrı uygulanır.
+          # Bu pipeline'dan çalıştırılmaz.
 
           # NOT: ECommerceDbContext per-tenant DB kullanır.
           # Migration'lar tenant provision edildiğinde ECommerceTenantProvisioner tarafından uygulanır.

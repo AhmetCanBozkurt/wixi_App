@@ -22,7 +22,7 @@ public class TenantMiddleware
 
     public async Task InvokeAsync(
         HttpContext context,
-        TenantContext tenantContext,
+        Wixi.Shared.Domain.Entities.ITenantContext tenantContext,
         WixiCoreDbContext masterDbContext)
     {
         // Sadece tenant gerektiren yolları işle, diğerlerini geç
@@ -75,7 +75,9 @@ public class TenantMiddleware
 
         return path.StartsWith("/api/v1/public/storefront", StringComparison.OrdinalIgnoreCase)
             || path.StartsWith("/api/v1/store-admin", StringComparison.OrdinalIgnoreCase)
-            || path.StartsWith("/api/v1/storefront", StringComparison.OrdinalIgnoreCase);
+            || path.StartsWith("/api/v1/storefront", StringComparison.OrdinalIgnoreCase)
+            || path.StartsWith("/api/v1/web-builder", StringComparison.OrdinalIgnoreCase)
+            || path.StartsWith("/api/v1/public/web-builder", StringComparison.OrdinalIgnoreCase);
     }
 
     private static string? ExtractSlugFromSubdomain(string host)

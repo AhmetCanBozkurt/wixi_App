@@ -33,6 +33,9 @@ public static class ECommerceModuleExtensions
 
         // Tenant Context — Scoped: her request kendi tenant'ına sahip
         services.AddScoped<TenantContext>();
+        // Shared interface üzerinden de erişilebilir (WebBuilder gibi diğer modüller kullanır)
+        services.AddScoped<Wixi.Shared.Domain.Entities.ITenantContext>(
+            sp => sp.GetRequiredService<TenantContext>());
 
         // Tenant DB Context — Scoped: TenantContext'ten bağlantı alır
         services.AddScoped<ECommerceDbContext>(sp =>

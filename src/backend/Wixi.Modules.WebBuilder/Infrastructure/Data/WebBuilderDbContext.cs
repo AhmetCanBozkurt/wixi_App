@@ -6,8 +6,33 @@ namespace Wixi.Modules.WebBuilder.Infrastructure.Data;
 
 public class WebBuilderDbContext : DbContext
 {
+    private readonly ITenantContext? _tenantContext;
+
+    /// <summary>
+    /// Runtime (DI) constructor — per-tenant dynamic connection.
+    /// TenantMiddleware tarafından doldurulan ITenantContext'i kullanır.
+    /// </summary>
+    public WebBuilderDbContext(DbContextOptions<WebBuilderDbContext> options, ITenantContext tenantContext)
+        : base(options)
+    {
+        _tenantContext = tenantContext;
+    }
+
+    /// <summary>
+    /// Design-time / provisioning constructor — sabit connection string.
+    /// EF migrations ve WebBuilderTenantProvisioner tarafından kullanılır.
+    /// </summary>
     public WebBuilderDbContext(DbContextOptions<WebBuilderDbContext> options) : base(options)
     {
+    }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        // Sadece connection henüz set edilmemişse ve TenantContext doluysa bağlan
+        if (!optionsBuilder.IsConfigured && _tenantContext?.IsResolved == true)
+        {
+            optionsBuilder.UseSqlServer(_tenantContext.ConnectionString);
+        }
     }
 
     public DbSet<WixiCorpPage> CorpPages { get; set; }
