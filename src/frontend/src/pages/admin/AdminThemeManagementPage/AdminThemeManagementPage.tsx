@@ -175,7 +175,7 @@ export const AdminThemeManagementPage = () => {
                     </Button>
                     <Button
                       variant="primary"
-                      onClick={() => window.open(`/admin/theme-management/editor/${t.slug}`, '_blank')}
+                      onClick={() => window.open(`/corp/theme-editor/${t.slug}`, '_blank')}
                     >
                       Tasarım Editörü →
                     </Button>

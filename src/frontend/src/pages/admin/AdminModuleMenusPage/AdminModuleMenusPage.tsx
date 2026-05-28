@@ -29,7 +29,7 @@ const SYSTEM_PAGES = [
   { name: 'Slaytlar',                           path: '/tenant/{tenantSlug}/sliders' },
   { name: 'SSS (FAQ)',                          path: '/tenant/{tenantSlug}/faq' },
   { name: 'İletişim Formları',                  path: '/tenant/{tenantSlug}/contact-submissions' },
-  { name: 'Tema Editörü',                       path: '/tenant/{tenantSlug}/theme-editor' },
+  { name: 'Tema Editörü',                       path: '/corp/theme-editor/{tenantSlug}' },
   { name: 'Ayarlar',                            path: '/tenant/{tenantSlug}/settings' },
   { name: 'Fatura & Abonelik',                  path: '/tenant/{tenantSlug}/billing' },
   { name: 'CRM - Rehber',                       path: '/tenant/{tenantSlug}/crm/contacts' },

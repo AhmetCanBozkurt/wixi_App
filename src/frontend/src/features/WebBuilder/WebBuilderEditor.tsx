@@ -18,6 +18,7 @@ import { PropertiesPanel } from '../ThemeBuilder/panels/PropertiesPanel';
 import { DesignPanel } from './panels/DesignPanel';
 import { EditorCanvas } from '../ThemeBuilder/canvas/EditorCanvas';
 import { Modal } from '../../shared/ui/Modal/Modal';
+import { storefrontApi } from '../../entities/StorePage/api/storePageApi';
 import styles from '../ThemeBuilder/ThemeEditor.module.css';
 
 function WebBuilderEditorInner() {
@@ -30,9 +31,26 @@ function WebBuilderEditorInner() {
   const [versionModalOpen, setVersionModalOpen] = useState(false);
   const [leftOpen, setLeftOpen] = useState(true);
   const [rightOpen, setRightOpen] = useState(true);
+  const [storeName, setStoreName] = useState<string>('');
 
   const canUndo = state._past.length > 0;
   const canRedo = state._future.length > 0;
+
+  useEffect(() => {
+    const fetchStoreInfo = async () => {
+      try {
+        const res = await storefrontApi.getSettings(activeTenantSlug);
+        if (res?.data?.storeName) {
+          setStoreName(res.data.storeName);
+        }
+      } catch {
+        // fallback
+      }
+    };
+    if (activeTenantSlug) {
+      void fetchStoreInfo();
+    }
+  }, [activeTenantSlug]);
 
   useEffect(() => {
     void loadPages();
@@ -54,6 +72,12 @@ function WebBuilderEditorInner() {
         <div className={styles.titleGroup}>
           <FaGlobe color="#ec4899" />
           <span>Web Builder</span>
+          {storeName && (
+            <div className={styles.tenantBadge} title={`Müşteri: ${activeTenantSlug}`}>
+              <FaGlobe className={styles.tenantBadgeIcon} size={12} />
+              <span>{storeName}</span>
+            </div>
+          )}
           {state.activePage && (
             <>
               <span style={{ color: 'var(--editor-border)', fontSize: 14, userSelect: 'none' }}>›</span>

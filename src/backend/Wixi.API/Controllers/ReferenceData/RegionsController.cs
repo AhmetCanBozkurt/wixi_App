@@ -21,7 +21,7 @@ public class RegionsController : ControllerBase
         return Ok(new { items = result });
     }
 
-    [Authorize(Roles = "SuperAdmin,Admin")]
+    [Authorize(Roles = "SuperAdmin,Admin,TenantAdmin")]
     [HttpPost("regions")]
     public async Task<IActionResult> CreateRegion([FromBody] CreateRegionCommand command)
     {
@@ -29,7 +29,7 @@ public class RegionsController : ControllerBase
         return Ok(result);
     }
 
-    [Authorize(Roles = "SuperAdmin,Admin")]
+    [Authorize(Roles = "SuperAdmin,Admin,TenantAdmin")]
     [HttpPut("regions")]
     public async Task<IActionResult> UpdateRegion([FromBody] UpdateRegionCommand command)
     {
@@ -37,7 +37,7 @@ public class RegionsController : ControllerBase
         return result ? Ok() : NotFound();
     }
 
-    [Authorize(Roles = "SuperAdmin,Admin")]
+    [Authorize(Roles = "SuperAdmin,Admin,TenantAdmin")]
     [HttpDelete("regions/{id}")]
     public async Task<IActionResult> DeleteRegion(Guid id)
     {

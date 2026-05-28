@@ -195,6 +195,7 @@ const App = () => {
           </Route>
           <Route element={<StoreAdminGuard />}>
             <Route path="/corp/builder/:tenantSlug" element={<WebBuilderEditorPage />} />
+            <Route path="/corp/theme-editor/:tenantSlug" element={<ThemeEditor />} />
             <Route path="/tenant/:tenantSlug" element={<StoreAdminLayout />}>
               <Route index element={<StoreDashboardPage />} />
               <Route path="products" element={<StoreProductsPage />} />
@@ -203,7 +204,6 @@ const App = () => {
               <Route path="orders" element={<StoreOrdersPage />} />
               <Route path="customers" element={<StoreCustomersPage />} />
               <Route path="settings" element={<StoreSettingsPage />} />
-              <Route path="theme-editor" element={<ThemeEditor />} />
               <Route path="billing" element={<StoreBillingPage />} />
               <Route path="testimonials" element={<StoreTestimonialsPage />} />
               <Route path="promo-banners" element={<StorePromoBannersPage />} />
@@ -218,6 +218,9 @@ const App = () => {
               <Route path="media" element={<StoreMediaPage />} />
               <Route path="payment-settings" element={<StorePaymentSettingsPage />} />
               <Route path="payments" element={<StorePaymentsPage />} />
+              <Route path="corp/blog" element={<BlogManagementPage />} />
+              <Route path="corp/forms" element={<FormManagementPage />} />
+              <Route path="definitions/regions" element={<RegionsPage />} />
             </Route>
           </Route>
           <Route element={<AuthGuard />}>
@@ -248,7 +251,6 @@ const App = () => {
               <Route path="theme-management" element={<AdminThemeManagementPage />} />
               <Route path="theme-management/stores/:tenantId" element={<AdminTenantThemePage />} />
               <Route path="theme-management/templates" element={<AdminThemeTemplatesPage />} />
-              <Route path="theme-management/editor/:tenantSlug" element={<ThemeEditor />} />
               <Route path="cikti-tasarlama" element={<CiktiTasarlamaPage />} />
               <Route path="definitions/system-pages" element={<SystemPagesPage />} />
               <Route path="definitions/regions" element={<RegionsPage />} />

@@ -189,6 +189,7 @@ public class ModuleController : ControllerBase
             await RemoveMenuByPath("/admin/orders");
             await RemoveMenuByPath("/admin/settings");
             await RemoveMenuByPath("/admin/theme-editor");
+            await RemoveMenuByPath("/tenant/{tenantSlug}/theme-editor");
             await RemoveMenuByPath("/admin/crm");
             await RemoveMenuByPath("/admin/projects");
             await RemoveMenuByPath("/admin/support");
@@ -213,8 +214,9 @@ public class ModuleController : ControllerBase
             await AddMenuIfNotExists(ecommerceModule.Id, "/tenant/{tenantSlug}/contact-submissions",  "İletişim Formları",     "Contact Forms", "FaEnvelope",      "#10b981", 110);
 
             // ── Sistem ────────────────────────────────────────────────────
-            await AddMenuIfNotExists(ecommerceModule.Id, "/tenant/{tenantSlug}/theme-editor", "Tema Editörü",        "Theme Editor",        "FaPaintBrush",     "#94a3b8", 120);
+            await AddMenuIfNotExists(ecommerceModule.Id, "/corp/theme-editor/{tenantSlug}", "Tema Editörü",        "Theme Editor",        "FaPaintBrush",     "#94a3b8", 120);
             await AddMenuIfNotExists(ecommerceModule.Id, "/tenant/{tenantSlug}/settings",     "Ayarlar",             "Settings",            "FaCog",            "#94a3b8", 130);
+            await AddMenuIfNotExists(ecommerceModule.Id, "/tenant/{tenantSlug}/definitions/regions", "Bölge Yönetimi", "Region Management", "FaMap",            "#f59e0b", 135);
             await AddMenuIfNotExists(ecommerceModule.Id, "/tenant/{tenantSlug}/billing",      "Fatura & Abonelik",   "Billing",             "FaFileInvoiceDollar","#94a3b8", 140);
         }
 

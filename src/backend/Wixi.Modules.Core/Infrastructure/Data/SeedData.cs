@@ -797,8 +797,9 @@ public static class SeedData
                 new { Path = "/tenant/{tenantSlug}/sliders",             Icon = "FaImages",            Color = "#8b5cf6", Sort = 90,  Tr = "Sliderlar",            En = "Sliders"             },
                 new { Path = "/tenant/{tenantSlug}/faq",                 Icon = "FaQuestionCircle",    Color = "#06b6d4", Sort = 100, Tr = "SSS",                  En = "FAQ"                 },
                 new { Path = "/tenant/{tenantSlug}/contact-submissions", Icon = "FaEnvelope",          Color = "#10b981", Sort = 110, Tr = "İletişim Talepleri",   En = "Contact Submissions" },
-                new { Path = "/tenant/{tenantSlug}/theme-editor",        Icon = "FaPaintBrush",        Color = "#94a3b8", Sort = 120, Tr = "Tema Editörü",         En = "Theme Editor"        },
+                new { Path = "/corp/theme-editor/{tenantSlug}",        Icon = "FaPaintBrush",        Color = "#94a3b8", Sort = 120, Tr = "Tema Editörü",         En = "Theme Editor"        },
                 new { Path = "/tenant/{tenantSlug}/settings",            Icon = "FaCog",               Color = "#94a3b8", Sort = 130, Tr = "Ayarlar",              En = "Settings"            },
+                new { Path = "/tenant/{tenantSlug}/definitions/regions", Icon = "FaMap",               Color = "#f59e0b", Sort = 135, Tr = "Bölge Yönetimi",       En = "Region Management"   },
                 new { Path = "/tenant/{tenantSlug}/billing",             Icon = "FaFileInvoiceDollar", Color = "#94a3b8", Sort = 140, Tr = "Faturalama",           En = "Billing"             },
             };
 
@@ -946,8 +947,8 @@ public static class SeedData
         var wbMenus = new[]
         {
             new { Path = "/corp/builder/{tenantSlug}", Icon = "FaEdit",      Color = "#06b6d4", Sort = 10, Tr = "Web Editörü",    En = "Web Editor"      },
-            new { Path = "/admin/corp/blog",  Icon = "FaNewspaper", Color = "#10b981", Sort = 20, Tr = "Blog Yönetimi",  En = "Blog Management" },
-            new { Path = "/admin/corp/forms", Icon = "FaWpforms",   Color = "#f59e0b", Sort = 30, Tr = "Form Yönetimi",  En = "Form Management" },
+            new { Path = "/tenant/{tenantSlug}/corp/blog",  Icon = "FaNewspaper", Color = "#10b981", Sort = 20, Tr = "Blog Yönetimi",  En = "Blog Management" },
+            new { Path = "/tenant/{tenantSlug}/corp/forms", Icon = "FaWpforms",   Color = "#f59e0b", Sort = 30, Tr = "Form Yönetimi",  En = "Form Management" },
         };
 
         foreach (var def in wbMenus)

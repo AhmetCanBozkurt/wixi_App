@@ -36,3 +36,17 @@
 - [x] `FooterPropertiesPanel`: kolon sayısı, telif metni, sosyal ikonlar, kolon linkleri
 - [x] `DesignPanel.tsx`: Global section seçilince bilgilendirme placeholder
 - [x] TypeScript typecheck: 0 hata
+
+# Wixi Yönlendirme & Yetki Düzeltmeleri - Görev Listesi
+- [x] TenantAdmin için Bölge Yönetimi ve Form Yönetimi route'larının /tenant/:tenantSlug altına taşınması
+- [x] SeedData.cs içerisinde ilgili menülerin tenant-scoped path'lere güncellenmesi
+- [x] RegionsController.cs API'sinde TenantAdmin rolünün yetkilendirilmesi
+- [x] Değişikliklerin frontend ve backend üzerinde doğrulanması
+
+# Wixi Bağımsız Tema Editörü & Müşteri Kartı - Görev Listesi
+- [x] Tema Editörü'nün `/corp/theme-editor/:tenantSlug` bağımsız route'una taşınması ve App.tsx üzerinde tanımlanması
+- [x] Menü ve dashboard quick-action yönlendirmelerinin yeni bağımsız route'a güncellenmesi
+- [x] SeedData.cs ve ModuleController.cs seed kodlarındaki tema editörü yollarının `/corp/theme-editor/{tenantSlug}` olarak güncellenmesi
+- [x] Tema Editörü (ThemeEditor.tsx) ve Web Builder (WebBuilderEditor.tsx) üst barlarına müşteri/mağaza ismi kartının (tenant badge) eklenmesi
+- [x] Tema ve badge stillerinin ThemeEditor.module.css üzerinde premium olarak tasarlanması
+- [/] Değişikliklerin frontend ve backend üzerinde doğrulanması
