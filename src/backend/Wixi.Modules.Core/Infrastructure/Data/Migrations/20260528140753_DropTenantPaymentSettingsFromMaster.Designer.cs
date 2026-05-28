@@ -3,17 +3,20 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Wixi.Modules.Core.Infrastructure.Data;
 
 #nullable disable
 
-namespace Wixi.Modules.Core.Migrations
+namespace Wixi.Modules.Core.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(WixiCoreDbContext))]
-    partial class WixiCoreDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260528140753_DropTenantPaymentSettingsFromMaster")]
+    partial class DropTenantPaymentSettingsFromMaster
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

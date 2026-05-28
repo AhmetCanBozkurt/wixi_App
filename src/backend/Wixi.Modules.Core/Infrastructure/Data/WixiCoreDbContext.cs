@@ -35,9 +35,8 @@ public class WixiCoreDbContext : IdentityDbContext<WixiUser, WixiRole, Guid>
     public DbSet<WixiTenantSubscription> TenantSubscriptions { get; set; }
     public DbSet<WixiPaymentTransaction> PaymentTransactions { get; set; }
 
-    // Payment Gateway Settings
+    // Payment Gateway Settings (platform-wide, master DB)
     public DbSet<WixiPlatformPaymentSetting> PlatformPaymentSettings { get; set; }
-    public DbSet<WixiTenantPaymentSetting> TenantPaymentSettings { get; set; }
 
     // Currency Management
     public DbSet<WixiCurrency> Currencies { get; set; }
@@ -511,26 +510,6 @@ public class WixiCoreDbContext : IdentityDbContext<WixiUser, WixiRole, Guid>
                   .WithMany()
                   .HasForeignKey(e => e.PlanId)
                   .OnDelete(DeleteBehavior.Restrict);
-        });
-
-        // Tenant Payment Settings Mapping
-        builder.Entity<WixiTenantPaymentSetting>(entity =>
-        {
-            entity.ToTable("WIXI_TENANT_PAYMENT_SETTINGS");
-            entity.HasKey(e => e.Id);
-            entity.HasIndex(e => e.TenantId).IsUnique();
-            entity.Property(e => e.ActiveGateway).IsRequired().HasMaxLength(30);
-            entity.Property(e => e.StripeSecretKey).HasMaxLength(1000);
-            entity.Property(e => e.StripePublishableKey).HasMaxLength(1000);
-            entity.Property(e => e.StripeWebhookSecret).HasMaxLength(1000);
-            entity.Property(e => e.IyzipayApiKey).HasMaxLength(1000);
-            entity.Property(e => e.IyzipaySecretKey).HasMaxLength(1000);
-            entity.Property(e => e.IyzipayBaseUrl).HasMaxLength(300);
-
-            entity.HasOne(e => e.Tenant)
-                  .WithMany()
-                  .HasForeignKey(e => e.TenantId)
-                  .OnDelete(DeleteBehavior.Cascade);
         });
 
         // Platform Payment Settings Mapping

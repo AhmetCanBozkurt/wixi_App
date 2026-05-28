@@ -72,6 +72,10 @@ builder.Services.AddHostedService<Wixi.Modules.Core.Infrastructure.Services.Mail
 builder.Services.AddHostedService<Wixi.Modules.Core.Infrastructure.Services.TcmbSyncBackgroundWorker>();
 builder.Services.AddHostedService<Wixi.Modules.Core.Infrastructure.Services.SubscriptionExpiryBackgroundWorker>();
 
+// Tenant payment settings — tenant'ın kendi DB'sine yazar/okur
+builder.Services.AddScoped<Wixi.Modules.Core.Application.Common.Interfaces.ITenantPaymentSettingsRepository,
+    Wixi.Modules.Core.Infrastructure.Services.TenantPaymentSettingsRepository>();
+
 // Payment key encryption (ASP.NET Core Data Protection)
 builder.Services.AddDataProtection();
 builder.Services.AddScoped<Wixi.Modules.Core.Application.Common.Interfaces.IPaymentKeyProtector,

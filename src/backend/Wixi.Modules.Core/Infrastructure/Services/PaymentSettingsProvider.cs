@@ -13,6 +13,7 @@ public class PaymentSettingsProvider : IPaymentSettingsProvider
     private readonly IPaymentKeyProtector _protector;
     private readonly IOptions<StripeOptions> _stripeOptions;
     private readonly IOptions<IyzipayOptions> _iyzipayOptions;
+    private readonly ITenantPaymentSettingsRepository _tenantRepo;
 
     // Request-scoped cache — DB'ye yalnızca bir kez gidilir
     private WixiPlatformPaymentSetting? _cached;
@@ -22,12 +23,14 @@ public class PaymentSettingsProvider : IPaymentSettingsProvider
         WixiCoreDbContext db,
         IPaymentKeyProtector protector,
         IOptions<StripeOptions> stripeOptions,
-        IOptions<IyzipayOptions> iyzipayOptions)
+        IOptions<IyzipayOptions> iyzipayOptions,
+        ITenantPaymentSettingsRepository tenantRepo)
     {
         _db = db;
         _protector = protector;
         _stripeOptions = stripeOptions;
         _iyzipayOptions = iyzipayOptions;
+        _tenantRepo = tenantRepo;
     }
 
     public async Task<StripeOptions> GetStripeOptionsAsync(CancellationToken ct = default)
@@ -66,16 +69,17 @@ public class PaymentSettingsProvider : IPaymentSettingsProvider
 
     public async Task<IyzipayOptions> GetIyzipayOptionsForTenantAsync(Guid tenantId, CancellationToken ct = default)
     {
-        var ts = await _db.TenantPaymentSettings
-            .FirstOrDefaultAsync(s => s.TenantId == tenantId, ct);
+        // Tenant'ın kendi DB'sinden okur — Wixi master DB'sinde bu veri yoktur
+        var (apiKey, secretKey, baseUrl, gateway) =
+            await ((TenantPaymentSettingsRepository)_tenantRepo).GetRawIyzipayAsync(tenantId, ct);
 
-        if (ts?.IyzipayApiKey != null && ts.ActiveGateway != "platform_default")
+        if (apiKey != null && gateway != "platform_default")
         {
             return new IyzipayOptions
             {
-                ApiKey = _protector.Unprotect(ts.IyzipayApiKey) ?? string.Empty,
-                SecretKey = _protector.Unprotect(ts.IyzipaySecretKey) ?? string.Empty,
-                BaseUrl = ts.IyzipayBaseUrl
+                ApiKey = apiKey,
+                SecretKey = secretKey ?? string.Empty,
+                BaseUrl = baseUrl ?? _iyzipayOptions.Value.BaseUrl
             };
         }
 
@@ -84,16 +88,16 @@ public class PaymentSettingsProvider : IPaymentSettingsProvider
 
     public async Task<StripeOptions> GetStripeOptionsForTenantAsync(Guid tenantId, CancellationToken ct = default)
     {
-        var ts = await _db.TenantPaymentSettings
-            .FirstOrDefaultAsync(s => s.TenantId == tenantId, ct);
+        var (secretKey, publishableKey, webhookSecret, gateway) =
+            await ((TenantPaymentSettingsRepository)_tenantRepo).GetRawStripeAsync(tenantId, ct);
 
-        if (ts?.StripeSecretKey != null && ts.ActiveGateway != "platform_default")
+        if (secretKey != null && gateway != "platform_default")
         {
             return new StripeOptions
             {
-                SecretKey = _protector.Unprotect(ts.StripeSecretKey) ?? string.Empty,
-                PublishableKey = _protector.Unprotect(ts.StripePublishableKey) ?? string.Empty,
-                WebhookSecret = _protector.Unprotect(ts.StripeWebhookSecret) ?? string.Empty
+                SecretKey = secretKey,
+                PublishableKey = publishableKey ?? string.Empty,
+                WebhookSecret = webhookSecret ?? string.Empty
             };
         }
 

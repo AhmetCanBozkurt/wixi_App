@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Wixi.Modules.Core.Domain.Entities;
 using Wixi.Modules.ECommerce.Domain.Entities;
 using Wixi.Modules.ECommerce.Infrastructure.Tenant;
 
@@ -65,6 +66,9 @@ public class ECommerceDbContext : DbContext
 
     // Ödeme Logları
     public DbSet<WixiPaymentLog> PaymentLogs => Set<WixiPaymentLog>();
+
+    // Ödeme Ayarları (tenant'ın kendi DB'sinde saklanır)
+    public DbSet<WixiTenantPaymentSetting> PaymentSettings => Set<WixiTenantPaymentSetting>();
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -543,6 +547,20 @@ public class ECommerceDbContext : DbContext
             e.Property(x => x.Currency).HasMaxLength(10);
             e.HasIndex(x => x.Token);
             e.HasIndex(x => x.OrderId);
+        });
+
+        // ── WixiTenantPaymentSetting ──────────────────────────────────
+        modelBuilder.Entity<WixiTenantPaymentSetting>(entity =>
+        {
+            entity.ToTable("WIXI_EC_PAYMENT_SETTINGS");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.ActiveGateway).IsRequired().HasMaxLength(30);
+            entity.Property(e => e.StripeSecretKey).HasMaxLength(1000);
+            entity.Property(e => e.StripePublishableKey).HasMaxLength(1000);
+            entity.Property(e => e.StripeWebhookSecret).HasMaxLength(1000);
+            entity.Property(e => e.IyzipayApiKey).HasMaxLength(1000);
+            entity.Property(e => e.IyzipaySecretKey).HasMaxLength(1000);
+            entity.Property(e => e.IyzipayBaseUrl).HasMaxLength(500);
         });
     }
 }
