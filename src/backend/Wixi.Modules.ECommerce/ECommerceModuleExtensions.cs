@@ -103,7 +103,7 @@ public static class ECommerceModuleExtensions
                 // Provision all enabled modules for this tenant
                 var enabledModules = string.IsNullOrWhiteSpace(tenant.EnabledModules)
                     ? new[] { "ecommerce" }
-                    : tenant.EnabledModules.Split(',', StringSplitOptions.RemoveEmptyEntries);
+                    : tenant.EnabledModules.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
                 foreach (var prov in provisioners)
                 {
                     if (enabledModules.Contains(prov.ModuleName))
