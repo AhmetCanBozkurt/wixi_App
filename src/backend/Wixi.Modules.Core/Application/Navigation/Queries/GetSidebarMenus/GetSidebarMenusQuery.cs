@@ -136,6 +136,18 @@ public class GetSidebarMenusQueryHandler : IRequestHandler<GetSidebarMenusQuery,
             }
         }
 
-        return rootMenus.OrderBy(m => m.SortOrder).ToList();
+        // Sort all levels recursively by SortOrder
+        static void SortChildren(List<MenuDto> items)
+        {
+            items.Sort((a, b) => a.SortOrder.CompareTo(b.SortOrder));
+            foreach (var item in items)
+                SortChildren(item.Children);
+        }
+
+        rootMenus.Sort((a, b) => a.SortOrder.CompareTo(b.SortOrder));
+        foreach (var root in rootMenus)
+            SortChildren(root.Children);
+
+        return rootMenus;
     }
 }

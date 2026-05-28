@@ -85,24 +85,33 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse }: SidebarProps) => {
     return () => window.removeEventListener('wixi-refresh-menu', handleRefresh);
   }, []);
 
-  // Auto-expand accordion sections that contain the active route
+  // Auto-expand accordion sections that contain the active route (any depth)
   useEffect(() => {
     if (menus.length === 0) return;
 
     const toExpand: Record<string, boolean> = {};
 
-    const checkAndExpand = (items: MenuItemDto[]) => {
+    // Returns true if ANY descendant (leaf or nested folder) is on the active route.
+    // Folders are expanded when a descendant is active, regardless of nesting depth.
+    const checkAndExpand = (items: MenuItemDto[]): boolean => {
+      let hasActiveDescendant = false;
       for (const item of items) {
         if (item.children && item.children.length > 0) {
-          const hasActiveChild = item.children.some(
-            (child) =>
-              location.pathname === child.path ||
-              location.pathname.startsWith(child.path + '/')
-          );
-          if (hasActiveChild) toExpand[item.id] = true;
-          checkAndExpand(item.children);
+          const childActive = checkAndExpand(item.children);
+          if (childActive) {
+            toExpand[item.id] = true;
+            hasActiveDescendant = true;
+          }
+        } else {
+          if (
+            location.pathname === item.path ||
+            location.pathname.startsWith(item.path + '/')
+          ) {
+            hasActiveDescendant = true;
+          }
         }
       }
+      return hasActiveDescendant;
     };
 
     checkAndExpand(menus);
