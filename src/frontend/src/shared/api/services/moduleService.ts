@@ -14,6 +14,8 @@ export interface ModuleDto extends Record<string, unknown> {
   colorAccent: string | null;
   isPopular: boolean;
   sortOrder: number;
+  category: string | null;
+  tag: string | null;
 }
 
 export interface ModuleMenuTranslationDto {

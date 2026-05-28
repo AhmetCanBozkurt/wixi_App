@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { LandingLayout } from '../../../widgets/LandingLayout/LandingLayout';
 import { useScrollReveal } from '../../../widgets/LandingLayout/useLandingAnimations';
 import { useModulesQuery } from '../../../entities/landing';
@@ -73,7 +73,18 @@ export function ModullerPage() {
   useScrollReveal();
   const [activeCat, setActiveCat] = useState('all');
   const [search, setSearch] = useState('');
-  const [added, setAdded] = useState<Set<string>>(new Set());
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const fromOnboarding = searchParams.get('fromOnboarding') === '1';
+
+  // fromOnboarding modunda sessionStorage'daki mevcut seçimi yükle
+  const [added, setAdded] = useState<Set<string>>(() => {
+    if (!fromOnboarding) return new Set();
+    try {
+      const stored = JSON.parse(sessionStorage.getItem('wixi-signup-modules') ?? '[]') as string[];
+      return new Set(stored);
+    } catch { return new Set(); }
+  });
 
   const { data, isLoading } = useModulesQuery();
 
@@ -84,6 +95,11 @@ export function ModullerPage() {
       else next.add(id);
       return next;
     });
+  };
+
+  const handleConfirmAndReturn = () => {
+    sessionStorage.setItem('wixi-signup-modules', JSON.stringify(Array.from(added)));
+    navigate('/onboarding');
   };
 
   /* ── Featured: isPopular modules (max 3) ── */
@@ -147,6 +163,25 @@ export function ModullerPage() {
 
   return (
     <LandingLayout>
+      {fromOnboarding && (
+        <div style={{ background: 'var(--color-primary)', padding: '10px 24px', display: 'flex', alignItems: 'center', gap: '16px', position: 'sticky', top: 0, zIndex: 100 }}>
+          <button onClick={() => navigate('/onboarding')} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', fontSize: '14px', fontWeight: 600 }}>
+            ← Kayıt Formuna Geri Dön
+          </button>
+          <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '13px' }}>
+            Modülleri seçip "Seçimi Onayla ve Geri Dön" butonuna basın.
+          </span>
+          {added.size > 0 && (
+            <button
+              onClick={handleConfirmAndReturn}
+              style={{ marginLeft: 'auto', background: '#fff', color: 'var(--color-primary)', border: 'none', borderRadius: '8px', padding: '6px 16px', fontWeight: 700, cursor: 'pointer', fontSize: '14px' }}
+            >
+              ✓ {added.size} modül seçildi — Onayla →
+            </button>
+          )}
+        </div>
+      )}
+
       <section className={s.hero}>
         <div className="lp-container">
           <span className="lp-eyebrow fade-up"><span className="lp-dot" />Modül Kataloğu</span>
@@ -192,6 +227,14 @@ export function ModullerPage() {
                 <span className={s.selDivider}>·</span>
                 Aylık <b>₺{selTotal.toLocaleString('tr-TR')}</b>
                 <button className={s.selClear} onClick={() => setAdded(new Set())}>Temizle</button>
+                {fromOnboarding && (
+                  <button
+                    className={s.selConfirm}
+                    onClick={handleConfirmAndReturn}
+                  >
+                    ✓ Seçimi Onayla ve Geri Dön →
+                  </button>
+                )}
               </div>
             )}
           </div>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
+import apiClient from '../../../shared/api/axiosConfig';
 import styles from './OnboardingPage.module.css';
 
 interface ModuleOption {
@@ -9,16 +10,31 @@ interface ModuleOption {
   desc: string;
   price: number;
   emoji: string;
+  isPopular: boolean;
 }
 
-const MODULES: ModuleOption[] = [
-  { id: 'eticaret', name: 'E-Ticaret', desc: 'Mağaza', price: 499, emoji: '🛒' },
-  { id: 'crm', name: 'CRM', desc: 'Müşteri ilişkileri', price: 399, emoji: '👥' },
-  { id: 'stok', name: 'Stok', desc: 'Sayım, lokasyon', price: 199, emoji: '📦' },
-  { id: 'muhasebe', name: 'Muhasebe', desc: 'E-fatura, KDV', price: 349, emoji: '📊' },
-  { id: 'ik', name: 'İK', desc: 'Personel, bordro', price: 299, emoji: '💼' },
-  { id: 'kargo', name: 'Kargo', desc: 'Aras, MNG, Yurtiçi', price: 129, emoji: '🚚' },
-];
+const MODULE_EMOJI: Record<string, string> = {
+  ecommerce:  '🛒',
+  crm:        '👥',
+  webbuilder: '🌐',
+  hr:         '💼',
+  notes:      '📝',
+  tasks:      '✅',
+  stok:       '📦',
+  muhasebe:   '📊',
+  kargo:      '🚚',
+};
+
+function toModuleOption(m: { code: string; name: string; description?: string | null; priceMonthly?: number | null; isPopular: boolean }): ModuleOption {
+  return {
+    id: m.code,
+    name: m.name,
+    desc: m.description ?? '',
+    price: m.priceMonthly ?? 0,
+    emoji: MODULE_EMOJI[m.code] ?? '🔧',
+    isPopular: m.isPopular,
+  };
+}
 
 const SECTORS = [
   { id: 'retail', name: 'Perakende', desc: 'Mağaza, butik', emoji: '🛍️' },
@@ -47,10 +63,14 @@ export function OnboardingPage() {
   const [curStep, setCurStep] = useState(1);
   const [selectedSector, setSelectedSector] = useState('');
   const [employeeCount, setEmployeeCount] = useState('Yalnız ben');
-  const [selectedModules, setSelectedModules] = useState<string[]>([]);
+  const [selectedModules, setSelectedModules] = useState<string[]>(() => {
+    try { return JSON.parse(sessionStorage.getItem('wixi-signup-modules') ?? '[]'); } catch { return []; }
+  });
   const [logoBase64, setLogoBase64] = useState<string | null>(null);
   const [selectedColor, setSelectedColor] = useState('indigo');
   const [selectedFont, setSelectedFont] = useState('jakarta');
+  const [modules, setModules] = useState<ModuleOption[]>([]);
+  const [modulesLoading, setModulesLoading] = useState(true);
 
   const navigate = useNavigate();
 
@@ -61,6 +81,18 @@ export function OnboardingPage() {
       navigate('/register');
     }
   }, [navigate]);
+
+  useEffect(() => {
+    apiClient.get('/module/public')
+      .then(res => setModules((res.data as any[]).map(toModuleOption)))
+      .catch(() => toast.error('Modüller yüklenemedi.'))
+      .finally(() => setModulesLoading(false));
+  }, []);
+
+  // Seçim değiştiğinde sessionStorage'ı anında güncelle
+  useEffect(() => {
+    sessionStorage.setItem('wixi-signup-modules', JSON.stringify(selectedModules));
+  }, [selectedModules]);
 
   const handleSectorSelect = (id: string) => {
     setSelectedSector(id);
@@ -73,7 +105,8 @@ export function OnboardingPage() {
   };
 
   const selectRecommended = () => {
-    const recs = ['eticaret', 'stok', 'crm'];
+    const popular = modules.filter(m => m.isPopular).map(m => m.id);
+    const recs = popular.length > 0 ? popular : modules.slice(0, 2).map(m => m.id);
     setSelectedModules(recs);
     toast.success('Önerilen paket seçildi.');
   };
@@ -133,17 +166,17 @@ export function OnboardingPage() {
 
   const handleSkip = (e: React.MouseEvent) => {
     e.preventDefault();
-    // Default mock onboarding and proceed to plans
+    const defaultModule = modules.length > 0 ? modules[0].id : 'ecommerce';
     const defaultData = {
       sector: 'other',
       employeeCount: 'Yalnız ben',
-      modules: ['eticaret'],
+      modules: [defaultModule],
       logo: null,
       color: 'indigo',
       font: 'jakarta',
     };
     sessionStorage.setItem('wixi-onboarding', JSON.stringify(defaultData));
-    sessionStorage.setItem('wixi-signup-modules', JSON.stringify(['eticaret']));
+    sessionStorage.setItem('wixi-signup-modules', JSON.stringify([defaultModule]));
     navigate('/select-plan');
   };
 
@@ -154,7 +187,7 @@ export function OnboardingPage() {
     return d.toLocaleDateString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric' });
   };
 
-  const selectedModulesTotal = MODULES
+  const selectedModulesTotal = modules
     .filter((m) => selectedModules.includes(m.id))
     .reduce((sum, m) => sum + m.price, 0);
 
@@ -295,7 +328,9 @@ export function OnboardingPage() {
             </div>
 
             <div className={styles.sectorGrid} style={{ gridTemplateColumns: 'repeat(2, 1fr)' }}>
-              {MODULES.map((m) => (
+              {modulesLoading ? (
+                <p style={{ color: 'var(--text-muted)', gridColumn: '1/-1' }}>Modüller yükleniyor…</p>
+              ) : modules.map((m) => (
                 <button
                   key={m.id}
                   type="button"
@@ -306,7 +341,7 @@ export function OnboardingPage() {
                   <span className={styles.emoji}>{m.emoji}</span>
                   <div style={{ flex: 1 }}>
                     <b style={{ display: 'block' }}>{m.name}</b>
-                    <span style={{ fontSize: '11px' }}>{m.desc} · ₺{m.price}/ay</span>
+                    <span style={{ fontSize: '11px' }}>{m.desc}{m.price > 0 ? ` · ₺${m.price}/ay` : ' · Ücretsiz'}</span>
                   </div>
                 </button>
               ))}
@@ -322,7 +357,7 @@ export function OnboardingPage() {
             </div>
 
             <p className={styles.onboardingNote}>
-              📍 Tüm modüller 14 gün ücretsiz. <a href="/moduller" target="_blank">35+ modülün tamamını görün →</a>
+              📍 Tüm modüller 14 gün ücretsiz. <a href="/moduller?fromOnboarding=1">35+ modülün tamamını görün →</a>
             </p>
           </div>
 

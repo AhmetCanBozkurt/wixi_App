@@ -631,11 +631,13 @@ public static class SeedData
                 Name = "E-Ticaret",
                 Description = "Tam kapsamlı e-ticaret yönetimi. Ürünler, siparişler, stok ve müşteri yönetimi tek panelde.",
                 IsPublic = true,
-                PriceMonthly = 0,
-                PriceYearly = 0,
-                IsPopular = false,
+                PriceMonthly = 499,
+                PriceYearly = 399,
+                IsPopular = true,
                 SortOrder = 1,
                 ColorAccent = "#38bdf8",
+                Category = "satis",
+                Tag = "popular",
                 FeaturesJson = """["Ürün kataloğu","Stok takibi","Varyant yönetimi","Kategori & marka","Müşteri kayıtları","Sipariş yönetimi"]"""
             };
 
@@ -645,11 +647,13 @@ public static class SeedData
                 Name = "CRM",
                 Description = "Müşteri ilişkilerini güçlendirin. Satış süreçlerini izleyin, fırsatları takip edin.",
                 IsPublic = true,
-                PriceMonthly = 299,
-                PriceYearly = 239,
+                PriceMonthly = 399,
+                PriceYearly = 319,
                 IsPopular = true,
                 SortOrder = 2,
                 ColorAccent = "#818cf8",
+                Category = "satis",
+                Tag = "popular",
                 FeaturesJson = """["Müşteri profilleri","Satış pipeline (kanban)","İletişim geçmişi","Görev atama","Raporlar & analizler","E-posta entegrasyonu"]"""
             };
 
@@ -664,6 +668,7 @@ public static class SeedData
                 IsPopular = false,
                 SortOrder = 3,
                 ColorAccent = "#34d399",
+                Category = "verim",
                 FeaturesJson = """["Zengin metin editörü","Gerçek zamanlı işbirliği","Etiketleme & arama","Dosya ekleri","Versiyon geçmişi","Şablonlar"]"""
             };
 
@@ -678,7 +683,24 @@ public static class SeedData
                 IsPopular = false,
                 SortOrder = 4,
                 ColorAccent = "#fb923c",
+                Category = "verim",
                 FeaturesJson = """["Kanban & liste görünümü","Görev atama & son tarih","Sprint yönetimi","Öncelik seviyeleri","İlerleme raporları","Zaman takibi"]"""
+            };
+
+            var webbuilder = new WixiModule
+            {
+                Code = "webbuilder",
+                Name = "Kurumsal Web Site",
+                Description = "Şirketinizin kurumsal web sitesini kolayca oluşturun ve yönetin. Sürükle-bırak sayfa editörü.",
+                IsPublic = true,
+                PriceMonthly = 249,
+                PriceYearly = 199,
+                IsPopular = false,
+                SortOrder = 5,
+                ColorAccent = "#0ea5e9",
+                Category = "satis",
+                Tag = "new",
+                FeaturesJson = """["Sürükle-bırak editör","Ana sayfa & hakkımızda","Hizmetler sayfası","İletişim formu","SEO ayarları","Özel domain desteği"]"""
             };
 
             var core = new WixiModule
@@ -691,7 +713,7 @@ public static class SeedData
                 ColorAccent = "#6366f1"
             };
 
-            await context.Modules.AddRangeAsync(core, ecommerce, crm, notes, tasks);
+            await context.Modules.AddRangeAsync(core, ecommerce, crm, notes, tasks, webbuilder);
             await context.SaveChangesAsync();
         }
 

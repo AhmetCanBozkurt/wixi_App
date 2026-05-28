@@ -177,6 +177,15 @@
   margin-left: 4px;
 }
 .selClear:hover { background: rgba(248,113,113,.28); }
+.selConfirm {
+  padding: 3px 12px; border-radius: 6px;
+  background: rgba(99,102,241,.9);
+  border: 1px solid rgba(99,102,241,.5);
+  color: #fff; font-size: 12px; font-weight: 700;
+  cursor: pointer; transition: background .2s;
+  margin-left: 4px;
+}
+.selConfirm:hover { background: rgba(99,102,241,1); }
 
 /* Empty search state */
 .emptyState {

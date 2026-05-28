@@ -32,6 +32,25 @@ const AdminModulesPage: React.FC = () => {
     ).slice(0, 100);
   }, [iconSearch, POPULAR_ICONS]);
 
+  const CATEGORIES = [
+    { value: '',      label: '— Kategori seçin —' },
+    { value: 'satis', label: 'Satış & Pazarlama' },
+    { value: 'ik',    label: 'İnsan Kaynakları' },
+    { value: 'finans',label: 'Finans' },
+    { value: 'stok',  label: 'Stok & Lojistik' },
+    { value: 'destek',label: 'Müşteri Desteği' },
+    { value: 'uretim',label: 'Üretim' },
+    { value: 'verim', label: 'Verimlilik' },
+  ];
+
+  const TAGS = [
+    { value: '',        label: '— Etiket yok —' },
+    { value: 'popular', label: '★ Popüler' },
+    { value: 'new',     label: 'Yeni' },
+    { value: 'beta',    label: 'Beta' },
+    { value: 'coming',  label: 'Yakında' },
+  ];
+
   const [formData, setFormData] = useState<Partial<ModuleDto>>({
     code: '',
     name: '',
@@ -42,7 +61,9 @@ const AdminModulesPage: React.FC = () => {
     priceYearly: 0,
     isPublic: true,
     isPopular: false,
-    featuresJson: ''
+    featuresJson: '',
+    category: null,
+    tag: null,
   });
 
   const fetchModules = useCallback(async () => {
@@ -77,7 +98,9 @@ const AdminModulesPage: React.FC = () => {
       
       setFormData({
         ...module,
-        featuresJson: feats
+        featuresJson: feats,
+        category: module.category ?? null,
+        tag: module.tag ?? null,
       });
     } else {
       setEditingModule(null);
@@ -355,20 +378,42 @@ const AdminModulesPage: React.FC = () => {
                     />
                   </div>
 
+                  <div className={styles.formGroup}>
+                    <label className={styles.formLabel}>Kategori</label>
+                    <select
+                      className={styles.formInput}
+                      value={formData.category ?? ''}
+                      onChange={e => setFormData({...formData, category: e.target.value || null})}
+                    >
+                      {CATEGORIES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+                    </select>
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label className={styles.formLabel}>Etiket (Rozet)</label>
+                    <select
+                      className={styles.formInput}
+                      value={formData.tag ?? ''}
+                      onChange={e => setFormData({...formData, tag: e.target.value || null})}
+                    >
+                      {TAGS.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+                    </select>
+                  </div>
+
                   <div className={`${styles.checkboxGroup} ${styles.fullWidth}`}>
                     <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
-                      <input 
-                        type="checkbox" 
-                        checked={formData.isPublic} 
-                        onChange={e => setFormData({...formData, isPublic: e.target.checked})} 
+                      <input
+                        type="checkbox"
+                        checked={formData.isPublic}
+                        onChange={e => setFormData({...formData, isPublic: e.target.checked})}
                       />
                       Müşterilere Açık (Public)
                     </label>
                     <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', marginLeft: '20px' }}>
-                      <input 
-                        type="checkbox" 
-                        checked={formData.isPopular} 
-                        onChange={e => setFormData({...formData, isPopular: e.target.checked})} 
+                      <input
+                        type="checkbox"
+                        checked={formData.isPopular}
+                        onChange={e => setFormData({...formData, isPopular: e.target.checked})}
                       />
                       Popüler Etiketi Ekle
                     </label>

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Wixi.Modules.Core.Application.Common.Interfaces;
 using Wixi.Modules.Core.Infrastructure.Data;
 
 namespace Wixi.API.Controllers.Subscriptions;
@@ -14,11 +15,16 @@ namespace Wixi.API.Controllers.Subscriptions;
 public class TenantsController : ControllerBase
 {
     private readonly WixiCoreDbContext _coreDb;
+    private readonly IEnumerable<ITenantProvisioner> _provisioners;
     private readonly ILogger<TenantsController> _logger;
 
-    public TenantsController(WixiCoreDbContext coreDb, ILogger<TenantsController> logger)
+    public TenantsController(
+        WixiCoreDbContext coreDb,
+        IEnumerable<ITenantProvisioner> provisioners,
+        ILogger<TenantsController> logger)
     {
         _coreDb = coreDb;
+        _provisioners = provisioners;
         _logger = logger;
     }
 
@@ -57,6 +63,50 @@ public class TenantsController : ControllerBase
         await _coreDb.SaveChangesAsync();
 
         return Ok(new { message = $"Tenant status updated: {tenant.IsActive}", isActive = tenant.IsActive });
+    }
+
+    /// <summary>
+    /// DB provision'ı başarısız olan veya hiç çalışmamış tenant için yeniden provision eder.
+    /// </summary>
+    [HttpPost("{id}/reprovision")]
+    public async Task<IActionResult> Reprovision(Guid id, CancellationToken ct)
+    {
+        var tenant = await _coreDb.Tenants.FindAsync([id], ct);
+        if (tenant == null || tenant.IsDeleted) return NotFound();
+
+        if (string.IsNullOrWhiteSpace(tenant.ConnectionString) || string.IsNullOrWhiteSpace(tenant.DatabaseName))
+            return BadRequest(new { error = "Tenant'ın ConnectionString veya DatabaseName alanı boş." });
+
+        var enabledModules = (tenant.EnabledModules ?? "ecommerce")
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+        string? provisionError = null;
+        try
+        {
+            foreach (var provisioner in _provisioners)
+            {
+                if (enabledModules.Contains(provisioner.ModuleName))
+                    await provisioner.ProvisionAsync(tenant.Id.ToString(), tenant.ConnectionString, tenant.DatabaseName, ct);
+            }
+
+            tenant.IsMigrated = true;
+            tenant.LastMigrationError = null;
+            _logger.LogInformation("Tenant {Slug} re-provisioned successfully", tenant.Slug);
+        }
+        catch (Exception ex)
+        {
+            provisionError = ex.Message;
+            tenant.IsMigrated = false;
+            tenant.LastMigrationError = ex.Message;
+            _logger.LogError(ex, "Re-provision failed for tenant {Slug}", tenant.Slug);
+        }
+
+        await _coreDb.SaveChangesAsync(ct);
+
+        if (provisionError is not null)
+            return StatusCode(500, new { error = "Provision başarısız.", detail = provisionError });
+
+        return Ok(new { message = $"Tenant '{tenant.Slug}' başarıyla provision edildi.", databaseName = tenant.DatabaseName });
     }
 
     /// <summary>
