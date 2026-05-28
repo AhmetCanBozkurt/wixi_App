@@ -1545,7 +1545,53 @@ export const BLOCK_REGISTRY: BlockDefinition[] = [
       ].join('\n');
     },
   },
-
+  {
+    type: 'section-container',
+    name: 'Kapsayıcı Kutu',
+    category: 'advanced',
+    icon: FaThLarge,
+    defaultProps: {
+      paddingY: '20px',
+      paddingX: '20px',
+      backgroundColor: '',
+      borderRadius: '8px',
+    },
+    propsSchema: [
+      { field: 'paddingY', type: 'text', label: 'Dikey Boşluk', group: 'style' },
+      { field: 'paddingX', type: 'text', label: 'Yatay Boşluk', group: 'style' },
+      { field: 'backgroundColor', type: 'color', label: 'Arka Plan Rengi', group: 'visual' },
+      { field: 'borderRadius', type: 'text', label: 'Kenar Ovalliği', group: 'style' },
+    ],
+    toCss: (props, theme) => {
+      return `.section-container { font-family: ${theme.typography.fontFamily}; }`;
+    },
+  },
+  {
+    type: 'grid-row',
+    name: 'Izgara Satırı',
+    category: 'advanced',
+    icon: FaTh,
+    defaultProps: {
+      gap: '16px',
+    },
+    propsSchema: [
+      { field: 'gap', type: 'text', label: 'Boşluk (Gap)', group: 'style' },
+    ],
+    toCss: () => '',
+  },
+  {
+    type: 'grid-column',
+    name: 'Izgara Kolonu',
+    category: 'advanced',
+    icon: FaColumns,
+    defaultProps: {
+      span: 6,
+    },
+    propsSchema: [
+      { field: 'span', type: 'number', label: 'Genişlik (1-12)', group: 'style' },
+    ],
+    toCss: () => '',
+  },
 ];
 
 export const BLOCK_BY_TYPE = Object.fromEntries(BLOCK_REGISTRY.map(b => [b.type, b]));

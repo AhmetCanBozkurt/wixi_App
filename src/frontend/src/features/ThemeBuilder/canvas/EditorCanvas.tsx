@@ -98,6 +98,44 @@ function CanvasFooterPreview({
   );
 }
 
+// ── NestedComponentWrapper ───────────────────────────────────────────────────
+
+function NestedComponentWrapper({ comp, theme }: { comp: LayoutComponent; theme: ThemeConfig }) {
+  const { state, dispatch } = useEditor();
+  const isSelected = state.selectedComponentId === comp.id;
+
+  const handleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    dispatch({ type: 'SELECT_COMPONENT', id: comp.id });
+    dispatch({ type: 'SELECT_ROW', rowId: null });
+    dispatch({ type: 'SELECT_COLUMN', rowId: null, columnId: null });
+    dispatch({ type: 'SET_RIGHT_TAB', tab: 'props' });
+  };
+
+  return (
+    <div
+      className={`${styles.nestedWrapper} ${isSelected ? styles.nestedSelected : ''}`}
+      onClick={handleClick}
+    >
+      {isSelected && (
+        <div className={styles.nestedToolbar} onClick={(e) => e.stopPropagation()}>
+          <button
+            type="button"
+            className={styles.nestedToolbarBtn}
+            title="Bileşeni Sil"
+            onClick={() => {
+              dispatch({ type: 'REMOVE_COMPONENT', componentId: comp.id });
+            }}
+          >
+            <FaTrash size={10} />
+          </button>
+        </div>
+      )}
+      <MiniRenderer comp={comp} theme={theme} />
+    </div>
+  );
+}
+
 // ── MiniRenderer ──────────────────────────────────────────────────────────────
 
 export function MiniRenderer({ comp, theme }: { comp: LayoutComponent; theme: ThemeConfig }) {
@@ -111,7 +149,7 @@ export function MiniRenderer({ comp, theme }: { comp: LayoutComponent; theme: Th
           className={styles.heroPreview}
           style={{
             height: '220px',
-            backgroundImage: p.imageUrl ? `url(${p.imageUrl as string})` : 'none',
+            backgroundImage: p.imageUrl ? `url("${p.imageUrl as string}")` : 'none',
             background: p.imageUrl ? undefined : 'linear-gradient(135deg, #1e293b, #0f172a)',
           }}
         >
@@ -149,7 +187,7 @@ export function MiniRenderer({ comp, theme }: { comp: LayoutComponent; theme: Th
           </div>
           <div
             className={styles.heroSplitImg}
-            style={{ background: p.imageUrl ? `url(${p.imageUrl as string}) center/cover` : '#f3f4f6' }}
+            style={{ background: p.imageUrl ? `url("${p.imageUrl as string}") center/cover` : '#f3f4f6' }}
           />
         </div>
       );
@@ -196,7 +234,7 @@ export function MiniRenderer({ comp, theme }: { comp: LayoutComponent; theme: Th
             <h3 data-prop-key="title" style={{ fontWeight: 700, marginBottom: '8px', color: theme.colors.text }}>{p.title as string}</h3>
             <p data-prop-key="text" style={{ fontSize: '0.8rem', color: theme.colors.textMuted, lineHeight: 1.6 }}>{String(p.text ?? '').slice(0, 120)}...</p>
           </div>
-          <div style={{ flex: 1, borderRadius: theme.borderRadius.lg, background: p.imageUrl ? `url(${p.imageUrl as string}) center/cover` : theme.colors.surface, minHeight: '100px', border: `1px solid ${theme.colors.border}` }} />
+          <div style={{ flex: 1, borderRadius: theme.borderRadius.lg, background: p.imageUrl ? `url("${p.imageUrl as string}") center/cover` : theme.colors.surface, minHeight: '100px', border: `1px solid ${theme.colors.border}` }} />
         </div>
       );
 
@@ -323,7 +361,7 @@ export function MiniRenderer({ comp, theme }: { comp: LayoutComponent; theme: Th
 
     case 'hero-corporate':
       return (
-        <div style={{ minHeight: '180px', background: p.imageUrl ? `linear-gradient(rgba(0,0,0,${p.overlayOpacity ?? 0.55}),rgba(0,0,0,${p.overlayOpacity ?? 0.55})), url(${p.imageUrl as string}) center/cover` : 'linear-gradient(135deg,#1e293b 0%,#0f172a 100%)', padding: '28px 24px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+        <div style={{ minHeight: '180px', background: p.imageUrl ? `linear-gradient(rgba(0,0,0,${p.overlayOpacity ?? 0.55}),rgba(0,0,0,${p.overlayOpacity ?? 0.55})), url("${p.imageUrl as string}") center/cover` : 'linear-gradient(135deg,#1e293b 0%,#0f172a 100%)', padding: '28px 24px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
           <h2 data-prop-key="title" style={{ color: '#fff', fontSize: '1.3rem', fontWeight: 800, marginBottom: '8px', lineHeight: 1.2 }}>{p.title as string}</h2>
           {!!p.subtitle && <p data-prop-key="subtitle" style={{ color: 'rgba(255,255,255,0.78)', fontSize: '0.78rem', lineHeight: 1.5, marginBottom: '14px', maxWidth: '480px' }}>{String(p.subtitle).slice(0, 100)}…</p>}
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
@@ -356,7 +394,7 @@ export function MiniRenderer({ comp, theme }: { comp: LayoutComponent; theme: Th
     }
 
     case 'team-grid': {
-      const members = (p.items as { name: string; role: string; bio?: string }[]) ?? [];
+      const members = (p.items as { name: string; role: string; bio?: string; imageUrl?: string }[]) ?? [];
       const cols = Number(p.columns ?? 3);
       return (
         <div style={{ padding: '16px' }}>
@@ -365,7 +403,11 @@ export function MiniRenderer({ comp, theme }: { comp: LayoutComponent; theme: Th
           <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(cols, 4)}, 1fr)`, gap: '8px' }}>
             {members.slice(0, Math.min(cols, 4)).map((m, i) => (
               <div key={i} style={{ background: theme.colors.surface, borderRadius: theme.borderRadius.card, border: `1px solid ${theme.colors.border}`, padding: '10px', textAlign: 'center' }}>
-                <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: theme.colors.border, margin: '0 auto 8px' }} />
+                {m.imageUrl ? (
+                  <img src={m.imageUrl} alt={m.name} style={{ width: '44px', height: '44px', borderRadius: '50%', objectFit: 'cover', margin: '0 auto 8px', display: 'block' }} />
+                ) : (
+                  <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: theme.colors.border, margin: '0 auto 8px' }} />
+                )}
                 <div style={{ fontSize: '0.72rem', fontWeight: 700, color: theme.colors.text }}>{m.name}</div>
                 <div style={{ fontSize: '0.65rem', color: theme.colors.primary, marginTop: '2px' }}>{m.role}</div>
               </div>
@@ -457,9 +499,19 @@ export function MiniRenderer({ comp, theme }: { comp: LayoutComponent; theme: Th
         <div style={{ padding: '16px', textAlign: 'center' }}>
           <h3 data-prop-key="title" style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '4px', color: theme.colors.text }}>{p.title as string}</h3>
           <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '10px' }}>
-            {Array.from({ length: Math.min(logos.length || cols, 8) }).map((_, i) => (
-              <div key={i} style={{ height: '28px', width: '70px', background: theme.colors.border, borderRadius: '4px', opacity: 0.45 }} />
-            ))}
+            {logos.length > 0 ? (
+              logos.slice(0, 8).map((logo, i) => (
+                logo.imageUrl ? (
+                  <img key={i} src={logo.imageUrl} alt={logo.altText} style={{ height: '28px', maxWidth: '80px', objectFit: 'contain', opacity: 0.8 }} />
+                ) : (
+                  <div key={i} style={{ height: '28px', width: '70px', background: theme.colors.border, borderRadius: '4px', opacity: 0.45 }} />
+                )
+              ))
+            ) : (
+              Array.from({ length: cols }).map((_, i) => (
+                <div key={i} style={{ height: '28px', width: '70px', background: theme.colors.border, borderRadius: '4px', opacity: 0.45 }} />
+              ))
+            )}
           </div>
         </div>
       );
@@ -575,7 +627,7 @@ export function MiniRenderer({ comp, theme }: { comp: LayoutComponent; theme: Th
     }
 
     case 'portfolio-grid': {
-      const items = (p.items as { title: string; category: string }[]) ?? [];
+      const items = (p.items as { title: string; category: string; imageUrl?: string }[]) ?? [];
       const cols = Number(p.columns ?? 3);
       return (
         <div style={{ padding: '16px' }}>
@@ -583,7 +635,11 @@ export function MiniRenderer({ comp, theme }: { comp: LayoutComponent; theme: Th
           <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(cols, 3)}, 1fr)`, gap: '8px' }}>
             {items.slice(0, Math.min(cols, 6)).map((it, i) => (
               <div key={i} style={{ background: theme.colors.surface, border: `1px solid ${theme.colors.border}`, borderRadius: theme.borderRadius.card, overflow: 'hidden' }}>
-                <div style={{ height: '60px', background: theme.colors.border }} />
+                {it.imageUrl ? (
+                  <div style={{ height: '60px', background: `url("${it.imageUrl}") center/cover` }} />
+                ) : (
+                  <div style={{ height: '60px', background: theme.colors.border }} />
+                )}
                 <div style={{ padding: '8px' }}>
                   <div style={{ fontSize: '0.58rem', color: theme.colors.primary, fontWeight: 700, textTransform: 'uppercase', marginBottom: '2px' }}>{it.category}</div>
                   <div style={{ fontSize: '0.75rem', fontWeight: 700, color: theme.colors.text }}>{it.title}</div>
@@ -635,6 +691,113 @@ export function MiniRenderer({ comp, theme }: { comp: LayoutComponent; theme: Th
           ))}
         </div>
       );
+
+    case 'section-container': {
+      const children = comp.children ?? [];
+      const { dispatch } = useEditor();
+      return (
+        <div
+          style={{
+            paddingTop: p.paddingY ? String(p.paddingY) : '20px',
+            paddingBottom: p.paddingY ? String(p.paddingY) : '20px',
+            paddingLeft: p.paddingX ? String(p.paddingX) : '20px',
+            paddingRight: p.paddingX ? String(p.paddingX) : '20px',
+            backgroundColor: (p.backgroundColor as string) || 'transparent',
+            borderRadius: p.borderRadius ? String(p.borderRadius) : '8px',
+            border: `1px dashed ${theme.colors.border}`,
+            minHeight: '80px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '12px',
+          }}
+        >
+          {children.length > 0 ? (
+            children.map(child => (
+              <NestedComponentWrapper key={child.id} comp={child} theme={theme} />
+            ))
+          ) : (
+            <div
+              style={{ padding: '20px', textAlign: 'center', color: theme.colors.textMuted, fontSize: '0.8rem', cursor: 'pointer' }}
+              onClick={(e) => {
+                e.stopPropagation();
+                dispatch({ type: 'SELECT_COMPONENT', id: comp.id });
+                dispatch({ type: 'SET_LEFT_TAB', tab: 'components' });
+              }}
+            >
+              Kapsayıcı Kutu (Seçip bileşen ekleyin)
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    case 'grid-row': {
+      const children = comp.children ?? [];
+      const { dispatch } = useEditor();
+      return (
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(12, 1fr)',
+            gap: p.gap ? String(p.gap) : '16px',
+            width: '100%',
+            minHeight: '50px',
+            border: '1px dashed rgba(255,255,255,0.05)',
+            padding: '4px',
+          }}
+        >
+          {children.length > 0 ? (
+            children.map(child => (
+              <NestedComponentWrapper key={child.id} comp={child} theme={theme} />
+            ))
+          ) : (
+            <div
+              style={{ gridColumn: 'span 12', padding: '12px', textAlign: 'center', color: theme.colors.textMuted, fontSize: '0.8rem', cursor: 'pointer' }}
+              onClick={(e) => {
+                e.stopPropagation();
+                dispatch({ type: 'SELECT_COMPONENT', id: comp.id });
+                dispatch({ type: 'SET_LEFT_TAB', tab: 'components' });
+              }}
+            >
+              Izgara Satırı (Seçip kolon ekleyin)
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    case 'grid-column': {
+      const children = comp.children ?? [];
+      const span = Number(p.span ?? 6);
+      const { dispatch } = useEditor();
+      return (
+        <div
+          style={{
+            gridColumn: `span ${span}`,
+            minHeight: '40px',
+            border: '1px dashed rgba(255,255,255,0.08)',
+            padding: '8px',
+          }}
+        >
+          {children.length > 0 ? (
+            children.map(child => (
+              <NestedComponentWrapper key={child.id} comp={child} theme={theme} />
+            ))
+          ) : (
+            <div
+              style={{ padding: '8px', textAlign: 'center', color: theme.colors.textMuted, fontSize: '0.75rem', cursor: 'pointer' }}
+              onClick={(e) => {
+                e.stopPropagation();
+                dispatch({ type: 'SELECT_COMPONENT', id: comp.id });
+                dispatch({ type: 'SET_LEFT_TAB', tab: 'components' });
+              }}
+            >
+              Kolon (Seçip bileşen ekleyin)
+            </div>
+          )}
+        </div>
+      );
+    }
 
     default:
       return (
@@ -999,7 +1162,10 @@ function RowWrapper({
         ref={rowGridRef}
         className={styles.rowGrid}
         style={{
-          background: row.props.backgroundColor,
+          background: row.props.backgroundColor || undefined,
+          backgroundImage: row.props.backgroundImage ? `url("${row.props.backgroundImage as string}")` : undefined,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
           paddingTop: row.props.paddingY ?? '0',
           paddingBottom: row.props.paddingY ?? '0',
           paddingLeft: row.props.paddingX ?? '0',

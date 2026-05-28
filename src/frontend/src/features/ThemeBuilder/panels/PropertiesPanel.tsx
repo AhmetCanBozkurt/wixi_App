@@ -34,23 +34,21 @@ type RowData = Record<string, unknown>;
 
 function ImageInput({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   return (
-    <div className={styles.imageInput}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+      <ImageUpload
+        value={value ? String(value) : null}
+        onChange={(base64) => onChange(base64 || '')}
+        shape="square"
+        size={80}
+        hint="Görsel yükleyin."
+      />
       <input
         type="url"
         className={styles.input}
         value={value}
-        placeholder="https://example.com/image.jpg"
+        placeholder="Veya görsel URL'si yapıştırın"
         onChange={(e) => onChange(e.target.value)}
       />
-      {value && (
-        <div className={styles.imagePreview}>
-          <img
-            src={value}
-            alt="Onizleme"
-            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-          />
-        </div>
-      )}
     </div>
   );
 }

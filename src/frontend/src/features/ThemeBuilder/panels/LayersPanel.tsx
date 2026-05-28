@@ -24,6 +24,101 @@ function rowSubtitle(row: LayoutRow): string {
   return `${filled}/${total} kolon dolu`;
 }
 
+// ── Recursive Layer Item Helper ──────────────────────────────────────────────
+
+interface RecursiveLayerItemProps {
+  comp: any;
+  level: number;
+  selectedComponentId: string | null;
+  onSelectBlock: (id: string) => void;
+  onDispatch: (action: any) => void;
+}
+
+function RecursiveLayerItem({
+  comp,
+  level = 1,
+  selectedComponentId,
+  onSelectBlock,
+  onDispatch,
+}: RecursiveLayerItemProps) {
+  const [isExpanded, setIsExpanded] = useState(true);
+  const def = BLOCK_BY_TYPE[comp.type];
+  const Icon = def?.icon;
+  const isCompSelected = comp.id === selectedComponentId;
+  const hasChildren = comp.children && comp.children.length > 0;
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+      <div
+        className={`${styles.layerChildRow} ${isCompSelected ? styles.layerChildRowActive : ''}`}
+        style={{ paddingLeft: `${level * 12 + 12}px` }}
+        onClick={(e) => {
+          e.stopPropagation();
+          onSelectBlock(comp.id);
+        }}
+      >
+        {hasChildren ? (
+          <button
+            className={styles.layerExpandBtn}
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsExpanded(!isExpanded);
+            }}
+            type="button"
+            style={{ marginRight: '4px', background: 'none', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          >
+            {isExpanded ? <FaChevronDown size={8} /> : <FaChevronRight size={8} />}
+          </button>
+        ) : (
+          <span className={styles.layerChildDot} style={{ marginRight: '8px' }} />
+        )}
+        <span className={styles.layerIcon} style={{ fontSize: '10px', opacity: 0.6, marginRight: '6px' }}>
+          {Icon ? <Icon /> : <FaLayerGroup />}
+        </span>
+        <span
+          className={isCompSelected ? styles.layerName : undefined}
+          style={{ flex: 1, fontSize: '11px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+        >
+          {def?.name ?? comp.type}
+        </span>
+        <div className={styles.layerActions} onClick={(e) => e.stopPropagation()}>
+          <button
+            className={styles.layerBtn}
+            onClick={() => onDispatch({ type: 'DUPLICATE_COMPONENT', componentId: comp.id })}
+            title="Çoğalt"
+            type="button"
+          >
+            <FaCopy />
+          </button>
+          <button
+            className={`${styles.layerBtn} ${styles.layerBtnDanger}`}
+            onClick={() => onDispatch({ type: 'REMOVE_COMPONENT', componentId: comp.id })}
+            title="Sil"
+            type="button"
+          >
+            <FaTrash />
+          </button>
+        </div>
+      </div>
+
+      {hasChildren && isExpanded && (
+        <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+          {comp.children.map((child: any) => (
+            <RecursiveLayerItem
+              key={child.id}
+              comp={child}
+              level={level + 1}
+              selectedComponentId={selectedComponentId}
+              onSelectBlock={onSelectBlock}
+              onDispatch={onDispatch}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Main LayersPanel ──────────────────────────────────────────────────────────
 
 export function LayersPanel() {
@@ -190,7 +285,7 @@ export function LayersPanel() {
                         >
                           <span className={styles.layerChildDot} />
                           <span className={styles.layerIcon} style={{ fontSize: '10px', opacity: 0.6 }}>
-                            {Icon ? <Icon /> : <FaLayerGroup />}
+                            {comp && Icon ? <Icon /> : <FaLayerGroup />}
                           </span>
                           <span
                             className={isCompSelected ? styles.layerName : undefined}
@@ -234,6 +329,20 @@ export function LayersPanel() {
                             )}
                           </div>
                         </div>
+
+                        {/* Render children recursively if they exist */}
+                        {comp && comp.children && comp.children.length > 0 && (
+                          comp.children.map(child => (
+                            <RecursiveLayerItem
+                              key={child.id}
+                              comp={child}
+                              level={1}
+                              selectedComponentId={selectedComponentId}
+                              onSelectBlock={handleSelectBlock}
+                              onDispatch={dispatch}
+                            />
+                          ))
+                        )}
                       </Fragment>
                     );
                   })}

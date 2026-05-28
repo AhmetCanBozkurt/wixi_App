@@ -606,3 +606,52 @@
   font-size: 9px;
   flex-shrink: 0;
 }
+
+/* ── Nested Layout & Containers ──────────────────────── */
+.nestedWrapper {
+  position: relative;
+  outline: 1px dashed transparent;
+  outline-offset: -1px;
+  transition: all 0.15s;
+}
+
+.nestedWrapper:hover {
+  outline-color: rgba(236, 72, 153, 0.4);
+}
+
+.nestedSelected {
+  outline: 2px solid #ec4899 !important;
+  animation: selectionPulse 2s ease-in-out infinite;
+}
+
+.nestedToolbar {
+  position: absolute;
+  top: -24px;
+  right: 0;
+  display: flex;
+  background: var(--editor-surface);
+  border: 1px solid var(--editor-border);
+  border-radius: 4px;
+  padding: 2px;
+  z-index: 30;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.nestedToolbarBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  background: transparent;
+  border: none;
+  color: var(--editor-text-muted);
+  cursor: pointer;
+  border-radius: 2px;
+  transition: background 0.1s;
+}
+
+.nestedToolbarBtn:hover {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}

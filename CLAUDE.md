@@ -2,6 +2,28 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Graphify — Proje Bilgi Grafiği
+
+`graphify-out/graph.json` bu projenin kalıcı bilgi tabanıdır. Mimari kararlar, modül ilişkileri ve bağımlılıklar burada tutulur.
+
+### Zorunlu Kurallar
+
+**1. Analiz/görev öncesi sorgula:**
+Her mimari analiz, modül araştırması veya bağımlılık sorusunda önce graphify'a başvur:
+```
+/graphify query <konu>
+```
+Graph yoksa önce `graphify-out/` klasörünü kontrol et; `graph.json` varsa `/graphify query` kullan.
+
+**2. Önemli kod değişikliğinden sonra güncelle:**
+Yeni modül, entity, servis veya büyük refactor sonrası graphify'ı rebuild et:
+```
+/graphify src/
+```
+Her küçük değişiklikte rebuild gerekmez — yeni dosya/modül eklenince ya da kullanıcı isteyince rebuild yap.
+
+---
+
 ## Görev Yönetimi — ClickUp MCP Entegrasyonu
 
 Her yeni görev, durum güncellemesi ve sprint takibi **ClickUp MCP** üzerinden yapılır. Hiçbir görev sadece konuşma içinde tutulmaz — ClickUp tek kaynak.

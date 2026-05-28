@@ -87,6 +87,7 @@ export type EditorAction =
   | { type: 'DUPLICATE_COMPONENT'; componentId: string }
   | { type: 'COPY_COMPONENT'; componentId: string }
   | { type: 'PASTE_COMPONENT' }
+  | { type: 'ADD_COMPONENT_TO_PARENT'; parentId: string; component: LayoutComponent }
   // Selection
   | { type: 'SELECT_COMPONENT'; id: string | null }
   | { type: 'SELECT_ROW'; rowId: string | null }
@@ -107,9 +108,22 @@ const HISTORY_LIMIT = 50;
 // ── Helpers (exported) ────────────────────────────────────────────────────────
 
 export function findComponentInRows(layout: LayoutRow[], id: string): LayoutComponent | null {
+  function findInComp(comp: LayoutComponent): LayoutComponent | null {
+    if (comp.id === id) return comp;
+    if (comp.children) {
+      for (const child of comp.children) {
+        const found = findInComp(child);
+        if (found) return found;
+      }
+    }
+    return null;
+  }
   for (const row of layout) {
     for (const col of row.columns) {
-      if (col.component?.id === id) return col.component;
+      if (col.component) {
+        const found = findInComp(col.component);
+        if (found) return found;
+      }
     }
   }
   return null;
@@ -121,7 +135,9 @@ export function findColumnInRows(
 ): { row: LayoutRow; column: LayoutColumn } | null {
   for (const row of layout) {
     for (const col of row.columns) {
-      if (col.component?.id === componentId) return { row, column: col };
+      if (col.component) {
+        if (findComponentInRows([row], componentId)) return { row, column: col };
+      }
     }
   }
   return null;
@@ -157,7 +173,12 @@ function redistributeSpans(columns: LayoutColumn[]): LayoutColumn[] {
 }
 
 function deepCloneComp(comp: LayoutComponent): LayoutComponent {
-  return { ...comp, id: crypto.randomUUID(), props: { ...comp.props } };
+  return {
+    ...comp,
+    id: crypto.randomUUID(),
+    props: { ...comp.props },
+    children: comp.children ? comp.children.map(deepCloneComp) : undefined,
+  };
 }
 
 function pushHistory(state: EditorState): EditorState {
@@ -271,6 +292,36 @@ function reducer(state: EditorState, action: EditorAction): EditorState {
 
     case 'ADD_COMPONENT': {
       const h = pushHistory(state);
+
+      if (state.selectedComponentId) {
+        const selectedComp = findComponentInRows(h.layout, state.selectedComponentId);
+        if (selectedComp && ['section-container', 'grid-row', 'grid-column'].includes(selectedComp.type)) {
+          const addToComp = (comp: LayoutComponent): LayoutComponent => {
+            if (comp.id === selectedComp.id) {
+              const children = comp.children ? [...comp.children, action.component] : [action.component];
+              return { ...comp, children };
+            }
+            if (comp.children) {
+              return { ...comp, children: comp.children.map(addToComp) };
+            }
+            return comp;
+          };
+          const newLayout = h.layout.map(row => ({
+            ...row,
+            columns: row.columns.map(col => {
+              if (!col.component) return col;
+              return { ...col, component: addToComp(col.component) };
+            }),
+          }));
+          return {
+            ...h,
+            layout: newLayout,
+            selectedComponentId: action.component.id,
+            isDirty: true,
+          };
+        }
+      }
+
       if (state.insertTargetRowId) {
         // Add as new column in existing row
         const newLayout = h.layout.map(row => {
@@ -425,13 +476,22 @@ function reducer(state: EditorState, action: EditorAction): EditorState {
 
     case 'UPDATE_COMPONENT_PROPS': {
       const h = pushHistory(state);
+      const updateInComp = (comp: LayoutComponent): LayoutComponent => {
+        if (comp.id === action.componentId) {
+          return { ...comp, props: { ...comp.props, ...action.props } };
+        }
+        if (comp.children) {
+          return { ...comp, children: comp.children.map(updateInComp) };
+        }
+        return comp;
+      };
       const newLayout = h.layout.map(row => ({
         ...row,
         columns: row.columns.map(col => {
-          if (col.component?.id !== action.componentId) return col;
+          if (!col.component) return col;
           return {
             ...col,
-            component: { ...col.component, props: { ...col.component.props, ...action.props } },
+            component: updateInComp(col.component),
           };
         }),
       }));
@@ -440,16 +500,66 @@ function reducer(state: EditorState, action: EditorAction): EditorState {
 
     case 'REMOVE_COMPONENT': {
       const h = pushHistory(state);
+      const removeFromComp = (comp: LayoutComponent): LayoutComponent | null => {
+        if (comp.id === action.componentId) return null;
+        if (comp.children) {
+          const remaining = comp.children
+            .map(removeFromComp)
+            .filter((c): c is LayoutComponent => c !== null);
+          return { ...comp, children: remaining };
+        }
+        return comp;
+      };
       const newLayout: LayoutRow[] = [];
       for (const row of h.layout) {
-        const remaining = row.columns.filter(c => c.component?.id !== action.componentId);
-        if (remaining.length === 0) continue; // drop empty row
-        newLayout.push({ ...row, columns: redistributeSpans(remaining) });
+        const hasTopLevel = row.columns.some(c => c.component?.id === action.componentId);
+        if (hasTopLevel) {
+          const remaining = row.columns.filter(c => c.component?.id !== action.componentId);
+          if (remaining.length > 0) {
+            newLayout.push({ ...row, columns: redistributeSpans(remaining) });
+          }
+        } else {
+          const columns = row.columns.map(col => {
+            if (!col.component) return col;
+            return {
+              ...col,
+              component: removeFromComp(col.component),
+            };
+          });
+          newLayout.push({ ...row, columns });
+        }
       }
       return {
         ...h,
         layout: newLayout,
         selectedComponentId: state.selectedComponentId === action.componentId ? null : state.selectedComponentId,
+        isDirty: true,
+      };
+    }
+
+    case 'ADD_COMPONENT_TO_PARENT': {
+      const h = pushHistory(state);
+      const addToComp = (comp: LayoutComponent): LayoutComponent => {
+        if (comp.id === action.parentId) {
+          const children = comp.children ? [...comp.children, action.component] : [action.component];
+          return { ...comp, children };
+        }
+        if (comp.children) {
+          return { ...comp, children: comp.children.map(addToComp) };
+        }
+        return comp;
+      };
+      const newLayout = h.layout.map(row => ({
+        ...row,
+        columns: row.columns.map(col => {
+          if (!col.component) return col;
+          return { ...col, component: addToComp(col.component) };
+        }),
+      }));
+      return {
+        ...h,
+        layout: newLayout,
+        selectedComponentId: action.component.id,
         isDirty: true,
       };
     }

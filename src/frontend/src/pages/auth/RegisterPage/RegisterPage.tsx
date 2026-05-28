@@ -20,7 +20,7 @@ const schema = z.object({
     .regex(/[^A-Za-z0-9]/, 'En az bir özel karakter içermelidir'),
   passwordConfirm: z.string().min(1, 'Şifre tekrarı zorunludur'),
   kvkk: z.literal(true, {
-    errorMap: () => ({ message: 'Kullanım şartlarını ve KVKK metnini onaylamanız gerekiyor.' }),
+    message: 'Kullanım şartlarını ve KVKK metnini onaylamanız gerekiyor.',
   }),
   news: z.boolean().optional(),
 }).refine((d) => d.password === d.passwordConfirm, {
