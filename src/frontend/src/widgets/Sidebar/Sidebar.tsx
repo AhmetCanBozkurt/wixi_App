@@ -384,7 +384,7 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse }: SidebarProps) => {
           </div>
         )}
 
-        {!isCollapsed && menus.length > 0 && !isTenantMode && (
+        {!isCollapsed && menus.length > 0 && (
           <>
             <div className={styles.sectionControls}>
               <span className={styles.sectionControlsTitle}>BÖLÜMLER</span>
@@ -412,10 +412,12 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse }: SidebarProps) => {
                       />
                       {allExpanded ? 'Tümünü Kapat' : 'Tümünü Aç'}
                     </button>
-                    <button className={styles.ctrlDropdownItem} onClick={clearFavorites}>
-                      <FaStar className={`${styles.ctrlDropdownIcon} ${styles.starIconGold}`} />
-                      Favorileri Kaldır
-                    </button>
+                    {!isTenantMode && (
+                      <button className={styles.ctrlDropdownItem} onClick={clearFavorites}>
+                        <FaStar className={`${styles.ctrlDropdownIcon} ${styles.starIconGold}`} />
+                        Favorileri Kaldır
+                      </button>
+                    )}
                   </div>
                 )}
               </div>
