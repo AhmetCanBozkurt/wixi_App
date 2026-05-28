@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { FaHistory, FaRocket } from 'react-icons/fa';
+import Swal from 'sweetalert2';
 import { useEditor } from '../../ThemeBuilder/context/EditorContext';
 import { useWebBuilder } from '../hooks/useWebBuilder';
 import { Button } from '../../../shared/ui/Button/Button';
@@ -28,7 +29,6 @@ export function WebVersionHistoryPanel({ onClose }: Props) {
   const { loadVersions, createCheckpoint, rollbackVersion } = useWebBuilder();
   const [checkpointModalOpen, setCheckpointModalOpen] = useState(false);
   const [checkpointLabel, setCheckpointLabel] = useState('');
-  const [rollbackId, setRollbackId] = useState<string | null>(null);
 
   useEffect(() => {
     void loadVersions();
@@ -40,13 +40,6 @@ export function WebVersionHistoryPanel({ onClose }: Props) {
     await createCheckpoint(checkpointLabel.trim());
     setCheckpointLabel('');
     setCheckpointModalOpen(false);
-  };
-
-  const handleRollback = async () => {
-    if (!rollbackId) return;
-    await rollbackVersion(rollbackId);
-    setRollbackId(null);
-    onClose?.();
   };
 
   return (
@@ -90,7 +83,26 @@ export function WebVersionHistoryPanel({ onClose }: Props) {
 
             <button
               className={styles.publishBtn}
-              onClick={() => setRollbackId(v._versionId ?? null)}
+              onClick={() => {
+                const versionId = v._versionId;
+                if (!versionId) return;
+                Swal.fire({
+                  title: 'Geri yüklemek istiyor musunuz?',
+                  text: `v${v.versionNumber} versiyonu geri yüklenecektir. Bu işlem geçerli tasarımınızı ezecektir!`,
+                  icon: 'warning',
+                  showCancelButton: true,
+                  confirmButtonColor: 'var(--color-primary, #6366f1)',
+                  cancelButtonColor: '#6b7280',
+                  confirmButtonText: 'Evet, Geri Yükle!',
+                  cancelButtonText: 'Vazgeç'
+                }).then((result) => {
+                  if (result.isConfirmed) {
+                    void rollbackVersion(versionId).then(() => {
+                      onClose?.();
+                    });
+                  }
+                });
+              }}
               type="button"
               title="Bu versiyonu geri yükle"
             >
@@ -121,25 +133,6 @@ export function WebVersionHistoryPanel({ onClose }: Props) {
           onChange={e => setCheckpointLabel(e.target.value)}
           placeholder="Örn: Kurumsal Sayfa v1"
         />
-      </Modal>
-
-      <Modal
-        isOpen={rollbackId !== null}
-        onClose={() => setRollbackId(null)}
-        title="Geri Al"
-        size="sm"
-        footer={
-          <>
-            <Button variant="ghost" onClick={() => setRollbackId(null)}>Vazgeç</Button>
-            <Button variant="primary" isLoading={state.isSaving} onClick={() => void handleRollback()}>
-              Evet, Geri Al
-            </Button>
-          </>
-        }
-      >
-        <p style={{ margin: 0, fontSize: '0.9rem', lineHeight: 1.6 }}>
-          Bu versiyonu geri yüklemek istediğinize emin misiniz?
-        </p>
       </Modal>
     </div>
   );

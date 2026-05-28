@@ -29,6 +29,8 @@ public class RollbackCorpPageVersionCommandHandler : IRequestHandler<RollbackCor
 
         page.LayoutConfigJson = version.LayoutConfigJson;
         page.ThemeOverrideJson = version.ThemeOverrideJson;
+        page.IsPublished = true;
+        page.PublishedAt = DateTime.UtcNow;
 
         await _db.SaveChangesAsync(cancellationToken);
         return Unit.Value;

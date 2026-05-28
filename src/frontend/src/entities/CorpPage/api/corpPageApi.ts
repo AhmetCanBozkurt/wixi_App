@@ -40,5 +40,5 @@ export const webBuilderApi = {
     apiClient.post(`${BASE}/${id}/versions/checkpoint`, { label }),
 
   rollbackVersion: (versionId: string) =>
-    apiClient.post(`/web-builder/versions/${versionId}/rollback`),
+    apiClient.post(`${BASE}/versions/${versionId}/rollback`),
 };

@@ -1289,6 +1289,63 @@ export function BlockRenderer({ comp, theme, tenantSlug }: { comp: LayoutCompone
     case 'portfolio-grid':        return <PortfolioGridBlock props={p} theme={theme} />;
     case 'map-embed':             return <MapEmbedBlock props={p} theme={theme} />;
     case 'phone-contact':         return <PhoneContactBlock props={p} theme={theme} />;
+    
+    // ── Nested Containers ──
+    case 'section-container': {
+      const children = comp.children ?? [];
+      return (
+        <div
+          style={{
+            paddingTop: p.paddingY ? String(p.paddingY) : '20px',
+            paddingBottom: p.paddingY ? String(p.paddingY) : '20px',
+            paddingLeft: p.paddingX ? String(p.paddingX) : '20px',
+            paddingRight: p.paddingX ? String(p.paddingX) : '20px',
+            backgroundColor: (p.backgroundColor as string) || 'transparent',
+            borderRadius: p.borderRadius ? String(p.borderRadius) : '8px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '12px',
+          }}
+        >
+          {children.map(child => (
+            <BlockRenderer key={child.id} comp={child} theme={theme} tenantSlug={tenantSlug} />
+          ))}
+        </div>
+      );
+    }
+    case 'grid-row': {
+      const children = comp.children ?? [];
+      return (
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(12, 1fr)',
+            gap: p.gap ? String(p.gap) : '16px',
+            width: '100%',
+          }}
+        >
+          {children.map(child => (
+            <BlockRenderer key={child.id} comp={child} theme={theme} tenantSlug={tenantSlug} />
+          ))}
+        </div>
+      );
+    }
+    case 'grid-column': {
+      const children = comp.children ?? [];
+      const span = Number(p.span ?? 6);
+      return (
+        <div
+          style={{
+            gridColumn: `span ${span}`,
+          }}
+        >
+          {children.map(child => (
+            <BlockRenderer key={child.id} comp={child} theme={theme} tenantSlug={tenantSlug} />
+          ))}
+        </div>
+      );
+    }
+
     default: return (
       <div className={styles.sectionInner} style={{ textAlign: 'center', color: '#9ca3af' }}>
         <p>Bilinmeyen bileşen: {comp.type}</p>
