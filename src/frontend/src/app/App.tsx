@@ -194,6 +194,7 @@ const App = () => {
             <Route path=":pageSlug" element={<StorefrontPage />} />
           </Route>
           <Route element={<StoreAdminGuard />}>
+            <Route path="/corp/builder/:tenantSlug" element={<WebBuilderEditorPage />} />
             <Route path="/tenant/:tenantSlug" element={<StoreAdminLayout />}>
               <Route index element={<StoreDashboardPage />} />
               <Route path="products" element={<StoreProductsPage />} />
@@ -221,7 +222,6 @@ const App = () => {
           </Route>
           <Route element={<AuthGuard />}>
             <Route path="/corp/builder" element={<WebBuilderEditorPage />} />
-            <Route path="/corp/builder/:tenantSlug" element={<WebBuilderEditorPage />} />
             <Route path="/admin" element={<DashboardPage />}>
               <Route index element={<AdminDashboardPage />} />
               <Route path="logs" element={<ApplicationLogsPage />} />

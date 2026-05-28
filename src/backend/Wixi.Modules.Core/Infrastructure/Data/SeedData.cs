@@ -945,7 +945,7 @@ public static class SeedData
 
         var wbMenus = new[]
         {
-            new { Path = "/corp/builder",     Icon = "FaEdit",      Color = "#06b6d4", Sort = 10, Tr = "Web Editörü",    En = "Web Editor"      },
+            new { Path = "/corp/builder/{tenantSlug}", Icon = "FaEdit",      Color = "#06b6d4", Sort = 10, Tr = "Web Editörü",    En = "Web Editor"      },
             new { Path = "/admin/corp/blog",  Icon = "FaNewspaper", Color = "#10b981", Sort = 20, Tr = "Blog Yönetimi",  En = "Blog Management" },
             new { Path = "/admin/corp/forms", Icon = "FaWpforms",   Color = "#f59e0b", Sort = 30, Tr = "Form Yönetimi",  En = "Form Management" },
         };
