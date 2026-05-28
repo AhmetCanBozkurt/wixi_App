@@ -131,8 +131,14 @@ public static class SeedData
                 await context.Menus.AddAsync(m);
             }
 
-            // ── Folder: E-Ticaret ────────────────────────────────────────
-            var fECommerce = M("folder", "FaArtstation", "#0549b8", 25);
+            // ── Folder: Modüller (root) ──────────────────────────────────
+            var fModules = M("folder", "FaPuzzlePiece", "#8b5cf6", 25);
+            T(fModules, "Modüller", "Modules");
+            await context.Menus.AddAsync(fModules);
+            await context.SaveChangesAsync();
+
+            // ── Sub-Folder: E-Ticaret (under Modüller) ───────────────────
+            var fECommerce = M("folder", "FaArtstation", "#0549b8", 1, fModules.Id);
             T(fECommerce, "E-Ticaret", "E-Commerce");
             await context.Menus.AddAsync(fECommerce);
             await context.SaveChangesAsync();
@@ -148,6 +154,25 @@ public static class SeedData
             foreach (var c in ecommerceChildren)
             {
                 var m = M(c.Path, c.Icon, c.Color, c.Sort, fECommerce.Id);
+                T(m, c.Tr, c.En);
+                await context.Menus.AddAsync(m);
+            }
+
+            // ── Sub-Folder: Web Builder (under Modüller) ─────────────────
+            var fWebBuilder = M("folder", "FaGlobe", "#06b6d4", 2, fModules.Id);
+            T(fWebBuilder, "Web Builder", "Web Builder");
+            await context.Menus.AddAsync(fWebBuilder);
+            await context.SaveChangesAsync();
+
+            var webBuilderChildren = new[]
+            {
+                (Path: "/corp/builder",     Icon: "FaEdit",      Color: "#06b6d4", Sort: 10, Tr: "Web Builder Editörü", En: "Web Builder Editor"),
+                (Path: "/admin/corp/blog",  Icon: "FaNewspaper", Color: "#10b981", Sort: 20, Tr: "Blog Yönetimi",       En: "Blog Management"),
+                (Path: "/admin/corp/forms", Icon: "FaWpforms",   Color: "#f59e0b", Sort: 30, Tr: "Form Yönetimi",       En: "Form Management"),
+            };
+            foreach (var c in webBuilderChildren)
+            {
+                var m = M(c.Path, c.Icon, c.Color, c.Sort, fWebBuilder.Id);
                 T(m, c.Tr, c.En);
                 await context.Menus.AddAsync(m);
             }
