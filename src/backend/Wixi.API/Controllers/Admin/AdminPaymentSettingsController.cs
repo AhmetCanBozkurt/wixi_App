@@ -8,7 +8,7 @@ namespace Wixi.API.Controllers.Admin;
 
 [ApiController]
 [Route("api/v1/admin/payment-settings")]
-[Authorize(Roles = "Admin")]
+[Authorize(Roles = "Admin,SuperAdmin")]
 public class AdminPaymentSettingsController : ControllerBase
 {
     private readonly IMediator _mediator;
