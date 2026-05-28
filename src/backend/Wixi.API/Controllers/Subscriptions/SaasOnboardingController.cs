@@ -115,13 +115,13 @@ public class SaasOnboardingController : ControllerBase
 
             if (finalPlan is not null)
             {
-                requiresPayment = finalPlan.PriceMonthly > 0;
+                requiresPayment = false;
                 var now = DateTime.UtcNow;
                 _coreDb.TenantSubscriptions.Add(new WixiTenantSubscription
                 {
                     TenantId = tenant.Id,
                     PlanId = finalPlan.Id,
-                    Status = requiresPayment ? "PendingPayment" : "Trial",
+                    Status = "Trial",
                     CurrentPeriodStart = now,
                     CurrentPeriodEnd = now.AddDays(14)
                 });
