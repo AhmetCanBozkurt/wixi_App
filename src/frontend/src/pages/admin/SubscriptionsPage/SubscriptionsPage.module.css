@@ -1,0 +1,189 @@
+/* ── Subscriptions Page ── */
+.page {
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.titleIcon {
+  font-size: 1.6rem;
+  color: var(--color-primary);
+}
+
+.title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin: 0 0 2px;
+}
+
+.subtitle {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* ── Stat Cards ── */
+.statGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 14px;
+}
+
+.statCard {
+  background: var(--surface-glass);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  position: relative;
+  overflow: hidden;
+}
+
+.statCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.statBlue::before   { background: #3b82f6; }
+.statGreen::before  { background: #10b981; }
+.statOrange::before { background: #f59e0b; }
+.statRed::before    { background: #ef4444; }
+.statGray::before   { background: #6b7280; }
+
+.statLabel {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.statValue {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+/* ── Filters ── */
+.filters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* ── Table ── */
+.tableWrap {
+  background: var(--surface-glass);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.table th {
+  padding: 12px 16px;
+  text-align: left;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid var(--border-glass);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-glass);
+  color: var(--text-main);
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.nameCell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.nameMain {
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.nameSlug {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* ── Status Badges ── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.badgeActive    { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+.badgeTrial     { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+.badgePastDue   { background: rgba(239, 68, 68, 0.15);  color: #ef4444; }
+.badgeCancelled { background: rgba(107, 114, 128, 0.15); color: #9ca3af; }
+.badgeDefault   { background: rgba(255, 255, 255, 0.08); color: var(--text-muted); }
+
+/* ── Misc ── */
+.center {
+  text-align: center;
+  padding: 32px;
+  color: var(--text-muted);
+}
+
+/* ── Pagination ── */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.pageInfo {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  min-width: 60px;
+  text-align: center;
+}

@@ -120,6 +120,8 @@ import RoadmapManagementPage from '../pages/admin/ContentManagement/RoadmapManag
 import ChangelogManagementPage from '../pages/admin/ContentManagement/ChangelogManagementPage';
 import LegalContentManagementPage from '../pages/admin/ContentManagement/LegalContentManagementPage';
 import { PaymentSettingsPage } from '../pages/admin/PaymentSettingsPage';
+import { SubscriptionsPage } from '../pages/admin/SubscriptionsPage';
+import { StorePaymentsPage } from '../pages/store-admin/StorePaymentsPage';
 import { StorePaymentSettingsPage } from '../pages/store-admin/StoreAdminPage/pages/StorePaymentSettingsPage';
 import WebBuilderEditorPage from '../pages/corporate/WebBuilderEditorPage/WebBuilderEditorPage';
 import { CorpSitePage } from '../pages/corporate/CorpSitePage/CorpSitePage';
@@ -214,6 +216,7 @@ const App = () => {
               <Route path="analytics" element={<StoreAnalyticsPage />} />
               <Route path="media" element={<StoreMediaPage />} />
               <Route path="payment-settings" element={<StorePaymentSettingsPage />} />
+              <Route path="payments" element={<StorePaymentsPage />} />
             </Route>
           </Route>
           <Route element={<AuthGuard />}>
@@ -274,6 +277,7 @@ const App = () => {
               <Route path="content/changelog" element={<ChangelogManagementPage />} />
               <Route path="content/legal" element={<LegalContentManagementPage />} />
               <Route path="payment-settings" element={<PaymentSettingsPage />} />
+              <Route path="subscriptions" element={<SubscriptionsPage />} />
               {/* ── Kişisel Finans ──────────────────────────────────── */}
               <Route path="finance" element={<PersonalFinanceDashboardPage />} />
               <Route path="finance/transactions" element={<TransactionsPage />} />
