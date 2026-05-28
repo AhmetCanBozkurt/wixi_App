@@ -49,4 +49,4 @@
 - [x] SeedData.cs ve ModuleController.cs seed kodlarındaki tema editörü yollarının `/corp/theme-editor/{tenantSlug}` olarak güncellenmesi
 - [x] Tema Editörü (ThemeEditor.tsx) ve Web Builder (WebBuilderEditor.tsx) üst barlarına müşteri/mağaza ismi kartının (tenant badge) eklenmesi
 - [x] Tema ve badge stillerinin ThemeEditor.module.css üzerinde premium olarak tasarlanması
-- [/] Değişikliklerin frontend ve backend üzerinde doğrulanması
+- [x] Değişikliklerin frontend ve backend üzerinde doğrulanması
