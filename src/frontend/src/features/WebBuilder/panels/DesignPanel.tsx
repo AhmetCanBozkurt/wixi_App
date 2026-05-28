@@ -9,11 +9,26 @@ export function DesignPanel() {
   const { state, dispatch } = useEditor();
   const { layout, selectedComponentId, selectedRowId } = state;
 
+  // Skip global-navbar and global-footer (no layout design props)
+  const isGlobalSection = selectedComponentId === 'global-navbar' || selectedComponentId === 'global-footer';
+
   // Find active element
-  const activeComp = selectedComponentId ? findComponentInRows(layout, selectedComponentId) : null;
+  const activeComp = selectedComponentId && !isGlobalSection ? findComponentInRows(layout, selectedComponentId) : null;
   const activeRow = !activeComp && selectedRowId ? layout.find(r => r.id === selectedRowId) : null;
 
   const activeElement = activeComp || activeRow;
+
+  if (isGlobalSection) {
+    return (
+      <div style={{ padding: '24px', textAlign: 'center', color: 'var(--editor-text-muted)', fontSize: '12px' }}>
+        <div style={{ fontSize: '28px', marginBottom: '12px' }}>{selectedComponentId === 'global-navbar' ? '🧭' : '🦶'}</div>
+        <div style={{ fontWeight: 600, color: 'var(--editor-text)', marginBottom: '8px' }}>
+          {selectedComponentId === 'global-navbar' ? 'Navbar' : 'Footer'} Seçili
+        </div>
+        <div>Tasarım özellikleri için <strong>İçerik</strong> sekmesini kullanın.</div>
+      </div>
+    );
+  }
 
   if (!activeElement) {
     return (

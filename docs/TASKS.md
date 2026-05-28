@@ -25,3 +25,14 @@
 - [ ] Faz 5: İleri Seviye AI Entegrasyonu & SaaS Kredi Modeli
 - [ ] Faz 6: Custom HTML Şablon Pazarı (Marketplace & Presets)
 
+# Wixi Editor Canvas UX İyileştirmeleri - Görev Listesi
+
+- [x] Katmanlar Paneli: Satır/Kolon/Bileşen için yukarı/aşağı taşı, kolon ekle, gizle, kilitle, sil işlemleri
+- [x] `LayoutRowProps` ve `LayoutColumn` tiplerine `isHidden`/`isLocked` alanları eklendi
+- [x] `EditorContext.tsx`: `TOGGLE_HIDE_NODE`, `TOGGLE_LOCK_NODE`, `MOVE_ROW`, `MOVE_COLUMN`, `MOVE_COMPONENT`, `ADD_COLUMN_TO_ROW`, `DELETE_COLUMN` reducer aksiyonları
+- [x] `EditorCanvas.tsx`: Kilitli satırlar drag'i engeller, gizli satırlar transparent+dashed görünür
+- [x] Navbar & Footer canvas'ta seçilince `PropertiesPanel`'da inline düzenleme paneli açılır
+- [x] `NavbarPropertiesPanel`: layout, logo, menü linkleri, sticky/search/dil seçici toggle
+- [x] `FooterPropertiesPanel`: kolon sayısı, telif metni, sosyal ikonlar, kolon linkleri
+- [x] `DesignPanel.tsx`: Global section seçilince bilgilendirme placeholder
+- [x] TypeScript typecheck: 0 hata

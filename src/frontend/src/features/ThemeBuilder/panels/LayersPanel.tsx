@@ -3,14 +3,24 @@ import {
   FaChevronRight,
   FaChevronDown,
   FaEye,
+  FaEyeSlash,
   FaHashtag,
   FaFont,
   FaImage,
   FaFile,
   FaBorderAll,
   FaCompass,
-  FaGlobe
+  FaGlobe,
+  FaLock,
+  FaLockOpen,
+  FaTrash,
+  FaArrowUp,
+  FaArrowDown,
+  FaPlus,
+  FaChevronLeft
 } from 'react-icons/fa';
+import Swal from 'sweetalert2';
+import toast from 'react-hot-toast';
 import { useEditor } from '../context/EditorContext';
 import { useWebBuilder } from '../../WebBuilder/hooks/useWebBuilder';
 import { BLOCK_BY_TYPE } from '../blocks/blockRegistry';
@@ -23,6 +33,8 @@ interface TreeItem {
   icon: any;
   children?: TreeItem[];
   refId?: string; // used for selecting actual rows/columns/components
+  isHidden?: boolean;
+  isLocked?: boolean;
 }
 
 export function LayersPanel() {
@@ -78,6 +90,8 @@ export function LayersPanel() {
       label: def?.name || comp.type,
       icon: getIcon(comp.type),
       refId: comp.id,
+      isHidden: !!comp.props?.isHidden,
+      isLocked: !!comp.props?.isLocked,
       children: comp.children ? comp.children.map((child: any) => mapComponentToTree(child)) : []
     };
   };
@@ -91,7 +105,7 @@ export function LayersPanel() {
       id: 'navbar-root',
       type: 'navbar',
       label: 'Header',
-      icon: FaHashtag,
+      icon: FaCompass,
       children: [
         {
           id: 'navbar-inner',
@@ -118,6 +132,8 @@ export function LayersPanel() {
           label: `Kolon ${colIdx + 1} (${col.span}/12)`,
           icon: FaHashtag,
           refId: col.id,
+          isHidden: !!col.isHidden,
+          isLocked: !!col.isLocked,
           children: colChildren
         });
       });
@@ -128,6 +144,8 @@ export function LayersPanel() {
         label: `Satır ${rowIdx + 1}`,
         icon: FaHashtag,
         refId: row.id,
+        isHidden: !!row.props?.isHidden,
+        isLocked: !!row.props?.isLocked,
         children: rowChildren
       });
     });
@@ -137,7 +155,7 @@ export function LayersPanel() {
       id: 'footer-root',
       type: 'footer',
       label: 'Footer',
-      icon: FaHashtag,
+      icon: FaBorderAll,
       children: [
         {
           id: 'footer-inner',
@@ -183,13 +201,13 @@ export function LayersPanel() {
       dispatch({ type: 'SELECT_ROW', rowId: null });
       dispatch({ type: 'SELECT_COLUMN', rowId: null, columnId: null });
     } else if (node.type === 'navbar' || node.id === 'navbar-inner') {
-      dispatch({ type: 'SELECT_COMPONENT', id: null });
+      dispatch({ type: 'SELECT_COMPONENT', id: 'global-navbar' });
       dispatch({ type: 'SELECT_ROW', rowId: null });
-      dispatch({ type: 'SET_LEFT_TAB', tab: 'global' });
+      dispatch({ type: 'SET_RIGHT_TAB', tab: 'props' });
     } else if (node.type === 'footer' || node.id === 'footer-inner') {
-      dispatch({ type: 'SELECT_COMPONENT', id: null });
+      dispatch({ type: 'SELECT_COMPONENT', id: 'global-footer' });
       dispatch({ type: 'SELECT_ROW', rowId: null });
-      dispatch({ type: 'SET_LEFT_TAB', tab: 'global' });
+      dispatch({ type: 'SET_RIGHT_TAB', tab: 'props' });
     } else if (node.type === 'row' && node.refId) {
       dispatch({ type: 'SELECT_COMPONENT', id: null });
       dispatch({ type: 'SELECT_COLUMN', rowId: null, columnId: null });
@@ -214,14 +232,15 @@ export function LayersPanel() {
   const renderNode = (node: TreeItem, level: number) => {
     const hasChildren = node.children && node.children.length > 0;
     const isExpanded = expandedNodes.has(node.id);
-    const isHidden = hiddenNodes.has(node.id);
+    const isHidden = node.isHidden;
+    const isLocked = node.isLocked;
 
     // Determine active state
     let isActive = false;
     if (node.type === 'page' && !selectedComponentId && !selectedRowId) isActive = true;
     else if (node.type === 'row' && selectedRowId === node.refId && !selectedComponentId && !selectedColumnId) isActive = true;
     else if (node.type === 'column' && selectedColumnId === node.refId && !selectedComponentId) isActive = true;
-    else if (node.type === 'component' && selectedComponentId === node.refId) isActive = true;
+    else if (node.type === 'component' && (selectedComponentId === node.refId || (node.id === 'navbar-inner' && selectedComponentId === 'global-navbar') || (node.id === 'footer-inner' && selectedComponentId === 'global-footer'))) isActive = true;
 
     const NodeIcon = node.icon;
 
@@ -258,27 +277,102 @@ export function LayersPanel() {
             {node.label}
           </span>
 
-          {/* Badges & Actions */}
-          {node.type === 'page' && (
-            <span style={{ fontSize: '8px', padding: '1px 4px', borderRadius: '4px', background: 'rgba(255,255,255,0.06)', marginRight: '6px', color: 'var(--editor-text-muted)', textTransform: 'uppercase' }}>
-              PAGE
-            </span>
-          )}
+          {/* Actions & Buttons */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginRight: '6px' }}>
+            {node.type === 'row' && node.refId && (
+              <>
+                <span onClick={(e) => { e.stopPropagation(); dispatch({ type: 'MOVE_ROW', rowId: node.refId!, direction: 'up' }); }} title="Yukarı Taşı" style={{ display: 'flex', alignItems: 'center', opacity: 0.5 }}><FaArrowUp size={8} /></span>
+                <span onClick={(e) => { e.stopPropagation(); dispatch({ type: 'MOVE_ROW', rowId: node.refId!, direction: 'down' }); }} title="Aşağı Taşı" style={{ display: 'flex', alignItems: 'center', opacity: 0.5 }}><FaArrowDown size={8} /></span>
+                <span onClick={(e) => { e.stopPropagation(); dispatch({ type: 'ADD_COLUMN_TO_ROW', rowId: node.refId! }); toast.success('Yeni kolon eklendi!'); }} title="Kolon Ekle" style={{ display: 'flex', alignItems: 'center', opacity: 0.5 }}><FaPlus size={8} /></span>
+              </>
+            )}
+            {node.type === 'column' && node.refId && (
+              <>
+                <span onClick={(e) => {
+                  e.stopPropagation();
+                  const parentRow = layout.find(r => r.columns.some(c => c.id === node.refId));
+                  if (parentRow) dispatch({ type: 'MOVE_COLUMN', rowId: parentRow.id, columnId: node.refId!, direction: 'left' });
+                }} title="Sola Taşı" style={{ display: 'flex', alignItems: 'center', opacity: 0.5 }}><FaChevronLeft size={8} /></span>
+                <span onClick={(e) => {
+                  e.stopPropagation();
+                  const parentRow = layout.find(r => r.columns.some(c => c.id === node.refId));
+                  if (parentRow) dispatch({ type: 'MOVE_COLUMN', rowId: parentRow.id, columnId: node.refId!, direction: 'right' });
+                }} title="Sağa Taşı" style={{ display: 'flex', alignItems: 'center', opacity: 0.5 }}><FaChevronRight size={8} /></span>
+              </>
+            )}
+            {node.type === 'component' && node.refId && node.refId !== 'navbar-inner' && node.refId !== 'footer-inner' && (
+              <>
+                <span onClick={(e) => { e.stopPropagation(); dispatch({ type: 'MOVE_COMPONENT', componentId: node.refId!, direction: 'up' }); }} title="Yukarı Taşı" style={{ display: 'flex', alignItems: 'center', opacity: 0.5 }}><FaArrowUp size={8} /></span>
+                <span onClick={(e) => { e.stopPropagation(); dispatch({ type: 'MOVE_COMPONENT', componentId: node.refId!, direction: 'down' }); }} title="Aşağı Taşı" style={{ display: 'flex', alignItems: 'center', opacity: 0.5 }}><FaArrowDown size={8} /></span>
+              </>
+            )}
 
-          {/* Visibility toggle (Eye icon) */}
-          <span
-            onClick={(e) => toggleVisibility(node.id, e)}
-            style={{
-              padding: '4px',
-              display: 'flex',
-              alignItems: 'center',
-              opacity: isHidden ? 0.8 : 0.2,
-              transition: 'opacity 0.15s'
-            }}
-            className={styles.visibilityToggle}
-          >
-            <FaEye size={10} />
-          </span>
+            {/* Lock/Unlock */}
+            {node.refId && (
+              <span
+                onClick={(e) => {
+                  e.stopPropagation();
+                  dispatch({ type: 'TOGGLE_LOCK_NODE', id: node.refId!, nodeType: node.type as any });
+                  toast.success(isLocked ? 'Eleman kilidi açıldı!' : 'Eleman kilitlendi!');
+                }}
+                style={{ display: 'flex', alignItems: 'center', opacity: isLocked ? 0.9 : 0.2 }}
+                title={isLocked ? 'Kilidi Aç' : 'Kilitle'}
+              >
+                {isLocked ? <FaLock size={10} color="#ec4899" /> : <FaLockOpen size={10} />}
+              </span>
+            )}
+
+            {/* Hide/Show */}
+            {node.refId && (
+              <span
+                onClick={(e) => {
+                  e.stopPropagation();
+                  dispatch({ type: 'TOGGLE_HIDE_NODE', id: node.refId!, nodeType: node.type as any });
+                  toast.success(isHidden ? 'Eleman görünür yapıldı!' : 'Eleman gizlendi!');
+                }}
+                style={{ display: 'flex', alignItems: 'center', opacity: isHidden ? 0.9 : 0.2 }}
+                title={isHidden ? 'Göster' : 'Gizle'}
+              >
+                {isHidden ? <FaEyeSlash size={10} color="#ec4899" /> : <FaEye size={10} />}
+              </span>
+            )}
+
+            {/* Delete */}
+            {node.refId && (
+              <span
+                onClick={(e) => {
+                  e.stopPropagation();
+                  Swal.fire({
+                    title: 'Silmek istiyor musunuz?',
+                    text: `${node.label} kalıcı olarak silinecektir. Bu işlem geri alınamaz!`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#ef4444',
+                    cancelButtonColor: '#6b7280',
+                    confirmButtonText: 'Evet, Sil!',
+                    cancelButtonText: 'Vazgeç'
+                  }).then((result) => {
+                    if (result.isConfirmed) {
+                      if (node.type === 'row') {
+                        dispatch({ type: 'REMOVE_ROW', rowId: node.refId! });
+                      } else if (node.type === 'column') {
+                        const parentRow = layout.find(r => r.columns.some(c => c.id === node.refId));
+                        if (parentRow) dispatch({ type: 'REMOVE_COLUMN', rowId: parentRow.id, columnId: node.refId! });
+                      } else if (node.type === 'component') {
+                        dispatch({ type: 'REMOVE_COMPONENT', componentId: node.refId! });
+                      }
+                      toast.success('Başarıyla silindi!');
+                    }
+                  });
+                }}
+                style={{ display: 'flex', alignItems: 'center', opacity: 0.2 }}
+                title="Sil"
+                className={styles.deleteIcon}
+              >
+                <FaTrash size={9} style={{ color: 'var(--color-danger, #ef4444)' }} />
+              </span>
+            )}
+          </div>
         </div>
 
         {hasChildren && isExpanded && (

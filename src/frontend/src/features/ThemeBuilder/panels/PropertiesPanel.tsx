@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FaPlus, FaTrash, FaGripVertical, FaCopy, FaCheck, FaEdit } from 'react-icons/fa';
+import { FaPlus, FaTrash, FaGripVertical, FaCopy, FaCheck, FaEdit, FaCompass, FaBorderAll } from 'react-icons/fa';
 import { useEditor, findComponentInRows, findColumnInRows } from '../context/EditorContext';
 import { BLOCK_BY_TYPE } from '../blocks/blockRegistry';
 import type { PropField, BlockDefinition, RowFieldSchema } from '../blocks/blockRegistry';
@@ -810,13 +810,184 @@ function ColumnSettingsPanel() {
   );
 }
 
+// ── Navbar Properties Panel ────────────────────────────────────────────────────
+
+function NavbarPropertiesPanel() {
+  const { state, dispatch } = useEditor();
+  const { navbar } = state.globalComponents;
+
+  const updateNavbar = (key: string, value: unknown) =>
+    dispatch({
+      type: 'SET_GLOBAL_COMPONENTS',
+      globalComponents: {
+        ...state.globalComponents,
+        navbar: { ...navbar, [key]: value },
+      },
+    });
+
+  const navLinks = navbar.links || [];
+
+  return (
+    <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+      <div>
+        <label style={{ fontSize: '10px', fontWeight: 700, color: 'var(--editor-text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'block', marginBottom: '6px' }}>Düzen</label>
+        <select className={styles.select} value={navbar.layout} onChange={e => updateNavbar('layout', e.target.value)}>
+          <option value="classic">Klasik</option>
+          <option value="centered">Ortalı</option>
+          <option value="mega">Mega</option>
+        </select>
+      </div>
+      <div>
+        <label style={{ fontSize: '10px', fontWeight: 700, color: 'var(--editor-text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'block', marginBottom: '6px' }}>Logo Metni</label>
+        <input className={styles.input} type="text" value={navbar.logoText || ''} onChange={e => updateNavbar('logoText', e.target.value)} placeholder="Mağaza Adı" />
+      </div>
+      <div>
+        <label style={{ fontSize: '10px', fontWeight: 700, color: 'var(--editor-text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'block', marginBottom: '6px' }}>Logo URL</label>
+        <input className={styles.input} type="text" value={navbar.logoUrl || ''} onChange={e => updateNavbar('logoUrl', e.target.value)} placeholder="https://..." />
+      </div>
+      <label className={styles.toggleRow}>
+        <input type="checkbox" checked={navbar.isSticky} onChange={e => updateNavbar('isSticky', e.target.checked)} />
+        <span>Sticky Header</span>
+      </label>
+      <label className={styles.toggleRow}>
+        <input type="checkbox" checked={navbar.showSearch} onChange={e => updateNavbar('showSearch', e.target.checked)} />
+        <span>Arama Kutusu</span>
+      </label>
+      <label className={styles.toggleRow}>
+        <input type="checkbox" checked={navbar.showLanguagePicker} onChange={e => updateNavbar('showLanguagePicker', e.target.checked)} />
+        <span>Dil Seçici</span>
+      </label>
+
+      <div style={{ borderTop: '1px solid var(--editor-border)', paddingTop: '10px' }}>
+        <label style={{ fontSize: '10px', fontWeight: 700, color: 'var(--editor-text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'block', marginBottom: '8px' }}>Menü Linkleri</label>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          {navLinks.map((link, idx) => (
+            <div key={idx} style={{ display: 'flex', gap: '6px', alignItems: 'center', background: 'rgba(255,255,255,0.02)', padding: '6px', borderRadius: '4px' }}>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                <input className={styles.input} type="text" value={link.label} onChange={e => { const u = navLinks.map((l, i) => i === idx ? { ...l, label: e.target.value } : l); updateNavbar('links', u); }} placeholder="Link Metni" />
+                <input className={styles.input} type="text" value={link.href} onChange={e => { const u = navLinks.map((l, i) => i === idx ? { ...l, href: e.target.value } : l); updateNavbar('links', u); }} placeholder="URL" />
+              </div>
+              <button type="button" className={styles.toolbarBtn} style={{ color: '#ef4444' }} onClick={() => { updateNavbar('links', navLinks.filter((_, i) => i !== idx)); }}>×</button>
+            </div>
+          ))}
+          <button type="button" className={styles.addRowBtn} onClick={() => updateNavbar('links', [...navLinks, { label: 'Yeni Link', href: '#' }])}>
+            + Link Ekle
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Footer Properties Panel ────────────────────────────────────────────────────
+
+function FooterPropertiesPanel() {
+  const { state, dispatch } = useEditor();
+  const { footer } = state.globalComponents;
+
+  const updateFooter = (key: string, value: unknown) =>
+    dispatch({
+      type: 'SET_GLOBAL_COMPONENTS',
+      globalComponents: {
+        ...state.globalComponents,
+        footer: { ...footer, [key]: value },
+      },
+    });
+
+  const footerCols = footer.columns || [];
+
+  return (
+    <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+      <div>
+        <label style={{ fontSize: '10px', fontWeight: 700, color: 'var(--editor-text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'block', marginBottom: '6px' }}>Kolon Sayısı</label>
+        <select className={styles.select} value={String(footer.columnCount)} onChange={e => updateFooter('columnCount', Number(e.target.value))}>
+          <option value="1">1 Kolon</option>
+          <option value="2">2 Kolon</option>
+          <option value="3">3 Kolon</option>
+          <option value="4">4 Kolon</option>
+        </select>
+      </div>
+      <div>
+        <label style={{ fontSize: '10px', fontWeight: 700, color: 'var(--editor-text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'block', marginBottom: '6px' }}>Telif Metni</label>
+        <input className={styles.input} type="text" value={footer.copyrightText} onChange={e => updateFooter('copyrightText', e.target.value)} placeholder="© 2026 Mağazam" />
+      </div>
+      <label className={styles.toggleRow}>
+        <input type="checkbox" checked={footer.showSocials} onChange={e => updateFooter('showSocials', e.target.checked)} />
+        <span>Sosyal İkonlar</span>
+      </label>
+      <label className={styles.toggleRow}>
+        <input type="checkbox" checked={footer.showNewsletter} onChange={e => updateFooter('showNewsletter', e.target.checked)} />
+        <span>Newsletter</span>
+      </label>
+
+      <div style={{ borderTop: '1px solid var(--editor-border)', paddingTop: '10px' }}>
+        <label style={{ fontSize: '10px', fontWeight: 700, color: 'var(--editor-text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'block', marginBottom: '8px' }}>Footer Kolonlar</label>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          {Array.from({ length: footer.columnCount }).map((_, colIdx) => {
+            const col = footerCols[colIdx] || { title: `Kolon ${colIdx + 1}`, links: [] };
+            return (
+              <div key={colIdx} style={{ background: 'rgba(255,255,255,0.02)', padding: '10px', borderRadius: '6px', border: '1px solid var(--editor-border)' }}>
+                <input className={styles.input} type="text" value={col.title} onChange={e => {
+                  const updated = Array.from({ length: footer.columnCount }).map((_, i) => {
+                    const existing = footerCols[i] || { title: `Kolon ${i + 1}`, links: [] };
+                    return i === colIdx ? { ...existing, title: e.target.value } : existing;
+                  });
+                  updateFooter('columns', updated);
+                }} placeholder={`Kolon ${colIdx + 1} Başlığı`} style={{ marginBottom: '6px' }} />
+                {col.links && col.links.map((link, lIdx) => (
+                  <div key={lIdx} style={{ display: 'flex', gap: '4px', marginBottom: '4px' }}>
+                    <input className={styles.input} style={{ flex: 1 }} type="text" value={link.label} placeholder="Etiket" onChange={e => {
+                      const updated = Array.from({ length: footer.columnCount }).map((_, i) => {
+                        const existing = footerCols[i] || { title: `Kolon ${i + 1}`, links: [] };
+                        if (i !== colIdx) return existing;
+                        return { ...existing, links: existing.links.map((l, li) => li === lIdx ? { ...l, label: e.target.value } : l) };
+                      });
+                      updateFooter('columns', updated);
+                    }} />
+                    <input className={styles.input} style={{ flex: 1 }} type="text" value={link.href} placeholder="URL" onChange={e => {
+                      const updated = Array.from({ length: footer.columnCount }).map((_, i) => {
+                        const existing = footerCols[i] || { title: `Kolon ${i + 1}`, links: [] };
+                        if (i !== colIdx) return existing;
+                        return { ...existing, links: existing.links.map((l, li) => li === lIdx ? { ...l, href: e.target.value } : l) };
+                      });
+                      updateFooter('columns', updated);
+                    }} />
+                    <button type="button" style={{ color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer', fontSize: '14px' }} onClick={() => {
+                      const updated = Array.from({ length: footer.columnCount }).map((_, i) => {
+                        const existing = footerCols[i] || { title: `Kolon ${i + 1}`, links: [] };
+                        if (i !== colIdx) return existing;
+                        return { ...existing, links: existing.links.filter((_, li) => li !== lIdx) };
+                      });
+                      updateFooter('columns', updated);
+                    }}>×</button>
+                  </div>
+                ))}
+                <button type="button" className={styles.addRowBtn} style={{ fontSize: '10px', padding: '4px 8px' }} onClick={() => {
+                  const updated = Array.from({ length: footer.columnCount }).map((_, i) => {
+                    const existing = footerCols[i] || { title: `Kolon ${i + 1}`, links: [] };
+                    if (i !== colIdx) return existing;
+                    return { ...existing, links: [...existing.links, { label: 'Yeni Link', href: '#' }] };
+                  });
+                  updateFooter('columns', updated);
+                }}>+ Link Ekle</button>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Main panel ────────────────────────────────────────────────────────────────
 
 export function PropertiesPanel() {
   const { state, dispatch, selectProp } = useEditor();
-  const { selectedComponentId, selectedRowId, selectedColumnId, layout, theme, selectedPropKey } = state;
+  const { selectedComponentId, selectedRowId, selectedColumnId, layout, theme, selectedPropKey, globalComponents } = state;
 
-  const comp = selectedComponentId ? findComponentInRows(layout, selectedComponentId) : null;
+  const comp = selectedComponentId && selectedComponentId !== 'global-navbar' && selectedComponentId !== 'global-footer'
+    ? findComponentInRows(layout, selectedComponentId)
+    : null;
   const colContext = selectedColumnId && !selectedComponentId
     ? findColumnInRows(layout, selectedColumnId)
     : null;
@@ -828,6 +999,33 @@ export function PropertiesPanel() {
   const [editingField, setEditingField] = useState<PropField | null>(null);
   const [editingRows, setEditingRows] = useState<RowData[]>([]);
   const [expandedRowIdx, setExpandedRowIdx] = useState<number | null>(null);
+
+  // Global Navbar selected
+  if (selectedComponentId === 'global-navbar') {
+    const { navbar } = globalComponents;
+    return (
+      <div className={styles.panel}>
+        <div className={styles.panelHeader} style={{ borderBottom: '1px solid var(--editor-border)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <FaCompass size={12} color="#ec4899" />
+          <span>Navbar Özellikleri</span>
+        </div>
+        <NavbarPropertiesPanel />
+      </div>
+    );
+  }
+
+  // Global Footer selected
+  if (selectedComponentId === 'global-footer') {
+    return (
+      <div className={styles.panel}>
+        <div className={styles.panelHeader} style={{ borderBottom: '1px solid var(--editor-border)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <FaBorderAll size={12} color="#ec4899" />
+          <span>Footer Özellikleri</span>
+        </div>
+        <FooterPropertiesPanel />
+      </div>
+    );
+  }
 
   // Row selected — no component, no column
   if (selectedRowId && !selectedComponentId && !selectedColumnId) {

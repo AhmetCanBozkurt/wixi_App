@@ -13,12 +13,16 @@ export interface LayoutRowProps {
   paddingY?: string;
   paddingX?: string;
   fullWidth?: boolean;
+  isHidden?: boolean;
+  isLocked?: boolean;
 }
 
 export interface LayoutColumn {
   id: string;
   span: number; // 1-12
   component: LayoutComponent | null;
+  isHidden?: boolean;
+  isLocked?: boolean;
 }
 
 export interface LayoutRow {

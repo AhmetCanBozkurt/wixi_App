@@ -10,6 +10,10 @@ import {
   FaGripVertical,
   FaPlus,
   FaChevronRight,
+  FaLock,
+  FaLockOpen,
+  FaEye,
+  FaEyeSlash,
 } from 'react-icons/fa';
 import {
   DndContext,
@@ -1063,6 +1067,9 @@ function ColumnWrapper({
   viewport,
 }: ColumnWrapperProps) {
   const effectiveSpan = viewport === 'mobile' ? 12 : column.span;
+  const isColLocked = column.isLocked;
+  const isColHidden = column.isHidden;
+
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     onSelectColumn(rowId, column.id);
@@ -1081,27 +1088,50 @@ function ColumnWrapper({
   return (
     <div
       className={`${styles.columnWrapper} ${isSelected ? styles.columnSelected : ''}`}
-      style={{ gridColumn: `span ${effectiveSpan}`, position: 'relative' }}
+      style={{
+        gridColumn: `span ${effectiveSpan}`,
+        position: 'relative',
+        opacity: isColHidden ? 0.35 : 1,
+        border: isColHidden ? '1px dashed var(--color-danger, #ef4444)' : undefined
+      }}
       onClick={handleClick}
     >
       <span className={styles.spanBadge}>{column.span}/12</span>
-      <button
-        className={styles.colDeleteBtn}
-        type="button"
-        title="Kolonu Sil"
-        onClick={(e) => {
-          e.stopPropagation();
-          onDispatch({ type: 'REMOVE_COLUMN', rowId, columnId: column.id });
-        }}
-      >
-        ×
-      </button>
+      
+      {isColLocked ? (
+        <span style={{ position: 'absolute', top: '2px', left: '45px', background: '#ec4899', color: '#fff', fontSize: '8px', padding: '1px 3px', borderRadius: '2px', zIndex: 10, display: 'flex', alignItems: 'center', gap: '2px' }}>
+          <FaLock size={7} /> Kilitli
+        </span>
+      ) : (
+        <button
+          className={styles.colDeleteBtn}
+          type="button"
+          title="Kolonu Sil"
+          onClick={(e) => {
+            e.stopPropagation();
+            onDispatch({ type: 'REMOVE_COLUMN', rowId, columnId: column.id });
+          }}
+        >
+          ×
+        </button>
+      )}
 
       {column.component ? (
         <div
           className={`${styles.blockWrapper} ${column.component.id === selectedComponentId ? styles.selected : ''}`}
-          style={{ outline: 'none', ...buildDesignStyles(column.component.props) }}
+          style={{
+            outline: 'none',
+            ...buildDesignStyles(column.component.props),
+            opacity: column.component.props?.isHidden ? 0.35 : 1,
+            border: column.component.props?.isHidden ? '1px dashed var(--color-danger, #ef4444)' : undefined
+          }}
         >
+          {!!(column.component.props as any)?.isHidden && (
+            <span style={{ position: 'absolute', top: '2px', left: '2px', background: '#ef4444', color: '#fff', fontSize: '8px', padding: '1px 3px', borderRadius: '2px', zIndex: 10 }}>Gizli Bileşen</span>
+          )}
+          {!!(column.component.props as any)?.isLocked && (
+            <span style={{ position: 'absolute', top: '2px', right: '2px', background: '#ec4899', color: '#fff', fontSize: '8px', padding: '1px 3px', borderRadius: '2px', zIndex: 10, display: 'flex', alignItems: 'center', gap: '2px' }}><FaLock size={7} /> Kilitli</span>
+          )}
           <MiniRenderer comp={column.component} theme={theme} />
         </div>
       ) : (
@@ -1117,7 +1147,7 @@ function ColumnWrapper({
         </div>
       )}
 
-      {nextColumn && (
+      {nextColumn && !isColLocked && !nextColumn.isLocked && (
         <ColResizeHandle
           rowId={rowId}
           leftColId={column.id}
@@ -1185,10 +1215,14 @@ function RowWrapper({
     onDispatch({ type: 'UPDATE_COLUMN_SPAN', rowId: row.id, columnId: leftColId, span: newLeft, siblingId: rightColId, siblingSpan: newRight });
   };
 
+  const isRowLocked = !!(row.props as any)?.isLocked;
+  const isRowHidden = !!(row.props as any)?.isHidden;
+
   const style: React.CSSProperties = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? 0.4 : 1,
+    opacity: isDragging ? 0.4 : isRowHidden ? 0.35 : 1,
+    outline: isRowHidden ? '1px dashed var(--color-danger, #ef4444)' : undefined,
   };
 
   const isRowSelected = row.id === selectedRowId;
@@ -1205,16 +1239,17 @@ function RowWrapper({
         onDispatch({ type: 'SET_RIGHT_TAB', tab: 'props' });
       }}
     >
-      {/* Drag handle */}
+      {/* Drag handle — disabled when locked */}
       <button
         className={styles.rowDragHandle}
-        {...attributes}
-        {...listeners}
+        {...(!isRowLocked ? attributes : {})}
+        {...(!isRowLocked ? listeners : {})}
         onClick={(e) => e.stopPropagation()}
-        title="Sürükleyerek sırala"
+        title={isRowLocked ? 'Satır kilitli' : 'Sürükleyerek sırala'}
         type="button"
+        style={{ cursor: isRowLocked ? 'not-allowed' : undefined, opacity: isRowLocked ? 0.4 : 1 }}
       >
-        <FaGripVertical />
+        {isRowLocked ? <FaLock size={12} /> : <FaGripVertical />}
       </button>
 
       {/* Row toolbar */}
@@ -1263,9 +1298,21 @@ function RowWrapper({
           onClick={() => onDispatch({ type: 'REMOVE_ROW', rowId: row.id })}
           title="Satırı Sil"
           type="button"
+          disabled={isRowLocked}
         >
           <FaTrash />
         </button>
+        {/* Lock toggle indicator */}
+        {isRowLocked && (
+          <span style={{ fontSize: '9px', color: '#ec4899', display: 'flex', alignItems: 'center', gap: '3px', padding: '0 4px' }}>
+            <FaLock size={8} /> Kilitli
+          </span>
+        )}
+        {isRowHidden && (
+          <span style={{ fontSize: '9px', color: '#ef4444', display: 'flex', alignItems: 'center', gap: '3px', padding: '0 4px' }}>
+            <FaEyeSlash size={8} /> Gizli
+          </span>
+        )}
       </div>
 
       {/* Row grid */}
@@ -1417,10 +1464,12 @@ export function EditorCanvas() {
   };
 
   const handleSelectSection = (section: 'navbar' | 'footer') => {
-    dispatch({ type: 'SELECT_COMPONENT', id: null });
     dispatch({ type: 'SELECT_ROW', rowId: null });
+    const globalId = section === 'navbar' ? 'global-navbar' : 'global-footer';
     setCanvasSelectedSection(prev => (prev === section ? null : section));
-    dispatch({ type: 'SET_LEFT_TAB', tab: 'global' });
+    // Set a special component ID so PropertiesPanel can detect it
+    dispatch({ type: 'SELECT_COMPONENT', id: globalId });
+    dispatch({ type: 'SET_RIGHT_TAB', tab: 'props' });
   };
 
   return (

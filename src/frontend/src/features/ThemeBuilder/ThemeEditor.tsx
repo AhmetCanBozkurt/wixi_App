@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import type { ComponentType } from 'react';
 import { useParams } from 'react-router-dom';
 import {
   FaPaintBrush, FaSave, FaExternalLinkAlt, FaHistory, FaUndo, FaRedo,
@@ -8,7 +7,8 @@ import {
   FaEdit, FaSearch, FaLink,
 } from 'react-icons/fa';
 
-import { EditorProvider, useEditor } from './context/EditorContext';
+import { useEditor } from './context/EditorContext';
+import { EditorProvider } from './context/EditorContext';
 import { useThemeEditor } from './hooks/useThemeEditor';
 import { PagesPanel } from './panels/PagesPanel';
 import { ComponentsPanel } from './panels/ComponentsPanel';
@@ -19,59 +19,21 @@ import { CodeEditorPanel } from './panels/CodeEditorPanel';
 import { PropertiesPanel } from './panels/PropertiesPanel';
 import { SeoPanel } from './panels/SeoPanel';
 import { BacklinksPanel } from './panels/BacklinksPanel';
-import { VersionHistoryPanel } from './panels/VersionHistoryPanel';
+import { DesignPanel } from '../WebBuilder/panels/DesignPanel';
 import { EditorCanvas } from './canvas/EditorCanvas';
 import { Modal } from '../../shared/ui/Modal/Modal';
-import { BLOCK_REGISTRY } from './blocks/blockRegistry';
 import styles from './ThemeEditor.module.css';
 
-// ── Accordion Section ──────────────────────────────────────────────────────
-interface AccordionSectionProps {
-  label: string;
-  icon: ComponentType<{ className?: string }>;
-  badge?: number | string;
-  children: React.ReactNode;
-  defaultOpen?: boolean;
-  height?: number;
-}
-
-export function AccordionSection({
-  label,
-  icon: Icon,
-  badge,
-  children,
-  defaultOpen = false,
-  height = 320,
-}: AccordionSectionProps) {
-  const [open, setOpen] = useState(defaultOpen);
+// Stub for VersionHistoryPanel until it is implemented
+function VersionHistoryPanel({ tenantSlug, onClose }: { tenantSlug: string; onClose: () => void }) {
   return (
-    <div className={styles.accordionSection}>
-      <button
-        className={styles.accordionHeader}
-        onClick={() => setOpen(o => !o)}
-        type="button"
-        aria-expanded={open}
-      >
-        <FaChevronRight
-          className={`${styles.accordionChevron} ${open ? styles.accordionChevronOpen : ''}`}
-        />
-        <Icon className={styles.accordionHeaderIcon} />
-        <span className={styles.accordionLabel}>{label}</span>
-        {badge !== undefined && <span className={styles.accordionBadge}>{badge}</span>}
-      </button>
-      {open && (
-        <div
-          className={styles.accordionContent}
-          style={{ '--accordion-h': `${height}px` } as React.CSSProperties}
-        >
-          {children}
-        </div>
-      )}
+    <div style={{ padding: '24px', textAlign: 'center', color: 'var(--editor-text-muted)' }}>
+      <p>Versiyon geçmişi yakında eklenecek.</p>
+      <button onClick={onClose} style={{ marginTop: '12px', padding: '8px 16px', background: 'var(--editor-accent)', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>Kapat</button>
     </div>
   );
 }
 
-// ── Main Editor Component ──────────────────────────────────────────────────
 function ThemeEditorInner({ tenantSlug }: { tenantSlug: string }) {
   const { state, dispatch } = useEditor();
   const { loadPages, saveAll } = useThemeEditor(tenantSlug);
@@ -84,6 +46,9 @@ function ThemeEditorInner({ tenantSlug }: { tenantSlug: string }) {
 
   useEffect(() => {
     void loadPages();
+    // Default left and right tabs for Theme Editor
+    dispatch({ type: 'SET_LEFT_TAB', tab: 'components' });
+    dispatch({ type: 'SET_RIGHT_TAB', tab: 'design' });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tenantSlug]);
 
@@ -162,48 +127,66 @@ function ThemeEditorInner({ tenantSlug }: { tenantSlug: string }) {
       {/* ── 3-Panel Layout ──────────────────────────────────── */}
       <div className={styles.mainArea}>
 
-        {/* ── Left Sidebar — Accordion ─────────────────────── */}
-        <div className={`${styles.sidebarLeft} ${!leftOpen ? styles.sidebarCollapsed : ''}`}>
-          <AccordionSection
-            label="Sayfalar"
-            icon={FaFile}
-            badge={state.pages.length || undefined}
-            defaultOpen
-            height={220}
-          >
-            <PagesPanel tenantSlug={tenantSlug} />
-          </AccordionSection>
-
-          <AccordionSection
-            label="Bileşenler"
-            icon={FaPlus}
-            badge={BLOCK_REGISTRY.length}
-            defaultOpen
-            height={380}
-          >
-            <ComponentsPanel />
-          </AccordionSection>
-
-          <AccordionSection
-            label="Katmanlar"
-            icon={FaLayerGroup}
-            badge={state.layout.length || undefined}
-            height={300}
-          >
-            <LayersPanel />
-          </AccordionSection>
-
-          <AccordionSection label="Tema" icon={FaPalette} height={440}>
-            <ThemePanel tenantSlug={tenantSlug} />
-          </AccordionSection>
-
-          <AccordionSection label="Global" icon={FaGlobe} height={400}>
-            <GlobalPanel tenantSlug={tenantSlug} />
-          </AccordionSection>
-
-          <AccordionSection label="Kod" icon={FaCode} height={500}>
-            <CodeEditorPanel tenantSlug={tenantSlug} />
-          </AccordionSection>
+        {/* ── Left Sidebar — Tabbed Panel ─────────────────────── */}
+        <div className={`${styles.sidebarLeft} ${!leftOpen ? styles.sidebarCollapsed : ''}`} style={{ display: 'flex', flexDirection: 'column' }}>
+          <div className={styles.leftTabBar} style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)' }}>
+            <button
+              type="button"
+              className={`${styles.leftTab} ${state.leftTab === 'pages' ? styles.leftTabActive : ''}`}
+              onClick={() => dispatch({ type: 'SET_LEFT_TAB', tab: 'pages' })}
+              title="Sayfalar"
+            >
+              <FaFile size={11} />
+            </button>
+            <button
+              type="button"
+              className={`${styles.leftTab} ${state.leftTab === 'layers' ? styles.leftTabActive : ''}`}
+              onClick={() => dispatch({ type: 'SET_LEFT_TAB', tab: 'layers' })}
+              title="Katmanlar"
+            >
+              <FaLayerGroup size={11} />
+            </button>
+            <button
+              type="button"
+              className={`${styles.leftTab} ${state.leftTab === 'components' ? styles.leftTabActive : ''}`}
+              onClick={() => dispatch({ type: 'SET_LEFT_TAB', tab: 'components' })}
+              title="Bileşenler"
+            >
+              <FaPlus size={11} />
+            </button>
+            <button
+              type="button"
+              className={`${styles.leftTab} ${state.leftTab === 'theme' ? styles.leftTabActive : ''}`}
+              onClick={() => dispatch({ type: 'SET_LEFT_TAB', tab: 'theme' })}
+              title="Tema"
+            >
+              <FaPalette size={11} />
+            </button>
+            <button
+              type="button"
+              className={`${styles.leftTab} ${state.leftTab === 'global' ? styles.leftTabActive : ''}`}
+              onClick={() => dispatch({ type: 'SET_LEFT_TAB', tab: 'global' })}
+              title="Global"
+            >
+              <FaGlobe size={11} />
+            </button>
+            <button
+              type="button"
+              className={`${styles.leftTab} ${state.leftTab === 'code' ? styles.leftTabActive : ''}`}
+              onClick={() => dispatch({ type: 'SET_LEFT_TAB', tab: 'code' })}
+              title="Kod"
+            >
+              <FaCode size={11} />
+            </button>
+          </div>
+          <div className={styles.leftContent} style={{ flex: 1, overflowY: 'auto' }}>
+            {state.leftTab === 'pages' && <PagesPanel tenantSlug={tenantSlug} />}
+            {state.leftTab === 'layers' && <LayersPanel />}
+            {state.leftTab === 'components' && <ComponentsPanel />}
+            {state.leftTab === 'theme' && <ThemePanel tenantSlug={tenantSlug} />}
+            {state.leftTab === 'global' && <GlobalPanel tenantSlug={tenantSlug} />}
+            {state.leftTab === 'code' && <CodeEditorPanel tenantSlug={tenantSlug} />}
+          </div>
         </div>
 
         {/* ── Left Toggle ──────────────────────────────────── */}
@@ -229,19 +212,48 @@ function ThemeEditorInner({ tenantSlug }: { tenantSlug: string }) {
           {rightOpen ? <FaChevronRight /> : <FaChevronLeft />}
         </button>
 
-        {/* ── Right Sidebar — Accordion ─────────────────────── */}
-        <div className={`${styles.sidebarRight} ${!rightOpen ? styles.sidebarCollapsed : ''}`}>
-          <AccordionSection label="Özellikler" icon={FaEdit} defaultOpen height={520}>
-            <PropertiesPanel />
-          </AccordionSection>
-
-          <AccordionSection label="SEO" icon={FaSearch} height={440}>
-            <SeoPanel tenantSlug={tenantSlug} />
-          </AccordionSection>
-
-          <AccordionSection label="Bağlantılar" icon={FaLink} height={360}>
-            <BacklinksPanel tenantSlug={tenantSlug} />
-          </AccordionSection>
+        {/* ── Right Sidebar — Tabbed Panel ─────────────────────── */}
+        <div className={`${styles.sidebarRight} ${!rightOpen ? styles.sidebarCollapsed : ''}`} style={{ display: 'flex', flexDirection: 'column' }}>
+          <div className={styles.rightTabBar}>
+            <button
+              type="button"
+              className={`${styles.rightTab} ${state.rightTab === 'design' ? styles.rightTabActive : ''}`}
+              onClick={() => dispatch({ type: 'SET_RIGHT_TAB', tab: 'design' })}
+            >
+              <FaPalette size={11} />
+              <span>Tasarım</span>
+            </button>
+            <button
+              type="button"
+              className={`${styles.rightTab} ${state.rightTab === 'props' ? styles.rightTabActive : ''}`}
+              onClick={() => dispatch({ type: 'SET_RIGHT_TAB', tab: 'props' })}
+            >
+              <FaEdit size={11} />
+              <span>İçerik</span>
+            </button>
+            <button
+              type="button"
+              className={`${styles.rightTab} ${state.rightTab === 'seo' ? styles.rightTabActive : ''}`}
+              onClick={() => dispatch({ type: 'SET_RIGHT_TAB', tab: 'seo' })}
+            >
+              <FaSearch size={11} />
+              <span>SEO</span>
+            </button>
+            <button
+              type="button"
+              className={`${styles.rightTab} ${state.rightTab === 'backlinks' ? styles.rightTabActive : ''}`}
+              onClick={() => dispatch({ type: 'SET_RIGHT_TAB', tab: 'backlinks' })}
+            >
+              <FaLink size={11} />
+              <span>Linkler</span>
+            </button>
+          </div>
+          <div className={styles.rightContent} style={{ flex: 1, overflowY: 'auto' }}>
+            {state.rightTab === 'design' && <DesignPanel />}
+            {state.rightTab === 'props' && <PropertiesPanel />}
+            {state.rightTab === 'seo' && <SeoPanel tenantSlug={tenantSlug} />}
+            {state.rightTab === 'backlinks' && <BacklinksPanel tenantSlug={tenantSlug} />}
+          </div>
         </div>
 
       </div>

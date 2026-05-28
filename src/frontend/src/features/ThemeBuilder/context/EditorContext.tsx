@@ -99,6 +99,10 @@ export type EditorAction =
   | { type: 'SET_RIGHT_TAB'; tab: RightTab }
   | { type: 'SET_INSERT_ROW_INDEX'; index: number | null }
   | { type: 'SET_INSERT_TARGET_ROW'; rowId: string | null }
+  | { type: 'TOGGLE_HIDE_NODE'; id: string; nodeType: 'row' | 'column' | 'component' }
+  | { type: 'TOGGLE_LOCK_NODE'; id: string; nodeType: 'row' | 'column' | 'component' }
+  | { type: 'MOVE_COLUMN'; rowId: string; columnId: string; direction: 'left' | 'right' }
+  | { type: 'MOVE_COMPONENT'; componentId: string; direction: 'up' | 'down' }
   // History
   | { type: 'UNDO' }
   | { type: 'REDO' };
@@ -700,6 +704,157 @@ function reducer(state: EditorState, action: EditorAction): EditorState {
         _future: future,
         isDirty: true,
       };
+    }
+
+    case 'TOGGLE_HIDE_NODE': {
+      const h = pushHistory(state);
+      const { id, nodeType } = action;
+      if (nodeType === 'row') {
+        const newLayout = h.layout.map(row =>
+          row.id === id ? { ...row, props: { ...row.props, isHidden: !row.props.isHidden } } : row
+        );
+        return { ...h, layout: newLayout, isDirty: true };
+      }
+      if (nodeType === 'column') {
+        const newLayout = h.layout.map(row => ({
+          ...row,
+          columns: row.columns.map(col =>
+            col.id === id ? { ...col, isHidden: !col.isHidden } : col
+          ),
+        }));
+        return { ...h, layout: newLayout, isDirty: true };
+      }
+      if (nodeType === 'component') {
+        const toggleInComp = (comp: LayoutComponent): LayoutComponent => {
+          if (comp.id === id) {
+            return { ...comp, props: { ...comp.props, isHidden: !comp.props.isHidden } };
+          }
+          if (comp.children) {
+            return { ...comp, children: comp.children.map(toggleInComp) };
+          }
+          return comp;
+        };
+        const newLayout = h.layout.map(row => ({
+          ...row,
+          columns: row.columns.map(col =>
+            col.component ? { ...col, component: toggleInComp(col.component) } : col
+          ),
+        }));
+        return { ...h, layout: newLayout, isDirty: true };
+      }
+      return state;
+    }
+
+    case 'TOGGLE_LOCK_NODE': {
+      const h = pushHistory(state);
+      const { id, nodeType } = action;
+      if (nodeType === 'row') {
+        const newLayout = h.layout.map(row =>
+          row.id === id ? { ...row, props: { ...row.props, isLocked: !row.props.isLocked } } : row
+        );
+        return { ...h, layout: newLayout, isDirty: true };
+      }
+      if (nodeType === 'column') {
+        const newLayout = h.layout.map(row => ({
+          ...row,
+          columns: row.columns.map(col =>
+            col.id === id ? { ...col, isLocked: !col.isLocked } : col
+          ),
+        }));
+        return { ...h, layout: newLayout, isDirty: true };
+      }
+      if (nodeType === 'component') {
+        const toggleInComp = (comp: LayoutComponent): LayoutComponent => {
+          if (comp.id === id) {
+            return { ...comp, props: { ...comp.props, isLocked: !comp.props.isLocked } };
+          }
+          if (comp.children) {
+            return { ...comp, children: comp.children.map(toggleInComp) };
+          }
+          return comp;
+        };
+        const newLayout = h.layout.map(row => ({
+          ...row,
+          columns: row.columns.map(col =>
+            col.component ? { ...col, component: toggleInComp(col.component) } : col
+          ),
+        }));
+        return { ...h, layout: newLayout, isDirty: true };
+      }
+      return state;
+    }
+
+    case 'MOVE_COLUMN': {
+      const { rowId, columnId, direction } = action;
+      const rowIdx = state.layout.findIndex(r => r.id === rowId);
+      if (rowIdx === -1) return state;
+      const row = state.layout[rowIdx];
+      const colIdx = row.columns.findIndex(c => c.id === columnId);
+      if (colIdx === -1) return state;
+      const targetIdx = direction === 'left' ? colIdx - 1 : colIdx + 1;
+      if (targetIdx < 0 || targetIdx >= row.columns.length) return state;
+      
+      const h = pushHistory(state);
+      const newColumns = [...row.columns];
+      [newColumns[colIdx], newColumns[targetIdx]] = [newColumns[targetIdx], newColumns[colIdx]];
+      const newLayout = state.layout.map(r => r.id === rowId ? { ...r, columns: newColumns } : r);
+      return { ...h, layout: newLayout, isDirty: true };
+    }
+
+    case 'MOVE_COMPONENT': {
+      const { componentId, direction } = action;
+      const h = pushHistory(state);
+
+      const moveInList = (list: LayoutComponent[]): { list: LayoutComponent[]; moved: boolean } => {
+        const idx = list.findIndex(c => c.id === componentId);
+        if (idx !== -1) {
+          const target = direction === 'up' ? idx - 1 : idx + 1;
+          if (target >= 0 && target < list.length) {
+            const copy = [...list];
+            [copy[idx], copy[target]] = [copy[target], copy[idx]];
+            return { list: copy, moved: true };
+          }
+          return { list, moved: false };
+        }
+        for (let i = 0; i < list.length; i++) {
+          if (list[i].children) {
+            const res = moveInList(list[i].children!);
+            if (res.moved) {
+              const copy = [...list];
+              copy[i] = { ...copy[i], children: res.list };
+              return { list: copy, moved: true };
+            }
+          }
+        }
+        return { list, moved: false };
+      };
+
+      let moved = false;
+      const newLayout = h.layout.map(row => {
+        if (moved) return row;
+        return {
+          ...row,
+          columns: row.columns.map(col => {
+            if (!col.component) return col;
+            if (col.component.id === componentId) {
+              return col;
+            }
+            if (col.component.children) {
+              const res = moveInList(col.component.children);
+              if (res.moved) {
+                moved = true;
+                return { ...col, component: { ...col.component, children: res.list } };
+              }
+            }
+            return col;
+          }),
+        };
+      });
+
+      if (moved) {
+        return { ...h, layout: newLayout, isDirty: true };
+      }
+      return state;
     }
 
     default: return state;
