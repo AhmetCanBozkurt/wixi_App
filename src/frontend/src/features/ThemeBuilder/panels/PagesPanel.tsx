@@ -31,7 +31,6 @@ export function PagesPanel({ tenantSlug }: { tenantSlug: string }) {
       if (!ok) return;
     }
     await loadPage(slug);
-    dispatch({ type: 'SET_LEFT_TAB', tab: 'components' });
   };
 
   const handleCreate = async () => {
