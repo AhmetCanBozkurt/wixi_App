@@ -12,3 +12,4 @@ export * from './ComboBox/ComboBox';
 export * from './Modal/Modal';
 export * from './MultiSelect/MultiSelect';
 export * from './HasPermission/HasPermission';
+export * from './ShadowHtml/ShadowHtml';

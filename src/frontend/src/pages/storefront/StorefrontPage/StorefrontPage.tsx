@@ -6,6 +6,7 @@ import { storefrontApi } from '../../../entities/StorePage/api/storePageApi';
 import { DEFAULT_THEME, themeToVars, mergeTheme } from '../../../entities/StorePage/model/defaultTheme';
 import type { StorePage, ThemeConfig, LayoutComponent, LayoutRow, Backlink } from '../../../entities/StorePage/model/types';
 import { migrateLayout } from '../../../features/ThemeBuilder/context/EditorContext';
+import { ShadowHtml } from '../../../shared/ui/ShadowHtml/ShadowHtml';
 
 // ── Block renderers ───────────────────────────────────────────────────────────
 
@@ -585,10 +586,22 @@ function NewsletterBlock({ props, theme, tenantSlug }: { props: Record<string, u
   );
 }
 
+/**
+ * CustomHtmlBlock — Custom HTML + CSS + Script içeriklerini
+ * Shadow DOM kullanarak sayfanın geri kalanından tamamen izole eder.
+ *
+ * - İçerideki <style> ve <script> tag'ları sadece bu shadow root'u etkiler.
+ * - Dış sayfanın CSS'i içeri sızmaz.
+ */
 function CustomHtmlBlock({ props }: { props: Record<string, unknown> }) {
+  const html = (props.html as string) || '';
   return (
     <div className={styles.sectionInner}>
-      <div dangerouslySetInnerHTML={{ __html: (props.html as string) || '' }} />
+      <ShadowHtml
+        html={html}
+        style={{ display: 'block', width: '100%' }}
+        addReset={true}
+      />
     </div>
   );
 }
