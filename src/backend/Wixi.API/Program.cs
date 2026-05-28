@@ -72,12 +72,21 @@ builder.Services.AddHostedService<Wixi.Modules.Core.Infrastructure.Services.Mail
 builder.Services.AddHostedService<Wixi.Modules.Core.Infrastructure.Services.TcmbSyncBackgroundWorker>();
 builder.Services.AddHostedService<Wixi.Modules.Core.Infrastructure.Services.SubscriptionExpiryBackgroundWorker>();
 
-// Stripe
-builder.Services.AddScoped<Wixi.Modules.Core.Application.Common.Interfaces.IStripeService, Wixi.Modules.Core.Infrastructure.Services.StripeService>();
+// Payment key encryption (ASP.NET Core Data Protection)
+builder.Services.AddDataProtection();
+builder.Services.AddScoped<Wixi.Modules.Core.Application.Common.Interfaces.IPaymentKeyProtector,
+    Wixi.Modules.Core.Infrastructure.Services.PaymentKeyProtector>();
+builder.Services.AddScoped<Wixi.Modules.Core.Application.Common.Interfaces.IPaymentSettingsProvider,
+    Wixi.Modules.Core.Infrastructure.Services.PaymentSettingsProvider>();
 
-// Iyzipay
+// Stripe — key'leri DB'den okur, yoksa appsettings'e düşer
+builder.Services.AddScoped<Wixi.Modules.Core.Application.Common.Interfaces.IStripeService,
+    Wixi.Modules.Core.Infrastructure.Services.StripeService>();
+
+// Iyzipay — key'leri DB'den okur, yoksa appsettings'e düşer
 builder.Services.Configure<Wixi.Shared.Configuration.IyzipayOptions>(builder.Configuration.GetSection("Iyzipay"));
-builder.Services.AddScoped<Wixi.Shared.Infrastructure.Services.IIyzipayService, Wixi.Shared.Infrastructure.Services.IyzipayService>();
+builder.Services.AddScoped<Wixi.Shared.Infrastructure.Services.IIyzipayService,
+    Wixi.Modules.Core.Infrastructure.Services.DbAwareIyzipayService>();
 
 // TCMB Exchange Rate Service
 builder.Services.AddHttpClient<Wixi.Modules.Core.Application.Common.Interfaces.ITcmbExchangeRateService,

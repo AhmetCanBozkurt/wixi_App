@@ -1,0 +1,1 @@
+export { PaymentSettingsPage } from './PaymentSettingsPage';

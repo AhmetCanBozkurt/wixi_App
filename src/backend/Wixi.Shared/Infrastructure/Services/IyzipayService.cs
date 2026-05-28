@@ -47,6 +47,17 @@ public class IyzipayService : IIyzipayService
         };
     }
 
+    // DB-resolved options için doğrudan oluşturma (PaymentSettingsProvider kullanır)
+    public IyzipayService(IyzipayOptions opts)
+    {
+        _options = new Iyzipay.Options
+        {
+            ApiKey = opts.ApiKey,
+            SecretKey = opts.SecretKey,
+            BaseUrl = opts.BaseUrl
+        };
+    }
+
     public async Task<IyzipayCheckoutResult> CreateCheckoutFormAsync(
         string conversationId,
         decimal price,

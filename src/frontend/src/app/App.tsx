@@ -119,6 +119,7 @@ import CaseStudyManagementPage from '../pages/admin/ContentManagement/CaseStudyM
 import RoadmapManagementPage from '../pages/admin/ContentManagement/RoadmapManagementPage';
 import ChangelogManagementPage from '../pages/admin/ContentManagement/ChangelogManagementPage';
 import LegalContentManagementPage from '../pages/admin/ContentManagement/LegalContentManagementPage';
+import { PaymentSettingsPage } from '../pages/admin/PaymentSettingsPage';
 import WebBuilderEditorPage from '../pages/corporate/WebBuilderEditorPage/WebBuilderEditorPage';
 import { CorpSitePage } from '../pages/corporate/CorpSitePage/CorpSitePage';
 import BlogManagementPage from '../pages/corporate/BlogManagementPage/BlogManagementPage';
@@ -270,6 +271,7 @@ const App = () => {
               <Route path="content/roadmap" element={<RoadmapManagementPage />} />
               <Route path="content/changelog" element={<ChangelogManagementPage />} />
               <Route path="content/legal" element={<LegalContentManagementPage />} />
+              <Route path="payment-settings" element={<PaymentSettingsPage />} />
               {/* ── Kişisel Finans ──────────────────────────────────── */}
               <Route path="finance" element={<PersonalFinanceDashboardPage />} />
               <Route path="finance/transactions" element={<TransactionsPage />} />

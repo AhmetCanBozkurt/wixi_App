@@ -35,6 +35,9 @@ public class WixiCoreDbContext : IdentityDbContext<WixiUser, WixiRole, Guid>
     public DbSet<WixiTenantSubscription> TenantSubscriptions { get; set; }
     public DbSet<WixiPaymentTransaction> PaymentTransactions { get; set; }
 
+    // Payment Gateway Settings
+    public DbSet<WixiPlatformPaymentSetting> PlatformPaymentSettings { get; set; }
+
     // Currency Management
     public DbSet<WixiCurrency> Currencies { get; set; }
     public DbSet<WixiExchangeRate> ExchangeRates { get; set; }
@@ -507,6 +510,19 @@ public class WixiCoreDbContext : IdentityDbContext<WixiUser, WixiRole, Guid>
                   .WithMany()
                   .HasForeignKey(e => e.PlanId)
                   .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // Platform Payment Settings Mapping
+        builder.Entity<WixiPlatformPaymentSetting>(entity =>
+        {
+            entity.ToTable("WIXI_PLATFORM_PAYMENT_SETTINGS");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.StripeSecretKey).HasMaxLength(1000);
+            entity.Property(e => e.StripePublishableKey).HasMaxLength(1000);
+            entity.Property(e => e.StripeWebhookSecret).HasMaxLength(1000);
+            entity.Property(e => e.IyzipayApiKey).HasMaxLength(1000);
+            entity.Property(e => e.IyzipaySecretKey).HasMaxLength(1000);
+            entity.Property(e => e.IyzipayBaseUrl).HasMaxLength(300);
         });
 
         // Payment Transactions Mapping
