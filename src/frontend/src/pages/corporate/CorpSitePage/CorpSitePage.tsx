@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { apiClient } from '../../../shared/api/axiosConfig';
 import { DEFAULT_THEME, mergeTheme, themeToVars } from '../../../entities/StorePage/model/defaultTheme';
-import type { LayoutComponent, ThemeConfig } from '../../../entities/StorePage/model/types';
+import type { LayoutRow, ThemeConfig } from '../../../entities/StorePage/model/types';
 import { BlockRenderer } from '../../storefront/StorefrontPage/StorefrontPage';
 
 interface CorpPage {
@@ -16,9 +16,11 @@ interface CorpPage {
 
 export const CorpSitePage = () => {
   const { tenantSlug, pageSlug } = useParams<{ tenantSlug: string; pageSlug?: string }>();
+  const [searchParams] = useSearchParams();
+  const isPreview = searchParams.get('preview') === 'true';
   const slug = pageSlug || 'home';
 
-  const [layout, setLayout] = useState<LayoutComponent[]>([]);
+  const [layout, setLayout] = useState<LayoutRow[]>([]);
   const [theme, setTheme] = useState<ThemeConfig>(DEFAULT_THEME);
   const [isLoading, setIsLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
@@ -37,8 +39,12 @@ export const CorpSitePage = () => {
     setIsLoading(true);
     setNotFound(false);
 
+    const endpoint = isPreview
+      ? `/public/corp/${tenantSlug}/page/${slug}/preview`
+      : `/public/corp/${tenantSlug}/page/${slug}`;
+
     apiClient
-      .get<CorpPage>(`/public/corp/${tenantSlug}/page/${slug}`)
+      .get<CorpPage>(endpoint)
       .then(res => {
         const page = res.data;
 
@@ -53,7 +59,7 @@ export const CorpSitePage = () => {
 
         if (page.layoutConfigJson) {
           try {
-            setLayout(JSON.parse(page.layoutConfigJson) as LayoutComponent[]);
+            setLayout(JSON.parse(page.layoutConfigJson) as LayoutRow[]);
           } catch { setLayout([]); }
         }
       })
@@ -86,10 +92,34 @@ export const CorpSitePage = () => {
           <p>Admin panelinden bu sayfayı tasarlayın.</p>
         </div>
       ) : (
-        layout.map(comp => (
-          <section key={comp.id} id={`block-${comp.id}`}>
-            <BlockRenderer comp={comp} theme={theme} tenantSlug={tenantSlug!} />
-          </section>
+        layout.map(row => (
+          <div
+            key={row.id}
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(12, 1fr)',
+              backgroundColor: row.props?.backgroundColor || undefined,
+              backgroundImage: row.props?.backgroundImage ? `url(${row.props.backgroundImage})` : undefined,
+              paddingTop: row.props?.paddingY || undefined,
+              paddingBottom: row.props?.paddingY || undefined,
+              paddingLeft: row.props?.paddingX || undefined,
+              paddingRight: row.props?.paddingX || undefined,
+            }}
+          >
+            {row.columns?.map(col => (
+              col.component ? (
+                <section
+                  key={col.id}
+                  id={`block-${col.component.id}`}
+                  style={{ gridColumn: `span ${col.span}` }}
+                >
+                  <BlockRenderer comp={col.component} theme={theme} tenantSlug={tenantSlug!} />
+                </section>
+              ) : (
+                <div key={col.id} style={{ gridColumn: `span ${col.span}` }} />
+              )
+            ))}
+          </div>
         ))
       )}
     </div>

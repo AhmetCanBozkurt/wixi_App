@@ -94,7 +94,8 @@ public class WebBuilderTenantProvisioner : ITenantProvisioner
                 PageType  = CorpPageType.Services,
                 Slug      = "hizmetler",
                 Title     = "Hizmetlerimiz",
-                IsPublished   = false,
+                IsPublished   = true,
+                PublishedAt   = now,
                 CreatedByUser = "System",
                 LayoutConfigJson = """
                     [

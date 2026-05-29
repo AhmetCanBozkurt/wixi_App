@@ -103,6 +103,80 @@ Karar vermeden veya analiz yapmadan önce kontrol et:
 
 ---
 
+## Tenant Provisioning — Yeni Modül Ekleme
+
+Bir müşteri kayıt olduğunda `SaasOnboardingController.RegisterTenant` seçilen modüllere göre tenant DB'sini kurar. Akış:
+
+```
+Kayıt → selectedModules = ["ecommerce", "webbuilder", "finance"]
+       → foreach ITenantProvisioner where ModuleName in selectedModules
+       → ProvisionAsync(tenantId, connectionString, databaseName)
+           → MigrateAsync()   // tablolar oluşur
+           → SeedAsync()      // varsayılan veriler eklenir
+```
+
+### Mevcut Provisioner'lar
+
+| ModuleName    | Provisioner                        | Konum |
+|---------------|------------------------------------|-------|
+| `ecommerce`   | `ECommerceTenantProvisioner`       | `Wixi.Modules.ECommerce/Infrastructure/Services/` |
+| `webbuilder`  | `WebBuilderTenantProvisioner`      | `Wixi.Modules.WebBuilder/Infrastructure/Services/` |
+
+> `crm`, `hr`, `notes`, `tasks`, `stok`, `muhasebe` gibi modüller `EnabledModules`'e kaydedilir ama provisioner olmadığından DB'de tablo oluşturulmaz. Yeni modül için aşağıdaki adımlar izlenir.
+
+### Yeni Modül Provisioner Ekleme (3 Adım)
+
+**1. Provisioner sınıfı oluştur:**
+```csharp
+// Wixi.Modules.<Name>/Infrastructure/Services/<Name>TenantProvisioner.cs
+public class FinanceTenantProvisioner : ITenantProvisioner
+{
+    public string ModuleName => "finance";  // OnboardingPage'deki modül id ile AYNI olmalı
+
+    public async Task ProvisionAsync(string tenantId, string connectionString,
+        string databaseName, CancellationToken ct = default)
+    {
+        var optionsBuilder = new DbContextOptionsBuilder<FinanceDbContext>();
+        optionsBuilder.UseSqlServer(connectionString);
+        await using var db = new FinanceDbContext(optionsBuilder.Options);
+        await db.Database.MigrateAsync(ct);
+        // Varsayılan seed verisi varsa buraya ekle
+    }
+}
+```
+
+**2. Module Extensions'a DI kaydı ekle:**
+```csharp
+// Wixi.Modules.<Name>/<Name>ModuleExtensions.cs
+services.AddScoped<ITenantProvisioner, FinanceTenantProvisioner>();
+```
+
+**3. Frontend OnboardingPage modül listesine ekle** (`id` backend `ModuleName` ile aynı olmalı)
+
+`SaasOnboardingController` loop'u yeni provisioner'ı otomatik bulur — başka değişiklik gerekmez.
+
+### Migration Kuralı — Çakışma Önleme
+
+Yeni migration bir tabloyu tekrar oluşturuyorsa (eski migration klasöründen miras) **idempotent** yapılmalıdır:
+```csharp
+migrationBuilder.Sql("""
+    IF OBJECT_ID(N'TABLO_ADI', N'U') IS NULL
+    BEGIN
+        CREATE TABLE [TABLO_ADI] ( ... );
+    END
+    """);
+```
+
+### Reprovision (Başarısız Provision Yeniden Çalıştırma)
+
+```
+POST /api/v1/admin/tenants/{tenantId}/reprovision   [SuperAdmin]
+```
+- Tenant'ın `EnabledModules` listesindeki provisioner'ları yeniden çalıştırır
+- Provision idempotent olduğundan mevcut veriler korunur
+- `IsMigrated = true` + `LastMigrationError = null` yazar
+
+---
 
 ## Commands
 

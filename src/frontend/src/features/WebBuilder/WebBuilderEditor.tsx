@@ -25,8 +25,9 @@ function WebBuilderEditorInner() {
   const { state, dispatch } = useEditor();
   const { loadPages, saveAll } = useWebBuilder();
   const activeTenantSlug = localStorage.getItem('wixi-active-tenant') ?? '';
+  // Preview endpoint'i yayınlanmamış sayfalar için de çalışır (TenantAdmin auth gerektirir)
   const previewHref = state.activePage && activeTenantSlug
-    ? `/corp/${activeTenantSlug}/${state.activePage.slug}`
+    ? `/corp/${activeTenantSlug}/${state.activePage.slug}?preview=true`
     : undefined;
   const [versionModalOpen, setVersionModalOpen] = useState(false);
   const [leftOpen, setLeftOpen] = useState(true);
