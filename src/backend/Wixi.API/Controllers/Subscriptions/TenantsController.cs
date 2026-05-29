@@ -77,17 +77,19 @@ public class TenantsController : ControllerBase
         if (string.IsNullOrWhiteSpace(tenant.ConnectionString) || string.IsNullOrWhiteSpace(tenant.DatabaseName))
             return BadRequest(new { error = "Tenant'ın ConnectionString veya DatabaseName alanı boş." });
 
-        var enabledModules = (tenant.EnabledModules ?? "ecommerce")
-            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-
+        // Reprovision tüm kayıtlı provisioner'ları çalıştırır — EnabledModules filtresi uygulanmaz.
+        // Bu sayede eksik kalmış modüller (ör. webbuilder) retroaktif olarak eklenir.
         string? provisionError = null;
         try
         {
             foreach (var provisioner in _provisioners)
             {
-                if (enabledModules.Contains(provisioner.ModuleName))
-                    await provisioner.ProvisionAsync(tenant.Id.ToString(), tenant.ConnectionString, tenant.DatabaseName, ct);
+                await provisioner.ProvisionAsync(tenant.Id.ToString(), tenant.ConnectionString, tenant.DatabaseName, ct);
             }
+
+            // EnabledModules'ü tüm provisioner isimleriyle güncelle
+            var allModuleNames = _provisioners.Select(p => p.ModuleName).Append("core").Distinct();
+            tenant.EnabledModules = string.Join(",", allModuleNames);
 
             tenant.IsMigrated = true;
             tenant.LastMigrationError = null;

@@ -88,7 +88,7 @@ public class SaasOnboardingController : ControllerBase
                 DatabaseName = $"wixi_t_{tenantCode}_{safeStoreName}",
                 ConnectionString = connBuilder.ConnectionString,
                 EnabledModules = string.Join(",",
-                    (request.SelectedModules ?? ["ecommerce"])
+                    (request.SelectedModules ?? ["ecommerce", "webbuilder"])
                     .Append("core").Distinct()),
                 Plan = request.PlanCode ?? "Trial"
             };
@@ -143,7 +143,7 @@ public class SaasOnboardingController : ControllerBase
         string? provisionError = null;
         try
         {
-            var selectedModules = request.SelectedModules ?? ["ecommerce"];
+            var selectedModules = request.SelectedModules ?? ["ecommerce", "webbuilder"];
             foreach (var provisioner in _provisioners)
             {
                 if (selectedModules.Contains(provisioner.ModuleName))

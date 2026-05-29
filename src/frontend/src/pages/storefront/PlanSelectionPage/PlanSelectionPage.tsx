@@ -74,13 +74,16 @@ export function PlanSelectionPage() {
     const email = sessionStorage.getItem('wixi-signup-email') || '';
     const password = sessionStorage.getItem('wixi-signup-password') || '';
     
-    let modulesList: string[] = ['ecommerce'];
+    let modulesList: string[] = ['ecommerce', 'webbuilder'];
     const storedModules = sessionStorage.getItem('wixi-signup-modules');
     if (storedModules) {
       try {
-        modulesList = JSON.parse(storedModules);
+        const parsed: string[] = JSON.parse(storedModules);
+        // webbuilder her zaman dahil edilir — seçilmemiş olsa bile
+        if (!parsed.includes('webbuilder')) parsed.push('webbuilder');
+        modulesList = parsed;
       } catch {
-        modulesList = ['ecommerce'];
+        modulesList = ['ecommerce', 'webbuilder'];
       }
     }
 

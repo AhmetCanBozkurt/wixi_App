@@ -11,45 +11,37 @@ namespace Wixi.Modules.ECommerce.Infrastructure.Data.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateTable(
-                name: "WIXI_EC_THEME_VERSIONS",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    StoreSettingsId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    VersionNumber = table.Column<int>(type: "int", nullable: false),
-                    ThemeConfigJson = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    GlobalComponentsConfigJson = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CustomCssOverride = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CustomJsOverride = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    VersionLabel = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
-                    VersionType = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    IsPublished = table.Column<bool>(type: "bit", nullable: false),
-                    RestoredFromVersionId = table.Column<int>(type: "int", nullable: true),
-                    ChangedByEmail = table.Column<string>(type: "nvarchar(320)", maxLength: 320, nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_WIXI_EC_THEME_VERSIONS", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_WIXI_EC_THEME_VERSIONS_WIXI_EC_STORE_SETTINGS_StoreSettingsId",
-                        column: x => x.StoreSettingsId,
-                        principalTable: "WIXI_EC_STORE_SETTINGS",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
+            // Eski Migrations/Tenant/ThemeEditor_VersionHistory aynı tabloyu yaratmış olabilir.
+            // IF NOT EXISTS guard ile idempotent yapılıyor.
+            migrationBuilder.Sql("""
+                IF OBJECT_ID(N'WIXI_EC_THEME_VERSIONS', N'U') IS NULL
+                BEGIN
+                    CREATE TABLE [WIXI_EC_THEME_VERSIONS] (
+                        [Id]                        INT IDENTITY(1,1) NOT NULL,
+                        [StoreSettingsId]           UNIQUEIDENTIFIER NOT NULL,
+                        [VersionNumber]             INT NOT NULL,
+                        [ThemeConfigJson]           NVARCHAR(MAX) NULL,
+                        [GlobalComponentsConfigJson] NVARCHAR(MAX) NULL,
+                        [CustomCssOverride]         NVARCHAR(MAX) NULL,
+                        [CustomJsOverride]          NVARCHAR(MAX) NULL,
+                        [VersionLabel]              NVARCHAR(200) NULL,
+                        [VersionType]               NVARCHAR(50) NOT NULL,
+                        [IsPublished]               BIT NOT NULL,
+                        [RestoredFromVersionId]     INT NULL,
+                        [ChangedByEmail]            NVARCHAR(320) NULL,
+                        [CreatedAt]                 DATETIME2 NOT NULL,
+                        CONSTRAINT [PK_WIXI_EC_THEME_VERSIONS] PRIMARY KEY ([Id]),
+                        CONSTRAINT [FK_WIXI_EC_THEME_VERSIONS_WIXI_EC_STORE_SETTINGS_StoreSettingsId]
+                            FOREIGN KEY ([StoreSettingsId]) REFERENCES [WIXI_EC_STORE_SETTINGS] ([Id]) ON DELETE CASCADE
+                    );
 
-            migrationBuilder.CreateIndex(
-                name: "IX_WIXI_EC_THEME_VERSIONS_StoreSettingsId_IsPublished",
-                table: "WIXI_EC_THEME_VERSIONS",
-                columns: new[] { "StoreSettingsId", "IsPublished" });
+                    CREATE INDEX [IX_WIXI_EC_THEME_VERSIONS_StoreSettingsId_IsPublished]
+                        ON [WIXI_EC_THEME_VERSIONS] ([StoreSettingsId], [IsPublished]);
 
-            migrationBuilder.CreateIndex(
-                name: "IX_WIXI_EC_THEME_VERSIONS_StoreSettingsId_VersionNumber",
-                table: "WIXI_EC_THEME_VERSIONS",
-                columns: new[] { "StoreSettingsId", "VersionNumber" });
+                    CREATE INDEX [IX_WIXI_EC_THEME_VERSIONS_StoreSettingsId_VersionNumber]
+                        ON [WIXI_EC_THEME_VERSIONS] ([StoreSettingsId], [VersionNumber]);
+                END
+                """);
         }
 
         /// <inheritdoc />
