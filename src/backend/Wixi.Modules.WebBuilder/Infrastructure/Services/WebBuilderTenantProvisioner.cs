@@ -34,6 +34,18 @@ public class WebBuilderTenantProvisioner : ITenantProvisioner
         // DB oluştur + WB migration'larını uygula (idempotent)
         await db.Database.MigrateAsync(cancellationToken);
 
+        // Corp settings seed (idempotent)
+        if (!await db.CorpSettings.IgnoreQueryFilters().AnyAsync(s => s.TenantId == tid, cancellationToken))
+        {
+            db.CorpSettings.Add(new WixiCorpSettings
+            {
+                TenantId = tid,
+                GlobalComponentsConfigJson = null,
+                CreatedByUser = "System",
+            });
+            await db.SaveChangesAsync(cancellationToken);
+        }
+
         // Zaten sayfa varsa seed atla (idempotent)
         if (await db.CorpPages.IgnoreQueryFilters().AnyAsync(p => p.TenantId == tid, cancellationToken))
             return;

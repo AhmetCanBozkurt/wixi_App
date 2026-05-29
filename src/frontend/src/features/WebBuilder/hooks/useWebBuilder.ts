@@ -2,11 +2,9 @@ import { useCallback } from 'react';
 import { toast } from 'react-hot-toast';
 import { webBuilderApi } from '../../../entities/CorpPage/api/corpPageApi';
 import type { CorpPage } from '../../../entities/CorpPage/model/types';
-import type { StorePage } from '../../../entities/StorePage/model/types';
+import type { StorePage, GlobalComponentsConfig } from '../../../entities/StorePage/model/types';
 import { useEditor } from '../../ThemeBuilder/context/EditorContext';
 
-// CorpPage has the same shape as StorePage for the fields EditorContext reads.
-// Cast helper avoids duplicating the context reducer.
 function toStorePage(p: CorpPage): StorePage {
   return {
     id: p.id,
@@ -30,9 +28,44 @@ function toStorePage(p: CorpPage): StorePage {
 export function useWebBuilder() {
   const { state, dispatch } = useEditor();
 
+  const loadSettings = useCallback(async () => {
+    try {
+      const res = await webBuilderApi.getSettings();
+      if (res.data.globalComponentsConfigJson) {
+        const parsed = JSON.parse(res.data.globalComponentsConfigJson) as Partial<GlobalComponentsConfig>;
+        dispatch({ type: 'SET_GLOBAL_COMPONENTS', globalComponents: {
+          navbar: { layout: 'classic', logoPosition: 'left', isSticky: true, showSearch: false, showLanguagePicker: false, customCss: '', customJs: '', ...(parsed.navbar ?? {}) },
+          footer: { columnCount: 3, showSocials: true, showNewsletter: false, copyrightText: '', customCss: '', customJs: '', ...(parsed.footer ?? {}) },
+        }});
+      }
+    } catch {
+      // non-critical
+    }
+  }, [dispatch]);
+
+  const saveSettings = useCallback(async () => {
+    try {
+      await webBuilderApi.updateSettings({
+        globalComponentsConfigJson: JSON.stringify(state.globalComponents),
+      });
+    } catch {
+      // non-critical, saveAll continues
+    }
+  }, [state.globalComponents]);
+
+  const loadPage = useCallback(async (slug: string) => {
+    try {
+      const res = await webBuilderApi.getPage(slug);
+      dispatch({ type: 'SET_ACTIVE_PAGE', page: toStorePage(res.data) });
+    } catch {
+      toast.error('Sayfa yüklenemedi.');
+    }
+  }, [dispatch]);
+
   const loadPages = useCallback(async () => {
     dispatch({ type: 'SET_LOADING', loading: true });
     try {
+      await loadSettings();
       const pagesRes = await webBuilderApi.getPages();
       dispatch({ type: 'SET_PAGES', pages: pagesRes.data.map(p => ({
         id: p.id,
@@ -54,16 +87,7 @@ export function useWebBuilder() {
       dispatch({ type: 'SET_LOADING', loading: false });
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const loadPage = useCallback(async (slug: string) => {
-    try {
-      const res = await webBuilderApi.getPage(slug);
-      dispatch({ type: 'SET_ACTIVE_PAGE', page: toStorePage(res.data) });
-    } catch {
-      toast.error('Sayfa yüklenemedi.');
-    }
-  }, [dispatch]);
+  }, [loadSettings, loadPage]);
 
   const saveLayout = useCallback(async () => {
     if (!state.activePage) return;
@@ -164,7 +188,6 @@ export function useWebBuilder() {
     dispatch({ type: 'SET_VERSIONS_LOADING', loading: true });
     try {
       const res = await webBuilderApi.getVersions(state.activePage.id);
-      // Map CorpPageVersionSummary to ThemeVersionSummary shape for the shared context
       dispatch({ type: 'SET_THEME_VERSIONS', versions: res.data.map((v, idx) => ({
         id: idx,
         versionNumber: res.data.length - idx,
@@ -212,7 +235,7 @@ export function useWebBuilder() {
   }, [dispatch, loadPages, loadVersions]);
 
   const saveAll = useCallback(async () => {
-    await Promise.all([saveLayout(), saveSeo(), saveBacklinks()]);
+    await Promise.all([saveLayout(), saveSeo(), saveBacklinks(), saveSettings()]);
     if (!state.activePage) return;
     try {
       const time = new Date().toLocaleString('tr-TR', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' });
@@ -232,7 +255,7 @@ export function useWebBuilder() {
     } catch {
       // Auto-checkpoint failure is non-critical
     }
-  }, [saveLayout, saveSeo, saveBacklinks, state.activePage, dispatch]);
+  }, [saveLayout, saveSeo, saveBacklinks, saveSettings, state.activePage, dispatch]);
 
   const createPage = useCallback(async (pageType: string, slug: string, title: string) => {
     try {
@@ -248,9 +271,11 @@ export function useWebBuilder() {
   return {
     loadPages,
     loadPage,
+    loadSettings,
     saveLayout,
     saveSeo,
     saveBacklinks,
+    saveSettings,
     publishPage,
     deletePage,
     saveAll,

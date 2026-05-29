@@ -2,8 +2,10 @@ import { useEffect, useRef, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { apiClient } from '../../../shared/api/axiosConfig';
 import { DEFAULT_THEME, mergeTheme, themeToVars } from '../../../entities/StorePage/model/defaultTheme';
-import type { LayoutRow, ThemeConfig } from '../../../entities/StorePage/model/types';
+import type { LayoutRow, ThemeConfig, GlobalComponentsConfig } from '../../../entities/StorePage/model/types';
 import { BlockRenderer } from '../../storefront/StorefrontPage/StorefrontPage';
+import { CorpNavbar } from '../../../widgets/CorpNavbar/CorpNavbar';
+import { CorpFooter } from '../../../widgets/CorpFooter/CorpFooter';
 
 interface CorpPage {
   slug: string;
@@ -14,6 +16,10 @@ interface CorpPage {
   isPublished: boolean;
 }
 
+interface CorpSettingsResponse {
+  globalComponentsConfigJson: string | null;
+}
+
 export const CorpSitePage = () => {
   const { tenantSlug, pageSlug } = useParams<{ tenantSlug: string; pageSlug?: string }>();
   const [searchParams] = useSearchParams();
@@ -22,6 +28,7 @@ export const CorpSitePage = () => {
 
   const [layout, setLayout] = useState<LayoutRow[]>([]);
   const [theme, setTheme] = useState<ThemeConfig>(DEFAULT_THEME);
+  const [globalComponents, setGlobalComponents] = useState<GlobalComponentsConfig | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -33,6 +40,21 @@ export const CorpSitePage = () => {
       rootRef.current.style.setProperty(key, value);
     }
   }, [theme]);
+
+  // Load corp settings (navbar/footer config) — independent of page load
+  useEffect(() => {
+    if (!tenantSlug) return;
+    apiClient
+      .get<CorpSettingsResponse>(`/public/corp/${tenantSlug}/settings`)
+      .then(res => {
+        if (res.data.globalComponentsConfigJson) {
+          try {
+            setGlobalComponents(JSON.parse(res.data.globalComponentsConfigJson) as GlobalComponentsConfig);
+          } catch { /* keep null */ }
+        }
+      })
+      .catch(() => { /* non-critical */ });
+  }, [tenantSlug]);
 
   useEffect(() => {
     if (!tenantSlug) return;
@@ -67,6 +89,8 @@ export const CorpSitePage = () => {
       .finally(() => setIsLoading(false));
   }, [tenantSlug, slug]);
 
+  const navbarTheme = { colors: { primary: theme.colors.primary, background: theme.colors.background, text: theme.colors.text } };
+
   if (isLoading) {
     return (
       <div ref={rootRef} style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -86,8 +110,12 @@ export const CorpSitePage = () => {
 
   return (
     <div ref={rootRef} style={{ minHeight: '100vh', background: 'var(--sf-color-bg, #fff)', color: 'var(--sf-color-text, #111827)' }}>
+      {globalComponents?.navbar && (
+        <CorpNavbar config={globalComponents.navbar} tenantSlug={tenantSlug!} theme={navbarTheme} />
+      )}
+
       {layout.length === 0 ? (
-        <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+        <div style={{ minHeight: '60vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
           <h2>Henüz İçerik Eklenmedi</h2>
           <p>Admin panelinden bu sayfayı tasarlayın.</p>
         </div>
@@ -121,6 +149,10 @@ export const CorpSitePage = () => {
             ))}
           </div>
         ))
+      )}
+
+      {globalComponents?.footer && (
+        <CorpFooter config={globalComponents.footer} theme={navbarTheme} />
       )}
     </div>
   );

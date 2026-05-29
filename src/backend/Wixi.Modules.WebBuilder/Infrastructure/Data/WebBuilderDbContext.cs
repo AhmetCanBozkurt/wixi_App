@@ -37,6 +37,7 @@ public class WebBuilderDbContext : DbContext
 
     public DbSet<WixiCorpPage> CorpPages { get; set; }
     public DbSet<WixiCorpPageVersion> CorpPageVersions { get; set; }
+    public DbSet<WixiCorpSettings> CorpSettings { get; set; }
     public DbSet<WixiBlogCategory> BlogCategories { get; set; }
     public DbSet<WixiBlogPost> BlogPosts { get; set; }
     public DbSet<WixiWebForm> WebForms { get; set; }
@@ -99,6 +100,13 @@ public class WebBuilderDbContext : DbContext
                 builder.Entity(entityType.ClrType).HasQueryFilter(lambda);
             }
         }
+
+        builder.Entity<WixiCorpSettings>(entity =>
+        {
+            entity.ToTable("WB_CORP_SETTINGS");
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.TenantId).IsUnique();
+        });
 
         builder.Entity<WixiCorpPage>(entity =>
         {

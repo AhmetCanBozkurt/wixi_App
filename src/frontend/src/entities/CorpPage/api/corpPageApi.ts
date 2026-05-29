@@ -1,5 +1,5 @@
 import apiClient from '../../../shared/api/axiosConfig';
-import type { CorpPage, CorpPageSummary, CorpPageVersionSummary } from '../model/types';
+import type { CorpPage, CorpPageSummary, CorpPageVersionSummary, CorpSettings } from '../model/types';
 
 const BASE = '/web-builder/pages';
 
@@ -41,4 +41,10 @@ export const webBuilderApi = {
 
   rollbackVersion: (versionId: string) =>
     apiClient.post(`${BASE}/versions/${versionId}/rollback`),
+
+  getSettings: () =>
+    apiClient.get<CorpSettings>('/web-builder/settings'),
+
+  updateSettings: (data: CorpSettings) =>
+    apiClient.put('/web-builder/settings', data),
 };

@@ -33,3 +33,7 @@ export interface CorpPageVersionSummary {
   createdAt: string;
   createdByUser: string | null;
 }
+
+export interface CorpSettings {
+  globalComponentsConfigJson: string | null;
+}

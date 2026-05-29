@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Wixi.Modules.Core.Infrastructure.Data;
 using Wixi.Modules.WebBuilder.Application.CorpPages.Queries.GetCorpPageBySlug;
 using Wixi.Modules.WebBuilder.Application.CorpPages.Queries.GetCorpPages;
+using Wixi.Modules.WebBuilder.Application.CorpSettings.Queries;
 using Wixi.Shared.Domain.Entities;
 
 namespace Wixi.API.Controllers.WebBuilder;
@@ -67,6 +68,22 @@ public class PublicCorpController(IMediator mediator, WixiCoreDbContext db, ITen
         if (page is null) return NotFound();
 
         return Ok(page);
+    }
+
+    [HttpGet("{tenantSlug}/settings")]
+    public async Task<IActionResult> GetSettings(string tenantSlug, CancellationToken ct)
+    {
+        var tenant = await db.Tenants
+            .Where(t => t.Slug == tenantSlug && !t.IsDeleted && t.IsActive)
+            .Select(t => new { t.Id, t.ConnectionString, t.Slug })
+            .FirstOrDefaultAsync(ct);
+
+        if (tenant is null) return NotFound();
+
+        tenantContext.Set(tenant.Id, tenant.ConnectionString, tenant.Slug);
+
+        var settings = await mediator.Send(new GetCorpSettingsQuery(tenant.Id), ct);
+        return Ok(settings);
     }
 
     [HttpGet("{tenantSlug}/pages")]
