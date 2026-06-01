@@ -1,0 +1,81 @@
+name: CI Hata Yorumu
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+
+jobs:
+  comment-on-failure:
+    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      actions: read
+
+    steps:
+      - name: PR numarasını bul
+        id: find-pr
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PR=$(gh api \
+            "repos/${{ github.repository }}/pulls?state=open&head=${{ github.event.workflow_run.head_repository.owner.login }}:${{ github.event.workflow_run.head_branch }}" \
+            --jq '.[0].number')
+          echo "pr=$PR" >> $GITHUB_OUTPUT
+
+      - name: Hata loglarını çek
+        id: get-logs
+        if: steps.find-pr.outputs.pr != '' && steps.find-pr.outputs.pr != 'null'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          RUN_ID=${{ github.event.workflow_run.id }}
+
+          # Başarısız job'ları bul
+          FAILED_JOBS=$(gh api "repos/${{ github.repository }}/actions/runs/$RUN_ID/jobs" \
+            --jq '[.jobs[] | select(.conclusion == "failure") | {name: .name, id: .id}]')
+
+          LOG_CONTENT=""
+          while IFS= read -r job; do
+            JOB_NAME=$(echo "$job" | jq -r '.name')
+            JOB_ID=$(echo "$job" | jq -r '.id')
+
+            # Job logunu çek, hata satırlarını filtrele
+            JOB_LOG=$(gh api "repos/${{ github.repository }}/actions/jobs/$JOB_ID/logs" 2>/dev/null | \
+              grep -i "error\|Error\|failed\|Failed\|warning\|Warning" | \
+              tail -50 || echo "Log alınamadı")
+
+            LOG_CONTENT="${LOG_CONTENT}### ❌ ${JOB_NAME}\n\`\`\`\n${JOB_LOG}\n\`\`\`\n\n"
+          done < <(echo "$FAILED_JOBS" | jq -c '.[]')
+
+          # Çok uzunsa kırp
+          LOG_CONTENT=$(echo -e "$LOG_CONTENT" | head -100)
+
+          # Output'a yaz (multiline için)
+          {
+            echo "logs<<EOF"
+            echo -e "$LOG_CONTENT"
+            echo "EOF"
+          } >> $GITHUB_OUTPUT
+
+      - name: PR'a yorum at
+        if: steps.find-pr.outputs.pr != '' && steps.find-pr.outputs.pr != 'null'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PR=${{ steps.find-pr.outputs.pr }}
+          RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }}"
+
+          BODY="## 🔴 CI Başarısız
+
+          **Branch:** \`${{ github.event.workflow_run.head_branch }}\`
+          **Commit:** \`${{ github.event.workflow_run.head_sha }}\`
+          **[Actions logunu gör]($RUN_URL)**
+
+          ${{ steps.get-logs.outputs.logs }}
+
+          ---
+          > Bu yorumu Claude Code'a yapıştırıp düzeltmesini isteyebilirsin."
+
+          gh pr comment $PR --repo ${{ github.repository }} --body "$BODY"
