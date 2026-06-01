@@ -2,7 +2,7 @@ import { useEditor, findComponentInRows } from '../../ThemeBuilder/context/Edito
 import { Input } from '../../../shared/ui/Input/Input';
 import { Select } from '../../../shared/ui/Select/Select';
 import { Button } from '../../../shared/ui/Button/Button';
-import { FaTrash, FaCopy } from 'react-icons/fa';
+import { FaTrash } from 'react-icons/fa';
 import styles from '../../ThemeBuilder/panels/Panels.module.css';
 
 export function DesignPanel() {
@@ -53,13 +53,6 @@ export function DesignPanel() {
         rowId: activeRow.id,
         props: { ...p, [key]: value }
       });
-    }
-  };
-
-  const handleDuplicate = () => {
-    if (activeComp) {
-      // In Web Builder, duplicate row or component
-      // We can trigger an alert or simply use context dispatch if supported
     }
   };
 

@@ -11,8 +11,6 @@ import {
   FaPlus,
   FaChevronRight,
   FaLock,
-  FaLockOpen,
-  FaEye,
   FaEyeSlash,
 } from 'react-icons/fa';
 import {
@@ -224,7 +222,7 @@ function NestedComponentWrapper({ comp, theme }: { comp: LayoutComponent; theme:
 export function MiniRenderer({ comp, theme }: { comp: LayoutComponent; theme: ThemeConfig }) {
   const p = comp.props;
   const def = BLOCK_BY_TYPE[comp.type];
-  const { state } = useEditor();
+  const { state, dispatch } = useEditor();
   const { viewport } = state;
 
   switch (comp.type) {
@@ -811,7 +809,6 @@ export function MiniRenderer({ comp, theme }: { comp: LayoutComponent; theme: Th
 
     case 'section-container': {
       const children = comp.children ?? [];
-      const { dispatch } = useEditor();
       return (
         <div
           style={{
@@ -850,7 +847,6 @@ export function MiniRenderer({ comp, theme }: { comp: LayoutComponent; theme: Th
 
     case 'grid-row': {
       const children = comp.children ?? [];
-      const { dispatch } = useEditor();
       return (
         <div
           style={{
@@ -886,7 +882,6 @@ export function MiniRenderer({ comp, theme }: { comp: LayoutComponent; theme: Th
     case 'grid-column': {
       const children = comp.children ?? [];
       const span = Number(p.span ?? 6);
-      const { dispatch } = useEditor();
       return (
         <div
           style={{

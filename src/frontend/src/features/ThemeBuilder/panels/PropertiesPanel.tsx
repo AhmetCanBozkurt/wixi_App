@@ -1002,7 +1002,6 @@ export function PropertiesPanel() {
 
   // Global Navbar selected
   if (selectedComponentId === 'global-navbar') {
-    const { navbar } = globalComponents;
     return (
       <div className={styles.panel}>
         <div className={styles.panelHeader} style={{ borderBottom: '1px solid var(--editor-border)', display: 'flex', alignItems: 'center', gap: '8px' }}>

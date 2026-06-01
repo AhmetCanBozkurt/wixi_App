@@ -70,12 +70,6 @@ export function ShadowHtml({ html, className, style, addReset = true }: ShadowHt
     // HTML'i geçici bir container'a parse et
     const template = document.createElement('template');
     template.innerHTML = html || '';
-    const fragment = template.content.cloneNode(true);
-
-    // <script> taglarını yeniden oluştur — cloneNode script'leri çalıştırmaz
-    const scripts = Array.from((fragment as DocumentFragment).querySelectorAll('script'));
-    const nonScriptContent = document.createDocumentFragment();
-
     // Script olmayan node'ları kopyala
     const cloned = template.content.cloneNode(true) as DocumentFragment;
     const scriptPlaceholders: { placeholder: Comment; original: HTMLScriptElement }[] = [];
