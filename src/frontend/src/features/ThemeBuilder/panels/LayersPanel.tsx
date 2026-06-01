@@ -10,7 +10,6 @@ import {
   FaFile,
   FaBorderAll,
   FaCompass,
-  FaGlobe,
   FaLock,
   FaLockOpen,
   FaTrash,
@@ -44,21 +43,9 @@ export function LayersPanel() {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set(['root-page', 'header-node', 'footer-node']));
-  const [hiddenNodes, setHiddenNodes] = useState<Set<string>>(new Set());
-
   const toggleExpand = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     setExpandedNodes(prev => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  };
-
-  const toggleVisibility = (id: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    setHiddenNodes(prev => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
       else next.add(id);

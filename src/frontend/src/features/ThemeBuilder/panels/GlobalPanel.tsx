@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState, useEffect } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { FaCode } from 'react-icons/fa';
 import { useEditor } from '../context/EditorContext';
 import { useThemeEditor } from '../hooks/useThemeEditor';

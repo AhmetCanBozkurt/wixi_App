@@ -19,7 +19,7 @@ const PAGE_TYPE_LABELS: Record<string, string> = {
 interface NewPageForm { title: string; slug: string; pageType: StorePageType }
 
 export function PagesPanel({ tenantSlug }: { tenantSlug: string }) {
-  const { state, dispatch } = useEditor();
+  const { state } = useEditor();
   const { loadPage, loadPages, publishPage, deletePage } = useThemeEditor(tenantSlug);
   const [showNew, setShowNew] = useState(false);
   const [form, setForm] = useState<NewPageForm>({ title: '', slug: '', pageType: 'Custom' });
