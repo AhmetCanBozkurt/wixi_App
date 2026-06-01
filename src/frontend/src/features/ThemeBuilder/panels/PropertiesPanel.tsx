@@ -983,7 +983,7 @@ function FooterPropertiesPanel() {
 
 export function PropertiesPanel() {
   const { state, dispatch, selectProp } = useEditor();
-  const { selectedComponentId, selectedRowId, selectedColumnId, layout, theme, selectedPropKey, globalComponents } = state;
+  const { selectedComponentId, selectedRowId, selectedColumnId, layout, theme, selectedPropKey } = state;
 
   const comp = selectedComponentId && selectedComponentId !== 'global-navbar' && selectedComponentId !== 'global-footer'
     ? findComponentInRows(layout, selectedComponentId)
