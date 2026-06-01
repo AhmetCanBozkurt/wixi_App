@@ -1,1 +1,3 @@
 # Hidayet Notlar
+
+şampiyon trabzon
