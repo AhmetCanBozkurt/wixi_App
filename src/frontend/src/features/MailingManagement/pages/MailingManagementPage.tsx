@@ -52,7 +52,7 @@ export const MailingManagementPage: React.FC = () => {
       ]);
       setTemplates(tData);
       setLogs(lData);
-    } catch (error) {
+    } catch {
       toast.error('Veriler yüklenirken hata oluştu');
     } finally {
       setIsLoading(false);
@@ -75,12 +75,12 @@ export const MailingManagementPage: React.FC = () => {
       toast.success(editingTemplate ? 'Şablon güncellendi' : 'Yeni şablon oluşturuldu');
       setIsFormOpen(false);
       loadData();
-    } catch (error) {
+    } catch {
       toast.error('Kaydedilirken bir hata oluştu');
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (_id: string) => {
     const result = await Swal.fire({
       title: 'Emin misiniz?',
       text: "Bu şablon silinecektir!",
@@ -95,7 +95,7 @@ export const MailingManagementPage: React.FC = () => {
     if (result.isConfirmed) {
       try {
         toast.success('Şablon silindi (Simüle)');
-      } catch (error) {
+      } catch {
         toast.error('Silme işlemi başarısız');
       }
     }

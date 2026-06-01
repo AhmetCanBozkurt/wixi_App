@@ -1,0 +1,165 @@
+.page {
+  padding: 2rem;
+  max-width: 1000px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.icon {
+  font-size: 2rem;
+  color: var(--accent-primary);
+  flex-shrink: 0;
+}
+
+.title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.subtitle {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: 0.25rem 0 0;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.card {
+  background: var(--surface-glass);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.9rem 1.2rem;
+  background: rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid var(--border-glass);
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--text-main);
+}
+
+.stripeIcon {
+  font-size: 1.4rem;
+  color: #635bff;
+}
+
+.iyzipayIcon {
+  font-size: 1.2rem;
+  color: #00b09b;
+}
+
+.cardBody {
+  padding: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.fieldWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.existingHint {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.savedBadge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.2rem 0.55rem;
+  border-radius: 20px;
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.hint {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  font-family: monospace;
+  letter-spacing: 0.05em;
+}
+
+.changeBtn {
+  font-size: 0.75rem;
+  color: var(--accent-primary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.changeBtn:hover {
+  opacity: 0.75;
+}
+
+.inputRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.inputRow > :first-child {
+  flex: 1;
+}
+
+.eyeBtn {
+  background: var(--surface-glass);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0.55rem 0.7rem;
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
+  transition: color 0.15s;
+  flex-shrink: 0;
+}
+
+.eyeBtn:hover {
+  color: var(--text-main);
+}
+
+.actions {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: flex-end;
+}

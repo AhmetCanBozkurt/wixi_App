@@ -50,6 +50,7 @@ export interface GridOptions<T = Record<string, unknown>> {
   reorderable?: boolean;
   resizable?: boolean;
   selectable?: boolean;
+  loading?: boolean;
   toolbar?: ('search' | 'excel' | 'pdf' | 'create')[];
   height?: string | number;
   onDataBound?: (data: T[]) => void;
@@ -72,7 +73,7 @@ function getNestedValue(obj: Record<string, unknown>, path: string): unknown {
 function SortableHeaderCell({
   col, sortField, sortDir, onSortClick, onMenuOpen, onResizeStart, filterValue, onFilterChange, filterable,
 }: {
-  col: ColumnConfig;
+  col: ColumnConfig<any>;
   sortField: string | null;
   sortDir: 'asc' | 'desc';
   onSortClick: (field: string) => void;
@@ -145,6 +146,7 @@ export function AdvancedDataTable<T extends Record<string, unknown>>(options: Gr
     searchParams = {},
     onDetail,
     exportTitle,
+    loading: externalLoading,
   } = options;
 
   const isRemote = typeof dataSource === 'string';
@@ -164,7 +166,8 @@ export function AdvancedDataTable<T extends Record<string, unknown>>(options: Gr
 
   const [remoteData, setRemoteData] = useState<T[]>([]);
   const [total, setTotal] = useState(0);
-  const [loading, setLoading] = useState(false);
+  const [internalLoading, setLoading] = useState(false);
+  const loading = externalLoading !== undefined ? externalLoading : internalLoading;
   const [page, setPage] = useState(1);
 
   const initPageSize = typeof pageable === 'object' ? (pageable.pageSize ?? 20) : 20;
@@ -348,11 +351,11 @@ export function AdvancedDataTable<T extends Record<string, unknown>>(options: Gr
 
   // ── Group + Paginate ──
   const displayRows = useMemo(() => {
-    let d = [...processedData];
+    let d: (T | GroupRow)[] = [...processedData];
     
     // Grouping logic (simplified and robust)
     if (groupable && groupedFields.length > 0) {
-      d = applyGrouping(d, groupedFields);
+      d = applyGrouping(d as T[], groupedFields);
     }
 
     const safePageSize = pageSize > 0 ? pageSize : 20;
@@ -364,7 +367,7 @@ export function AdvancedDataTable<T extends Record<string, unknown>>(options: Gr
     const end = start + safePageSize;
     
     const result = d.slice(start, end);
-    onDataBound?.(result);
+    onDataBound?.(result.filter(r => !('__group' in r)) as T[]);
     return result;
   }, [processedData, page, pageSize, collapsedGroups, groupedFields, groupable]);
 
@@ -394,7 +397,7 @@ export function AdvancedDataTable<T extends Record<string, unknown>>(options: Gr
 
   // ── Row selection (ID based for persistence) ──
   const toggleRow = (row: T) => {
-    const id = row.id ?? JSON.stringify(row); // fallback for rows without id
+    const id = (row.id as string | number | undefined) ?? JSON.stringify(row);
     setSelectedRows(prev => {
       const n = new Set(prev);
       if (n.has(id)) { n.delete(id); } else { n.add(id); }
@@ -402,7 +405,7 @@ export function AdvancedDataTable<T extends Record<string, unknown>>(options: Gr
     });
   };
   const toggleAll = () => {
-    const currentIds = displayRows.filter(r => !r.__group).map(r => r.id ?? JSON.stringify(r));
+    const currentIds = displayRows.filter(r => !r.__group).map(r => ((r as T).id as string | number | undefined) ?? JSON.stringify(r));
     const allSelected = currentIds.every(id => selectedRows.has(id));
     
     setSelectedRows(prev => {
@@ -419,8 +422,8 @@ export function AdvancedDataTable<T extends Record<string, unknown>>(options: Gr
   const handleExportExcel = () => {
     try {
       // Selection has priority
-      const baseData = selectedRows.size > 0 
-        ? processedData.filter(row => selectedRows.has(row.id ?? JSON.stringify(row)))
+      const baseData = selectedRows.size > 0
+        ? processedData.filter(row => selectedRows.has((row.id as string | number | undefined) ?? JSON.stringify(row)))
         : processedData;
 
       if (baseData.length === 0) {
@@ -460,7 +463,7 @@ export function AdvancedDataTable<T extends Record<string, unknown>>(options: Gr
         tableName: isRemote ? String(dataSource) : 'ClientData',
         details: `Kullanıcı ${baseData.length} kaydı Excel'e aktardı.`
       }).catch(() => {});
-    } catch (error) {
+    } catch {
       toast.error("Excel dışa aktarma hatası!");
     }
   };
@@ -516,8 +519,8 @@ export function AdvancedDataTable<T extends Record<string, unknown>>(options: Gr
       };
 
       // Selection has priority
-      const baseData = selectedRows.size > 0 
-        ? processedData.filter(row => selectedRows.has(row.id ?? JSON.stringify(row)))
+      const baseData = selectedRows.size > 0
+        ? processedData.filter(row => selectedRows.has((row.id as string | number | undefined) ?? JSON.stringify(row)))
         : processedData;
 
       if (baseData.length === 0) {
@@ -560,7 +563,7 @@ export function AdvancedDataTable<T extends Record<string, unknown>>(options: Gr
                   const format = cellData.imgSrc.includes('png') ? 'PNG' : 
                                  cellData.imgSrc.includes('webp') ? 'WEBP' : 'JPEG';
                   doc.addImage(cellData.imgSrc, format, data.cell.x + 3, data.cell.y + 2, 10, 10);
-                } catch (e) {
+                } catch {
                   // Resim hatası durumunda sessiz kal
                 }
               }
@@ -579,7 +582,7 @@ export function AdvancedDataTable<T extends Record<string, unknown>>(options: Gr
         tableName: isRemote ? String(dataSource) : 'ClientData',
         details: `Kullanıcı ${baseData.length} kaydı PDF'e aktardı.`
       }).catch(() => {});
-    } catch (error) {
+    } catch {
       toast.error("PDF dışa aktarma hatası!");
     }
   };
@@ -727,7 +730,7 @@ export function AdvancedDataTable<T extends Record<string, unknown>>(options: Gr
                       )}
                       {activeCols.map((col, cIdx) => (
                         <td key={`cell-${rowKey}-${col.field || cIdx}`} className={styles.td} style={{ width: colWidths[col.field] }}>
-                          {col.template ? col.template(row) : (getNestedValue(row, col.field) ?? '-')}
+                          {col.template ? col.template(row) : ((getNestedValue(row, col.field) as React.ReactNode) ?? '-')}
                         </td>
                       ))}
                       {(onEdit || onDelete || onDetail || detailModal) && (

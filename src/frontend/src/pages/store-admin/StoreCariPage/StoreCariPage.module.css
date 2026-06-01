@@ -1,0 +1,154 @@
+/* StoreCariPage — Cari Hesaplar / B2B Ledger */
+
+.balancePositive {
+  color: #10b981;
+  font-weight: 700;
+}
+
+.balanceNegative {
+  color: #ef4444;
+  font-weight: 700;
+}
+
+/* ── Type chip (Tedarikçi / Müşteri / Bayi) ── */
+.typeChip {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.typeSupplier {
+  background: rgba(249, 115, 22, 0.12);
+  color: #f97316;
+  border: 1px solid rgba(249, 115, 22, 0.25);
+}
+
+.typeCustomer {
+  background: rgba(59, 130, 246, 0.12);
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.25);
+}
+
+.typeDealer {
+  background: rgba(168, 85, 247, 0.12);
+  color: #a855f7;
+  border: 1px solid rgba(168, 85, 247, 0.25);
+}
+
+/* ── Filter row ── */
+.filterRow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* ── Contact info card (detail view) ── */
+.contactCard {
+  background: var(--surface-glass);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+}
+
+/* ── Big balance display ── */
+.bigBalance {
+  font-size: 1.8rem;
+  font-weight: 800;
+}
+
+/* ── Ledger table ── */
+.ledgerTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.ledgerTable thead th {
+  text-align: left;
+  padding: 8px 12px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--border-glass);
+}
+
+.ledgerTable tbody td {
+  padding: 10px 12px;
+  color: var(--text-main);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.ledgerTable tbody tr:hover td {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+/* ── Tinted rows ── */
+.debitRow td {
+  background: rgba(239, 68, 68, 0.04);
+}
+
+.creditRow td {
+  background: rgba(16, 185, 129, 0.04);
+}
+
+/* ── Pagination ── */
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-top: 12px;
+}
+
+.paginationInfo {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-left: auto;
+}
+
+/* ── Ledger section header ── */
+.ledgerHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+/* ── Empty state ── */
+.emptyState {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+/* ── Back button row ── */
+.backRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* ── Ledger amount labels ── */
+.debitAmount {
+  color: #ef4444;
+  font-weight: 700;
+}
+
+.creditAmount {
+  color: #10b981;
+  font-weight: 700;
+}
+
+.amountLabel {
+  font-size: 0.72rem;
+  font-weight: 600;
+  opacity: 0.75;
+  margin-left: 4px;
+}

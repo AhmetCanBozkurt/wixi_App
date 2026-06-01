@@ -1,52 +1,141 @@
+import './i18n';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ErrorBoundary } from './providers/ErrorBoundary';
+
+const queryClient = new QueryClient({
+  defaultOptions: { queries: { staleTime: 5 * 60 * 1000, retry: 1 } },
+});
+import { ThemeProvider } from './providers/ThemeProvider';
 import { Toaster } from 'react-hot-toast';
 import { AuthGuard } from './providers/AuthGuard';
 import { StoreAdminGuard } from './providers/StoreAdminGuard';
-import { LoginPage } from '../pages/LoginPage/LoginPage';
-import { MasterStorefrontPage } from '../pages/MasterStorefrontPage/MasterStorefrontPage';
-import { ForgotPasswordPage } from '../pages/ForgotPasswordPage/ForgotPasswordPage';
-import { ResetPasswordPage } from '../pages/ResetPasswordPage/ResetPasswordPage';
-import { DashboardPage } from '../pages/DashboardPage/DashboardPage';
-import { ApplicationLogsPage } from '../pages/ApplicationLogsPage/ApplicationLogsPage';
-import { LanguageManagementPage } from '../pages/LanguageManagementPage/LanguageManagementPage';
-import { MenuManagementPage } from '../pages/MenuManagementPage/MenuManagementPage';
-import { UserManagementPage } from '../pages/UserManagementPage/UserManagementPage';
-import { RoleManagementPage } from '../pages/RoleManagementPage/RoleManagementPage';
-import { AuditLogPage } from '../pages/AuditLogPage/AuditLogPage';
-import { ComponentShowcasePage } from '../pages/ComponentShowcasePage/ComponentShowcasePage';
+import { StorefrontAuthGuard } from './providers/StorefrontAuthGuard';
+import { LoginPage } from '../pages/auth/LoginPage/LoginPage';
+import { LandingPage } from '../pages/storefront/LandingPage';
+import { OzelliklerPage } from '../pages/storefront/OzelliklerPage';
+import { FiyatlandirmaPage } from '../pages/storefront/FiyatlandirmaPage';
+import { NasilCalisirPage } from '../pages/storefront/NasilCalisirPage';
+import { HakkimizdaPage } from '../pages/storefront/HakkimizdaPage';
+import { IletisimPage } from '../pages/storefront/IletisimPage';
+import { SssPage } from '../pages/storefront/SssPage';
+import { ModullerPage } from '../pages/storefront/ModullerPage';
+import { StudyoPage } from '../pages/storefront/StudyoPage';
+import { VakaCalismalariPage } from '../pages/storefront/VakaCalismalariPage';
+import { YolHaritasiPage } from '../pages/storefront/YolHaritasiPage';
+import { GizlilikPage, KvkkPage, KullanimSartlariPage, CerezlerPage } from '../pages/storefront/LegalPage';
+import { ForgotPasswordPage } from '../pages/auth/ForgotPasswordPage/ForgotPasswordPage';
+import { ResetPasswordPage } from '../pages/auth/ResetPasswordPage/ResetPasswordPage';
+import { RegisterPage } from '../pages/auth/RegisterPage';
+import { VerificationPage } from '../pages/auth/VerificationPage';
+import { OnboardingPage } from '../pages/storefront/OnboardingPage';
+import { PlanSelectionPage } from '../pages/storefront/PlanSelectionPage';
+import { SaaSCheckoutPage } from '../pages/storefront/SaaSCheckoutPage';
+import { DashboardPage } from '../pages/admin/DashboardPage/DashboardPage';
+import { ApplicationLogsPage } from '../pages/admin/ApplicationLogsPage/ApplicationLogsPage';
+import { LanguageManagementPage } from '../pages/admin/LanguageManagementPage/LanguageManagementPage';
+import { UserManagementPage } from '../pages/admin/UserManagementPage/UserManagementPage';
+import { RoleManagementPage } from '../pages/admin/RoleManagementPage/RoleManagementPage';
+import { AuditLogPage } from '../pages/admin/AuditLogPage/AuditLogPage';
+import { ComponentShowcasePage } from '../pages/admin/ComponentShowcasePage/ComponentShowcasePage';
 import { MailingManagementPage } from '../features/MailingManagement/pages/MailingManagementPage';
-import { CurrencyManagementPage } from '../pages/CurrencyManagementPage/CurrencyManagementPage';
-import { ExchangeRatePage } from '../pages/ExchangeRatePage/ExchangeRatePage';
-import { CurrencySettingsPage } from '../pages/CurrencySettingsPage/CurrencySettingsPage';
-import { ECommerceTenantsPage } from '../pages/ECommerceTenantsPage/ECommerceTenantsPage';
-import { ECommerceProductsPage } from '../pages/ECommerceProductsPage/ECommerceProductsPage';
-import { ECommerceCategoriesPage } from '../pages/ECommerceCategoriesPage/ECommerceCategoriesPage';
-import { ECommerceBrandsPage } from '../pages/ECommerceBrandsPage/ECommerceBrandsPage';
-import { CheckoutSuccessPage } from '../pages/CheckoutSuccessPage/CheckoutSuccessPage';
-import { CheckoutCancelPage } from '../pages/CheckoutCancelPage/CheckoutCancelPage';
-import { StoreLoginPage } from '../pages/StoreLoginPage/StoreLoginPage';
-import { StoreAdminLayout } from '../pages/StoreAdminPage/StoreAdminLayout';
-import { StoreDashboardPage } from '../pages/StoreAdminPage/pages/StoreDashboardPage';
-import { StoreOrdersPage } from '../pages/StoreAdminPage/pages/StoreOrdersPage';
-import { StoreCustomersPage } from '../pages/StoreAdminPage/pages/StoreCustomersPage';
-import { StoreSettingsPage } from '../pages/StoreAdminPage/pages/StoreSettingsPage';
-import { StoreBillingPage } from '../pages/StoreAdminPage/pages/StoreBillingPage';
-import { useAuthStore } from '../entities/User/model/store';
-
-const DashboardHome = () => {
-  const { user } = useAuthStore();
-  return (
-    <div style={{ background: 'var(--surface-glass)', padding: '30px', borderRadius: 'var(--radius-md)', maxWidth: '600px', border: '1px solid var(--border-glass)' }}>
-      <h2 style={{ marginBottom: '10px', color: 'var(--text-main)' }}>Sisteme Hoş Geldiniz, {user?.email}</h2>
-      <p style={{ color: 'var(--text-muted)', marginBottom: '20px' }}>Yetkileriniz: <strong>{user?.roles?.join(', ')}</strong></p>
-      <div style={{ display: 'inline-block', background: 'var(--color-success)', color: '#fff', fontSize: '0.8rem', padding: '4px 12px', borderRadius: 'var(--radius-pill)', fontWeight: 600 }}>SİSTEM ÇEVRİMİÇİ</div>
-    </div>
-  );
-};
+import { CurrencyManagementPage } from '../pages/admin/CurrencyManagementPage/CurrencyManagementPage';
+import { ExchangeRatePage } from '../pages/admin/ExchangeRatePage/ExchangeRatePage';
+import { CurrencySettingsPage } from '../pages/admin/CurrencySettingsPage/CurrencySettingsPage';
+import { ECommerceTenantsPage } from '../pages/ecommerce/ECommerceTenantsPage/ECommerceTenantsPage';
+import { ECommerceProductsPage } from '../pages/ecommerce/ECommerceProductsPage/ECommerceProductsPage';
+import { ECommerceCategoriesPage } from '../pages/ecommerce/ECommerceCategoriesPage/ECommerceCategoriesPage';
+import { ECommerceBrandsPage } from '../pages/ecommerce/ECommerceBrandsPage/ECommerceBrandsPage';
+import { CheckoutSuccessPage } from '../pages/storefront/CheckoutSuccessPage/CheckoutSuccessPage';
+import { CheckoutCancelPage } from '../pages/storefront/CheckoutCancelPage/CheckoutCancelPage';
+import { StoreAdminLayout } from '../pages/store-admin/StoreAdminPage/StoreAdminLayout';
+import { StoreAdminLoginPage } from '../pages/auth/StoreAdminLoginPage/StoreAdminLoginPage';
+import { StoreDashboardPage } from '../pages/store-admin/StoreAdminPage/pages/StoreDashboardPage';
+import { StoreOrdersPage } from '../pages/store-admin/StoreAdminPage/pages/StoreOrdersPage';
+import { StoreCustomersPage } from '../pages/store-admin/StoreAdminPage/pages/StoreCustomersPage';
+import { StoreSettingsPage } from '../pages/store-admin/StoreAdminPage/pages/StoreSettingsPage';
+import { StoreBillingPage } from '../pages/store-admin/StoreAdminPage/pages/StoreBillingPage';
+import { ThemeEditor } from '../features/ThemeBuilder/ThemeEditor';
+import { StoreProductsPage } from '../pages/store-admin/StoreProductsPage/StoreProductsPage';
+import { StoreStockPage } from '../pages/store-admin/StoreProductsPage/StoreStockPage';
+import { StoreWarehouseReportPage } from '../pages/store-admin/StoreProductsPage/StoreWarehouseReportPage';
+import { StoreCategoriesPage } from '../pages/store-admin/StoreCategoriesPage/StoreCategoriesPage';
+import { StoreBrandsPage } from '../pages/store-admin/StoreBrandsPage/StoreBrandsPage';
+import { StoreTestimonialsPage } from '../pages/store-admin/StoreAdminPage/pages/StoreTestimonialsPage';
+import { StorePromoBannersPage } from '../pages/store-admin/StoreAdminPage/pages/StorePromoBannersPage';
+import { StoreSlidersPage } from '../pages/store-admin/StoreAdminPage/pages/StoreSlidersPage';
+import { StoreFaqPage } from '../pages/store-admin/StoreAdminPage/pages/StoreFaqPage';
+import { StoreContactSubmissionsPage } from '../pages/store-admin/StoreAdminPage/pages/StoreContactSubmissionsPage';
+import { StoreCariPage } from '../pages/store-admin/StoreCariPage/StoreCariPage';
+import StoreDiscountsPage from '../pages/store-admin/StoreDiscountsPage/StoreDiscountsPage';
+import StoreAnalyticsPage from '../pages/store-admin/StoreAnalyticsPage/StoreAnalyticsPage';
+import StoreMediaPage from '../pages/store-admin/StoreMediaPage/StoreMediaPage';
+import { AdminDashboardPage } from '../pages/admin/AdminDashboardPage/AdminDashboardPage';
+import { StorefrontPage } from '../pages/storefront/StorefrontPage/StorefrontPage';
+import { StorefrontLayout } from '../pages/storefront/StorefrontPage/StorefrontLayout';
+import { StorefrontLoginPage } from '../pages/auth/StorefrontAuthPage/StorefrontLoginPage';
+import { StorefrontRegisterPage } from '../pages/auth/StorefrontAuthPage/StorefrontRegisterPage';
+import { StorefrontForgotPasswordPage } from '../pages/auth/StorefrontAuthPage/StorefrontForgotPasswordPage';
+import { StorefrontResetPasswordPage } from '../pages/auth/StorefrontAuthPage/StorefrontResetPasswordPage';
+import { StorefrontCartPage } from '../pages/storefront/StorefrontCartPage/StorefrontCartPage';
+import { StorefrontCheckoutPage } from '../pages/storefront/StorefrontCheckoutPage/StorefrontCheckoutPage';
+import { StorefrontOrderSuccessPage } from '../pages/storefront/StorefrontOrderSuccessPage/StorefrontOrderSuccessPage';
+import { StorefrontProductDetailPage } from '../pages/storefront/StorefrontProductDetailPage/StorefrontProductDetailPage';
+import { StorefrontCategoryPage } from '../pages/storefront/StorefrontCategoryPage/StorefrontCategoryPage';
+import { StorefrontAccountPage } from '../pages/storefront/StorefrontAccountPage/StorefrontAccountPage';
+import { PaymentFailedPage } from '../pages/storefront/PaymentFailedPage/PaymentFailedPage';
+import { CRMPage } from '../pages/admin/CRMPage/CRMPage';
+import { VisitManagementPage } from '../pages/admin/VisitManagementPage/VisitManagementPage';
+import { ProjectManagementPage } from '../pages/admin/ProjectManagementPage/ProjectManagementPage';
+import { SupportPage } from '../pages/admin/SupportPage/SupportPage';
+import { InventoryPage } from '../pages/admin/InventoryPage/InventoryPage';
+import AdminModulesPage from '../pages/admin/AdminModulesPage/AdminModulesPage';
+import { DatabaseSchemaPage } from '../pages/admin/DatabaseSchemaPage/DatabaseSchemaPage';
+import { AdminThemeManagementPage } from '../pages/admin/AdminThemeManagementPage/AdminThemeManagementPage';
+import { AdminTenantThemePage } from '../pages/admin/AdminThemeManagementPage/AdminTenantThemePage';
+import { AdminThemeTemplatesPage } from '../pages/admin/AdminThemeManagementPage/AdminThemeTemplatesPage';
+import CiktiTasarlamaPage from '../pages/admin/CiktiTasarlamaPage/CiktiTasarlamaPage';
+import { SystemPagesPage } from '../pages/admin/DefinitionsPage/SystemPagesPage';
+import { RegionsPage } from '../pages/admin/DefinitionsPage/RegionsPage';
+import { PortsPage } from '../pages/admin/DefinitionsPage/PortsPage';
+import { PaymentTermsPage } from '../pages/admin/DefinitionsPage/PaymentTermsPage';
+import { TaxOfficesPage } from '../pages/admin/DefinitionsPage/TaxOfficesPage';
+import { IncotermsPage } from '../pages/admin/DefinitionsPage/IncotermsPage';
+import { TransportModesPage } from '../pages/admin/DefinitionsPage/TransportModesPage';
+import { PackageTypesPage } from '../pages/admin/DefinitionsPage/PackageTypesPage';
+import { UnitCategoriesPage } from '../pages/admin/DefinitionsPage/UnitCategoriesPage';
+import { UnitsPage } from '../pages/admin/DefinitionsPage/UnitsPage';
+import { UnitConversionsPage } from '../pages/admin/DefinitionsPage/UnitConversionsPage';
+import { ServiceCategoriesPage } from '../pages/admin/DefinitionsPage/ServiceCategoriesPage';
+import { ServicesPage } from '../pages/admin/DefinitionsPage/ServicesPage';
+import { ProductDescriptionsPage } from '../pages/admin/DefinitionsPage/ProductDescriptionsPage';
+import { HsCodesPage } from '../pages/admin/DefinitionsPage/HsCodesPage';
+import { SystemOverviewPage } from '../pages/admin/SystemOverviewPage/SystemOverviewPage';
+import FaqManagementPage from '../pages/admin/ContentManagement/FaqManagementPage';
+import ContactInboxPage from '../pages/admin/ContentManagement/ContactInboxPage';
+import PlanManagementPage from '../pages/admin/ContentManagement/PlanManagementPage';
+import TeamManagementPage from '../pages/admin/ContentManagement/TeamManagementPage';
+import CaseStudyManagementPage from '../pages/admin/ContentManagement/CaseStudyManagementPage';
+import RoadmapManagementPage from '../pages/admin/ContentManagement/RoadmapManagementPage';
+import ChangelogManagementPage from '../pages/admin/ContentManagement/ChangelogManagementPage';
+import LegalContentManagementPage from '../pages/admin/ContentManagement/LegalContentManagementPage';
+import { PaymentSettingsPage } from '../pages/admin/PaymentSettingsPage';
+import { SubscriptionsPage } from '../pages/admin/SubscriptionsPage';
+import { StorePaymentsPage } from '../pages/store-admin/StorePaymentsPage';
+import { StorePaymentSettingsPage } from '../pages/store-admin/StoreAdminPage/pages/StorePaymentSettingsPage';
+import WebBuilderEditorPage from '../pages/corporate/WebBuilderEditorPage/WebBuilderEditorPage';
+import { CorpSitePage } from '../pages/corporate/CorpSitePage/CorpSitePage';
+import BlogManagementPage from '../pages/corporate/BlogManagementPage/BlogManagementPage';
+import FormManagementPage from '../pages/corporate/FormManagementPage/FormManagementPage';
+import { PersonalFinanceDashboardPage } from '../pages/my-finance/PersonalFinanceDashboardPage/PersonalFinanceDashboardPage';
+import { TransactionsPage } from '../pages/my-finance/TransactionsPage/TransactionsPage';
+import { BudgetsPage } from '../pages/my-finance/BudgetsPage/BudgetsPage';
+import { CategoriesPage } from '../pages/my-finance/CategoriesPage/CategoriesPage';
 
 const App = () => {
   return (
+    <QueryClientProvider client={queryClient}>
+    <ThemeProvider>
     <ErrorBoundary>
       <Toaster
         position="top-center"
@@ -61,28 +150,86 @@ const App = () => {
       />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<MasterStorefrontPage />} />
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/ozellikler" element={<OzelliklerPage />} />
+          <Route path="/fiyatlandirma" element={<FiyatlandirmaPage />} />
+          <Route path="/nasil-calisir" element={<NasilCalisirPage />} />
+          <Route path="/hakkimizda" element={<HakkimizdaPage />} />
+          <Route path="/iletisim" element={<IletisimPage />} />
+          <Route path="/sss" element={<SssPage />} />
+          <Route path="/moduller" element={<ModullerPage />} />
+          <Route path="/studyo" element={<StudyoPage />} />
+          <Route path="/vaka-calismalari" element={<VakaCalismalariPage />} />
+          <Route path="/yol-haritasi" element={<YolHaritasiPage />} />
+          <Route path="/gizlilik" element={<GizlilikPage />} />
+          <Route path="/kvkk" element={<KvkkPage />} />
+          <Route path="/kullanim-sartlari" element={<KullanimSartlariPage />} />
+          <Route path="/cerezler" element={<CerezlerPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/verify-email" element={<VerificationPage />} />
+          <Route path="/onboarding" element={<OnboardingPage />} />
+          <Route path="/select-plan" element={<PlanSelectionPage />} />
+          <Route path="/checkout/saas" element={<SaaSCheckoutPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/checkout/success" element={<CheckoutSuccessPage />} />
           <Route path="/checkout/cancel" element={<CheckoutCancelPage />} />
-          <Route path="/store-login" element={<StoreLoginPage />} />
+          <Route path="/store-admin/login" element={<StoreAdminLoginPage />} />
+          <Route path="/corp/:tenantSlug" element={<CorpSitePage />} />
+          <Route path="/corp/:tenantSlug/:pageSlug" element={<CorpSitePage />} />
+          <Route path="/store/:tenantSlug" element={<StorefrontLayout />}>
+            <Route index element={<StorefrontPage />} />
+            <Route path="product/:slug" element={<StorefrontProductDetailPage />} />
+            <Route path="category/:slug" element={<StorefrontCategoryPage />} />
+            <Route path="cart" element={<StorefrontCartPage />} />
+            <Route path="login" element={<StorefrontLoginPage />} />
+            <Route path="register" element={<StorefrontRegisterPage />} />
+            <Route path="forgot-password" element={<StorefrontForgotPasswordPage />} />
+            <Route path="reset-password" element={<StorefrontResetPasswordPage />} />
+            <Route path="checkout" element={<StorefrontAuthGuard><StorefrontCheckoutPage /></StorefrontAuthGuard>} />
+            <Route path="order-success/:orderNumber" element={<StorefrontOrderSuccessPage />} />
+            <Route path="payment-failed" element={<PaymentFailedPage />} />
+            <Route path="account" element={<StorefrontAuthGuard><StorefrontAccountPage /></StorefrontAuthGuard>} />
+            <Route path=":pageSlug" element={<StorefrontPage />} />
+          </Route>
           <Route element={<StoreAdminGuard />}>
-            <Route path="/store" element={<StoreAdminLayout />}>
+            <Route path="/corp/builder/:tenantSlug" element={<WebBuilderEditorPage />} />
+            <Route path="/corp/theme-editor/:tenantSlug" element={<ThemeEditor />} />
+            <Route path="/tenant/:tenantSlug" element={<StoreAdminLayout />}>
               <Route index element={<StoreDashboardPage />} />
+              <Route path="products" element={<StoreProductsPage />} />
+              <Route path="categories" element={<StoreCategoriesPage />} />
+              <Route path="brands" element={<StoreBrandsPage />} />
               <Route path="orders" element={<StoreOrdersPage />} />
               <Route path="customers" element={<StoreCustomersPage />} />
               <Route path="settings" element={<StoreSettingsPage />} />
               <Route path="billing" element={<StoreBillingPage />} />
+              <Route path="testimonials" element={<StoreTestimonialsPage />} />
+              <Route path="promo-banners" element={<StorePromoBannersPage />} />
+              <Route path="sliders" element={<StoreSlidersPage />} />
+              <Route path="faq" element={<StoreFaqPage />} />
+              <Route path="contact-submissions" element={<StoreContactSubmissionsPage />} />
+              <Route path="stock" element={<StoreStockPage />} />
+              <Route path="stock/report" element={<StoreWarehouseReportPage />} />
+              <Route path="cari" element={<StoreCariPage />} />
+              <Route path="discounts" element={<StoreDiscountsPage />} />
+              <Route path="analytics" element={<StoreAnalyticsPage />} />
+              <Route path="media" element={<StoreMediaPage />} />
+              <Route path="payment-settings" element={<StorePaymentSettingsPage />} />
+              <Route path="payments" element={<StorePaymentsPage />} />
+              <Route path="corp/blog" element={<BlogManagementPage />} />
+              <Route path="corp/forms" element={<FormManagementPage />} />
+              <Route path="definitions/regions" element={<RegionsPage />} />
             </Route>
           </Route>
           <Route element={<AuthGuard />}>
+            <Route path="/corp/builder" element={<WebBuilderEditorPage />} />
             <Route path="/admin" element={<DashboardPage />}>
-              <Route index element={<DashboardHome />} />
+              <Route index element={<AdminDashboardPage />} />
               <Route path="logs" element={<ApplicationLogsPage />} />
               <Route path="languages" element={<LanguageManagementPage />} />
-              <Route path="menus" element={<MenuManagementPage />} />
+              <Route path="modules" element={<AdminModulesPage />} />
               <Route path="users" element={<UserManagementPage />} />
               <Route path="roles" element={<RoleManagementPage />} />
               <Route path="audit" element={<AuditLogPage />} />
@@ -95,11 +242,56 @@ const App = () => {
               <Route path="ecommerce/products" element={<ECommerceProductsPage />} />
               <Route path="ecommerce/categories" element={<ECommerceCategoriesPage />} />
               <Route path="ecommerce/brands" element={<ECommerceBrandsPage />} />
+              <Route path="crm" element={<CRMPage />} />
+              <Route path="visits" element={<VisitManagementPage />} />
+              <Route path="projects" element={<ProjectManagementPage />} />
+              <Route path="support" element={<SupportPage />} />
+              <Route path="inventory" element={<InventoryPage />} />
+              <Route path="db-schema" element={<DatabaseSchemaPage />} />
+              <Route path="theme-management" element={<AdminThemeManagementPage />} />
+              <Route path="theme-management/stores/:tenantId" element={<AdminTenantThemePage />} />
+              <Route path="theme-management/templates" element={<AdminThemeTemplatesPage />} />
+              <Route path="cikti-tasarlama" element={<CiktiTasarlamaPage />} />
+              <Route path="definitions/system-pages" element={<SystemPagesPage />} />
+              <Route path="definitions/regions" element={<RegionsPage />} />
+              <Route path="definitions/ports" element={<PortsPage />} />
+              <Route path="definitions/payment-terms" element={<PaymentTermsPage />} />
+              <Route path="definitions/tax-offices" element={<TaxOfficesPage />} />
+              <Route path="definitions/incoterms" element={<IncotermsPage />} />
+              <Route path="definitions/transport-modes" element={<TransportModesPage />} />
+              <Route path="definitions/package-types" element={<PackageTypesPage />} />
+              <Route path="definitions/unit-categories" element={<UnitCategoriesPage />} />
+              <Route path="definitions/units" element={<UnitsPage />} />
+              <Route path="definitions/unit-conversions" element={<UnitConversionsPage />} />
+              <Route path="definitions/service-categories" element={<ServiceCategoriesPage />} />
+              <Route path="definitions/services" element={<ServicesPage />} />
+              <Route path="definitions/product-descriptions" element={<ProductDescriptionsPage />} />
+              <Route path="definitions/hs-codes" element={<HsCodesPage />} />
+              <Route path="system-overview" element={<SystemOverviewPage />} />
+              <Route path="corp/blog" element={<BlogManagementPage />} />
+              <Route path="corp/forms" element={<FormManagementPage />} />
+              <Route path="content/faq" element={<FaqManagementPage />} />
+              <Route path="content/contacts" element={<ContactInboxPage />} />
+              <Route path="content/plans" element={<PlanManagementPage />} />
+              <Route path="content/team" element={<TeamManagementPage />} />
+              <Route path="content/cases" element={<CaseStudyManagementPage />} />
+              <Route path="content/roadmap" element={<RoadmapManagementPage />} />
+              <Route path="content/changelog" element={<ChangelogManagementPage />} />
+              <Route path="content/legal" element={<LegalContentManagementPage />} />
+              <Route path="payment-settings" element={<PaymentSettingsPage />} />
+              <Route path="subscriptions" element={<SubscriptionsPage />} />
+              {/* ── Kişisel Finans ──────────────────────────────────── */}
+              <Route path="finance" element={<PersonalFinanceDashboardPage />} />
+              <Route path="finance/transactions" element={<TransactionsPage />} />
+              <Route path="finance/budgets" element={<BudgetsPage />} />
+              <Route path="finance/categories" element={<CategoriesPage />} />
             </Route>
           </Route>
         </Routes>
       </BrowserRouter>
     </ErrorBoundary>
+    </ThemeProvider>
+    </QueryClientProvider>
   );
 };
 

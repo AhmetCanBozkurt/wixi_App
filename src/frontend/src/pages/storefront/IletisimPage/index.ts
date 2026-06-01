@@ -1,0 +1,1 @@
+export { IletisimPage } from './IletisimPage';

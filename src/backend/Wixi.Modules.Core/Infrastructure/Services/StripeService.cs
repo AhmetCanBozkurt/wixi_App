@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Stripe;
 using Wixi.Modules.Core.Application.Common.Interfaces;
 using Wixi.Modules.Core.Infrastructure.Data;
@@ -10,17 +9,29 @@ namespace Wixi.Modules.Core.Infrastructure.Services;
 public class StripeService : IStripeService
 {
     private readonly WixiCoreDbContext _db;
+    private readonly IPaymentSettingsProvider _settingsProvider;
+    private StripeOptions? _cachedOptions;
 
-    public StripeService(WixiCoreDbContext db, IOptions<StripeOptions> options)
+    public StripeService(WixiCoreDbContext db, IPaymentSettingsProvider settingsProvider)
     {
         _db = db;
-        StripeConfiguration.ApiKey = options.Value.SecretKey;
+        _settingsProvider = settingsProvider;
+    }
+
+    private async Task<StripeOptions> GetOptionsAsync(CancellationToken ct)
+    {
+        if (_cachedOptions is not null) return _cachedOptions;
+        _cachedOptions = await _settingsProvider.GetStripeOptionsAsync(ct);
+        StripeConfiguration.ApiKey = _cachedOptions.SecretKey;
+        return _cachedOptions;
     }
 
     public async Task<string> CreateCheckoutSessionAsync(
         Guid tenantId, string planCode, string billingInterval,
         string successUrl, string cancelUrl, CancellationToken ct = default)
     {
+        await GetOptionsAsync(ct);
+
         var plan = await _db.SubscriptionPlans
             .FirstOrDefaultAsync(p => p.Code == planCode && p.IsActive && !p.IsDeleted, ct)
             ?? throw new InvalidOperationException($"Plan '{planCode}' bulunamadı.");
@@ -58,6 +69,7 @@ public class StripeService : IStripeService
     public async Task<string> CreateCustomerPortalSessionAsync(
         string stripeCustomerId, string returnUrl, CancellationToken ct = default)
     {
+        await GetOptionsAsync(ct);
         var service = new Stripe.BillingPortal.SessionService();
         var options = new Stripe.BillingPortal.SessionCreateOptions
         {

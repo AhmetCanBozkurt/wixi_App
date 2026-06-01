@@ -29,6 +29,7 @@ public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, Guid?
             ProfilePicture = request.User.ProfilePicture,
             PhoneNumber = request.User.PhoneNumber,
             TwoFactorEnabled = request.User.TwoFactorEnabled,
+            TenantId = request.User.TenantId,
             CreatedAt = DateTime.UtcNow
         };
 

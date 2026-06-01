@@ -6,6 +6,8 @@ using Wixi.Modules.Core.Application.Common.Interfaces;
 using Wixi.Modules.Core.Infrastructure.Services;
 using Wixi.API.Extensions;
 using Wixi.Modules.ECommerce;
+using Wixi.Modules.WebBuilder;
+using Wixi.Modules.PersonalFinance;
 using Serilog;
 using Serilog.Events;
 
@@ -13,7 +15,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
-    .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+    .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
     .Enrich.FromLogContext()
     .WriteTo.Console()
     .WriteTo.File("logs/log-.txt", rollingInterval: RollingInterval.Day, outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
@@ -27,15 +29,19 @@ builder.Services.Configure<AppCorsOptions>(builder.Configuration.GetSection(AppC
 builder.Services.Configure<AuthRateLimitOptions>(builder.Configuration.GetSection(AuthRateLimitOptions.SectionName));
 builder.Services.Configure<MailOptions>(builder.Configuration.GetSection(MailOptions.SectionName));
 builder.Services.Configure<StripeOptions>(builder.Configuration.GetSection(StripeOptions.SectionName));
+builder.Services.Configure<Wixi.API.Controllers.Storefront.AppUrlsOptions>(builder.Configuration.GetSection("AppUrls"));
 
 builder.Services.AddWixiCors(builder.Configuration);
 builder.Services.AddWixiRateLimiting(builder.Configuration);
 builder.Services.AddWixiAuth(builder.Configuration);
 
 builder.Services.AddControllers()
+    .AddApplicationPart(typeof(Wixi.Modules.ECommerce.ECommerceModuleExtensions).Assembly)
+    .AddApplicationPart(typeof(Wixi.Modules.WebBuilder.WebBuilderModuleExtensions).Assembly)
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+        options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
     });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -66,8 +72,25 @@ builder.Services.AddHostedService<Wixi.Modules.Core.Infrastructure.Services.Mail
 builder.Services.AddHostedService<Wixi.Modules.Core.Infrastructure.Services.TcmbSyncBackgroundWorker>();
 builder.Services.AddHostedService<Wixi.Modules.Core.Infrastructure.Services.SubscriptionExpiryBackgroundWorker>();
 
-// Stripe
-builder.Services.AddScoped<Wixi.Modules.Core.Application.Common.Interfaces.IStripeService, Wixi.Modules.Core.Infrastructure.Services.StripeService>();
+// Tenant payment settings — tenant'ın kendi DB'sine yazar/okur
+builder.Services.AddScoped<Wixi.Modules.Core.Application.Common.Interfaces.ITenantPaymentSettingsRepository,
+    Wixi.Modules.Core.Infrastructure.Services.TenantPaymentSettingsRepository>();
+
+// Payment key encryption (ASP.NET Core Data Protection)
+builder.Services.AddDataProtection();
+builder.Services.AddScoped<Wixi.Modules.Core.Application.Common.Interfaces.IPaymentKeyProtector,
+    Wixi.Modules.Core.Infrastructure.Services.PaymentKeyProtector>();
+builder.Services.AddScoped<Wixi.Modules.Core.Application.Common.Interfaces.IPaymentSettingsProvider,
+    Wixi.Modules.Core.Infrastructure.Services.PaymentSettingsProvider>();
+
+// Stripe — key'leri DB'den okur, yoksa appsettings'e düşer
+builder.Services.AddScoped<Wixi.Modules.Core.Application.Common.Interfaces.IStripeService,
+    Wixi.Modules.Core.Infrastructure.Services.StripeService>();
+
+// Iyzipay — key'leri DB'den okur, yoksa appsettings'e düşer
+builder.Services.Configure<Wixi.Shared.Configuration.IyzipayOptions>(builder.Configuration.GetSection("Iyzipay"));
+builder.Services.AddScoped<Wixi.Shared.Infrastructure.Services.IIyzipayService,
+    Wixi.Modules.Core.Infrastructure.Services.DbAwareIyzipayService>();
 
 // TCMB Exchange Rate Service
 builder.Services.AddHttpClient<Wixi.Modules.Core.Application.Common.Interfaces.ITcmbExchangeRateService,
@@ -79,6 +102,15 @@ builder.Services.AddHttpClient<Wixi.Modules.Core.Application.Common.Interfaces.I
 
 // ── ECommerce Modülü ─────────────────────────────────────────────
 builder.Services.AddECommerceModule(builder.Configuration);
+
+// ── WebBuilder Modülü ────────────────────────────────────────────
+builder.Services.AddWebBuilderModule(builder.Configuration);
+
+// ── PersonalFinance Modülü ───────────────────────────────────────
+builder.Services.AddPersonalFinanceModule(builder.Configuration);
+
+// ── Finance (Tenant) Modülü ─────────────────────────────────────
+// builder.Services.AddFinanceModule(builder.Configuration);
 
 builder.Services.AddHealthChecks()
     .AddCheck("database", () =>
@@ -101,7 +133,30 @@ builder.Services.AddHealthChecks()
 
 var app = builder.Build();
 
-// Seed Default Admin (Development or Safe Mode)
+// Migration — try/catch dışında: başarısız olursa container durmalı
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<WixiCoreDbContext>();
+    await db.Database.MigrateAsync();
+}
+
+// Coğrafi seed — ülke/eyalet/şehir tabloları boşsa dr5hn'den çeker
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<WixiCoreDbContext>();
+    var seedLogger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>()
+                         .CreateLogger("LocationSeeder");
+    try
+    {
+        await Wixi.Modules.Core.Infrastructure.Data.Seeders.LocationSeeder.SeedAsync(db, seedLogger);
+    }
+    catch (Exception ex)
+    {
+        seedLogger.LogWarning(ex, "[LocationSeeder] Coğrafi veri yüklenemedi, uygulama çalışmaya devam ediyor.");
+    }
+}
+
+// Seed & schema fixup — hata tolere edilir (idempotent operasyonlar)
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -158,7 +213,9 @@ BEGIN
 END
 ");
 
+        Console.WriteLine(">>> CALLING SeedData.InitializeAsync...");
         await SeedData.InitializeAsync(services);
+        Console.WriteLine(">>> SeedData.InitializeAsync COMPLETED.");
     } catch (Exception ex) {
         Console.WriteLine($"An error occurred seeding the DB: {ex.Message}");
     }
@@ -169,6 +226,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseStaticFiles();
 
 app.UseWixiMiddleware();
 
@@ -189,6 +248,15 @@ app.UseECommerceModule();
 // ── ECommerce Master & Tenant DB Migrations ───────────────────────
 await app.MigrateECommerceMasterDbAsync();
 await app.MigrateAllTenantDbsAsync();
+
+// ── WebBuilder DB Migration ───────────────────────────────────────
+await app.MigrateWebBuilderDbAsync();
+
+// ── PersonalFinance DB Migration ──────────────────────────────────
+await app.MigratePersonalFinanceDbAsync();
+
+// ── Finance (Tenant) DB Migration ─────────────────────────────────
+// await app.MigrateFinanceDbAsync();
 
 app.MapHealthChecks("/health");
 app.MapControllers();

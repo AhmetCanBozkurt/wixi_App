@@ -1,0 +1,412 @@
+.editor {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--editor-bg);
+  color: var(--editor-text);
+  font-family: 'Inter', sans-serif;
+  overflow: hidden;
+}
+
+/* ── Top Bar ───────────────────────────────────────── */
+.topBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  height: 52px;
+  background: var(--editor-surface);
+  border-bottom: 1px solid var(--editor-border);
+  flex-shrink: 0;
+  gap: 16px;
+}
+
+.titleGroup {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--editor-text);
+  flex-shrink: 0;
+}
+
+.tenantBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: rgba(236, 72, 153, 0.08);
+  border: 1px solid rgba(236, 72, 153, 0.25);
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #ec4899;
+  backdrop-filter: blur(8px);
+  margin-left: 8px;
+  transition: all 0.2s ease-in-out;
+  cursor: default;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.tenantBadge:hover {
+  background: rgba(236, 72, 153, 0.12);
+  border-color: rgba(236, 72, 153, 0.4);
+  transform: translateY(-1px);
+}
+
+.tenantBadgeIcon {
+  display: flex;
+  align-items: center;
+  color: #ec4899;
+}
+
+.topActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.dirtyDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #f59e0b;
+  flex-shrink: 0;
+}
+
+.previewBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  background: var(--editor-surface-2);
+  border: 1px solid var(--editor-border);
+  border-radius: 7px;
+  color: var(--editor-text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-decoration: none;
+}
+
+.previewBtn:hover { border-color: var(--editor-text-muted); color: var(--editor-text); }
+
+.saveBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 18px;
+  background: #ec4899;
+  border: none;
+  border-radius: 7px;
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.saveBtn:hover { background: #db2777; }
+.saveBtn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.undoRedoBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: var(--editor-surface-2);
+  border: 1px solid var(--editor-border);
+  border-radius: 7px;
+  color: var(--editor-text-muted);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.undoRedoBtn:hover { border-color: var(--editor-text-muted); color: var(--editor-text); }
+.undoRedoBtn:disabled { opacity: 0.35; cursor: not-allowed; pointer-events: none; }
+
+.historyBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  background: var(--editor-surface-2);
+  border: 1px solid var(--editor-border);
+  border-radius: 7px;
+  color: var(--editor-text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.historyBtn:hover { border-color: #ec4899; color: #ec4899; }
+
+/* ── 3-panel Layout ────────────────────────────────── */
+.mainArea {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+/* ── Left Sidebar — Accordion ──────────────────────── */
+.sidebarLeft {
+  width: 260px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--editor-surface);
+  border-right: 1px solid var(--editor-border);
+  overflow-y: auto;
+  overflow-x: hidden;
+  transition: width 0.22s ease;
+}
+
+/* scrollbar thin */
+.sidebarLeft::-webkit-scrollbar { width: 4px; }
+.sidebarLeft::-webkit-scrollbar-track { background: transparent; }
+.sidebarLeft::-webkit-scrollbar-thumb { background: var(--editor-border); border-radius: 2px; }
+
+/* ── Sidebar collapsed state (shared left + right) ─── */
+.sidebarCollapsed {
+  width: 0 !important;
+  overflow: hidden !important;
+  border: none !important;
+}
+
+/* ── Sidebar toggle button ─────────────────────────── */
+.sidebarToggle {
+  width: 14px;
+  flex-shrink: 0;
+  background: var(--editor-surface-2);
+  border: none;
+  border-left: 1px solid var(--editor-border);
+  border-right: 1px solid var(--editor-border);
+  color: var(--editor-text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  padding: 0;
+  transition: background 0.12s, color 0.12s;
+  z-index: 5;
+}
+
+.sidebarToggle:hover {
+  background: rgba(236, 72, 153, 0.12);
+  color: #ec4899;
+}
+
+/* ── Accordion ─────────────────────────────────────── */
+.accordionSection {
+  border-bottom: 1px solid var(--editor-border);
+  flex-shrink: 0;
+}
+
+.accordionHeader {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  padding: 9px 12px;
+  background: var(--editor-surface-2);
+  border: none;
+  color: var(--editor-text-muted);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.12s, color 0.12s;
+  user-select: none;
+}
+
+.accordionHeader:hover {
+  background: rgba(236, 72, 153, 0.07);
+  color: var(--editor-text);
+}
+
+.accordionChevron {
+  font-size: 9px;
+  color: var(--editor-text-muted);
+  flex-shrink: 0;
+  transition: transform 0.18s ease;
+}
+
+.accordionChevronOpen {
+  transform: rotate(90deg);
+}
+
+.accordionHeaderIcon {
+  font-size: 11px;
+  flex-shrink: 0;
+  opacity: 0.65;
+}
+
+.accordionLabel {
+  flex: 1;
+  line-height: 1;
+}
+
+.accordionBadge {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid var(--editor-border);
+  color: var(--editor-text-muted);
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 8px;
+  flex-shrink: 0;
+  min-width: 18px;
+  text-align: center;
+}
+
+.accordionContent {
+  height: var(--accordion-h, 320px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Right Sidebar — Accordion ─────────────────────── */
+.sidebarRight {
+  width: 280px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--editor-surface);
+  border-left: 1px solid var(--editor-border);
+  overflow-y: auto;
+  overflow-x: hidden;
+  transition: width 0.22s ease;
+}
+
+.sidebarRight::-webkit-scrollbar { width: 4px; }
+.sidebarRight::-webkit-scrollbar-track { background: transparent; }
+.sidebarRight::-webkit-scrollbar-thumb { background: var(--editor-border); border-radius: 2px; }
+
+/* ── Loading ───────────────────────────────────────── */
+.loading {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--editor-bg);
+  color: var(--editor-text-muted);
+  font-size: 14px;
+}
+
+/* ════════════════════════════════════════════════════
+   WebBuilderEditor — Left Sidebar Tab Bar
+   (ThemeEditor uses Accordion; WebBuilder uses tabs)
+   ════════════════════════════════════════════════════ */
+
+.leftTabBar {
+  display: flex;
+  align-items: stretch;
+  border-bottom: 1px solid var(--editor-border);
+  background: var(--editor-surface-2);
+  flex-shrink: 0;
+}
+
+.leftTab {
+  flex: 1;
+  padding: 0 4px;
+  height: 44px;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--editor-text-muted);
+  font-size: 10px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: center;
+  transition: color 0.15s, border-bottom-color 0.15s, background 0.15s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: 0.1px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+}
+
+.leftTab:hover {
+  color: var(--editor-text);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.leftTabActive {
+  color: #ec4899 !important;
+  border-bottom-color: #ec4899 !important;
+  font-weight: 600;
+}
+
+.leftContent {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ════════════════════════════════════════════════════
+   WebBuilderEditor — Right Sidebar Tab Bar
+   ════════════════════════════════════════════════════ */
+
+.rightTabBar {
+  display: flex;
+  align-items: stretch;
+  border-bottom: 1px solid var(--editor-border);
+  background: var(--editor-surface-2);
+  flex-shrink: 0;
+}
+
+.rightTab {
+  flex: 1;
+  padding: 0 6px;
+  height: 44px;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--editor-text-muted);
+  font-size: 10px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: center;
+  transition: color 0.15s, border-bottom-color 0.15s, background 0.15s;
+  white-space: nowrap;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+}
+
+.rightTab:hover {
+  color: var(--editor-text);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.rightTabActive {
+  color: #ec4899 !important;
+  border-bottom-color: #ec4899 !important;
+  font-weight: 600;
+}
+
+.rightContent {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}

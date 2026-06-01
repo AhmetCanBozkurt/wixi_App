@@ -38,8 +38,8 @@ public class CreateCurrencyCommandHandler : IRequestHandler<CreateCurrencyComman
         {
             Code = request.Code.ToUpperInvariant(),
             Name = request.Name,
-            NameEn = request.NameEn,
-            Symbol = request.Symbol,
+            NameEn = request.NameEn ?? string.Empty,
+            Symbol = request.Symbol ?? string.Empty,
             Unit = request.Unit > 0 ? request.Unit : 1,
             IsTcmbTracked = request.IsTcmbTracked,
             SortOrder = request.SortOrder

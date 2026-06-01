@@ -23,8 +23,20 @@ public class SubscriptionExpiryBackgroundWorker : BackgroundService
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            await CheckExpiredSubscriptionsAsync(stoppingToken);
-            await Task.Delay(Interval, stoppingToken);
+            try
+            {
+                await CheckExpiredSubscriptionsAsync(stoppingToken);
+                await Task.Delay(Interval, stoppingToken);
+            }
+            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+            {
+                break;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "SubscriptionExpiryWorker cycle failed, retrying in 5 min.");
+                try { await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken); } catch { break; }
+            }
         }
     }
 
@@ -69,7 +81,7 @@ public class SubscriptionExpiryBackgroundWorker : BackgroundService
                 _logger.LogInformation("Marked {Count} subscriptions as PastDue.", expired.Count);
             }
         }
-        catch (Exception ex) when (ex is not OperationCanceledException)
+        catch (Exception ex)
         {
             _logger.LogError(ex, "Subscription expiry check failed.");
         }

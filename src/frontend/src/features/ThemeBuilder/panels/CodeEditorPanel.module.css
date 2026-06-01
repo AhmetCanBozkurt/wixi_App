@@ -1,0 +1,132 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  gap: 0;
+}
+
+.tabBar {
+  display: flex;
+  border-bottom: 1px solid var(--border-glass);
+  margin-bottom: 8px;
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-muted, #888);
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  position: relative;
+}
+
+.tabActive {
+  color: var(--text-main, #fff);
+  border-bottom-color: #ec4899;
+}
+
+.tabHighlight {
+  color: #ec4899;
+}
+
+.tabDot {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #ec4899;
+}
+
+.hint {
+  font-size: 11px;
+  color: var(--text-muted, #888);
+  padding: 0 0 4px;
+}
+
+.loading {
+  padding: 40px;
+  text-align: center;
+  color: var(--text-muted, #888);
+  font-size: 13px;
+}
+
+.actions {
+  padding: 10px 0 0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.componentPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+
+.noComponent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 32px 16px;
+  gap: 6px;
+  color: var(--text-muted, #888);
+}
+
+.noComponent p {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-main, #fff);
+}
+
+.noComponent span {
+  font-size: 11px;
+  color: var(--text-muted, #888);
+  line-height: 1.5;
+}
+
+.componentInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: rgba(236,72,153,0.08);
+  border: 1px solid rgba(236,72,153,0.2);
+  border-radius: 6px;
+}
+
+.componentType {
+  font-size: 12px;
+  font-weight: 700;
+  color: #ec4899;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.componentId {
+  font-size: 11px;
+  color: var(--text-muted, #888);
+  font-family: monospace;
+}
+
+.jsonError {
+  font-size: 11px;
+  color: #ef4444;
+  margin: 0;
+  padding: 4px 8px;
+  background: rgba(239,68,68,0.08);
+  border-radius: 4px;
+}

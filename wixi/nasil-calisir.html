@@ -1,0 +1,960 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Nasıl Çalışır? — Wixi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+<style>
+.page-hero{padding: 80px 0 50px;text-align:center}
+.page-hero h1{font-size: clamp(46px, 5.5vw, 76px);line-height:1;letter-spacing:-.035em;font-weight:800;margin:24px 0 22px}
+.page-hero p{font-size:18.5px;color:var(--text-muted);max-width:640px;margin:0 auto;line-height:1.55}
+
+/* ============================================================
+   Interactive Stepper
+   ============================================================ */
+.demo{padding: 60px 0 100px}
+.demo__shell{
+  display:grid;grid-template-columns: 320px 1fr;gap:40px;align-items:flex-start;
+}
+@media (max-width: 980px){.demo__shell{grid-template-columns:1fr;gap:32px}}
+
+.demo__steps{
+  display:flex;flex-direction:column;gap:8px;
+  position: sticky; top: 110px;
+}
+@media (max-width: 980px){.demo__steps{position:static;flex-direction:row;overflow-x:auto;padding-bottom:8px}}
+
+.demo__step{
+  display:grid;grid-template-columns: 48px 1fr; gap:16px;
+  padding: 22px 22px;
+  border-radius: 16px;
+  border:1px solid var(--border);
+  background: rgba(255,255,255,.02);
+  cursor:pointer;
+  transition: border-color .3s, background .3s, transform .25s var(--easing);
+  text-align:left;
+  position:relative;
+}
+@media (max-width: 980px){.demo__step{min-width:260px}}
+.demo__step:hover{background: rgba(255,255,255,.04);transform: translateX(4px)}
+.demo__step.active{
+  background: var(--grad-soft);
+  border-color: rgba(139,92,246,.45);
+  box-shadow: 0 18px 50px -20px rgba(99,102,241,.5);
+}
+.demo__step.active::before{
+  content:""; position:absolute; inset:-1px; border-radius:inherit;
+  padding:1px;
+  background: linear-gradient(180deg, rgba(139,92,246,.6), transparent 80%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  pointer-events:none;
+}
+.demo__num{
+  width:48px;height:48px;border-radius:14px;
+  background: linear-gradient(180deg, rgba(20,24,42,1), rgba(14,18,32,1));
+  border:1px solid rgba(255,255,255,.1);
+  display:grid;place-items:center;
+  font-size:18px;font-weight:800;letter-spacing:-.02em;
+  font-family:'JetBrains Mono', monospace;
+  transition: background .3s, border-color .3s;
+}
+.demo__step.active .demo__num{
+  background: var(--grad);
+  border-color: transparent;
+  color:#fff;
+  box-shadow: 0 8px 22px -6px rgba(139,92,246,.6);
+}
+.demo__step h3{margin:0 0 4px;font-size:17px;font-weight:700;letter-spacing:-.015em}
+.demo__step p{margin:0;font-size:13.5px;color:var(--text-muted);line-height:1.5}
+.demo__step .time{
+  margin-top:8px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim);
+  display:inline-flex;align-items:center;gap:6px;
+}
+.demo__step .time::before{content:"";width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.6}
+
+/* Progress bar between steps (vertical) */
+.demo__bar{
+  position:absolute; left:46px; top:100%; width:2px; height:8px;
+  background: var(--border);
+}
+.demo__step:last-child .demo__bar{display:none}
+
+/* Stage / mockup display */
+.demo__stage{
+  position:relative;
+  min-height: 540px;
+  border-radius: 22px;
+  border:1px solid var(--border);
+  background: linear-gradient(180deg, rgba(20,24,42,.5), rgba(14,18,32,.5));
+  overflow:hidden;
+}
+.demo__stage::before{
+  content:""; position:absolute;inset:0;
+  background:
+    radial-gradient(50% 50% at 50% 0%, rgba(139,92,246,.15), transparent 60%),
+    radial-gradient(60% 60% at 100% 100%, rgba(99,102,241,.1), transparent 65%);
+  pointer-events:none;
+}
+.demo__panel{
+  position:absolute; inset:32px;
+  opacity:0; transform: translateY(20px) scale(.98);
+  transition: opacity .5s var(--easing), transform .5s var(--easing);
+  pointer-events:none;
+  display:flex;flex-direction:column;
+}
+.demo__panel.active{opacity:1;transform:none;pointer-events:auto}
+
+/* === Panel 1: Signup form === */
+.signup{
+  max-width: 440px;
+  margin: auto;
+  padding: 32px;
+  background: linear-gradient(180deg, rgba(20,24,42,.95), rgba(14,18,32,.95));
+  border-radius: 18px;
+  border:1px solid var(--border);
+  box-shadow: var(--shadow-card);
+}
+.signup__head{text-align:center;margin-bottom:24px}
+.signup__head .logo-pill{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:6px 12px;border-radius:999px;
+  background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.3);
+  font-size:12px;font-weight:600;color:#a5b4fc;margin-bottom:14px;
+}
+.signup__head h4{margin:0 0 6px;font-size:22px;font-weight:700;letter-spacing:-.02em}
+.signup__head p{margin:0;color:var(--text-muted);font-size:13.5px}
+.signup__fields{display:flex;flex-direction:column;gap:12px;margin-bottom:18px}
+.signup__field{
+  display:flex;flex-direction:column;gap:6px;
+}
+.signup__field label{font-size:12px;font-weight:600;color:var(--text-muted)}
+.signup__field input{
+  height:42px;padding:0 14px;border-radius:10px;
+  background:rgba(255,255,255,.03);border:1px solid var(--border);
+  color:var(--text);font-size:14px;font-family:inherit;
+  transition: border-color .2s, background .2s;
+}
+.signup__field input:focus{outline:none;border-color:rgba(139,92,246,.5);background:rgba(255,255,255,.05)}
+.signup__field input::placeholder{color:var(--text-dim)}
+.signup__field.typing input{
+  border-color:rgba(139,92,246,.5);background:rgba(255,255,255,.05);
+}
+.signup__field.typing input::after{
+  content:"|"; animation: blink 1s steps(1) infinite;
+}
+.signup__field .cursor{
+  position:absolute;width:1.5px;height:18px;background:#a78bfa;animation: blink 1s steps(1) infinite;
+}
+@keyframes blink{50%{opacity:0}}
+.signup__cta{
+  width:100%;height:46px;border-radius:10px;
+  background: var(--grad);color:#fff;font-weight:700;font-size:14px;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  box-shadow: 0 10px 30px -8px rgba(99,102,241,.55);
+  position:relative;overflow:hidden;
+}
+.signup__cta .check-anim{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  background: var(--success);color:#0a0e1a;font-weight:700;
+  opacity:0;transition: opacity .4s;
+}
+.signup__cta.done .check-anim{opacity:1}
+.signup__small{text-align:center;font-size:11.5px;color:var(--text-dim);margin-top:12px}
+
+/* === Panel 2: Module picker === */
+.picker{
+  display:grid;grid-template-columns: 1fr 1fr;gap:16px;
+  height:100%;align-items:start;
+}
+@media (max-width:720px){.picker{grid-template-columns:1fr}}
+.pick-list{display:flex;flex-direction:column;gap:10px}
+.pick-list__head{
+  display:flex;justify-content:space-between;align-items:baseline;
+  margin-bottom:4px;
+}
+.pick-list__head h4{margin:0;font-size:16px;font-weight:700}
+.pick-list__head span{font-size:12px;color:var(--text-dim);font-family:'JetBrains Mono',monospace}
+.pick-tile{
+  display:grid;grid-template-columns: 44px 1fr auto;gap:14px;align-items:center;
+  padding:14px 16px;border-radius:14px;
+  background: rgba(255,255,255,.02);
+  border:1px solid var(--border);
+  cursor:pointer;
+  transition: border-color .25s, background .25s, transform .25s var(--easing);
+}
+.pick-tile:hover{transform:translateX(3px);border-color:var(--border-strong)}
+.pick-tile.on{
+  background: var(--grad-soft);border-color: rgba(139,92,246,.45);
+}
+.pick-tile .ic{
+  width:44px;height:44px;border-radius:12px;
+  background:rgba(99,102,241,.15);border:1px solid rgba(99,102,241,.35);
+  display:grid;place-items:center;color:#a5b4fc;
+  transition: background .25s, border-color .25s;
+}
+.pick-tile.on .ic{background:var(--grad);color:#fff;border-color:transparent;box-shadow: 0 8px 20px -6px rgba(139,92,246,.5)}
+.pick-tile .info b{display:block;font-size:14.5px;font-weight:700}
+.pick-tile .info span{display:block;font-size:12px;color:var(--text-muted);margin-top:2px}
+.pick-tile .toggle{
+  width:38px;height:22px;border-radius:999px;
+  background:rgba(255,255,255,.08);border:1px solid var(--border);
+  position:relative;flex-shrink:0;transition: background .25s, border-color .25s;
+}
+.pick-tile .toggle::after{
+  content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;
+  background:#fff;transition: transform .25s var(--easing);
+}
+.pick-tile.on .toggle{background:var(--grad);border-color:transparent}
+.pick-tile.on .toggle::after{transform:translateX(15px)}
+
+.pick-summary{
+  padding:24px;border-radius:16px;
+  background: rgba(20,24,42,.7);
+  border:1px solid var(--border);
+  display:flex;flex-direction:column;gap:14px;
+}
+.pick-summary h4{margin:0;font-size:15px;font-weight:700}
+.pick-summary .price-line{
+  display:flex;justify-content:space-between;align-items:center;
+  font-size:13.5px;color:var(--text-muted);
+}
+.pick-summary .price-line.total{
+  padding-top:14px;border-top:1px solid var(--border);
+  color:var(--text);font-weight:600;
+}
+.pick-summary .price-line.total .v{font-size:22px;font-weight:800;letter-spacing:-.02em}
+.pick-summary .v.grad-text{
+  background: var(--grad-text);-webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.pick-summary .btn{margin-top:8px}
+
+/* === Panel 3: Live store preview === */
+.live{
+  display:grid;grid-template-columns: 1fr 1.4fr;gap:14px;height:100%;
+}
+@media (max-width:720px){.live{grid-template-columns:1fr}}
+.live__cfg{
+  padding:18px;border-radius:14px;
+  background: rgba(20,24,42,.7);
+  border:1px solid var(--border);
+  display:flex;flex-direction:column;gap:14px;
+}
+.live__cfg h4{margin:0;font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px}
+.live__cfg h4::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--success);box-shadow:0 0 8px rgba(124,228,164,.8)}
+.live-step{
+  display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--text-muted);
+  padding:8px 10px;border-radius:8px;background:rgba(255,255,255,.02);
+}
+.live-step .tick{
+  width:18px;height:18px;border-radius:50%;
+  background: var(--success);color:#0a0e1a;
+  display:grid;place-items:center;font-size:11px;font-weight:800;
+  flex-shrink:0;
+}
+.live-step.cur .tick{background: var(--grad);color:#fff}
+.live-step.cur{color:var(--text);background:rgba(139,92,246,.1)}
+
+.live-url{
+  font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#a5b4fc;
+  padding:8px 10px;border-radius:7px;
+  background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.25);
+  word-break:break-all;
+}
+
+.live__store{
+  background:#fff;color:#0f172a;border-radius:14px;overflow:hidden;
+  min-height:380px; display:flex; flex-direction:column;
+  box-shadow: 0 30px 80px -30px rgba(0,0,0,.5);
+}
+.live__store .topbar{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:10px 14px;border-bottom:1px solid #e5e7eb;background:#fff;
+}
+.live__store .lg{font-size:13px;font-weight:800;letter-spacing:-.02em}
+.live__store .nv{display:flex;gap:14px;font-size:10.5px;color:#6b7280}
+.live__store .cart{font-size:10.5px;color:#0f172a;display:flex;align-items:center;gap:4px}
+.live__store .hero-l{
+  padding:24px 18px;text-align:center;
+  background: linear-gradient(135deg, #f5f3ff, #ede9fe);
+}
+.live__store .hero-l h5{margin:0 0 6px;font-size:22px;letter-spacing:-.025em;color:#0f172a;font-weight:800}
+.live__store .hero-l p{margin:0 0 14px;font-size:12px;color:#475569}
+.live__store .hero-l .b{
+  display:inline-block;padding:8px 18px;border-radius:10px;
+  background: var(--grad);color:#fff;font-size:12px;font-weight:700;
+}
+.live__store .pg{
+  padding:14px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;
+}
+.live__store .pi{
+  background:#fff;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;
+}
+.live__store .pi .ph{height:60px}
+.live__store .pi .ph.a{background:linear-gradient(135deg,#c7d2fe,#ddd6fe)}
+.live__store .pi .ph.b{background:linear-gradient(135deg,#fde68a,#fca5a5)}
+.live__store .pi .ph.c{background:linear-gradient(135deg,#a7f3d0,#93c5fd)}
+.live__store .pi .tx{padding:8px}
+.live__store .pi .nm{font-size:11px;font-weight:600;color:#0f172a}
+.live__store .pi .pr{font-size:11px;font-weight:800;color:#6366f1;margin-top:2px}
+.live__store .badge-live{
+  position:absolute;top:14px;right:14px;
+  padding:4px 10px;border-radius:999px;
+  background: var(--success);color:#0a0e1a;font-size:10.5px;font-weight:800;
+  display:inline-flex;align-items:center;gap:6px;
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+.badge-live::before{content:"";width:6px;height:6px;border-radius:50%;background:#0a0e1a}
+
+/* Auto-advance progress on right card */
+.demo__nav{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-top:16px;gap:12px;
+}
+.demo__nav .controls{display:flex;gap:8px}
+.demo__nav .icon-btn{
+  width:40px;height:40px;border-radius:10px;
+  background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--text);
+  display:grid;place-items:center;transition: background .2s, border-color .2s;
+}
+.demo__nav .icon-btn:hover{background:rgba(255,255,255,.08);border-color:var(--border-strong)}
+.demo__nav .icon-btn:disabled{opacity:.35;cursor:not-allowed}
+.demo__nav .pages{
+  font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--text-muted);
+}
+.demo__nav .pages b{color:var(--text);font-weight:700}
+.demo__nav .autoplay{
+  display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--text-muted);
+}
+.demo__nav .pp{
+  width:34px;height:20px;border-radius:999px;
+  background:rgba(255,255,255,.08);border:1px solid var(--border);
+  position:relative;cursor:pointer;
+}
+.demo__nav .pp::after{
+  content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;
+  background:#fff;transition:transform .25s;
+}
+.demo__nav .pp.on{background:var(--grad);border-color:transparent}
+.demo__nav .pp.on::after{transform:translateX(13px)}
+
+/* ============================================================
+   Timeline section
+   ============================================================ */
+.timeline{padding: 100px 0}
+.timeline__grid{
+  position:relative;
+  max-width: 900px; margin:0 auto;
+}
+.timeline__line{
+  position:absolute;left:24px;top:24px;bottom:24px;width:2px;
+  background: linear-gradient(180deg, rgba(99,102,241,.5), rgba(139,92,246,.5), transparent);
+}
+@media (max-width:720px){.timeline__line{left:18px}}
+.tl-item{
+  display:grid;grid-template-columns: 50px 1fr;gap:24px;
+  padding: 14px 0;
+}
+.tl-item .dot{
+  width:50px;height:50px;border-radius:50%;
+  background: linear-gradient(180deg, rgba(20,24,42,1), rgba(14,18,32,1));
+  border: 1px solid rgba(139,92,246,.5);
+  display:grid;place-items:center;
+  position:relative;z-index:2;
+  font-family:'JetBrains Mono',monospace;font-weight:700;font-size:13px;
+}
+.tl-item.major .dot{
+  background: var(--grad);border-color:transparent;color:#fff;
+  box-shadow: 0 0 0 6px rgba(10,14,26,1), 0 12px 30px -8px rgba(139,92,246,.7);
+}
+.tl-item .body{padding-top:6px}
+.tl-item h4{margin:0 0 6px;font-size:18px;font-weight:700;letter-spacing:-.015em}
+.tl-item.major h4{font-size:22px}
+.tl-item p{margin:0;color:var(--text-muted);font-size:14.5px;line-height:1.55}
+.tl-item .meta{
+  font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--text-dim);
+  margin-top:8px;display:flex;gap:14px;flex-wrap:wrap;
+}
+.tl-item .meta span{display:inline-flex;align-items:center;gap:4px}
+
+/* Testimonial */
+.testimonial{padding: 60px 0}
+.quote{
+  padding: 48px;border-radius: 24px;
+  text-align:center; max-width: 820px;margin:0 auto;position:relative;
+}
+.quote::before{
+  content:"\201C";
+  position:absolute;top:8px;left:24px;font-size:120px;
+  color:rgba(139,92,246,.18);font-family:Georgia, serif;line-height:1;
+}
+.quote p{
+  font-size: clamp(20px, 2.4vw, 28px);
+  line-height:1.4;letter-spacing:-.015em;font-weight:500;
+  margin:0 0 28px;color:var(--text);
+}
+.quote .person{display:inline-flex;align-items:center;gap:14px}
+.quote .person .av{
+  width:48px;height:48px;border-radius:50%;
+  background:linear-gradient(135deg,#f59e0b,#ef4444);
+  display:grid;place-items:center;color:#fff;font-weight:700;font-size:14px;
+}
+.quote .person .nm{text-align:left}
+.quote .person .nm b{display:block;font-size:14.5px;font-weight:700}
+.quote .person .nm span{font-size:12.5px;color:var(--text-muted)}
+
+.cta-banner{padding: 60px 0 100px}
+.cta-banner__inner{
+  position:relative;overflow:hidden;padding: 64px 48px;border-radius: 28px;
+  background:
+    radial-gradient(60% 80% at 80% 100%, rgba(139,92,246,.4), transparent 60%),
+    radial-gradient(50% 70% at 0% 0%, rgba(99,102,241,.3), transparent 60%),
+    linear-gradient(180deg, rgba(20,24,42,1), rgba(14,18,32,1));
+  border:1px solid rgba(139,92,246,.25);text-align:center;
+  box-shadow: 0 40px 100px -40px rgba(99,102,241,.5);
+}
+.cta-banner__inner::before{
+  content:"";position:absolute;inset:0;
+  background-image: radial-gradient(rgba(255,255,255,.04) 1px, transparent 1px);
+  background-size: 24px 24px;
+  mask-image: radial-gradient(60% 60% at 50% 50%, #000, transparent 80%);pointer-events:none;
+}
+.cta-banner h2{font-size: clamp(30px, 4vw, 44px);margin:0 0 14px;line-height:1.05;letter-spacing:-.03em;font-weight:800}
+.cta-banner p{color:var(--text-muted);font-size:17px;margin:0 auto 28px;max-width: 520px}
+.cta-banner__btns{display:inline-flex;gap:12px;position:relative;z-index:1;flex-wrap:wrap;justify-content:center}
+
+/* ============================================================
+   Light mode adaptations for the interactive demo chrome
+   ============================================================ */
+[data-theme="light"] .demo__stage{
+  background: linear-gradient(180deg, rgba(99,102,241,.04), rgba(139,92,246,.03));
+  border-color: var(--border);
+}
+[data-theme="light"] .demo__step{
+  background: rgba(255,255,255,.6);
+}
+[data-theme="light"] .demo__step:hover{background: #fff}
+[data-theme="light"] .demo__num{
+  background: linear-gradient(180deg, #ffffff, #f5f6fb);
+  border-color: var(--border);
+  color: var(--text);
+}
+[data-theme="light"] .demo__bar{background: var(--border)}
+[data-theme="light"] .signup{
+  background: linear-gradient(180deg, #ffffff, #fafbff);
+  border-color: var(--border);
+  box-shadow: 0 30px 80px -30px rgba(15,23,42,.18);
+}
+[data-theme="light"] .signup__field input{
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--text);
+}
+[data-theme="light"] .signup__field input::placeholder{color: var(--text-dim)}
+[data-theme="light"] .pick-tile{background: rgba(255,255,255,.7)}
+[data-theme="light"] .pick-tile:hover{background: #fff}
+[data-theme="light"] .pick-tile.on{
+  background: linear-gradient(135deg, rgba(99,102,241,.08), rgba(139,92,246,.06));
+}
+[data-theme="light"] .pick-summary{
+  background: linear-gradient(180deg, #ffffff, #f8faff);
+  border-color: var(--border);
+}
+[data-theme="light"] .live__cfg{
+  background: linear-gradient(180deg, #ffffff, #f8faff);
+  border-color: var(--border);
+}
+[data-theme="light"] .live-step{background: var(--surface)}
+[data-theme="light"] .live-step.cur{background: rgba(139,92,246,.08)}
+[data-theme="light"] .live-url{
+  background: rgba(99,102,241,.06);
+  border-color: rgba(99,102,241,.18);
+}
+/* Timeline dots */
+[data-theme="light"] .tl-item .dot{
+  background: linear-gradient(180deg, #ffffff, #f5f6fb);
+  color: var(--text);
+}
+[data-theme="light"] .tl-item.major .dot{
+  background: var(--grad); color: #fff;
+  box-shadow: 0 0 0 6px var(--bg-1), 0 12px 30px -8px rgba(139,92,246,.5);
+}
+/* Demo nav buttons */
+[data-theme="light"] .demo__nav .icon-btn{
+  background: rgba(255,255,255,.7);
+}
+[data-theme="light"] .demo__nav .pp{
+  background: rgba(15,23,42,.08);
+}
+[data-theme="light"] .demo__nav .pp.on{background: var(--grad)}
+</style>
+</head>
+<body class="page-enter">
+
+<div class="scroll-progress"><div class="scroll-progress__bar"></div></div>
+
+<header class="nav">
+  <div class="container nav__row">
+    <a href="index.html" class="brand"><span class="brand__mark">W</span><span class="brand__name">WIXI<span class="dim">APP</span></span></a>
+    <nav class="nav__links">
+      <a href="ozellikler.html">Özellikler</a>
+      <a href="moduller.html">Modüller</a>
+      <a href="studyo.html">Stüdyo</a>
+      <a href="fiyatlandirma.html">Fiyatlandırma</a>
+      <a href="nasil-calisir.html">Nasıl Çalışır?</a>
+      <a href="sss.html">SSS</a>
+    </nav>
+    <div class="nav__cta">
+      <a href="#" class="btn btn--ghost btn--sm">Giriş Yap</a>
+      <a href="#" class="btn btn--primary btn--sm" data-magnet="0.2">Hemen Başla</a>
+      <button class="nav__burger" aria-label="Menü" aria-expanded="false"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+<div class="nav__drawer" id="navDrawer">
+  <a href="ozellikler.html">Özellikler <span>→</span></a>
+  <a href="moduller.html">Modüller <span>→</span></a>
+  <a href="studyo.html">Stüdyo <span>→</span></a>
+  <a href="fiyatlandirma.html">Fiyatlandırma <span>→</span></a>
+  <a href="nasil-calisir.html">Nasıl Çalışır? <span>→</span></a>
+  <a href="sss.html">SSS <span>→</span></a>
+  <div class="row">
+    <a href="#" class="btn btn--ghost">Giriş Yap</a>
+    <a href="#" class="btn btn--primary">Hemen Başla</a>
+  </div>
+</div>
+
+<section class="page-hero">
+  <div class="container">
+    <span class="eyebrow fade-up"><span class="dot"></span>Nasıl Çalışır?</span>
+    <h1 class="fade-up" data-delay="1"><span class="grad-text">3 adımda</span> yayında</h1>
+    <p class="fade-up" data-delay="2">Karmaşık kurulumlar, uzun teknik süreçler yok. Aşağıdaki demoyu deneyin — adımları kendiniz tıklayarak ilerleyin.</p>
+  </div>
+</section>
+
+<!-- INTERACTIVE DEMO -->
+<section class="demo">
+  <div class="container">
+    <div class="demo__shell">
+      <div class="demo__steps" role="tablist">
+        <button class="demo__step active" data-step="1" role="tab" aria-selected="true">
+          <div class="demo__num">01</div>
+          <div>
+            <h3>Kayıt Olun</h3>
+            <p>E-posta + şifre. Kredi kartı yok.</p>
+            <div class="time">~ 30 saniye</div>
+          </div>
+          <div class="demo__bar"></div>
+        </button>
+        <button class="demo__step" data-step="2" role="tab" aria-selected="false">
+          <div class="demo__num">02</div>
+          <div>
+            <h3>Modülünüzü Seçin</h3>
+            <p>İhtiyacınıza göre aktifleştirin.</p>
+            <div class="time">~ 1 dakika</div>
+          </div>
+          <div class="demo__bar"></div>
+        </button>
+        <button class="demo__step" data-step="3" role="tab" aria-selected="false">
+          <div class="demo__num">03</div>
+          <div>
+            <h3>Mağazanızı Açın</h3>
+            <p>Ürünleri ekleyin, yayına alın.</p>
+            <div class="time">~ 2 dakika</div>
+          </div>
+        </button>
+      </div>
+
+      <div>
+        <div class="demo__stage scale-in">
+          <!-- Panel 1 -->
+          <div class="demo__panel active" data-panel="1">
+            <div class="signup">
+              <div class="signup__head">
+                <div class="logo-pill">
+                  <span style="width:14px;height:14px;border-radius:4px;background:var(--grad);display:inline-block"></span>
+                  WIXI APP
+                </div>
+                <h4>Hesabınızı oluşturun</h4>
+                <p>14 gün ücretsiz deneme — kredi kartı gerekmez</p>
+              </div>
+              <div class="signup__fields">
+                <div class="signup__field">
+                  <label>İşletme Adı</label>
+                  <input type="text" placeholder="Mağazam" id="f1" />
+                </div>
+                <div class="signup__field">
+                  <label>E-posta</label>
+                  <input type="email" placeholder="ad@isletme.com" id="f2" />
+                </div>
+                <div class="signup__field">
+                  <label>Şifre</label>
+                  <input type="password" placeholder="••••••••" id="f3" />
+                </div>
+              </div>
+              <button class="signup__cta" id="signupBtn">
+                <span>Hesabımı Oluştur →</span>
+                <span class="check-anim">✓ Hesap oluşturuldu</span>
+              </button>
+              <div class="signup__small">Devam ederek <u>kullanım şartlarını</u> kabul etmiş olursunuz</div>
+            </div>
+          </div>
+
+          <!-- Panel 2 -->
+          <div class="demo__panel" data-panel="2">
+            <div class="picker">
+              <div class="pick-list">
+                <div class="pick-list__head">
+                  <h4>Modüller</h4>
+                  <span>İstediğiniz an değiştirin</span>
+                </div>
+                <div class="pick-tile on" data-mod="ec" data-price="499">
+                  <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/></svg></div>
+                  <div class="info"><b>E-Ticaret</b><span>Ürün, sipariş, kargo, ödeme</span></div>
+                  <div class="toggle"></div>
+                </div>
+                <div class="pick-tile on" data-mod="crm" data-price="399">
+                  <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="4"/><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/></svg></div>
+                  <div class="info"><b>CRM</b><span>Müşteri, fırsat, kampanya yönetimi</span></div>
+                  <div class="toggle"></div>
+                </div>
+                <div class="pick-tile" data-mod="hr" data-price="299">
+                  <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+                  <div class="info"><b>İnsan Kaynakları</b><span>Personel, izin, bordro</span></div>
+                  <div class="toggle"></div>
+                </div>
+                <div class="pick-tile" data-mod="acc" data-price="349">
+                  <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div>
+                  <div class="info"><b>Muhasebe</b><span>Fatura, gelir-gider, KDV</span></div>
+                  <div class="toggle"></div>
+                </div>
+              </div>
+
+              <div class="pick-summary">
+                <h4>Özet</h4>
+                <div class="price-line" id="sumE"><span>E-Ticaret</span><span class="v">₺499/ay</span></div>
+                <div class="price-line" id="sumC"><span>CRM</span><span class="v">₺399/ay</span></div>
+                <div class="price-line total"><span>Aylık Toplam</span><span class="v grad-text" id="sumTotal">₺898</span></div>
+                <button class="btn btn--primary">İleri →</button>
+                <div style="font-size:11.5px;color:var(--text-dim);text-align:center">14 gün ücretsiz — sonrasında bu tutar tahsil edilir</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Panel 3 -->
+          <div class="demo__panel" data-panel="3">
+            <div class="live">
+              <div class="live__cfg">
+                <h4>Kurulum tamamlandı</h4>
+                <div class="live-step"><div class="tick">✓</div>Domain bağlandı</div>
+                <div class="live-step"><div class="tick">✓</div>SSL sertifikası aktif</div>
+                <div class="live-step"><div class="tick">✓</div>Ödeme entegrasyonu</div>
+                <div class="live-step cur"><div class="tick">3</div>Ürünler senkronize</div>
+                <div class="live-url">https://magazam.wixi.app</div>
+                <a href="#" class="btn btn--primary btn--sm">Mağazaya Git →</a>
+              </div>
+
+              <div class="live__store" style="position:relative">
+                <span class="badge-live">CANLI</span>
+                <div class="topbar">
+                  <div class="lg">MAĞAZAM</div>
+                  <div class="nv"><span>Ürünler</span><span>Kategori</span><span>İletişim</span></div>
+                  <div class="cart">🛒 0</div>
+                </div>
+                <div class="hero-l">
+                  <h5>Yaz Koleksiyonu</h5>
+                  <p>%30'a varan indirimler</p>
+                  <span class="b">Şimdi Keşfet →</span>
+                </div>
+                <div class="pg">
+                  <div class="pi"><div class="ph a"></div><div class="tx"><div class="nm">Pamuk Tişört</div><div class="pr">₺249</div></div></div>
+                  <div class="pi"><div class="ph b"></div><div class="tx"><div class="nm">Yazlık Şort</div><div class="pr">₺199</div></div></div>
+                  <div class="pi"><div class="ph c"></div><div class="tx"><div class="nm">Kanvas Çanta</div><div class="pr">₺159</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="demo__nav">
+          <div class="controls">
+            <button class="icon-btn" id="prevBtn" aria-label="Önceki">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <button class="icon-btn" id="nextBtn" aria-label="Sonraki">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+          </div>
+          <div class="pages"><b id="pgN">01</b> / 03</div>
+          <div class="autoplay">
+            <span>Otomatik</span>
+            <button class="pp on" id="apBtn" aria-pressed="true"></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TIMELINE -->
+<section class="timeline">
+  <div class="container">
+    <div class="section-head fade-up">
+      <span class="eyebrow"><span class="dot"></span>Detaylı Akış</span>
+      <h2 class="section-title">İlk dakikadan <span class="grad-text">canlı yayına</span></h2>
+      <p>Tipik bir Wixi mağazasının ilk 24 saatlik kurulum süreci.</p>
+    </div>
+
+    <div class="timeline__grid">
+      <div class="timeline__line"></div>
+
+      <div class="tl-item major fade-up">
+        <div class="dot">0:00</div>
+        <div class="body">
+          <h4>Hesap oluşturma</h4>
+          <p>E-posta doğrulaması ve işletme bilgileriniz. Sistem otomatik olarak alt-domain atar.</p>
+          <div class="meta"><span>📧 e-posta doğrulama</span><span>🏢 işletme adı</span><span>🔐 KVKK onayı</span></div>
+        </div>
+      </div>
+
+      <div class="tl-item fade-up" data-delay="1">
+        <div class="dot">+1d</div>
+        <div class="body">
+          <h4>Onboarding sihirbazı</h4>
+          <p>Sektör, ürün adedi, hedef pazar gibi 5 soru. Wixi sizin için en uygun modülleri önerir.</p>
+        </div>
+      </div>
+
+      <div class="tl-item major fade-up" data-delay="2">
+        <div class="dot">+5d</div>
+        <div class="body">
+          <h4>Modül seçimi</h4>
+          <p>E-Ticaret, CRM, İK, Muhasebe — istediğinizi açın. Aylık veya yıllık ödeme seçeneği.</p>
+          <div class="meta"><span>💳 ödeme planı</span><span>🧩 modül kombinasyonu</span></div>
+        </div>
+      </div>
+
+      <div class="tl-item fade-up" data-delay="3">
+        <div class="dot">+8d</div>
+        <div class="body">
+          <h4>Tema & marka kimliği</h4>
+          <p>30+ hazır temadan birini seçin veya boş şablonla başlayın. Logo, renk paleti, font tercihleri.</p>
+        </div>
+      </div>
+
+      <div class="tl-item fade-up" data-delay="4">
+        <div class="dot">+15d</div>
+        <div class="body">
+          <h4>Ürün & içerik girişi</h4>
+          <p>Tek tek girin veya CSV/Excel yükleyin. Shopify, Trendyol, İdeasoft içe aktarma seçeneği.</p>
+          <div class="meta"><span>📦 CSV içe aktar</span><span>🌐 Shopify</span><span>🛍️ Trendyol</span></div>
+        </div>
+      </div>
+
+      <div class="tl-item fade-up" data-delay="5">
+        <div class="dot">+30d</div>
+        <div class="body">
+          <h4>Entegrasyonlar</h4>
+          <p>Kargo (Aras, Yurtiçi, MNG), ödeme (İyzico, PayTR), e-posta pazarlama, muhasebe yazılımları.</p>
+        </div>
+      </div>
+
+      <div class="tl-item major fade-up" data-delay="6">
+        <div class="dot">CANLI</div>
+        <div class="body">
+          <h4>Yayına alma</h4>
+          <p>Tek butonla. İsterseniz kendi domaininize bağlayın (SSL otomatik). 24 saat içinde yayında.</p>
+          <div class="meta"><span>🌍 özel domain</span><span>🔒 SSL</span><span>⚡ CDN</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIAL -->
+<section class="testimonial">
+  <div class="container">
+    <div class="quote glass fade-up">
+      <p>15 yıldır mağaza işletiyoruz. Wixi sayesinde online satışa geçişimiz <b class="grad-text">2 günde tamamlandı</b>. Şu an siparişlerin %40'ı online geliyor.</p>
+      <div class="person">
+        <div class="av">AY</div>
+        <div class="nm">
+          <b>Ahmet Yılmaz</b>
+          <span>Kuzey Kahve, Kurucu Ortak</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-banner">
+  <div class="container">
+    <div class="cta-banner__inner fade-up">
+      <h2>Sıra <span class="grad-text">sizde</span></h2>
+      <p>Hesabınızı oluşturun, modülünüzü seçin, satışa başlayın.</p>
+      <div class="cta-banner__btns">
+        <a href="#" class="btn btn--primary btn--lg" data-magnet="0.2">Ücretsiz Deneyin →</a>
+        <a href="fiyatlandirma.html" class="btn btn--ghost btn--lg">Planları Gör</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer__grid">
+      <div class="footer__brand">
+        <a href="index.html" class="brand"><span class="brand__mark">W</span><span class="brand__name">WIXI<span class="dim">APP</span></span></a>
+        <p>KOBİ'ler için modüler SaaS platformu.</p>
+        <div class="footer__social">
+          <a href="#" aria-label="Twitter"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+          <a href="#" aria-label="LinkedIn"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.063 2.063 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0z"/></svg></a>
+          <a href="#" aria-label="Instagram"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
+          <a href="#" aria-label="YouTube"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12z"/></svg></a>
+        </div>
+      </div>
+      <div class="footer__col"><h4>Ürün</h4><ul><li><a href="ozellikler.html">Özellikler</a></li><li><a href="moduller.html">Modüller</a></li><li><a href="studyo.html">Stüdyo</a></li><li><a href="fiyatlandirma.html">Fiyatlandırma</a></li><li><a href="nasil-calisir.html">Nasıl Çalışır?</a></li><li><a href="yol-haritasi.html">Yol Haritası</a></li></ul></div>
+      <div class="footer__col"><h4>Kaynaklar</h4><ul><li><a href="sss.html">SSS</a></li><li><a href="#">Yardım Merkezi</a></li><li><a href="#">API</a></li><li><a href="#">Blog</a></li></ul></div>
+      <div class="footer__col"><h4>Şirket</h4><ul><li><a href="hakkimizda.html">Hakkımızda</a></li><li><a href="iletisim.html">İletişim</a></li><li><a href="#">Kariyer</a></li><li><a href="#">Basın</a></li></ul></div>
+      <div class="footer__col"><h4>Yasal</h4><ul><li><a href="kullanim-sartlari.html">Kullanım Şartları</a></li><li><a href="gizlilik.html">Gizlilik</a></li><li><a href="kvkk.html">KVKK</a></li><li><a href="cerezler.html">Çerezler</a></li></ul></div>
+    </div>
+    <div class="footer__bottom">
+      <div>© 2026 Wixi Teknoloji A.Ş. Tüm hakları saklıdır.</div>
+      <div class="legal"><span>🇹🇷 Türkçe</span><span>İstanbul, Türkiye</span></div>
+    </div>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+<script>
+/* Interactive demo logic */
+(function(){
+  const steps = document.querySelectorAll('.demo__step');
+  const panels = document.querySelectorAll('.demo__panel');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const pgN = document.getElementById('pgN');
+  const apBtn = document.getElementById('apBtn');
+  let current = 1;
+  let autoplay = true;
+  let timer;
+
+  function go(n){
+    current = n;
+    steps.forEach(s=>{
+      const active = parseInt(s.dataset.step,10) === n;
+      s.classList.toggle('active', active);
+      s.setAttribute('aria-selected', active);
+    });
+    panels.forEach(p=>{
+      p.classList.toggle('active', parseInt(p.dataset.panel,10) === n);
+    });
+    pgN.textContent = String(n).padStart(2,'0');
+    prevBtn.disabled = false;
+    nextBtn.disabled = false;
+  }
+
+  steps.forEach(s=>{
+    s.addEventListener('click', ()=>{
+      stopAuto();
+      go(parseInt(s.dataset.step,10));
+    });
+  });
+  prevBtn.addEventListener('click', ()=>{
+    stopAuto();
+    go(current === 1 ? 3 : current - 1);
+  });
+  nextBtn.addEventListener('click', ()=>{
+    stopAuto();
+    go(current === 3 ? 1 : current + 1);
+  });
+  apBtn.addEventListener('click', ()=>{
+    autoplay = !autoplay;
+    apBtn.classList.toggle('on', autoplay);
+    apBtn.setAttribute('aria-pressed', autoplay);
+    if(autoplay) startAuto(); else stopAuto();
+  });
+  function startAuto(){
+    stopAuto();
+    timer = setInterval(()=>{
+      go(current === 3 ? 1 : current + 1);
+    }, 5500);
+  }
+  function stopAuto(){
+    if(timer){clearInterval(timer); timer = null}
+  }
+  startAuto();
+
+  /* Module picker */
+  document.querySelectorAll('.pick-tile').forEach(t=>{
+    t.addEventListener('click', ()=>{
+      t.classList.toggle('on');
+      updateTotal();
+    });
+  });
+  function updateTotal(){
+    const tiles = document.querySelectorAll('.pick-tile.on');
+    let total = 0;
+    const summary = document.querySelector('.pick-summary');
+    const totalEl = document.getElementById('sumTotal');
+    // Hide all existing summary lines except total
+    summary.querySelectorAll('.price-line:not(.total)').forEach(el=>el.remove());
+    tiles.forEach(t=>{
+      const price = parseInt(t.dataset.price,10);
+      const name = t.querySelector('.info b').textContent;
+      total += price;
+      const line = document.createElement('div');
+      line.className = 'price-line';
+      line.innerHTML = `<span>${name}</span><span class="v">₺${price}/ay</span>`;
+      summary.insertBefore(line, summary.querySelector('.price-line.total'));
+    });
+    totalEl.textContent = '₺' + total.toLocaleString('tr-TR');
+  }
+
+  /* Typing animation for signup form on panel show */
+  const fields = [
+    {id:'f1', text:'Kuzey Kahve'},
+    {id:'f2', text:'ahmet@kuzeykahve.com'},
+    {id:'f3', text:'••••••••••'}
+  ];
+  function typeIn(){
+    fields.forEach(f=>{document.getElementById(f.id).value=''});
+    let i = 0, j = 0;
+    function tick(){
+      if(i >= fields.length){
+        // Show success briefly
+        const btn = document.getElementById('signupBtn');
+        setTimeout(()=>{ btn.classList.add('done') }, 600);
+        setTimeout(()=>{ btn.classList.remove('done') }, 3500);
+        return;
+      }
+      const f = fields[i];
+      const el = document.getElementById(f.id);
+      if(j <= f.text.length){
+        el.value = f.text.slice(0,j);
+        j++;
+        setTimeout(tick, 70);
+      } else {
+        i++; j = 0;
+        setTimeout(tick, 350);
+      }
+    }
+    tick();
+  }
+  // Run typing whenever panel 1 becomes active
+  const panel1 = document.querySelector('[data-panel="1"]');
+  const obs = new MutationObserver(()=>{
+    if(panel1.classList.contains('active')) typeIn();
+  });
+  obs.observe(panel1, {attributes: true, attributeFilter:['class']});
+  // Initial run
+  setTimeout(typeIn, 600);
+})();
+</script>
+</body>
+</html>

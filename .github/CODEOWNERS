@@ -1,0 +1,11 @@
+# Global sahip — tüm dosyalar için fallback
+* @AhmetCanBozkurt
+
+# Kritik backend alanları
+src/backend/Wixi.Modules.Core/Infrastructure/Data/Migrations/ @AhmetCanBozkurt
+src/backend/Wixi.Modules.Core/Infrastructure/Data/SeedData.cs  @AhmetCanBozkurt
+src/backend/Wixi.API/Program.cs                                @AhmetCanBozkurt
+
+# CI/CD ve altyapı
+.github/                                                       @AhmetCanBozkurt
+docker-compose*.yml                                            @AhmetCanBozkurt

@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Vaka Çalışmaları — Wixi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+<style>
+.cs-hero{padding: 80px 0 30px; text-align: center}
+.cs-hero h1{font-family:'Manrope',sans-serif;font-size: clamp(46px, 5.5vw, 72px);line-height:1.05;letter-spacing:-.03em;font-weight:800;margin:24px 0 18px}
+.cs-hero p{font-size:17.5px;color:var(--text-muted);max-width:620px;margin:0 auto 32px;line-height:1.55}
+
+.cs-stats{display:inline-grid;grid-template-columns:repeat(3,auto);gap:36px;padding:20px 36px;border-radius:18px;background:var(--surface);border:1px solid var(--border)}
+@media (max-width:600px){.cs-stats{grid-template-columns:1fr 1fr;gap:18px;padding:18px 24px}}
+.cs-stats .item{text-align:center}
+.cs-stats .num{font-family:'Manrope',sans-serif;font-size:28px;font-weight:800;letter-spacing:-.02em;background:var(--grad-text);-webkit-background-clip:text;background-clip:text;color:transparent;line-height:1}
+.cs-stats .lbl{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;font-weight:600;margin-top:5px}
+
+.cs-filters{padding:30px 0 50px}
+.cs-filters__row{display:flex;justify-content:center;gap:6px;flex-wrap:wrap}
+.cs-filters button{
+  padding:9px 18px;border-radius:999px;font-size:13px;font-weight:600;
+  background:var(--surface);border:1px solid var(--border);color:var(--text-muted);
+  transition:background .2s,color .2s,border-color .2s,transform .2s var(--easing);
+}
+.cs-filters button:hover{color:var(--text);background:var(--surface-2)}
+.cs-filters button.on{background:var(--grad);color:#fff;border-color:transparent;box-shadow:0 6px 18px -6px rgba(99,102,241,.5)}
+
+.cs-featured{padding: 0 0 60px}
+.cs-featured__card{
+  display:grid;grid-template-columns: 1fr 1fr;gap:0;
+  border-radius: 28px;overflow:hidden;
+  border:1px solid rgba(139,92,246,.3);
+  background: linear-gradient(135deg, rgba(99,102,241,.1), rgba(139,92,246,.05));
+  position:relative;
+}
+@media (max-width: 880px){.cs-featured__card{grid-template-columns:1fr}}
+[data-theme="light"] .cs-featured__card{background: linear-gradient(135deg, rgba(99,102,241,.06), rgba(139,92,246,.03))}
+
+.cs-featured__visual{
+  position:relative;min-height:380px;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6, #ec4899);
+  overflow:hidden;
+}
+.cs-featured__visual::before{
+  content:"";position:absolute;inset:0;
+  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.2), transparent 50%);
+}
+.cs-featured__brand{
+  position:absolute;top:32px;left:32px;
+  width:64px;height:64px;border-radius:18px;
+  background:#fff;color:#6366f1;
+  display:grid;place-items:center;
+  font-family:'Manrope',sans-serif;font-size:28px;font-weight:800;letter-spacing:-.02em;
+  box-shadow:0 18px 40px -16px rgba(0,0,0,.4);
+}
+.cs-featured__quote{
+  position:absolute;bottom:32px;left:32px;right:32px;color:#fff;
+}
+.cs-featured__quote::before{
+  content:"\201C";position:absolute;top:-30px;left:-8px;font-size:80px;line-height:1;
+  font-family:Georgia,serif;color:rgba(255,255,255,.3);
+}
+.cs-featured__quote p{font-size:17px;line-height:1.5;font-weight:500;margin:0 0 14px;letter-spacing:-.01em}
+.cs-featured__quote .who{font-size:13px;opacity:.85;font-weight:600}
+.cs-featured__quote .who b{display:block;font-weight:700}
+
+.cs-featured__body{padding:40px 36px;display:flex;flex-direction:column;gap:18px;justify-content:center}
+.cs-featured__body .tag{display:inline-flex;width:max-content;padding:5px 12px;border-radius:999px;background:var(--grad-soft);border:1px solid rgba(139,92,246,.3);font-size:11.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#c4b5fd}
+[data-theme="light"] .cs-featured__body .tag{color:#7c3aed}
+.cs-featured__body h2{font-family:'Manrope',sans-serif;font-size:28px;font-weight:800;letter-spacing:-.025em;line-height:1.15;margin:0}
+.cs-featured__body p{color:var(--text-muted);font-size:15px;line-height:1.6;margin:0}
+.cs-featured__results{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;padding:18px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin:6px 0}
+.cs-result b{display:block;font-family:'Manrope',sans-serif;font-size:24px;font-weight:800;letter-spacing:-.02em;background:var(--grad-text);-webkit-background-clip:text;background-clip:text;color:transparent}
+.cs-result span{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+
+.cs-grid{padding: 60px 0 80px}
+.cs-grid__row{display:grid;grid-template-columns: repeat(3,1fr);gap:18px}
+@media (max-width: 900px){.cs-grid__row{grid-template-columns: 1fr 1fr}}
+@media (max-width: 560px){.cs-grid__row{grid-template-columns: 1fr}}
+
+.cs-card{
+  padding:0;overflow:hidden;display:flex;flex-direction:column;
+  transition: transform .25s var(--easing), border-color .2s;
+  cursor:pointer;
+}
+.cs-card:hover{transform:translateY(-5px);border-color:rgba(139,92,246,.4)}
+.cs-card__top{
+  height:140px;position:relative;overflow:hidden;
+}
+.cs-card__top::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.18),transparent 60%),radial-gradient(circle at 80% 80%,rgba(0,0,0,.25),transparent 60%)}
+.cs-card.g1 .cs-card__top{background:linear-gradient(135deg,#06b6d4,#3b82f6)}
+.cs-card.g2 .cs-card__top{background:linear-gradient(135deg,#f59e0b,#ef4444)}
+.cs-card.g3 .cs-card__top{background:linear-gradient(135deg,#10b981,#06b6d4)}
+.cs-card.g4 .cs-card__top{background:linear-gradient(135deg,#ec4899,#8b5cf6)}
+.cs-card.g5 .cs-card__top{background:linear-gradient(135deg,#fb923c,#dc2626)}
+.cs-card.g6 .cs-card__top{background:linear-gradient(135deg,#14b8a6,#0ea5e9)}
+.cs-card__brand{
+  position:absolute;top:18px;left:18px;
+  width:44px;height:44px;border-radius:12px;
+  background:#fff;display:grid;place-items:center;
+  font-family:'Manrope',sans-serif;font-size:16px;font-weight:800;color:#0f172a;letter-spacing:-.02em;
+  box-shadow:0 8px 20px -6px rgba(0,0,0,.3);
+  z-index:1;
+}
+.cs-card__tag{
+  position:absolute;top:18px;right:18px;
+  padding:4px 10px;border-radius:6px;
+  background:rgba(255,255,255,.2);backdrop-filter:blur(10px);
+  color:#fff;font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+  border:1px solid rgba(255,255,255,.3);z-index:1;
+}
+.cs-card__body{padding:20px 22px;display:flex;flex-direction:column;gap:10px;flex:1}
+.cs-card__body h3{margin:0;font-family:'Manrope',sans-serif;font-size:17px;font-weight:700;letter-spacing:-.015em;line-height:1.3}
+.cs-card__body p{margin:0;color:var(--text-muted);font-size:13px;line-height:1.55;flex:1}
+.cs-card__metrics{display:flex;gap:14px;padding-top:12px;border-top:1px solid var(--border);margin-top:6px}
+.cs-card__metric b{display:block;font-family:'Manrope',sans-serif;font-size:16px;font-weight:800;background:var(--grad-text);-webkit-background-clip:text;background-clip:text;color:transparent;line-height:1}
+.cs-card__metric span{font-size:10.5px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+.cs-card__link{
+  display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:600;color:#a5b4fc;
+  transition: gap .25s var(--easing);
+}
+[data-theme="light"] .cs-card__link{color:#7c3aed}
+.cs-card:hover .cs-card__link{gap:10px}
+
+.cs-card.hidden{display:none}
+
+/* Stats band */
+.cs-band{padding:80px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.cs-band__grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;text-align:center}
+@media (max-width:720px){.cs-band__grid{grid-template-columns:1fr 1fr}}
+.cs-band__item .num{font-family:'Manrope',sans-serif;font-size:clamp(32px,3.6vw,46px);font-weight:800;letter-spacing:-.025em;background:var(--grad-text);-webkit-background-clip:text;background-clip:text;color:transparent;line-height:1}
+.cs-band__item .lbl{margin-top:8px;color:var(--text-muted);font-size:13px;text-transform:uppercase;letter-spacing:.08em;font-weight:500}
+
+/* CTA */
+.cta-banner{padding: 60px 0 100px}
+.cta-banner__inner{position:relative;overflow:hidden;padding:64px 48px;border-radius:28px;background:radial-gradient(60% 80% at 80% 100%,rgba(139,92,246,.4),transparent 60%),radial-gradient(50% 70% at 0% 0%,rgba(99,102,241,.3),transparent 60%),linear-gradient(180deg,rgba(20,24,42,1),rgba(14,18,32,1));border:1px solid rgba(139,92,246,.25);text-align:center;box-shadow:0 40px 100px -40px rgba(99,102,241,.5)}
+.cta-banner h2{font-family:'Manrope',sans-serif;font-size:clamp(30px,4vw,44px);margin:0 0 14px;line-height:1.05;letter-spacing:-.03em;font-weight:800}
+.cta-banner p{color:var(--text-muted);font-size:17px;margin:0 auto 28px;max-width:520px}
+.cta-banner__btns{display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center}
+</style>
+</head>
+<body class="page-enter">
+<div class="orbs" aria-hidden="true"><div class="orb orb--1"></div><div class="orb orb--2"></div></div>
+<div class="scroll-progress"><div class="scroll-progress__bar"></div></div>
+
+<header class="nav">
+  <div class="container nav__row">
+    <a href="index.html" class="brand"><span class="brand__mark">W</span><span class="brand__name">WIXI<span class="dim">APP</span></span></a>
+    <nav class="nav__links">
+      <a href="ozellikler.html">Özellikler</a>
+      <a href="moduller.html">Modüller</a>
+      <a href="studyo.html">Stüdyo</a>
+      <a href="fiyatlandirma.html">Fiyatlandırma</a>
+      <a href="sss.html">SSS</a>
+    </nav>
+    <div class="nav__cta">
+      <a href="#" class="btn btn--ghost btn--sm">Giriş Yap</a>
+      <a href="#" class="btn btn--primary btn--sm" data-magnet="0.2">Hemen Başla</a>
+      <button class="nav__burger" aria-label="Menü"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+<div class="nav__drawer" id="navDrawer">
+  <a href="ozellikler.html">Özellikler <span>→</span></a>
+  <a href="moduller.html">Modüller <span>→</span></a>
+  <a href="studyo.html">Stüdyo <span>→</span></a>
+  <a href="fiyatlandirma.html">Fiyatlandırma <span>→</span></a>
+  <a href="sss.html">SSS <span>→</span></a>
+  <div class="row"><a href="#" class="btn btn--ghost">Giriş Yap</a><a href="#" class="btn btn--primary">Hemen Başla</a></div>
+</div>
+
+<section class="cs-hero">
+  <div class="container">
+    <span class="eyebrow fade-up"><span class="dot"></span>Vaka Çalışmaları</span>
+    <h1 class="fade-up" data-delay="1">Müşterilerimizin <span class="grad-text">başarı hikayeleri</span></h1>
+    <p class="fade-up" data-delay="2">Türkiye'nin dört bir yanından KOBİ'ler Wixi ile nasıl büyüdü, neyi kolaylaştırdı, kaç saat kazandı.</p>
+
+    <div class="cs-stats fade-up" data-delay="3">
+      <div class="item"><div class="num">1.250+</div><div class="lbl">İşletme</div></div>
+      <div class="item"><div class="num">%287</div><div class="lbl">Ort. büyüme</div></div>
+      <div class="item"><div class="num">4.9★</div><div class="lbl">Memnuniyet</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="cs-filters">
+  <div class="container">
+    <div class="cs-filters__row" id="csFilters">
+      <button class="on" data-f="all">Tümü</button>
+      <button data-f="retail">Perakende</button>
+      <button data-f="food">Gıda & Restoran</button>
+      <button data-f="textile">Tekstil</button>
+      <button data-f="service">Hizmet</button>
+      <button data-f="manufacture">Üretim</button>
+    </div>
+  </div>
+</section>
+
+<section class="cs-featured">
+  <div class="container">
+    <article class="cs-featured__card fade-up">
+      <div class="cs-featured__visual">
+        <div class="cs-featured__brand">KK</div>
+        <div class="cs-featured__quote">
+          <p>Wixi sayesinde online satışa geçişimiz 2 günde tamamlandı. Şu an siparişlerin %40'ı online geliyor, üstelik 3 farklı yazılım yerine tek panel kullanıyoruz.</p>
+          <div class="who"><b>Ahmet Yılmaz</b> · Kuzey Kahve, Kurucu Ortak</div>
+        </div>
+      </div>
+      <div class="cs-featured__body">
+        <span class="tag">⭐ Öne Çıkan</span>
+        <h2>Bir butik kahveci nasıl 3 ay içinde sipariş hacmini ikiye katladı?</h2>
+        <p>15 yıllık geleneksel kafe işletmecisi Kuzey Kahve, pandemi sonrası dönüşüm için Wixi'yi tercih etti. E-Ticaret + CRM + Stok modüllerini entegre kullanarak hem fiziksel hem online operasyonu tek panelden yönetmeye başladı.</p>
+        <div class="cs-featured__results">
+          <div class="cs-result"><b>%108</b><span>Sipariş artışı</span></div>
+          <div class="cs-result"><b>₺248K</b><span>Aylık ciro</span></div>
+          <div class="cs-result"><b>−12sa</b><span>Haftalık tasarruf</span></div>
+        </div>
+        <a href="#" class="btn btn--primary" data-magnet="0.2">Detaylı Hikayeyi Okuyun →</a>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section class="cs-grid">
+  <div class="container">
+    <div class="cs-grid__row">
+
+      <article class="cs-card glass g1" data-cat="textile">
+        <div class="cs-card__top"><div class="cs-card__brand">NT</div><div class="cs-card__tag">Tekstil</div></div>
+        <div class="cs-card__body">
+          <h3>NoraTekstil: Stok kaosu yerine senkron çalışan 4 mağaza</h3>
+          <p>4 fiziksel + 2 online satış kanalı arasında stok senkronizasyonu Wixi ile günde 1 saatten 0'a indi.</p>
+          <div class="cs-card__metrics">
+            <div class="cs-card__metric"><b>%142</b><span>Stok doğruluğu</span></div>
+            <div class="cs-card__metric"><b>−6sa/gün</b><span>Manuel iş</span></div>
+          </div>
+          <a href="#" class="cs-card__link">Okuyun <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
+        </div>
+      </article>
+
+      <article class="cs-card glass g2" data-cat="food">
+        <div class="cs-card__top"><div class="cs-card__brand">AB</div><div class="cs-card__tag">Gıda</div></div>
+        <div class="cs-card__body">
+          <h3>Anadolu Bakery: 5 şubeli zincir, tek panel</h3>
+          <p>Şube müdürleri kendi gün sonu raporlarını Wixi'den hazırlıyor, merkez 5 dakikada konsolide görüyor.</p>
+          <div class="cs-card__metrics">
+            <div class="cs-card__metric"><b>5→1</b><span>Yazılım azaltma</span></div>
+            <div class="cs-card__metric"><b>₺18K/ay</b><span>Maliyet tasarrufu</span></div>
+          </div>
+          <a href="#" class="cs-card__link">Okuyun <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
+        </div>
+      </article>
+
+      <article class="cs-card glass g3" data-cat="retail">
+        <div class="cs-card__top"><div class="cs-card__brand">SO</div><div class="cs-card__tag">Perakende</div></div>
+        <div class="cs-card__body">
+          <h3>Sefa Optik: CRM ile müşteri sadakati %62 arttı</h3>
+          <p>Reçete yenileme hatırlatmaları otomatize edildi, müşterilerin yıllık ziyareti %62 arttı.</p>
+          <div class="cs-card__metrics">
+            <div class="cs-card__metric"><b>%62</b><span>Sadakat artışı</span></div>
+            <div class="cs-card__metric"><b>3.2x</b><span>Tekrar satın alma</span></div>
+          </div>
+          <a href="#" class="cs-card__link">Okuyun <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
+        </div>
+      </article>
+
+      <article class="cs-card glass g4" data-cat="service">
+        <div class="cs-card__top"><div class="cs-card__brand">MS</div><div class="cs-card__tag">Hizmet</div></div>
+        <div class="cs-card__body">
+          <h3>Mimoza Studio: 1 kişiden 8 kişiye, hızla büyüyen tasarım stüdyosu</h3>
+          <p>Proje takibi, müşteri faturalandırma ve İK Wixi'de — yalnızca 3 ayda ekip 8 kişiye çıktı.</p>
+          <div class="cs-card__metrics">
+            <div class="cs-card__metric"><b>8x</b><span>Ekip büyümesi</span></div>
+            <div class="cs-card__metric"><b>%95</b><span>Vaktinde teslim</span></div>
+          </div>
+          <a href="#" class="cs-card__link">Okuyun <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
+        </div>
+      </article>
+
+      <article class="cs-card glass g5" data-cat="manufacture">
+        <div class="cs-card__top"><div class="cs-card__brand">AT</div><div class="cs-card__tag">Üretim</div></div>
+        <div class="cs-card__body">
+          <h3>Atlas Spor: Üretimden ödemeye uçtan uca dijital</h3>
+          <p>Sipariş geldiği anda iş emri otomatik çıkıyor, hammadde stoğu düşünce uyarı gidiyor.</p>
+          <div class="cs-card__metrics">
+            <div class="cs-card__metric"><b>−72sa</b><span>Sipariş döngüsü</span></div>
+            <div class="cs-card__metric"><b>%18</b><span>Hata azalması</span></div>
+          </div>
+          <a href="#" class="cs-card__link">Okuyun <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
+        </div>
+      </article>
+
+      <article class="cs-card glass g6" data-cat="food">
+        <div class="cs-card__top"><div class="cs-card__brand">LC</div><div class="cs-card__tag">Gıda</div></div>
+        <div class="cs-card__body">
+          <h3>Levanten Cafe: Stüdyo modülü ile online rezervasyon</h3>
+          <p>3 dakikada hazırladıkları rezervasyon formu sayesinde haftalık 200+ otomatik rezervasyon alıyor.</p>
+          <div class="cs-card__metrics">
+            <div class="cs-card__metric"><b>200+</b><span>Haftalık rezervasyon</span></div>
+            <div class="cs-card__metric"><b>0 kod</b><span>Form geliştirme</span></div>
+          </div>
+          <a href="#" class="cs-card__link">Okuyun <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
+        </div>
+      </article>
+
+      <article class="cs-card glass g1" data-cat="retail">
+        <div class="cs-card__top"><div class="cs-card__brand">V</div><div class="cs-card__tag">Perakende</div></div>
+        <div class="cs-card__body">
+          <h3>Veranda Home: Trendyol + Hepsiburada + kendi mağaza, tek panel</h3>
+          <p>3 pazaryeri + kendi e-ticaret sitesi tek envantere bağlandı, çakışmasız stok yönetimi sağlandı.</p>
+          <div class="cs-card__metrics">
+            <div class="cs-card__metric"><b>4 kanal</b><span>Senkron</span></div>
+            <div class="cs-card__metric"><b>%0</b><span>Çakışan satış</span></div>
+          </div>
+          <a href="#" class="cs-card__link">Okuyun <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
+        </div>
+      </article>
+
+      <article class="cs-card glass g3" data-cat="service">
+        <div class="cs-card__top"><div class="cs-card__brand">ES</div><div class="cs-card__tag">Hizmet</div></div>
+        <div class="cs-card__body">
+          <h3>Esen Hukuk: Müşteri portföyü 3 katına çıkardı</h3>
+          <p>Vaka takibi, müvekkil iletişimi ve fatura — Wixi CRM + Belge modülleriyle.</p>
+          <div class="cs-card__metrics">
+            <div class="cs-card__metric"><b>3x</b><span>Portföy artışı</span></div>
+            <div class="cs-card__metric"><b>%88</b><span>Memnuniyet</span></div>
+          </div>
+          <a href="#" class="cs-card__link">Okuyun <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
+        </div>
+      </article>
+
+      <article class="cs-card glass g2" data-cat="textile">
+        <div class="cs-card__top"><div class="cs-card__brand">RP</div><div class="cs-card__tag">Tekstil</div></div>
+        <div class="cs-card__body">
+          <h3>Reyhan Pamuk: Kişisel butikten ulusal markaya</h3>
+          <p>Instagram'daki butik mağazadan kendi domain'iyle yayında bir e-ticaret markasına dönüştü.</p>
+          <div class="cs-card__metrics">
+            <div class="cs-card__metric"><b>15x</b><span>Aylık ciro</span></div>
+            <div class="cs-card__metric"><b>14 gün</b><span>Lansman süresi</span></div>
+          </div>
+          <a href="#" class="cs-card__link">Okuyun <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<section class="cs-band">
+  <div class="container">
+    <div class="cs-band__grid">
+      <div class="cs-band__item fade-up"><div class="num">1.250+</div><div class="lbl">Aktif Müşteri</div></div>
+      <div class="cs-band__item fade-up" data-delay="1"><div class="num">%287</div><div class="lbl">Ort. Büyüme</div></div>
+      <div class="cs-band__item fade-up" data-delay="2"><div class="num">12sa+</div><div class="lbl">Haftalık Tasarruf</div></div>
+      <div class="cs-band__item fade-up" data-delay="3"><div class="num">4.9★</div><div class="lbl">Müşteri Skoru</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-banner">
+  <div class="container">
+    <div class="cta-banner__inner fade-up">
+      <h2>Sıradaki <span class="grad-text">başarı hikayesi</span> sizinki olsun</h2>
+      <p>1.250+ Türk işletmesinin tercihi Wixi ile bugün başlayın.</p>
+      <div class="cta-banner__btns">
+        <a href="#" class="btn btn--primary btn--lg" data-magnet="0.2">Ücretsiz Deneyin →</a>
+        <a href="iletisim.html" class="btn btn--ghost btn--lg">Bizimle Konuşun</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer__grid">
+      <div class="footer__brand">
+        <a href="index.html" class="brand"><span class="brand__mark">W</span><span class="brand__name">WIXI<span class="dim">APP</span></span></a>
+        <p>KOBİ'ler için modüler SaaS platformu.</p>
+      </div>
+      <div class="footer__col"><h4>Ürün</h4><ul><li><a href="ozellikler.html">Özellikler</a></li><li><a href="moduller.html">Modüller</a></li><li><a href="studyo.html">Stüdyo</a></li><li><a href="fiyatlandirma.html">Fiyatlandırma</a></li></ul></div>
+      <div class="footer__col"><h4>Kaynaklar</h4><ul><li><a href="sss.html">SSS</a></li><li><a href="vaka-calismalari.html">Vaka Çalışmaları</a></li><li><a href="yol-haritasi.html">Yol Haritası</a></li><li><a href="#">Blog</a></li></ul></div>
+      <div class="footer__col"><h4>Şirket</h4><ul><li><a href="hakkimizda.html">Hakkımızda</a></li><li><a href="iletisim.html">İletişim</a></li><li><a href="#">Kariyer</a></li><li><a href="#">Basın</a></li></ul></div>
+      <div class="footer__col"><h4>Yasal</h4><ul><li><a href="kullanim-sartlari.html">Kullanım Şartları</a></li><li><a href="gizlilik.html">Gizlilik</a></li><li><a href="kvkk.html">KVKK</a></li><li><a href="cerezler.html">Çerezler</a></li></ul></div>
+    </div>
+    <div class="footer__bottom">
+      <div>© 2026 Wixi Teknoloji A.Ş. Tüm hakları saklıdır.</div>
+      <div class="legal"><span>🇹🇷 Türkçe</span><span>İstanbul, Türkiye</span></div>
+    </div>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+<script>
+(function(){
+  const btns = document.querySelectorAll('#csFilters button');
+  const cards = document.querySelectorAll('.cs-card');
+  btns.forEach(b => b.addEventListener('click', ()=>{
+    btns.forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');
+    const f = b.dataset.f;
+    cards.forEach(c => c.classList.toggle('hidden', f !== 'all' && c.dataset.cat !== f));
+  }));
+})();
+</script>
+</body>
+</html>

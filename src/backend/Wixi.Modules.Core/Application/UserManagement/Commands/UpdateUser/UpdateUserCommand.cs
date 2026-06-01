@@ -18,7 +18,8 @@ public class UpdateUserCommandHandler : IRequestHandler<UpdateUserCommand, bool>
 
     public async Task<bool> Handle(UpdateUserCommand request, CancellationToken cancellationToken)
     {
-        var user = await _userManager.FindByIdAsync(request.User.Id.ToString());
+        if (request.User.Id == null) return false;
+        var user = await _userManager.FindByIdAsync(request.User.Id.ToString()!);
         if (user == null) return false;
 
         user.FirstName = request.User.FirstName;
@@ -34,6 +35,7 @@ public class UpdateUserCommandHandler : IRequestHandler<UpdateUserCommand, bool>
 
         user.PhoneNumber = request.User.PhoneNumber;
         user.TwoFactorEnabled = request.User.TwoFactorEnabled;
+        user.TenantId = request.User.TenantId;
 
         user.UpdatedAt = DateTime.UtcNow;
 

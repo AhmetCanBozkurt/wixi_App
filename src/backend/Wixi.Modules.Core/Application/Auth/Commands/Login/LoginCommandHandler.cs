@@ -5,6 +5,7 @@ using System.Text;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Wixi.Modules.Core.Application.Auth.Dto;
@@ -129,6 +130,25 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, AuthResult>
         foreach (var role in roles)
         {
             claims.Add(new Claim(ClaimTypes.Role, role));
+        }
+
+        if (user.TenantId != null)
+        {
+            var tenant = await _dbContext.Tenants.FirstOrDefaultAsync(t => t.Id == user.TenantId);
+            if (tenant != null)
+            {
+                claims.Add(new Claim("tenant_id", tenant.Id.ToString()));
+                claims.Add(new Claim("tenant_slug", tenant.Slug));
+            }
+        }
+        else if (roles.Contains("TenantAdmin"))
+        {
+            var ownedTenant = await _dbContext.Tenants.FirstOrDefaultAsync(t => t.OwnerUserId == user.Id);
+            if (ownedTenant != null)
+            {
+                claims.Add(new Claim("tenant_id", ownedTenant.Id.ToString()));
+                claims.Add(new Claim("tenant_slug", ownedTenant.Slug));
+            }
         }
 
         var tokenDescriptor = new SecurityTokenDescriptor

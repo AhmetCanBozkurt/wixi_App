@@ -2,9 +2,13 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Wixi.Modules.ECommerce.Application.Cargo;
+using Wixi.Modules.ECommerce.Infrastructure.Cargo;
 using Wixi.Modules.ECommerce.Infrastructure.Data;
 using Wixi.Modules.ECommerce.Infrastructure.Tenant;
 using Wixi.Modules.Core.Infrastructure.Services;
+using Wixi.Shared.Configuration;
+using Wixi.Shared.Infrastructure.Services;
 
 namespace Wixi.Modules.ECommerce;
 
@@ -29,6 +33,9 @@ public static class ECommerceModuleExtensions
 
         // Tenant Context — Scoped: her request kendi tenant'ına sahip
         services.AddScoped<TenantContext>();
+        // Shared interface üzerinden de erişilebilir (WebBuilder gibi diğer modüller kullanır)
+        services.AddScoped<Wixi.Shared.Domain.Entities.ITenantContext>(
+            sp => sp.GetRequiredService<TenantContext>());
 
         // Tenant DB Context — Scoped: TenantContext'ten bağlantı alır
         services.AddScoped<ECommerceDbContext>(sp =>
@@ -41,6 +48,14 @@ public static class ECommerceModuleExtensions
 
         // Tenant Provisioner — yeni mağaza DB'si oluşturma
         services.AddScoped<Wixi.Modules.Core.Application.Common.Interfaces.ITenantProvisioner, Wixi.Modules.ECommerce.Infrastructure.Services.ECommerceTenantProvisioner>();
+
+        // Iyzipay Ödeme Servisi
+        services.Configure<IyzipayOptions>(configuration.GetSection("Iyzipay"));
+        services.AddScoped<IIyzipayService, IyzipayService>();
+
+        // Cargo Providers — IEnumerable<ICargoProvider> ile çözümlenir
+        services.AddSingleton<ICargoProvider, ArasCargoProvider>();
+        services.AddSingleton<ICargoProvider, YurticiCargoProvider>();
 
         // MediatR — ECommerce Assembly handler'ları kaydet
         services.AddMediatR(cfg =>
@@ -86,7 +101,9 @@ public static class ECommerceModuleExtensions
             {
                 Console.WriteLine($"[TENANT MIGRATION] Migrating {tenant.Slug} ({tenant.DatabaseName})...");
                 // Provision all enabled modules for this tenant
-                var enabledModules = tenant.EnabledModules?.Split(',') ?? new[] { "ecommerce" };
+                var enabledModules = string.IsNullOrWhiteSpace(tenant.EnabledModules)
+                    ? new[] { "ecommerce" }
+                    : tenant.EnabledModules.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
                 foreach (var prov in provisioners)
                 {
                     if (enabledModules.Contains(prov.ModuleName))

@@ -1,0 +1,478 @@
+/* ─── PAGE WRAPPER ─────────────────────────────────────── */
+.page {
+  min-height: 100vh;
+  background: var(--bg-primary);
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+}
+
+/* ─── STICKY HEADER ─────────────────────────────────────── */
+.coTop {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  height: 64px;
+  background: rgba(13, 13, 26, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border-glass);
+}
+
+/* ─── BRAND ─────────────────────────────────────────────── */
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: var(--text-main);
+}
+.brandMark {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-weight: 900;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+.brandName {
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -.02em;
+  color: var(--text-main);
+}
+.dim {
+  opacity: 0.4;
+}
+
+/* ─── STEPPER ────────────────────────────────────────────── */
+.coStepper {
+  display: flex;
+  align-items: center;
+}
+.step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  padding: 6px 10px;
+  white-space: nowrap;
+}
+.step .n {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2px solid var(--border-glass);
+  background: transparent;
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+.stepDone {
+  color: #10b981;
+}
+.stepDone .n {
+  background: #10b981;
+  border-color: #10b981;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
+}
+.stepCur {
+  color: var(--text-main);
+}
+.stepCur .n {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.45);
+}
+.sep {
+  width: 32px;
+  height: 2px;
+  background: var(--border-glass);
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* ─── GHOST BUTTON ──────────────────────────────────────── */
+.btnGhostSm {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 15px;
+  border-radius: 10px;
+  border: 1px solid var(--border-glass);
+  background: var(--surface-glass);
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.btnGhostSm:hover {
+  background: var(--surface-glass-hover, rgba(255,255,255,0.06));
+  color: var(--text-main);
+  border-color: rgba(139, 92, 246, 0.4);
+}
+
+/* ─── PAY CONTAINER ─────────────────────────────────────── */
+.payContainer {
+  min-height: 100px;
+}
+
+/* ──────────────────────────────────────────────────────────── */
+
+.coMain {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 32px;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+  background: var(--bg-primary);
+  color: var(--text-main);
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  position: relative;
+  z-index: 1;
+}
+
+@media (max-width: 880px) {
+  .coMain {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .coSummary {
+    order: -1;
+    position: static !important;
+  }
+}
+
+.coSection {
+  padding: 28px;
+  margin-bottom: 20px;
+}
+.coSection h2 {
+  margin: 0 0 6px;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -.015em;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.coSection h2 .n {
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 800;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+.coSection > p {
+  color: var(--text-muted);
+  font-size: 13.5px;
+  margin: 0 0 20px;
+}
+
+.glass {
+  background: var(--surface-glass);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--border-glass);
+  border-radius: 24px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+}
+
+.fieldRow {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+@media (max-width: 520px) {
+  .fieldRow {
+    flex-direction: column;
+    gap: 14px;
+  }
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+.field label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: .01em;
+}
+.field input,
+.field select {
+  height: 44px;
+  padding: 0 14px;
+  border-radius: 11px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-glass);
+  color: var(--text-main);
+  font-size: 14px;
+  font-family: inherit;
+  transition: all 0.2s;
+  width: 100%;
+  outline: none;
+}
+.field input:focus,
+.field select:focus {
+  border-color: rgba(139,92,246,.45);
+  background: rgba(139, 92, 246, 0.05);
+  box-shadow: 0 0 0 4px rgba(139,92,246,.08);
+}
+
+.coPayTabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+.coPayTab {
+  flex: 1;
+  min-width: 140px;
+  padding: 14px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--border-glass);
+  background: var(--surface-glass);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-main);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.coPayTab:hover {
+  background: var(--surface-glass-hover);
+  border-color: var(--border-glass-hover);
+}
+.coPayTab.on {
+  border-color: rgba(139,92,246,.55);
+  background: rgba(99, 102, 241, 0.15);
+}
+.coPayTab .ic {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border-glass);
+  display: grid;
+  place-items: center;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: all 0.25s;
+}
+.coPayTab.on .ic {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: #fff;
+  border-color: transparent;
+}
+.coPayTab b {
+  font-size: 13.5px;
+  font-weight: 700;
+  display: block;
+}
+.coPayTab span {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.iyzipayContainer {
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.02);
+  border-radius: 12px;
+  border: 1px dashed var(--border-glass);
+  padding: 24px;
+}
+
+.stripeContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+.stripeBtn {
+  width: 100%;
+  height: 48px;
+  border: none;
+  border-radius: 12px;
+  background: #635bff; /* Stripe color */
+  color: #fff;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 15px;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+  box-shadow: 0 10px 24px -6px rgba(99, 91, 255, 0.4);
+}
+.stripeBtn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  background: #534bff;
+  box-shadow: 0 14px 30px -6px rgba(99, 91, 255, 0.6);
+}
+.stripeBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Coupon & Info */
+.coSummary {
+  padding: 28px;
+  position: sticky;
+  top: 32px;
+  align-self: flex-start;
+}
+.coSummary h3 {
+  margin: 0 0 18px;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -.015em;
+}
+.coLine {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  font-size: 13.5px;
+  color: var(--text-muted);
+}
+.coLine + .coLine {
+  border-top: 1px solid var(--border-glass);
+}
+.coLine.total {
+  padding-top: 14px;
+  margin-top: 6px;
+  border-top: 1px solid var(--border-glass-hover);
+  color: var(--text-main);
+  font-weight: 700;
+  font-size: 15px;
+}
+.coLine.total .v {
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -.025em;
+}
+.discount {
+  color: var(--color-success) !important;
+}
+
+.coModules {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 6px 0 12px;
+  max-height: 180px;
+  overflow-y: auto;
+}
+.coModulesLine {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--text-muted);
+  padding: 4px 0;
+}
+.coModulesLine span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.coModulesLine .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #8b5cf6;
+}
+
+.coCoupon {
+  display: flex;
+  gap: 8px;
+  margin: 14px 0;
+}
+.coCoupon input {
+  flex: 1;
+  height: 38px;
+  padding: 0 12px;
+  border-radius: 9px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-glass);
+  color: var(--text-main);
+  font-size: 13px;
+  outline: none;
+}
+.coCoupon input:focus {
+  border-color: rgba(139,92,246,.4);
+}
+.coCoupon button {
+  height: 38px;
+  padding: 0 14px;
+  border-radius: 9px;
+  background: var(--surface-glass);
+  border: 1px solid var(--border-glass);
+  color: var(--text-main);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.coCoupon button:hover {
+  background: var(--surface-glass-hover);
+  border-color: var(--border-glass-hover);
+}
+
+.coTrust {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 16px;
+  margin-top: 16px;
+  border-top: 1px solid var(--border-glass);
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.coTrust .line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.coTrust svg {
+  color: var(--color-success);
+  flex-shrink: 0;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

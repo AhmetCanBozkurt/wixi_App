@@ -6,13 +6,28 @@ on:
 
 concurrency:
   group: deploy-prod
-  cancel-in-progress: false    # Production deploy iptal edilmez, sıraya girer
+  cancel-in-progress: false
+
+# Required GitHub Secrets (Settings → Environments → production):
+#   PROD_DB_CONNECTION          SQL Server connection string (production DB)
+#   PROD_JWT_SECRET             JWT signing key (≥32 chars)
+#   PROD_STRIPE_SECRET_KEY      Stripe secret key (sk_live_...)
+#   PROD_STRIPE_PUBLISHABLE_KEY Stripe publishable key (pk_live_...)
+#   PROD_IYZIPAY_API_KEY        Iyzipay API key (production)
+#   PROD_IYZIPAY_SECRET_KEY     Iyzipay secret key (production)
+#   PROD_IYZIPAY_BASE_URL       https://api.iyzipay.com
+#   PROD_FRONTEND_URL           https://app.wixisoftware.com
+#   PROD_API_URL                https://api.wixisoftware.com/api/v1
+#   MAIL_HOST                   SMTP host
+#   MAIL_PORT                   SMTP port
+#   MAIL_USERNAME               SMTP username
+#   MAIL_PASSWORD               SMTP password
 
 jobs:
   deploy:
     name: Production Deploy
     runs-on: self-hosted
-    environment: production     # GitHub'da "required reviewers" tanımlı — onay gerekir
+    environment: production
 
     steps:
       - name: Checkout main
@@ -27,6 +42,11 @@ jobs:
           PROD_JWT_SECRET=${{ secrets.PROD_JWT_SECRET }}
           PROD_STRIPE_SECRET_KEY=${{ secrets.PROD_STRIPE_SECRET_KEY }}
           PROD_STRIPE_PUBLISHABLE_KEY=${{ secrets.PROD_STRIPE_PUBLISHABLE_KEY }}
+          PROD_IYZIPAY_API_KEY=${{ secrets.PROD_IYZIPAY_API_KEY }}
+          PROD_IYZIPAY_SECRET_KEY=${{ secrets.PROD_IYZIPAY_SECRET_KEY }}
+          PROD_IYZIPAY_BASE_URL=${{ secrets.PROD_IYZIPAY_BASE_URL }}
+          PROD_FRONTEND_URL=${{ secrets.PROD_FRONTEND_URL }}
+          PROD_API_URL=${{ secrets.PROD_API_URL }}
           MAIL_HOST=${{ secrets.MAIL_HOST }}
           MAIL_PORT=${{ secrets.MAIL_PORT }}
           MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}
@@ -34,27 +54,73 @@ jobs:
           APP_VERSION=${{ github.ref_name }}
           "@ | Out-File -FilePath .env.prod -Encoding utf8
 
-      - name: Run DB migrations
+      - name: Run EF Core migrations
         run: |
-          docker build -t wixi-backend:migrate -f src/backend/Wixi.API/Dockerfile src/backend
-          docker run --rm `
-            -e "ConnectionStrings__DefaultConnection=${{ secrets.PROD_DB_CONNECTION }}" `
-            -e "ASPNETCORE_ENVIRONMENT=Production" `
-            wixi-backend:migrate `
-            dotnet ef database update `
-              --project Wixi.Modules.Core/Wixi.Modules.Core.csproj `
-              --startup-project Wixi.API/Wixi.API.csproj
+          dotnet tool install --global dotnet-ef --version 9.* 2>&1 | Out-Null
+          $env:PATH = "$env:PATH;$env:USERPROFILE\.dotnet\tools"
+          $env:ConnectionStrings__DefaultConnection = "${{ secrets.PROD_DB_CONNECTION }}"
 
-      - name: Build & deploy
+          # Core DB (WixiCoreDbContext)
+          dotnet ef database update `
+            --project src/backend/Wixi.Modules.Core/Wixi.Modules.Core.csproj `
+            --startup-project src/backend/Wixi.API/Wixi.API.csproj `
+            --context WixiCoreDbContext `
+            2>&1 | Tee-Object -Variable migOut
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "FAIL: WixiCoreDbContext migration failed"; Write-Host $migOut; exit 1
+          }
+
+          # NOT: WebBuilderDbContext artık per-tenant izole DB kullanır (ECommerce ile aynı strateji).
+          # WB tabloları uygulama startup'ında MigrateAllTenantDbsAsync() üzerinden her tenant'a ayrı ayrı uygulanır.
+          # Bu pipeline'dan çalıştırılmaz.
+
+          # NOT: ECommerceDbContext per-tenant DB kullanır.
+          # Migration'lar tenant provision edildiğinde ECommerceTenantProvisioner tarafından uygulanır.
+          # Bu pipeline'dan çalıştırılmaz.
+
+          Write-Host "All migrations OK"
+
+      - name: Save current images as previous (rollback point)
         run: |
-          docker compose -f docker-compose.prod.yml --env-file .env.prod up --build -d
+          $b = docker images wixi-backend:${{ github.ref_name }} --format "{{.ID}}"
+          if ($b) {
+            docker tag wixi-backend:${{ github.ref_name }} wixi-backend:previous
+            Write-Host "Backend previous image saved"
+          } else {
+            Write-Host "No existing backend image — skipping rollback save"
+          }
+          $f = docker images wixi-frontend:${{ github.ref_name }} --format "{{.ID}}"
+          if ($f) {
+            docker tag wixi-frontend:${{ github.ref_name }} wixi-frontend:previous
+            Write-Host "Frontend previous image saved"
+          } else {
+            Write-Host "No existing frontend image — skipping rollback save"
+          }
+
+      - name: Build images (with layer cache)
+        run: |
+          $env:DOCKER_BUILDKIT = "1"
+          $env:COMPOSE_DOCKER_CLI_BUILD = "1"
+          docker compose -f docker-compose.prod.yml --env-file .env.prod build `
+            --build-arg BUILDKIT_INLINE_CACHE=1
+
+      - name: Start containers
+        run: |
+          docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --remove-orphans
 
       - name: Health check
         run: |
-          Start-Sleep -Seconds 20
-          $response = Invoke-WebRequest -Uri "http://localhost:5181/health" -UseBasicParsing
-          if ($response.StatusCode -ne 200) { exit 1 }
-          Write-Host "Production healthy ✓"
+          $waited = 0
+          Write-Host "Waiting for backend..."
+          do {
+            Start-Sleep -Seconds 5; $waited += 5
+            try {
+              $r = Invoke-WebRequest -Uri "http://localhost:5181/health" -UseBasicParsing -EA Stop
+              if ($r.StatusCode -eq 200) { break }
+            } catch {}
+          } while ($waited -lt 60)
+          if ($waited -ge 60) { Write-Host "FAIL: Backend did not start in 60s"; exit 1 }
+          Write-Host "Production healthy - OK"
 
       - name: Cleanup env file
         if: always()

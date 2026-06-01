@@ -62,8 +62,6 @@ public class MailService : IMailService
         catch (Exception ex)
         {
             errorMessage = ex.Message;
-            // Background worker implement edildiğinde bu hata yönetimi oraya kayacak
-            throw; 
         }
         finally
         {

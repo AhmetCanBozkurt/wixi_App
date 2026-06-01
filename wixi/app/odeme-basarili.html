@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ödeme Başarılı — Wixi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../styles.css" />
+<link rel="stylesheet" href="app.css" />
+<style>
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:5;overflow:hidden}
+.confetti span{
+  position:absolute;width:8px;height:14px;
+  top:-20px;border-radius:2px;
+  animation: confetti-fall 4s cubic-bezier(.32,.7,.55,1) forwards;
+  opacity:.9;
+}
+@keyframes confetti-fall{
+  to{transform: translateY(110vh) rotate(720deg); opacity:0}
+}
+</style>
+</head>
+<body class="page-enter">
+
+<div class="orbs" aria-hidden="true">
+  <div class="orb orb--1"></div>
+  <div class="orb orb--2"></div>
+</div>
+
+<div class="confetti" id="confetti"></div>
+
+<header class="co-top">
+  <a href="../index.html" class="brand">
+    <span class="brand__mark">W</span>
+    <span class="brand__name">WIXI<span class="dim">APP</span></span>
+  </a>
+  <div class="co-stepper">
+    <div class="step done"><span class="n"><span>1</span></span><b>Plan</b></div>
+    <div class="sep" style="background: var(--success)"></div>
+    <div class="step done"><span class="n"><span>2</span></span><b>Ödeme</b></div>
+    <div class="sep" style="background: var(--success)"></div>
+    <div class="step cur"><span class="n"><span>3</span></span><b>Onay</b></div>
+  </div>
+  <span style="font-size:12.5px;color:var(--text-dim);font-family:'JetBrains Mono',monospace">SİP #W-A8421</span>
+</header>
+
+<section class="co-success">
+  <div class="check-burst">
+    <span class="ring"></span>
+    <span class="ring"></span>
+    <span class="ring"></span>
+    <div class="mark-circle">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+    </div>
+  </div>
+
+  <h1>Hoş geldiniz, <span class="grad-text">Ahmet!</span></h1>
+  <p>Aboneliğiniz başarıyla aktifleştirildi. 14 günlük ücretsiz deneme süreniz başladı.<br />Faturanız <b style="color:var(--text)">ahmet@kuzeykahve.com</b> adresine gönderildi.</p>
+
+  <div class="btns">
+    <a href="ayarlar/plan.html" class="btn btn--primary btn--lg" data-magnet="0.15">Panele Git →</a>
+    <a href="#" class="btn btn--ghost btn--lg">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Faturayı İndir
+    </a>
+  </div>
+
+  <div class="co-success__details glass">
+    <div><b>Sipariş No</b><span>#W-A8421</span></div>
+    <div><b>Plan</b><span>Premium</span></div>
+    <div><b>Deneme bitiş</b><span>04 Haz 2026</span></div>
+    <div><b>İlk ödeme</b><span>₺1.428,80</span></div>
+  </div>
+
+  <div style="margin-top:48px;max-width:680px;width:100%;display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+    <div class="card-block glass" style="text-align:left">
+      <div style="width:32px;height:32px;border-radius:8px;background:var(--grad-soft);border:1px solid rgba(139,92,246,.3);color:#c4b5fd;display:grid;place-items:center;margin-bottom:10px">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/></svg>
+      </div>
+      <h2 style="margin:0;font-size:14px;font-weight:700">İlk ürününüzü ekleyin</h2>
+      <p style="margin:4px 0 0;font-size:12.5px;color:var(--text-muted);line-height:1.5">Sadece 30 saniye sürer.</p>
+    </div>
+    <div class="card-block glass" style="text-align:left">
+      <div style="width:32px;height:32px;border-radius:8px;background:var(--grad-soft);border:1px solid rgba(139,92,246,.3);color:#c4b5fd;display:grid;place-items:center;margin-bottom:10px">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>
+      </div>
+      <h2 style="margin:0;font-size:14px;font-weight:700">Mağaza temanızı seçin</h2>
+      <p style="margin:4px 0 0;font-size:12.5px;color:var(--text-muted);line-height:1.5">30+ hazır şablon.</p>
+    </div>
+    <div class="card-block glass" style="text-align:left">
+      <div style="width:32px;height:32px;border-radius:8px;background:var(--grad-soft);border:1px solid rgba(139,92,246,.3);color:#c4b5fd;display:grid;place-items:center;margin-bottom:10px">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="4"/><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/></svg>
+      </div>
+      <h2 style="margin:0;font-size:14px;font-weight:700">Ekibinizi davet edin</h2>
+      <p style="margin:4px 0 0;font-size:12.5px;color:var(--text-muted);line-height:1.5">15 kullanıcıya kadar.</p>
+    </div>
+  </div>
+</section>
+
+<script>
+(function(){
+  const root = document.documentElement;
+  root.setAttribute('data-theme', localStorage.getItem('wixi-theme') || 'dark');
+
+  // Confetti shower
+  const colors = ['#6366f1', '#8b5cf6', '#c4b5fd', '#7ce4a4', '#fbbf24', '#ec4899'];
+  const c = document.getElementById('confetti');
+  for(let i = 0; i < 60; i++){
+    const s = document.createElement('span');
+    s.style.left = Math.random() * 100 + '%';
+    s.style.background = colors[i % colors.length];
+    s.style.animationDelay = (Math.random() * 1.5) + 's';
+    s.style.animationDuration = (3 + Math.random() * 2.5) + 's';
+    s.style.transform = `rotate(${Math.random()*360}deg)`;
+    s.style.width = (4 + Math.random()*6) + 'px';
+    s.style.height = (8 + Math.random()*10) + 'px';
+    c.appendChild(s);
+  }
+  setTimeout(()=> c.remove(), 6000);
+})();
+</script>
+</body>
+</html>

@@ -14,4 +14,7 @@ public class UserDetailDto
     public string? Password { get; set; }
 
     public List<string> Roles { get; set; } = new();
+    public string? TenantSlug { get; set; }
+    public string? TenantName { get; set; }
+    public Guid? TenantId { get; set; }
 }

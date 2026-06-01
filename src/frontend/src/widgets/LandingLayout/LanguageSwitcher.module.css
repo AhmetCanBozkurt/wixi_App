@@ -1,0 +1,31 @@
+.switcher {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--text-muted, rgba(255, 255, 255, 0.5));
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: color 0.2s;
+}
+
+.btn:hover {
+  color: var(--text-main, #fff);
+}
+
+.btn.active {
+  color: var(--text-main, #fff);
+}
+
+.sep {
+  color: var(--text-muted, rgba(255, 255, 255, 0.3));
+  font-size: 0.7rem;
+}

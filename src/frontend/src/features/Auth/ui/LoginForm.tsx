@@ -18,6 +18,13 @@ const loginSchema = z.object({
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
+function getPostLoginPath(): string {
+  const userState = useAuthStore.getState().user;
+  if (userState?.roles?.includes('SuperAdmin')) return '/admin';
+  if (userState?.tenantSlug) return `/tenant/${userState.tenantSlug}`;
+  return '/';
+}
+
 export const LoginForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -50,8 +57,10 @@ export const LoginForm = () => {
             style: { background: 'var(--bg-secondary)', color: 'var(--text-main)', border: '1px solid var(--color-success)' }
         });
         
+        const targetPath = getPostLoginPath();
+
         setTimeout(() => {
-            window.location.href = '/admin';
+            window.location.href = targetPath;
         }, 800);
       }
     } catch (error: unknown) {
@@ -78,8 +87,9 @@ export const LoginForm = () => {
           toast.success("Oturumunuz güvenli bir şekilde açıldı!", {
             style: { background: 'var(--bg-secondary)', color: 'var(--text-main)', border: '1px solid var(--color-success)' }
           });
+          
           setTimeout(() => {
-            window.location.href = '/';
+            window.location.href = getPostLoginPath();
           }, 800);
         }}
       />

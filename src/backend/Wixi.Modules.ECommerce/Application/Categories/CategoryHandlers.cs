@@ -7,14 +7,15 @@ namespace Wixi.Modules.ECommerce.Application.Categories;
 
 // ─── DTOs ──────────────────────────────────────────────────────────
 public record CategoryDto(Guid Id, string Name, string Slug, Guid? ParentId, string? ParentName,
-    int SortOrder, bool IsActive, DateTime CreatedAt, string? CreatedByUser, DateTime? UpdatedAt, string? UpdatedByUser);
+    int SortOrder, bool IsActive, string? ImageUrl, string? Description,
+    DateTime CreatedAt, string? CreatedByUser, DateTime? UpdatedAt, string? UpdatedByUser);
 
 // ─── Commands ──────────────────────────────────────────────────────
 public record CreateCategoryCommand(string Name, string Slug, Guid? ParentId, string? Description,
-    int SortOrder = 0) : IRequest<Guid>;
+    string? ImageUrl = null, int SortOrder = 0) : IRequest<Guid>;
 
 public record UpdateCategoryCommand(Guid Id, string Name, string Slug, Guid? ParentId,
-    string? Description, int SortOrder, bool IsActive) : IRequest<bool>;
+    string? Description, string? ImageUrl, int SortOrder, bool IsActive) : IRequest<bool>;
 
 public record DeleteCategoryCommand(Guid Id) : IRequest<bool>;
 
@@ -30,7 +31,7 @@ public class CreateCategoryCommandHandler : IRequestHandler<CreateCategoryComman
     public async Task<Guid> Handle(CreateCategoryCommand r, CancellationToken ct)
     {
         var cat = new WixiCategory { Name = r.Name, Slug = r.Slug, ParentId = r.ParentId,
-            Description = r.Description, SortOrder = r.SortOrder };
+            Description = r.Description, ImageUrl = r.ImageUrl, SortOrder = r.SortOrder };
         _db.Categories.Add(cat);
         await _db.SaveChangesAsync(ct);
         return cat.Id;
@@ -46,6 +47,7 @@ public class UpdateCategoryCommandHandler : IRequestHandler<UpdateCategoryComman
         var cat = await _db.Categories.FirstOrDefaultAsync(c => c.Id == r.Id && !c.IsDeleted, ct);
         if (cat is null) return false;
         cat.Name = r.Name; cat.Slug = r.Slug; cat.ParentId = r.ParentId;
+        cat.Description = r.Description; cat.ImageUrl = r.ImageUrl;
         cat.SortOrder = r.SortOrder; cat.IsActive = r.IsActive; cat.UpdatedAt = DateTime.UtcNow;
         await _db.SaveChangesAsync(ct);
         return true;
@@ -79,6 +81,7 @@ public class GetCategoriesQueryHandler : IRequestHandler<GetCategoriesQuery, IRe
         return await q.OrderBy(c => c.SortOrder).ThenBy(c => c.Name)
             .Select(c => new CategoryDto(c.Id, c.Name, c.Slug, c.ParentId,
                 c.Parent != null ? c.Parent.Name : null, c.SortOrder, c.IsActive,
+                c.ImageUrl, c.Description,
                 c.CreatedAt, c.CreatedByUser, c.UpdatedAt, c.UpdatedByUser))
             .ToListAsync(ct);
     }

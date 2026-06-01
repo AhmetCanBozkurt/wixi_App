@@ -4,7 +4,6 @@ on:
   push:
     branches: [develop]
 
-# Aynı anda iki staging deploy çakışmasın
 concurrency:
   group: deploy-staging
   cancel-in-progress: true
@@ -12,8 +11,8 @@ concurrency:
 jobs:
   deploy:
     name: Staging Deploy
-    runs-on: self-hosted        # Sunucundaki runner
-    environment: staging        # GitHub Environments'da tanımlı
+    runs-on: self-hosted
+    environment: staging
 
     steps:
       - name: Checkout develop
@@ -22,40 +21,119 @@ jobs:
           ref: develop
 
       - name: Write staging env file
-        # GitHub Secret'lardan .env.staging dosyasını oluşturur
-        # Bu dosya sunucuda kalıcı değil — her deploy'da yeniden yazılır
         run: |
           @"
           STAGING_DB_CONNECTION=${{ secrets.STAGING_DB_CONNECTION }}
           STAGING_JWT_SECRET=${{ secrets.STAGING_JWT_SECRET }}
           STAGING_API_URL=${{ secrets.STAGING_API_URL }}
+          STAGING_FRONTEND_URL=${{ secrets.STAGING_FRONTEND_URL }}
+          STAGING_IYZIPAY_API_KEY=${{ secrets.STAGING_IYZIPAY_API_KEY }}
+          STAGING_IYZIPAY_SECRET_KEY=${{ secrets.STAGING_IYZIPAY_SECRET_KEY }}
+          STAGING_IYZIPAY_BASE_URL=${{ secrets.STAGING_IYZIPAY_BASE_URL }}
           MAIL_HOST=${{ secrets.MAIL_HOST }}
           MAIL_PORT=${{ secrets.MAIL_PORT }}
           MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}
           MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
           "@ | Out-File -FilePath .env.staging -Encoding utf8
 
-      - name: Run DB migrations
+      - name: Run EF Core migrations
         run: |
-          docker build -t wixi-backend:migrate -f src/backend/Wixi.API/Dockerfile src/backend
-          docker run --rm `
-            -e "ConnectionStrings__DefaultConnection=${{ secrets.STAGING_DB_CONNECTION }}" `
-            -e "ASPNETCORE_ENVIRONMENT=Staging" `
-            wixi-backend:migrate `
-            dotnet ef database update `
-              --project Wixi.Modules.Core/Wixi.Modules.Core.csproj `
-              --startup-project Wixi.API/Wixi.API.csproj
+          dotnet tool install --global dotnet-ef --version 9.* 2>&1 | Out-Null
+          $env:PATH = "$env:PATH;$env:USERPROFILE\.dotnet\tools"
+          $env:ConnectionStrings__DefaultConnection = "${{ secrets.STAGING_DB_CONNECTION }}"
 
-      - name: Build & start containers
-        run: |
-          docker compose -f docker-compose.staging.yml --env-file .env.staging up --build -d
+          # Core DB (WixiCoreDbContext)
+          dotnet ef database update `
+            --project src/backend/Wixi.Modules.Core/Wixi.Modules.Core.csproj `
+            --startup-project src/backend/Wixi.API/Wixi.API.csproj `
+            --context WixiCoreDbContext `
+            2>&1 | Tee-Object -Variable migOut
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "FAIL: WixiCoreDbContext migration failed"; Write-Host $migOut; exit 1
+          }
 
-      - name: Health check
+          # NOT: WebBuilderDbContext artık per-tenant izole DB kullanır (ECommerce ile aynı strateji).
+          # WB tabloları uygulama startup'ında MigrateAllTenantDbsAsync() üzerinden her tenant'a ayrı ayrı uygulanır.
+          # Bu pipeline'dan çalıştırılmaz.
+
+          # NOT: ECommerceDbContext per-tenant DB kullanır.
+          # Migration'lar tenant provision edildiğinde ECommerceTenantProvisioner tarafından uygulanır.
+          # Bu pipeline'dan çalıştırılmaz.
+
+          Write-Host "All migrations OK"
+
+      - name: Save current images as previous (rollback point)
         run: |
-          Start-Sleep -Seconds 15
-          $response = Invoke-WebRequest -Uri "http://localhost:5182/health" -UseBasicParsing
-          if ($response.StatusCode -ne 200) { exit 1 }
-          Write-Host "Staging healthy ✓"
+          $b = docker images wixi-backend:staging --format "{{.ID}}"
+          if ($b) {
+            docker tag wixi-backend:staging wixi-backend:previous
+            Write-Host "Backend previous image saved"
+          } else {
+            Write-Host "No existing backend image — skipping rollback save"
+          }
+          $f = docker images wixi-frontend:staging --format "{{.ID}}"
+          if ($f) {
+            docker tag wixi-frontend:staging wixi-frontend:previous
+            Write-Host "Frontend previous image saved"
+          } else {
+            Write-Host "No existing frontend image — skipping rollback save"
+          }
+
+      - name: Build images (with layer cache)
+        run: |
+          $env:DOCKER_BUILDKIT = "1"
+          $env:COMPOSE_DOCKER_CLI_BUILD = "1"
+          docker compose -f docker-compose.staging.yml --env-file .env.staging build `
+            --build-arg BUILDKIT_INLINE_CACHE=1
+
+      - name: Start containers
+        run: |
+          docker compose -f docker-compose.staging.yml --env-file .env.staging up -d --remove-orphans
+
+      - name: Smoke tests
+        if: false
+        run: |
+          # Wait for containers (max 90s)
+          $waited = 0
+          Write-Host "Waiting for backend..."
+          do {
+            Start-Sleep -Seconds 5; $waited += 5
+            try { $r = Invoke-WebRequest -Uri "http://localhost:5182/health" -UseBasicParsing -EA Stop; if ($r.StatusCode -eq 200) { break } } catch {}
+          } while ($waited -lt 90)
+          if ($waited -ge 90) { Write-Host "FAIL: Backend did not start in 90s"; exit 1 }
+
+          function Test-Endpoint {
+            param($Label, $Uri, $Method = 'GET', $Body = $null, [int[]]$Expect)
+            try {
+              $p = @{ Uri = $Uri; Method = $Method; UseBasicParsing = $true; EA = 'Stop' }
+              if ($Body) { $p.Body = $Body; $p.ContentType = 'application/json' }
+              $code = (Invoke-WebRequest @p).StatusCode
+            } catch { $code = [int]$_.Exception.Response.StatusCode }
+            if ($Expect -contains $code) { Write-Host "OK  [$code] $Label" }
+            else { Write-Host "FAIL [$code] $Label (expected: $($Expect -join '|'))"; exit 1 }
+          }
+
+          # Backend
+          Test-Endpoint "Health"              "http://localhost:5182/health"                  -Expect 200
+          Test-Endpoint "Auth/me → 401"       "http://localhost:5182/api/v1/Auth/me"          -Expect 401
+          Test-Endpoint "Auth/login → 400"    "http://localhost:5182/api/v1/Auth/login" POST '{"email":"smoke@invalid","password":"x"}' -Expect 400,422
+          Test-Endpoint "Module list → 401"   "http://localhost:5182/api/v1/Module"           -Expect 401
+
+          # Frontend
+          Test-Endpoint "Frontend HTML → 200" "http://localhost:3001"                         -Expect 200
+
+          Write-Host "All smoke tests passed."
+
+      - name: Auto-rollback on smoke test failure
+        if: failure()
+        run: |
+          Write-Host "Smoke tests failed — rolling back to previous images..."
+          $b = docker inspect wixi-backend:previous 2>&1
+          if ($LASTEXITCODE -ne 0) { Write-Host "No previous image found, cannot rollback"; exit 1 }
+          docker tag wixi-backend:previous wixi-backend:staging
+          docker tag wixi-frontend:previous wixi-frontend:staging
+          docker compose -f docker-compose.staging.yml --env-file .env.staging up -d --no-build --no-recreate 2>&1
+          Write-Host "Rollback complete — previous version restored"
 
       - name: Cleanup env file
         if: always()

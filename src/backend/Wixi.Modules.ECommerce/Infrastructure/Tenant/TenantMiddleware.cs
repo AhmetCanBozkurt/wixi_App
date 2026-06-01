@@ -22,12 +22,12 @@ public class TenantMiddleware
 
     public async Task InvokeAsync(
         HttpContext context,
-        TenantContext tenantContext,
+        Wixi.Shared.Domain.Entities.ITenantContext tenantContext,
         WixiCoreDbContext masterDbContext)
     {
-        // Tenant gerektirmeyen yolları atla
+        // Sadece tenant gerektiren yolları işle, diğerlerini geç
         var path = context.Request.Path.Value ?? string.Empty;
-        if (IsExcludedPath(path))
+        if (!RequiresTenant(path))
         {
             await _next(context);
             return;
@@ -67,12 +67,17 @@ public class TenantMiddleware
         await _next(context);
     }
 
-    private static bool IsExcludedPath(string path)
+    // Sadece bu prefix'ler tenant context gerektirir; geri kalan her şey geçer.
+    private static bool RequiresTenant(string path)
     {
-        return path.StartsWith("/swagger", StringComparison.OrdinalIgnoreCase)
-            || path.StartsWith("/health", StringComparison.OrdinalIgnoreCase)
-            || path.StartsWith("/api/v1/admin/tenants", StringComparison.OrdinalIgnoreCase)
-            || path.StartsWith("/api/v1/admin/auth", StringComparison.OrdinalIgnoreCase);
+        if (path.StartsWith("/api/v1/store-admin/auth", StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        return path.StartsWith("/api/v1/public/storefront", StringComparison.OrdinalIgnoreCase)
+            || path.StartsWith("/api/v1/store-admin", StringComparison.OrdinalIgnoreCase)
+            || path.StartsWith("/api/v1/storefront", StringComparison.OrdinalIgnoreCase)
+            || path.StartsWith("/api/v1/web-builder", StringComparison.OrdinalIgnoreCase)
+            || path.StartsWith("/api/v1/public/web-builder", StringComparison.OrdinalIgnoreCase);
     }
 
     private static string? ExtractSlugFromSubdomain(string host)

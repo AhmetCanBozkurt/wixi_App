@@ -1,0 +1,146 @@
+/* StoreWarehouseReportPage – local styles */
+
+/* ── Summary Stat Cards ── */
+.statCards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 768px) {
+  .statCards {
+    grid-template-columns: 1fr;
+  }
+}
+
+.statCard {
+  background: var(--surface-glass);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.statIconWrap {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.statInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.statLabel {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.statValue {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--text-main);
+  line-height: 1;
+}
+
+/* ── Section ── */
+.section {
+  background: var(--surface-glass);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+}
+
+/* ── Table ── */
+.tableWrapper {
+  overflow-x: auto;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-glass);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.table thead th {
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--border-glass);
+  background: var(--surface-glass);
+  white-space: nowrap;
+}
+
+.table tbody td {
+  padding: 12px 14px;
+  color: var(--text-main);
+  border-bottom: 1px solid var(--border-glass);
+  vertical-align: middle;
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.table tbody tr:hover {
+  background: rgba(99, 102, 241, 0.04);
+}
+
+/* ── Low stock row highlight ── */
+.lowStockRow {
+  background: rgba(239, 68, 68, 0.03) !important;
+}
+
+/* ── Inline Badges ── */
+.skuBadge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: rgba(99, 102, 241, 0.1);
+  color: var(--color-primary);
+  font-family: monospace;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+.badgeLowStock {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.73rem;
+  font-weight: 700;
+  background: rgba(239, 68, 68, 0.10);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+.badgeNormal {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.73rem;
+  font-weight: 700;
+  background: rgba(16, 185, 129, 0.10);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}

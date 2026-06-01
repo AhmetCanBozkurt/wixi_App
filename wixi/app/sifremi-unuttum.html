@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Şifremi Unuttum — Wixi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../styles.css" />
+<link rel="stylesheet" href="app.css" />
+</head>
+<body class="page-enter">
+
+<div class="orbs" aria-hidden="true">
+  <div class="orb orb--1"></div>
+  <div class="orb orb--2"></div>
+  <div class="orb orb--3"></div>
+</div>
+
+<header class="auth-top">
+  <a href="../index.html" class="brand">
+    <span class="brand__mark">W</span>
+    <span class="brand__name">WIXI<span class="dim">APP</span></span>
+  </a>
+  <button class="theme-toggle" id="themeToggle" aria-label="Tema değiştir">
+    <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+  </button>
+</header>
+
+<main class="auth-main">
+  <!-- STATE 1: Email form -->
+  <div class="auth-card glass scale-in" id="state1">
+    <div class="auth-head">
+      <div class="mark">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      </div>
+      <h1>Şifrenizi sıfırlayalım</h1>
+      <p>E-posta adresinizi girin, size bir sıfırlama bağlantısı gönderelim.</p>
+    </div>
+
+    <form id="resetForm" novalidate>
+      <div class="field with-ic">
+        <label for="email">E-posta</label>
+        <span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4h16v16H4z"/><path d="M22 6 12 13 2 6"/></svg></span>
+        <input id="email" type="email" placeholder="ad@isletme.com" required autocomplete="email" />
+      </div>
+      <button type="submit" class="btn btn--primary btn--lg" style="margin-top:18px;width:100%" data-magnet="0.15">Sıfırlama Bağlantısı Gönder</button>
+    </form>
+
+    <div class="auth-foot-link">Şifrenizi hatırladınız mı? <a href="giris.html">Giriş yapın</a></div>
+  </div>
+
+  <!-- STATE 2: Success -->
+  <div class="auth-card glass" id="state2" style="display:none">
+    <div class="auth-head">
+      <div class="mark" style="background: var(--success); color:#0a0e1a">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+      </div>
+      <h1>E-postanızı kontrol edin</h1>
+      <p><b id="sentTo" style="color:var(--text)">ad@isletme.com</b> adresine sıfırlama bağlantısı gönderdik. Bağlantı 30 dakika içinde geçerlidir.</p>
+    </div>
+
+    <div style="background: var(--surface); border:1px solid var(--border); padding:14px 16px; border-radius:11px; display:flex;align-items:flex-start;gap:12px">
+      <span style="width:24px;height:24px;border-radius:7px;background:rgba(99,102,241,.15);color:#a5b4fc;display:grid;place-items:center;flex-shrink:0">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      </span>
+      <div style="font-size:13px;color:var(--text-muted);line-height:1.5">
+        E-posta görünmüyor mu? Spam klasörünü kontrol edin veya <b style="color:var(--text)">3 dakika</b> içinde bir kez daha gönderebiliriz.
+      </div>
+    </div>
+
+    <button type="button" class="btn btn--ghost" style="width:100%" id="resendBtn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.74 9.74 0 0 0-6.74 2.74L3 8"/><polyline points="3 3 3 8 8 8"/></svg>
+      Tekrar gönder <span id="resendTimer" style="font-family:'JetBrains Mono',monospace;color:var(--text-dim);font-size:12px">(02:59)</span>
+    </button>
+
+    <div class="auth-foot-link"><a href="giris.html">← Giriş sayfasına dön</a></div>
+  </div>
+
+  <div class="auth-foot">
+    <a href="../sss.html">SSS</a>
+    <a href="#">Yardım</a>
+    <span>© 2026 Wixi</span>
+  </div>
+</main>
+
+<script>
+/* Theme */
+(function(){
+  const root = document.documentElement;
+  const stored = localStorage.getItem('wixi-theme');
+  root.setAttribute('data-theme', stored || 'dark');
+  document.getElementById('themeToggle').addEventListener('click', ()=>{
+    const next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    root.setAttribute('data-theme', next);
+    localStorage.setItem('wixi-theme', next);
+  });
+})();
+
+document.querySelector('.scale-in').classList.add('in');
+
+/* Submit → switch to success state */
+const state1 = document.getElementById('state1');
+const state2 = document.getElementById('state2');
+document.getElementById('resetForm').addEventListener('submit', (e)=>{
+  e.preventDefault();
+  const email = document.getElementById('email').value || 'ad@isletme.com';
+  document.getElementById('sentTo').textContent = email;
+  state1.style.display = 'none';
+  state2.style.display = 'flex';
+  state2.classList.add('scale-in','in');
+  startTimer();
+});
+
+/* Resend countdown */
+let secs = 179;
+let int;
+const timerEl = document.getElementById('resendTimer');
+const resendBtn = document.getElementById('resendBtn');
+function startTimer(){
+  resendBtn.disabled = true;
+  resendBtn.style.opacity = '.6';
+  secs = 179;
+  if(int) clearInterval(int);
+  int = setInterval(()=>{
+    secs--;
+    const m = Math.floor(secs/60).toString().padStart(2,'0');
+    const s = (secs%60).toString().padStart(2,'0');
+    timerEl.textContent = '(' + m + ':' + s + ')';
+    if(secs <= 0){
+      clearInterval(int);
+      resendBtn.disabled = false;
+      resendBtn.style.opacity = '1';
+      timerEl.textContent = '';
+    }
+  }, 1000);
+}
+resendBtn.addEventListener('click', ()=>{
+  if(resendBtn.disabled) return;
+  startTimer();
+});
+</script>
+</body>
+</html>

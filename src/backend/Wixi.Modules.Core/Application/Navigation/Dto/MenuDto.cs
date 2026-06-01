@@ -8,5 +8,6 @@ public class MenuDto
     public string? Icon { get; set; }
     public string? IconColor { get; set; }
     public int SortOrder { get; set; }
+    public Guid? ParentId { get; set; }
     public List<MenuDto> Children { get; set; } = new List<MenuDto>();
 }

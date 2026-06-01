@@ -260,7 +260,7 @@
 }
 
 .accordionHeader {
-  width: auto;
+  width: calc(100% - 16px);
   background: transparent;
   border: none;
   padding: 8px 10px;
@@ -272,6 +272,7 @@
   transition: all 0.15s ease;
   margin: 1px 8px;
   border-radius: 6px;
+  box-sizing: border-box;
 }
 
 .accordionHeader:hover {

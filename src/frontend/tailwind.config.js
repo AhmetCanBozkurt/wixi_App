@@ -1,0 +1,17 @@
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    './src/pages/admin/CiktiTasarlamaPage/**/*.{ts,tsx}',
+  ],
+  corePlugins: {
+    preflight: false, // Mevcut glassmorphism stillerini korumak için reset devre dışı
+  },
+  theme: {
+    extend: {},
+  },
+  plugins: [
+    ({ addVariant }) => {
+      addVariant('dark', '[data-theme="dark"] &');
+    },
+  ],
+};

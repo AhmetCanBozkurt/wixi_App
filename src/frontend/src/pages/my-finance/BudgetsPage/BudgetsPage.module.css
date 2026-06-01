@@ -1,0 +1,210 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.pageHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.pageTitle {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin: 0 0 4px;
+}
+
+.pageSubtitle {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.headerRight {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+/* ─── Grid ─────────────────────────────────────────────────────────────────── */
+.budgetGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.skeletonGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+/* ─── Card ─────────────────────────────────────────────────────────────────── */
+.budgetCard {
+  background: var(--surface-glass);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 180px;
+  transition: box-shadow 0.18s;
+}
+
+.budgetCard:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--border-glass) 25%, var(--surface-glass) 50%, var(--border-glass) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius-lg);
+}
+
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.cardTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.cardName {
+  font-weight: 700;
+  color: var(--text-main);
+  font-size: 0.95rem;
+}
+
+.cardDates {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ─── Amounts ───────────────────────────────────────────────────────────────── */
+.amounts {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.spent {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.total {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+/* ─── Progress ──────────────────────────────────────────────────────────────── */
+.progressBar {
+  height: 6px;
+  background: var(--border-glass);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+
+.pctLabel {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* ─── Actions ───────────────────────────────────────────────────────────────── */
+.cardActions {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+  margin-top: auto;
+}
+
+.iconBtn {
+  background: transparent;
+  border: 1px solid var(--border-glass);
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 5px 7px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  transition: all 0.18s;
+}
+
+.iconBtn:hover {
+  background: var(--border-glass);
+  color: var(--text-main);
+}
+
+.iconBtnDanger:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+}
+
+/* ─── Empty ─────────────────────────────────────────────────────────────────── */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 60px 20px;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.emptyIcon {
+  font-size: 2.5rem;
+  opacity: 0.3;
+}
+
+/* ─── Form ──────────────────────────────────────────────────────────────────── */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.row2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.error {
+  color: var(--color-danger, #ef4444);
+  font-size: 0.85rem;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  margin: 0;
+}

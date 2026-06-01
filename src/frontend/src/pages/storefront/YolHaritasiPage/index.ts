@@ -1,0 +1,1 @@
+export { YolHaritasiPage } from './YolHaritasiPage';

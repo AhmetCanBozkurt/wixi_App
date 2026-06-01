@@ -1,0 +1,949 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Hakkımızda — Wixi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+<style>
+/* ============================================================
+   HAKKIMIZDA
+   ============================================================ */
+.about-hero{padding: 80px 0 50px; text-align: center; position: relative}
+.about-hero h1{
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(46px, 6vw, 78px);
+  line-height: 1.02; letter-spacing: -.03em; font-weight: 800;
+  margin: 22px 0 22px;
+}
+.about-hero p.lead{
+  font-size: 19px; color: var(--text-muted);
+  max-width: 640px; margin: 0 auto 36px; line-height: 1.55;
+}
+.about-hero__stats{
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px;
+  max-width: 760px; margin: 0 auto;
+  padding: 32px; border-radius: 22px;
+  background: var(--surface); border: 1px solid var(--border);
+  backdrop-filter: blur(20px);
+}
+@media (max-width: 720px){.about-hero__stats{grid-template-columns: repeat(2, 1fr); gap: 18px}}
+.about-hero__stats .item{text-align: center}
+.about-hero__stats .num{
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(30px, 3.4vw, 44px); font-weight: 800; letter-spacing: -.025em;
+  background: var(--grad-text);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  line-height: 1;
+}
+.about-hero__stats .lbl{
+  margin-top: 6px; font-size: 12.5px; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: .08em; font-weight: 600;
+}
+
+/* ============================================================
+   MISSION
+   ============================================================ */
+.mission{padding: 100px 0}
+.mission__grid{
+  display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center;
+}
+@media (max-width: 880px){.mission__grid{grid-template-columns: 1fr; gap: 32px}}
+.mission__copy h2{
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(32px, 4vw, 46px);
+  line-height: 1.05; letter-spacing: -.025em; font-weight: 800;
+  margin: 14px 0 20px;
+}
+.mission__copy p{
+  font-size: 16.5px; color: var(--text-muted); line-height: 1.65;
+  margin: 0 0 16px;
+}
+.mission__copy p b{color: var(--text); font-weight: 600}
+.mission__signature{
+  display: inline-flex; align-items: center; gap: 12px;
+  padding: 12px 18px; border-radius: 12px;
+  background: var(--surface); border: 1px solid var(--border);
+  margin-top: 18px;
+}
+.mission__signature .av{
+  width: 38px; height: 38px; border-radius: 50%;
+  background: linear-gradient(135deg, #f59e0b, #ef4444);
+  display: grid; place-items: center; color: #fff; font-weight: 700; font-size: 13px;
+}
+.mission__signature b{display: block; font-size: 14px; font-weight: 700}
+.mission__signature span{font-size: 12px; color: var(--text-muted)}
+
+.mission__viz{
+  position: relative; min-height: 380px;
+}
+.mission-card{
+  position: absolute;
+  padding: 18px 20px; border-radius: 16px;
+  background: var(--surface); border: 1px solid var(--border-strong);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 20px 50px -20px rgba(0,0,0,.4);
+  animation: float 6s ease-in-out infinite;
+}
+[data-theme="light"] .mission-card{
+  background: #fff; box-shadow: 0 18px 40px -16px rgba(15,23,42,.18);
+}
+.mission-card .ic{
+  width: 36px; height: 36px; border-radius: 10px;
+  background: var(--grad-soft); border: 1px solid rgba(139,92,246,.3);
+  color: #c4b5fd; display: grid; place-items: center; margin-bottom: 10px;
+}
+.mission-card b{display: block; font-size: 14px; font-weight: 700; margin-bottom: 4px}
+.mission-card span{font-size: 12px; color: var(--text-muted); line-height: 1.5}
+
+.mission-card--1{top: 20px; left: 0; --r: -3deg; animation-delay: -1s; max-width: 240px}
+.mission-card--2{top: 120px; right: 20px; --r: 4deg; animation-delay: -3s; max-width: 220px}
+.mission-card--3{bottom: 30px; left: 60px; --r: 2deg; animation-delay: -2s; max-width: 250px}
+
+/* ============================================================
+   TIMELINE / STORY
+   ============================================================ */
+.story{padding: 100px 0; background: linear-gradient(180deg, transparent, var(--surface) 50%, transparent)}
+.story__head{text-align: center; max-width: 640px; margin: 0 auto 56px}
+.story__head h2{
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(34px, 4.4vw, 50px);
+  line-height: 1.05; letter-spacing: -.025em; font-weight: 800;
+  margin: 14px 0 14px;
+}
+.story__head p{font-size: 16px; color: var(--text-muted); margin: 0; line-height: 1.55}
+
+.story__timeline{
+  max-width: 820px; margin: 0 auto; position: relative;
+}
+.story__line{
+  position: absolute; left: 28px; top: 24px; bottom: 24px; width: 2px;
+  background: linear-gradient(180deg, rgba(99,102,241,.5), rgba(139,92,246,.5) 50%, transparent);
+}
+@media (max-width: 600px){.story__line{left: 22px}}
+
+.tl-item{
+  display: grid; grid-template-columns: 60px 1fr; gap: 24px;
+  padding: 16px 0;
+}
+.tl-item__dot{
+  width: 60px; height: 60px; border-radius: 50%;
+  background: linear-gradient(180deg, var(--bg-2), var(--bg-1));
+  border: 1px solid rgba(139,92,246,.45);
+  display: grid; place-items: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px; font-weight: 700; color: var(--text);
+  position: relative; z-index: 2;
+}
+.tl-item.major .tl-item__dot{
+  background: var(--grad); border-color: transparent; color: #fff;
+  box-shadow: 0 0 0 6px var(--bg-1), 0 12px 30px -8px rgba(139,92,246,.6);
+}
+@media (max-width: 600px){
+  .tl-item{grid-template-columns: 48px 1fr; gap: 18px}
+  .tl-item__dot{width: 48px; height: 48px; font-size: 11px}
+}
+.tl-item__body{padding-top: 10px}
+.tl-item__body h4{
+  margin: 0 0 6px; font-size: 18px; font-weight: 700; letter-spacing: -.015em;
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+}
+.tl-item.major .tl-item__body h4{font-size: 22px}
+.tl-item__body h4 .pill{
+  font-size: 10.5px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+  padding: 3px 8px; border-radius: 5px;
+  background: var(--grad-soft); color: #c4b5fd; border: 1px solid rgba(139,92,246,.3);
+}
+.tl-item__body p{margin: 0; color: var(--text-muted); font-size: 14.5px; line-height: 1.6}
+.tl-item__body .meta{
+  margin-top: 8px; font-family: 'JetBrains Mono', monospace;
+  font-size: 11.5px; color: var(--text-dim);
+  display: flex; flex-wrap: wrap; gap: 14px;
+}
+.tl-item__body .meta span{display: inline-flex; align-items: center; gap: 5px}
+
+/* ============================================================
+   VALUES
+   ============================================================ */
+.values{padding: 100px 0}
+.values__head{text-align: center; max-width: 640px; margin: 0 auto 50px}
+.values__head h2{
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(34px, 4.4vw, 50px);
+  line-height: 1.05; letter-spacing: -.025em; font-weight: 800;
+  margin: 14px 0 14px;
+}
+.values__head p{font-size: 16px; color: var(--text-muted); margin: 0}
+
+.values__grid{display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px}
+@media (max-width: 980px){.values__grid{grid-template-columns: 1fr 1fr}}
+@media (max-width: 560px){.values__grid{grid-template-columns: 1fr}}
+
+.val-card{
+  padding: 26px 22px;
+  display: flex; flex-direction: column; gap: 12px;
+  position: relative; overflow: hidden;
+  transition: transform .25s var(--easing), border-color .2s;
+}
+.val-card:hover{transform: translateY(-4px); border-color: rgba(139,92,246,.4)}
+.val-card::before{
+  content: ""; position: absolute; top: -40px; right: -40px;
+  width: 140px; height: 140px;
+  background: radial-gradient(circle, var(--accent-soft, rgba(99,102,241,.15)), transparent 70%);
+  pointer-events: none;
+}
+.val-card .num{
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12.5px; color: var(--text-dim); font-weight: 600;
+}
+.val-card .ic{
+  width: 46px; height: 46px; border-radius: 13px;
+  background: var(--accent-soft, var(--grad-soft));
+  border: 1px solid var(--accent-border, rgba(139,92,246,.3));
+  color: var(--accent, #c4b5fd);
+  display: grid; place-items: center;
+  transition: transform .3s var(--easing);
+}
+.val-card:hover .ic{transform: rotate(-6deg) scale(1.08)}
+.val-card h3{
+  margin: 0; font-size: 18px; font-weight: 700; letter-spacing: -.015em;
+}
+.val-card p{margin: 0; color: var(--text-muted); font-size: 13.5px; line-height: 1.55}
+
+.val-card.violet{--accent: #c4b5fd; --accent-soft: rgba(139,92,246,.15); --accent-border: rgba(139,92,246,.3)}
+.val-card.cyan{--accent: #67e8f9; --accent-soft: rgba(6,182,212,.15); --accent-border: rgba(6,182,212,.3)}
+.val-card.emerald{--accent: #6ee7b7; --accent-soft: rgba(16,185,129,.15); --accent-border: rgba(16,185,129,.3)}
+.val-card.amber{--accent: #fcd34d; --accent-soft: rgba(245,158,11,.15); --accent-border: rgba(245,158,11,.3)}
+
+/* ============================================================
+   TEAM
+   ============================================================ */
+.team{padding: 100px 0}
+.team__head{text-align: center; max-width: 680px; margin: 0 auto 50px}
+.team__head h2{
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(34px, 4.4vw, 50px);
+  line-height: 1.05; letter-spacing: -.025em; font-weight: 800;
+  margin: 14px 0 14px;
+}
+.team__head p{font-size: 16px; color: var(--text-muted); margin: 0}
+
+.team__filter{
+  display: inline-flex; gap: 6px; margin-top: 22px;
+  padding: 5px; border-radius: 999px;
+  background: var(--surface); border: 1px solid var(--border);
+}
+.team__filter button{
+  padding: 7px 14px; border-radius: 999px;
+  font-size: 12.5px; font-weight: 600; color: var(--text-muted);
+  transition: background .2s, color .2s;
+}
+.team__filter button.on{
+  background: var(--grad); color: #fff;
+  box-shadow: 0 6px 16px -4px rgba(99,102,241,.5);
+}
+
+.team__grid{
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+  margin-top: 36px;
+}
+@media (max-width: 980px){.team__grid{grid-template-columns: repeat(3, 1fr)}}
+@media (max-width: 720px){.team__grid{grid-template-columns: repeat(2, 1fr)}}
+@media (max-width: 440px){.team__grid{grid-template-columns: 1fr}}
+
+.member{
+  padding: 22px 20px;
+  display: flex; flex-direction: column; gap: 6px;
+  transition: transform .25s var(--easing), border-color .2s;
+  text-align: center; position: relative; overflow: hidden;
+}
+.member:hover{transform: translateY(-4px); border-color: rgba(139,92,246,.4)}
+.member__av{
+  width: 72px; height: 72px; border-radius: 50%;
+  margin: 0 auto 12px;
+  display: grid; place-items: center;
+  color: #fff; font-size: 22px; font-weight: 700;
+  position: relative;
+  border: 3px solid var(--surface-strong);
+  box-shadow: 0 8px 20px -8px rgba(0,0,0,.4);
+}
+.member__av::after{
+  content: ""; position: absolute; inset: -3px;
+  border-radius: 50%; padding: 3px;
+  background: var(--grad);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  opacity: 0; transition: opacity .25s;
+}
+.member:hover .member__av::after{opacity: 1}
+.member__av.g1{background: linear-gradient(135deg, #f59e0b, #ef4444)}
+.member__av.g2{background: linear-gradient(135deg, #10b981, #3b82f6)}
+.member__av.g3{background: linear-gradient(135deg, #8b5cf6, #ec4899)}
+.member__av.g4{background: linear-gradient(135deg, #06b6d4, #6366f1)}
+.member__av.g5{background: linear-gradient(135deg, #fb923c, #dc2626)}
+.member__av.g6{background: linear-gradient(135deg, #a3a3a3, #525252)}
+.member__av.g7{background: linear-gradient(135deg, #fde68a, #fb923c)}
+.member__av.g8{background: linear-gradient(135deg, #14b8a6, #0ea5e9)}
+
+.member b{display: block; font-size: 14.5px; font-weight: 700; letter-spacing: -.01em}
+.member .role{display: block; font-size: 12.5px; color: var(--text-muted); margin-top: 2px}
+.member .dept{
+  display: inline-block; margin-top: 8px;
+  font-size: 10.5px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+  padding: 3px 8px; border-radius: 5px;
+  background: var(--surface); border: 1px solid var(--border); color: var(--text-muted);
+}
+.member__social{
+  display: flex; justify-content: center; gap: 8px;
+  margin-top: 12px;
+  opacity: 0; transition: opacity .25s var(--easing);
+}
+.member:hover .member__social{opacity: 1}
+.member__social a{
+  width: 28px; height: 28px; border-radius: 7px;
+  background: var(--surface); border: 1px solid var(--border);
+  display: grid; place-items: center;
+  color: var(--text-muted);
+  transition: background .2s, color .2s;
+}
+.member__social a:hover{background: var(--grad); color: #fff; border-color: transparent}
+
+/* Join us tile */
+.join-us{
+  padding: 26px 22px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; gap: 10px;
+  background: linear-gradient(135deg, rgba(99,102,241,.08), rgba(139,92,246,.04));
+  border: 1px dashed rgba(139,92,246,.45);
+  border-radius: 22px;
+  cursor: pointer;
+  transition: background .2s, transform .25s var(--easing);
+}
+.join-us:hover{background: linear-gradient(135deg, rgba(99,102,241,.14), rgba(139,92,246,.08)); transform: translateY(-4px)}
+.join-us .plus{
+  width: 56px; height: 56px; border-radius: 50%;
+  background: var(--grad); color: #fff;
+  display: grid; place-items: center;
+  font-size: 28px; font-weight: 300; line-height: 1;
+  box-shadow: 0 12px 28px -8px rgba(99,102,241,.5);
+}
+.join-us b{font-size: 14.5px; font-weight: 700; margin-top: 6px}
+.join-us span{font-size: 12px; color: var(--text-muted)}
+
+/* ============================================================
+   PRESS / RECOGNITION
+   ============================================================ */
+.press{padding: 80px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border)}
+.press__label{
+  text-align: center; font-size: 12.5px; color: var(--text-dim);
+  text-transform: uppercase; letter-spacing: .12em; margin-bottom: 28px;
+}
+.press__grid{
+  display: flex; justify-content: space-around; align-items: center; flex-wrap: wrap;
+  gap: 30px 40px;
+  opacity: .7;
+}
+.press__grid .item{
+  font-family: 'Manrope', sans-serif;
+  font-weight: 800; font-size: 18px; letter-spacing: -.02em;
+  color: var(--text-muted);
+  display: inline-flex; align-items: center; gap: 8px;
+  transition: opacity .2s, color .2s;
+}
+.press__grid .item:hover{color: var(--text); opacity: 1}
+.press__grid .item .dot{width: 8px; height: 8px; border-radius: 50%; background: currentColor; opacity: .6}
+
+/* ============================================================
+   OFFICE
+   ============================================================ */
+.office{padding: 100px 0}
+.office__grid{
+  display: grid; grid-template-columns: 1.2fr 1fr; gap: 40px; align-items: center;
+}
+@media (max-width: 880px){.office__grid{grid-template-columns: 1fr; gap: 28px}}
+
+.office__copy h2{
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(30px, 3.8vw, 42px);
+  line-height: 1.05; letter-spacing: -.025em; font-weight: 800;
+  margin: 14px 0 16px;
+}
+.office__copy p{font-size: 16px; color: var(--text-muted); line-height: 1.6; margin: 0 0 22px}
+
+.office__addr{
+  padding: 20px 22px; border-radius: 14px;
+  background: var(--surface); border: 1px solid var(--border);
+  display: flex; flex-direction: column; gap: 12px;
+}
+.office-row{display: flex; gap: 14px; align-items: flex-start; font-size: 14px}
+.office-row .ic{
+  width: 32px; height: 32px; border-radius: 9px;
+  background: var(--grad-soft); border: 1px solid rgba(139,92,246,.3);
+  color: #c4b5fd; display: grid; place-items: center; flex-shrink: 0;
+}
+.office-row b{display: block; color: var(--text); font-weight: 600; margin-bottom: 2px}
+.office-row span{color: var(--text-muted); font-size: 13px; line-height: 1.5}
+
+.office__map{
+  height: 360px; border-radius: 18px;
+  background:
+    radial-gradient(circle at 30% 40%, rgba(139,92,246,.18), transparent 50%),
+    radial-gradient(circle at 70% 60%, rgba(6,182,212,.15), transparent 50%),
+    linear-gradient(135deg, #1e1f3a 0%, #0f172a 100%);
+  border: 1px solid var(--border-strong);
+  position: relative; overflow: hidden;
+}
+[data-theme="light"] .office__map{
+  background:
+    radial-gradient(circle at 30% 40%, rgba(139,92,246,.12), transparent 50%),
+    radial-gradient(circle at 70% 60%, rgba(6,182,212,.10), transparent 50%),
+    linear-gradient(135deg, #f5f3ff 0%, #e0e7ff 100%);
+}
+.office__map::before{
+  content: ""; position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+[data-theme="light"] .office__map::before{
+  background-image:
+    linear-gradient(rgba(15,23,42,.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15,23,42,.05) 1px, transparent 1px);
+}
+.office__pin{
+  position: absolute; top: 48%; left: 52%;
+  transform: translate(-50%, -100%);
+}
+.office__pin__dot{
+  width: 26px; height: 26px; border-radius: 50%;
+  background: var(--grad); color: #fff;
+  display: grid; place-items: center;
+  box-shadow: 0 8px 24px -4px rgba(99,102,241,.7);
+  position: relative; z-index: 2;
+}
+.office__pin__pulse{
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 26px; height: 26px; border-radius: 50%;
+  background: var(--violet); opacity: .5;
+  animation: pin-pulse 2.5s ease-out infinite;
+}
+@keyframes pin-pulse{
+  0%{transform: translate(-50%,-50%) scale(1); opacity: .6}
+  100%{transform: translate(-50%,-50%) scale(4); opacity: 0}
+}
+.office__pin__label{
+  margin-top: 8px;
+  padding: 6px 12px; border-radius: 8px;
+  background: var(--bg-2); border: 1px solid var(--border-strong);
+  font-size: 12px; font-weight: 600; white-space: nowrap;
+  box-shadow: 0 8px 20px -6px rgba(0,0,0,.4);
+}
+[data-theme="light"] .office__pin__label{background: #fff; box-shadow: 0 8px 20px -6px rgba(15,23,42,.2)}
+
+/* CTA banner */
+.cta-banner{padding: 60px 0 100px}
+.cta-banner__inner{
+  position:relative;overflow:hidden;padding: 64px 48px;border-radius: 28px;
+  background:
+    radial-gradient(60% 80% at 80% 100%, rgba(139,92,246,.4), transparent 60%),
+    radial-gradient(50% 70% at 0% 0%, rgba(99,102,241,.3), transparent 60%),
+    linear-gradient(180deg, rgba(20,24,42,1), rgba(14,18,32,1));
+  border:1px solid rgba(139,92,246,.25);text-align:center;
+  box-shadow: 0 40px 100px -40px rgba(99,102,241,.5);
+}
+.cta-banner__inner::before{
+  content:"";position:absolute;inset:0;
+  background-image: radial-gradient(rgba(255,255,255,.04) 1px, transparent 1px);
+  background-size: 24px 24px;
+  mask-image: radial-gradient(60% 60% at 50% 50%, #000, transparent 80%);pointer-events:none;
+}
+.cta-banner h2{
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(30px, 4vw, 44px); margin:0 0 14px; line-height:1.05; letter-spacing:-.03em; font-weight:800;
+}
+.cta-banner p{color:var(--text-muted); font-size:17px; margin:0 auto 28px; max-width: 520px}
+.cta-banner__btns{display:inline-flex; gap:12px; position:relative; z-index:1; flex-wrap:wrap; justify-content:center}
+</style>
+</head>
+<body class="page-enter">
+
+<div class="orbs" aria-hidden="true">
+  <div class="orb orb--1"></div>
+  <div class="orb orb--2"></div>
+  <div class="orb orb--3"></div>
+</div>
+
+<div class="scroll-progress"><div class="scroll-progress__bar"></div></div>
+
+<header class="nav">
+  <div class="container nav__row">
+    <a href="index.html" class="brand"><span class="brand__mark">W</span><span class="brand__name">WIXI<span class="dim">APP</span></span></a>
+    <nav class="nav__links">
+      <a href="ozellikler.html">Özellikler</a>
+      <a href="moduller.html">Modüller</a>
+      <a href="studyo.html">Stüdyo</a>
+      <a href="fiyatlandirma.html">Fiyatlandırma</a>
+      <a href="sss.html">SSS</a>
+    </nav>
+    <div class="nav__cta">
+      <a href="#" class="btn btn--ghost btn--sm">Giriş Yap</a>
+      <a href="#" class="btn btn--primary btn--sm" data-magnet="0.2">Hemen Başla</a>
+      <button class="nav__burger" aria-label="Menü" aria-expanded="false"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+<div class="nav__drawer" id="navDrawer">
+  <a href="ozellikler.html">Özellikler <span>→</span></a>
+  <a href="moduller.html">Modüller <span>→</span></a>
+  <a href="studyo.html">Stüdyo <span>→</span></a>
+  <a href="fiyatlandirma.html">Fiyatlandırma <span>→</span></a>
+  <a href="sss.html">SSS <span>→</span></a>
+  <div class="row">
+    <a href="#" class="btn btn--ghost">Giriş Yap</a>
+    <a href="#" class="btn btn--primary">Hemen Başla</a>
+  </div>
+</div>
+
+<!-- ============================================================
+     HERO
+     ============================================================ -->
+<section class="about-hero">
+  <div class="container">
+    <span class="eyebrow fade-up"><span class="dot"></span>Hakkımızda</span>
+    <h1 class="fade-up" data-delay="1">Türkiye'nin <span class="grad-text">KOBİ'leri için</span> kurulduk.</h1>
+    <p class="lead fade-up" data-delay="2">2022'de İstanbul'da kurulan Wixi, küçük ve orta ölçekli işletmelerin operasyonel ihtiyaçlarını tek bir platformda buluşturmak için var. Karmaşık değil, hızlı; pahalı değil, ulaşılabilir.</p>
+
+    <div class="about-hero__stats fade-up" data-delay="3">
+      <div class="item">
+        <div class="num"><span data-count="1250" data-suffix="+">0</span></div>
+        <div class="lbl">Aktif İşletme</div>
+      </div>
+      <div class="item">
+        <div class="num"><span data-count="35" data-suffix="+">0</span></div>
+        <div class="lbl">Modül</div>
+      </div>
+      <div class="item">
+        <div class="num"><span data-count="42">0</span></div>
+        <div class="lbl">Ekip</div>
+      </div>
+      <div class="item">
+        <div class="num"><span data-count="3" data-decimals="1" data-prefix="₺" data-suffix="M">0</span></div>
+        <div class="lbl">Yatırım</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     MISSION
+     ============================================================ -->
+<section class="mission">
+  <div class="container">
+    <div class="mission__grid">
+      <div class="mission__copy slide-in-l">
+        <span class="eyebrow"><span class="dot"></span>Misyon</span>
+        <h2>Bir işletmeyi büyütmek <span class="grad-text">zor olmamalı.</span></h2>
+        <p>Türkiye'de <b>3 milyondan fazla KOBİ</b> var. Çoğu, dijital araçlara erişim, entegrasyon ve maliyet nedeniyle büyümekte zorluk yaşıyor. Onlarca farklı yazılımı yönetmek, her birine ayrı abone olmak, hepsini birbirine bağlamak — bu artık bir engel olmamalı.</p>
+        <p>Wixi olarak inanıyoruz ki: <b>her işletme, ihtiyacı kadar büyük</b> bir yazılıma sahip olmalı. Ne fazla ne eksik. Sadeleşmiş, modüler, Türkçe ve gerçekten kullanılabilir.</p>
+
+        <div class="mission__signature">
+          <div class="av">EÖ</div>
+          <div>
+            <b>Emre Özcan</b>
+            <span>Kurucu Ortak & CEO</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mission__viz slide-in-r">
+        <div class="mission-card mission-card--1">
+          <div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+          <b>Hızlı kurulum</b>
+          <span>5 dakikada mağazanız hazır olur.</span>
+        </div>
+        <div class="mission-card mission-card--2">
+          <div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+          <b>Türkçe odaklı</b>
+          <span>Türk vergi, kargo ve ödeme sistemleriyle yerel.</span>
+        </div>
+        <div class="mission-card mission-card--3">
+          <div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></div>
+          <b>Modüler büyüme</b>
+          <span>Sadece kullandığınız modüllere ödeyin, dilediğiniz an ekleyin.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     STORY / TIMELINE
+     ============================================================ -->
+<section class="story">
+  <div class="container">
+    <div class="story__head fade-up">
+      <span class="eyebrow"><span class="dot"></span>Hikayemiz</span>
+      <h2>Bir kahve dükkanından <span class="grad-text">1.250+ işletmeye</span></h2>
+      <p>Wixi'nin doğuşundan bugüne — önemli kilometre taşları.</p>
+    </div>
+
+    <div class="story__timeline">
+      <div class="story__line"></div>
+
+      <article class="tl-item major fade-up">
+        <div class="tl-item__dot">2022</div>
+        <div class="tl-item__body">
+          <h4>Kuruluş <span class="pill">Başlangıç</span></h4>
+          <p>Emre Özcan ve Selin Demir, kendi kafelerini yönetirken yaşadıkları teknoloji sorunlarını çözmek için Wixi'yi kurdular. İlk versiyon: 1 modül (E-Ticaret) ve 3 müşteri.</p>
+          <div class="meta"><span>📍 İstanbul</span><span>👥 4 kurucu ortak</span><span>💰 Tohum yatırım</span></div>
+        </div>
+      </article>
+
+      <article class="tl-item fade-up">
+        <div class="tl-item__dot">2023</div>
+        <div class="tl-item__body">
+          <h4>İlk 100 müşteri</h4>
+          <p>CRM modülü eklendi. Ekip 12 kişiye ulaştı, Kadıköy'de ilk ofis açıldı.</p>
+        </div>
+      </article>
+
+      <article class="tl-item major fade-up">
+        <div class="tl-item__dot">2024</div>
+        <div class="tl-item__body">
+          <h4>Seri A Yatırım <span class="pill">₺3M</span></h4>
+          <p>Türkiye'nin önde gelen VC fonlarından toplam ₺3M tutarında yatırım alındı. İnsan Kaynakları modülü, çok dilli destek ve Trendyol/Hepsiburada entegrasyonları geldi.</p>
+          <div class="meta"><span>💼 12 → 28 kişi</span><span>🌍 12 dil desteği</span></div>
+        </div>
+      </article>
+
+      <article class="tl-item fade-up">
+        <div class="tl-item__dot">2025</div>
+        <div class="tl-item__body">
+          <h4>Bin işletme barajı</h4>
+          <p>1.000 aktif müşteri sayısına ulaşıldı. Şişli'deki yeni merkez ofise taşınıldı. Mobil uygulamalar yayınlandı.</p>
+        </div>
+      </article>
+
+      <article class="tl-item major fade-up">
+        <div class="tl-item__dot">2026</div>
+        <div class="tl-item__body">
+          <h4>Stüdyo + AI çağı <span class="pill">Bugün</span></h4>
+          <p>Stüdyo modülüyle no-code form/akış builder kullanıma sunuldu. AI form üretici beta'dan yayına alındı. Modül sayısı 35'e çıktı.</p>
+          <div class="meta"><span>🏢 1.250+ müşteri</span><span>👨‍👩‍👧 42 kişi</span><span>🤖 AI destekli</span></div>
+        </div>
+      </article>
+
+      <article class="tl-item fade-up">
+        <div class="tl-item__dot">→</div>
+        <div class="tl-item__body">
+          <h4>Yakında</h4>
+          <p>Muhasebe modülü (Q2 2026), açık API marketplace'i ve KOBİ kredi entegrasyonu.</p>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     VALUES
+     ============================================================ -->
+<section class="values">
+  <div class="container">
+    <div class="values__head fade-up">
+      <span class="eyebrow"><span class="dot"></span>Değerlerimiz</span>
+      <h2>Bizim için neler <span class="grad-text">önemli</span></h2>
+      <p>Her kararı, her özellikiği bu dört prensiple süzeriz.</p>
+    </div>
+
+    <div class="values__grid">
+      <article class="val-card glass violet fade-up">
+        <div class="num">01</div>
+        <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <h3>Sadelik kazanır</h3>
+        <p>"Karmaşık" bir özellik değildir, bir kusurdur. Her ekranı, her tıklamayı azaltmak için savaşırız.</p>
+      </article>
+
+      <article class="val-card glass cyan fade-up" data-delay="1">
+        <div class="num">02</div>
+        <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 6v6c0 5 3.5 9.5 8 10 4.5-.5 8-5 8-10V6z"/></svg></div>
+        <h3>Müşteri verisi kutsaldır</h3>
+        <p>Verileriniz sizindir. Satmayız, reklam için kullanmayız, AI eğitiminde kullanmayız. Türkiye'de saklarız.</p>
+      </article>
+
+      <article class="val-card glass emerald fade-up" data-delay="2">
+        <div class="num">03</div>
+        <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="6" x2="12" y2="12"/><line x1="16" y1="14" x2="12" y2="12"/></svg></div>
+        <h3>Hızlı geri dönüş</h3>
+        <p>Canlı destekte ortalama yanıt süremiz 30 saniye. Premium müşterilerimizde 5 dakika. Bekletmek yok.</p>
+      </article>
+
+      <article class="val-card glass amber fade-up" data-delay="3">
+        <div class="num">04</div>
+        <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="4"/><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg></div>
+        <h3>KOBİ ile büyürüz</h3>
+        <p>Her ay 50+ müşteriyle birebir görüşür, ürünü onların ihtiyacına göre şekillendiririz. Sektörden uzağız değiliz.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     TEAM
+     ============================================================ -->
+<section class="team">
+  <div class="container">
+    <div class="team__head fade-up">
+      <span class="eyebrow"><span class="dot"></span>Ekip</span>
+      <h2>Wixi'yi <span class="grad-text">yapanlar</span></h2>
+      <p>42 kişilik ekibimizden bir kesit. Mühendis, tasarımcı, satış ve destekten.</p>
+      <div class="team__filter" id="teamFilter">
+        <button class="on" data-f="all">Tümü</button>
+        <button data-f="kurucu">Kurucular</button>
+        <button data-f="urun">Ürün & Mühendislik</button>
+        <button data-f="satis">Satış & Pazarlama</button>
+        <button data-f="destek">Destek</button>
+      </div>
+    </div>
+
+    <div class="team__grid">
+      <article class="member glass fade-up" data-dept="kurucu">
+        <div class="member__av g1">EÖ</div>
+        <b>Emre Özcan</b>
+        <span class="role">Kurucu Ortak, CEO</span>
+        <span class="dept">Kurucu</span>
+        <div class="member__social">
+          <a href="#" aria-label="LinkedIn"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.063 2.063 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452z"/></svg></a>
+          <a href="#" aria-label="Twitter"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231z"/></svg></a>
+        </div>
+      </article>
+
+      <article class="member glass fade-up" data-dept="kurucu" data-delay="1">
+        <div class="member__av g2">SD</div>
+        <b>Selin Demir</b>
+        <span class="role">Kurucu Ortak, CTO</span>
+        <span class="dept">Kurucu</span>
+        <div class="member__social">
+          <a href="#" aria-label="LinkedIn"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286z"/></svg></a>
+        </div>
+      </article>
+
+      <article class="member glass fade-up" data-dept="urun" data-delay="2">
+        <div class="member__av g3">MK</div>
+        <b>Mehmet Kaya</b>
+        <span class="role">Ürün Direktörü</span>
+        <span class="dept">Ürün</span>
+        <div class="member__social">
+          <a href="#" aria-label="LinkedIn"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286z"/></svg></a>
+        </div>
+      </article>
+
+      <article class="member glass fade-up" data-dept="urun" data-delay="3">
+        <div class="member__av g4">ZK</div>
+        <b>Zeynep Koç</b>
+        <span class="role">Tasarım Lideri</span>
+        <span class="dept">Ürün</span>
+        <div class="member__social">
+          <a href="#" aria-label="LinkedIn"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286z"/></svg></a>
+          <a href="#" aria-label="Dribbble"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8.56 2.75c4.37 6 6 9.42 8 17.72M19.96 16c-3.27-1.9-6.78-2.45-12.42-2M3.13 12.84c5.21 0 7.62-.89 11.69-3.36M3.6 8.16c4.7 0 9.81-.61 14.21-3.41"/></svg></a>
+        </div>
+      </article>
+
+      <article class="member glass fade-up" data-dept="urun">
+        <div class="member__av g5">AY</div>
+        <b>Ahmet Yıldız</b>
+        <span class="role">Lead Backend Engineer</span>
+        <span class="dept">Mühendislik</span>
+        <div class="member__social">
+          <a href="#" aria-label="GitHub"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.21 11.39.6.11.82-.26.82-.58 0-.29-.01-1.04-.02-2.05-3.34.73-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.09-.74.08-.73.08-.73 1.2.09 1.84 1.24 1.84 1.24 1.07 1.83 2.81 1.3 3.5.99.11-.77.42-1.3.76-1.6-2.66-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.12-.3-.54-1.52.12-3.18 0 0 1-.32 3.3 1.23A11.5 11.5 0 0112 5.8c1.02.01 2.05.14 3.01.4 2.3-1.55 3.3-1.23 3.3-1.23.66 1.66.24 2.88.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.62-5.48 5.92.43.37.81 1.1.81 2.22 0 1.6-.01 2.89-.01 3.29 0 .32.21.7.83.58A12 12 0 0024 12c0-6.63-5.37-12-12-12z"/></svg></a>
+        </div>
+      </article>
+
+      <article class="member glass fade-up" data-dept="urun" data-delay="1">
+        <div class="member__av g6">EK</div>
+        <b>Elif Kurt</b>
+        <span class="role">Frontend Engineer</span>
+        <span class="dept">Mühendislik</span>
+        <div class="member__social">
+          <a href="#" aria-label="GitHub"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.21 11.39.6.11.82-.26.82-.58 0-.29-.01-1.04-.02-2.05-3.34.73-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.09-.74.08-.73.08-.73 1.2.09 1.84 1.24 1.84 1.24 1.07 1.83 2.81 1.3 3.5.99.11-.77.42-1.3.76-1.6-2.66-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.12-.3-.54-1.52.12-3.18 0 0 1-.32 3.3 1.23A11.5 11.5 0 0112 5.8c1.02.01 2.05.14 3.01.4 2.3-1.55 3.3-1.23 3.3-1.23.66 1.66.24 2.88.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.62-5.48 5.92.43.37.81 1.1.81 2.22 0 1.6-.01 2.89-.01 3.29 0 .32.21.7.83.58A12 12 0 0024 12c0-6.63-5.37-12-12-12z"/></svg></a>
+        </div>
+      </article>
+
+      <article class="member glass fade-up" data-dept="satis" data-delay="2">
+        <div class="member__av g7">BÇ</div>
+        <b>Burak Çelik</b>
+        <span class="role">Satış Müdürü</span>
+        <span class="dept">Satış</span>
+        <div class="member__social">
+          <a href="#" aria-label="LinkedIn"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286z"/></svg></a>
+        </div>
+      </article>
+
+      <article class="member glass fade-up" data-dept="satis" data-delay="3">
+        <div class="member__av g8">FG</div>
+        <b>Fatma Güven</b>
+        <span class="role">Pazarlama Müdürü</span>
+        <span class="dept">Pazarlama</span>
+        <div class="member__social">
+          <a href="#" aria-label="LinkedIn"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286z"/></svg></a>
+        </div>
+      </article>
+
+      <article class="member glass fade-up" data-dept="destek">
+        <div class="member__av g1">OD</div>
+        <b>Onur Demirel</b>
+        <span class="role">Destek Lideri</span>
+        <span class="dept">Destek</span>
+        <div class="member__social">
+          <a href="#" aria-label="LinkedIn"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286z"/></svg></a>
+        </div>
+      </article>
+
+      <article class="member glass fade-up" data-dept="destek" data-delay="1">
+        <div class="member__av g3">CY</div>
+        <b>Ceren Yılmaz</b>
+        <span class="role">Müşteri Başarı Uzmanı</span>
+        <span class="dept">Destek</span>
+        <div class="member__social">
+          <a href="#" aria-label="LinkedIn"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286z"/></svg></a>
+        </div>
+      </article>
+
+      <article class="member glass fade-up" data-dept="urun" data-delay="2">
+        <div class="member__av g4">LA</div>
+        <b>Levent Akın</b>
+        <span class="role">DevOps Engineer</span>
+        <span class="dept">Mühendislik</span>
+        <div class="member__social">
+          <a href="#" aria-label="GitHub"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.21 11.39.6.11.82-.26.82-.58 0-.29-.01-1.04-.02-2.05-3.34.73-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.09-.74.08-.73.08-.73 1.2.09 1.84 1.24 1.84 1.24 1.07 1.83 2.81 1.3 3.5.99.11-.77.42-1.3.76-1.6-2.66-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.12-.3-.54-1.52.12-3.18 0 0 1-.32 3.3 1.23A11.5 11.5 0 0112 5.8c1.02.01 2.05.14 3.01.4 2.3-1.55 3.3-1.23 3.3-1.23.66 1.66.24 2.88.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.62-5.48 5.92.43.37.81 1.1.81 2.22 0 1.6-.01 2.89-.01 3.29 0 .32.21.7.83.58A12 12 0 0024 12c0-6.63-5.37-12-12-12z"/></svg></a>
+        </div>
+      </article>
+
+      <article class="join-us fade-up" data-delay="3">
+        <span class="plus">+</span>
+        <b>Sen de katıl</b>
+        <span>Açık 5 pozisyon</span>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     PRESS / INVESTORS
+     ============================================================ -->
+<section class="press">
+  <div class="container">
+    <div class="press__label">Yatırımcılarımız ve basında yer alma</div>
+    <div class="press__grid">
+      <div class="item"><span class="dot"></span>500 İstanbul</div>
+      <div class="item"><span class="dot"></span>Earlybird</div>
+      <div class="item"><span class="dot"></span>Webrazzi</div>
+      <div class="item"><span class="dot"></span>Startup Watch</div>
+      <div class="item"><span class="dot"></span>Bigchefs Ventures</div>
+      <div class="item"><span class="dot"></span>Forbes Türkiye</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     OFFICE
+     ============================================================ -->
+<section class="office">
+  <div class="container">
+    <div class="office__grid">
+      <div class="office__copy slide-in-l">
+        <span class="eyebrow"><span class="dot"></span>Ofisimiz</span>
+        <h2>İstanbul'dan <span class="grad-text">Türkiye'ye</span></h2>
+        <p>Şişli'deki merkez ofisimizde 42 kişilik ekibimizle çalışıyoruz. Hibrit çalışma modelimiz var — Türkiye'nin her bölgesinden ekip arkadaşımız var.</p>
+
+        <div class="office__addr">
+          <div class="office-row">
+            <span class="ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
+            <div><b>Wixi Teknoloji A.Ş.</b><span>Cumhuriyet Mah. Halaskargazi Cad. No: 38 / Şişli, İstanbul</span></div>
+          </div>
+          <div class="office-row">
+            <span class="ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13 1.05.37 2.07.72 3.06a2 2 0 0 1-.45 2.11L8.09 10.91a16 16 0 0 0 6 6l2.02-2.02a2 2 0 0 1 2.11-.45c1 .35 2.01.59 3.06.72A2 2 0 0 1 22 16.92z"/></svg></span>
+            <div><b>+90 (212) 999 00 00</b><span>Mesai içi · Türkçe / İngilizce</span></div>
+          </div>
+          <div class="office-row">
+            <span class="ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M22 6 12 13 2 6"/></svg></span>
+            <div><b>iletisim@wixi.app</b><span>Genel sorular için</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="office__map slide-in-r">
+        <div class="office__pin">
+          <div class="office__pin__pulse"></div>
+          <div class="office__pin__dot">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          </div>
+          <div class="office__pin__label">Wixi HQ · Şişli</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-banner">
+  <div class="container">
+    <div class="cta-banner__inner fade-up">
+      <h2>Sizinle <span class="grad-text">çalışmak isteriz</span></h2>
+      <p>Müşteri ya da ekip arkadaşı olarak — Wixi'de yeriniz var.</p>
+      <div class="cta-banner__btns">
+        <a href="#" class="btn btn--primary btn--lg" data-magnet="0.2">Ücretsiz Deneyin →</a>
+        <a href="#" class="btn btn--ghost btn--lg">Açık Pozisyonları Gör</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer__grid">
+      <div class="footer__brand">
+        <a href="index.html" class="brand"><span class="brand__mark">W</span><span class="brand__name">WIXI<span class="dim">APP</span></span></a>
+        <p>KOBİ'ler için modüler SaaS platformu.</p>
+        <div class="footer__social">
+          <a href="#" aria-label="Twitter"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+          <a href="#" aria-label="LinkedIn"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.063 2.063 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0z"/></svg></a>
+          <a href="#" aria-label="Instagram"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
+          <a href="#" aria-label="YouTube"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12z"/></svg></a>
+        </div>
+      </div>
+      <div class="footer__col"><h4>Ürün</h4><ul><li><a href="ozellikler.html">Özellikler</a></li><li><a href="moduller.html">Modüller</a></li><li><a href="studyo.html">Stüdyo</a></li><li><a href="fiyatlandirma.html">Fiyatlandırma</a></li></ul></div>
+      <div class="footer__col"><h4>Kaynaklar</h4><ul><li><a href="sss.html">SSS</a></li><li><a href="nasil-calisir.html">Nasıl Çalışır?</a></li><li><a href="#">API</a></li><li><a href="#">Blog</a></li></ul></div>
+      <div class="footer__col"><h4>Şirket</h4><ul><li><a href="hakkimizda.html">Hakkımızda</a></li><li><a href="iletisim.html">İletişim</a></li><li><a href="#">Kariyer</a></li><li><a href="#">Basın</a></li></ul></div>
+      <div class="footer__col"><h4>Yasal</h4><ul><li><a href="kullanim-sartlari.html">Kullanım Şartları</a></li><li><a href="gizlilik.html">Gizlilik</a></li><li><a href="kvkk.html">KVKK</a></li><li><a href="cerezler.html">Çerezler</a></li></ul></div>
+    </div>
+    <div class="footer__bottom">
+      <div>© 2026 Wixi Teknoloji A.Ş. Tüm hakları saklıdır.</div>
+      <div class="legal"><span>🇹🇷 Türkçe</span><span>İstanbul, Türkiye</span></div>
+    </div>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+<script>
+/* Team filter */
+(function(){
+  const buttons = document.querySelectorAll('#teamFilter button');
+  const members = document.querySelectorAll('.member[data-dept]');
+  buttons.forEach(b => b.addEventListener('click', ()=>{
+    buttons.forEach(x => x.classList.remove('on'));
+    b.classList.add('on');
+    const f = b.dataset.f;
+    members.forEach(m => {
+      m.style.display = (f === 'all' || m.dataset.dept === f) ? '' : 'none';
+    });
+  }));
+})();
+</script>
+</body>
+</html>

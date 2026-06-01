@@ -1,0 +1,701 @@
+.canvasWrapper {
+  flex: 1;
+  min-width: 0;           /* prevent flex horizontal overflow */
+  min-height: 0;          /* prevent flex vertical overflow */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--editor-canvas-bg);
+}
+
+.viewportBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  background: var(--editor-surface);
+  border-bottom: 1px solid var(--editor-border);
+  flex-shrink: 0;
+}
+
+.pageLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--editor-text-muted);
+}
+
+.viewportBtns { display: flex; gap: 4px; }
+
+.vpBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  border: 1px solid var(--editor-input-border);
+  border-radius: 6px;
+  color: var(--editor-text-muted);
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.15s;
+}
+
+.vpBtn:hover { border-color: var(--editor-text-muted); color: var(--editor-text); }
+.vpActive { border-color: #ec4899; color: #ec4899; background: rgba(236,72,153,0.08); }
+
+.canvasScroll {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.canvasContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  min-height: 100%;
+  padding: 24px;
+  box-sizing: border-box;
+  /* dot grid arka plan */
+  background-color: #1a1a2e;
+  background-image: radial-gradient(circle, rgba(255,255,255,0.12) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.canvas {
+  width: 100%;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.25);
+  min-height: 400px;
+  overflow: visible;
+  transition: max-width 0.3s ease;
+  container-type: inline-size;
+  container-name: canvas-viewport;
+}
+
+/* Viewport class modifiers — mobile stacks all columns */
+.mobile .rowGrid {
+  grid-template-columns: 1fr !important;
+}
+
+.tablet .rowGrid {
+  grid-template-columns: repeat(6, 1fr) !important;
+}
+
+.emptyCanvas {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  color: #9ca3af;
+  gap: 12px;
+}
+
+.emptyIcon {
+  width: 60px;
+  height: 60px;
+  border: 2px dashed #d1d5db;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: #d1d5db;
+}
+
+/* ── Block wrapper ─────────────────────────────────── */
+.blockWrapper {
+  position: relative;
+  cursor: pointer;
+  outline: 2px solid transparent;
+  outline-offset: 0px;
+  transition: outline-color 0.15s;
+  overflow: visible;  /* toolbar taşabilsin */
+}
+
+/* ── Animations ──────────────────────────────────────── */
+@keyframes selectionPulse {
+  0%   { outline-color: #ec4899; box-shadow: 0 0 0 0 rgba(236,72,153,0); }
+  50%  { outline-color: #f472b6; box-shadow: 0 0 0 4px rgba(236,72,153,0.15); }
+  100% { outline-color: #ec4899; box-shadow: 0 0 0 0 rgba(236,72,153,0); }
+}
+
+@keyframes rowSelectionPulse {
+  0%   { outline-color: #6366f1; box-shadow: 0 0 0 0 rgba(99,102,241,0); }
+  50%  { outline-color: #818cf8; box-shadow: 0 0 0 4px rgba(99,102,241,0.15); }
+  100% { outline-color: #6366f1; box-shadow: 0 0 0 0 rgba(99,102,241,0); }
+}
+
+.blockWrapper:hover { outline-color: rgba(236,72,153,0.4); }
+.selected {
+  outline-color: #ec4899 !important;
+  animation: selectionPulse 2s ease-in-out infinite;
+}
+
+.blockLabel {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: #ec4899;
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 0 0 6px 0;
+  z-index: 10;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.blockWrapper:hover .blockLabel,
+.selected .blockLabel { display: block; }
+
+.blockToolbar {
+  position: absolute;
+  top: -36px;   /* block'un üstünde floating */
+  left: 0;
+  right: auto;
+  display: flex;
+  gap: 2px;
+  background: var(--editor-surface);
+  border: 1px solid var(--editor-border);
+  border-radius: 6px 6px 6px 0;
+  padding: 4px;
+  z-index: 20;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.toolbarBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  color: var(--editor-text-muted);
+  cursor: pointer;
+  font-size: 11px;
+  transition: all 0.15s;
+}
+
+.toolbarBtn:hover { background: var(--editor-border); color: var(--editor-text); }
+.toolbarBtn:disabled { opacity: 0.3; cursor: not-allowed; }
+.toolbarDanger:hover { background: rgba(239,68,68,0.15); color: #ef4444; }
+
+/* ── Mini preview helpers ──────────────────────────── */
+.heroPreview {
+  position: relative;
+  background-size: cover;
+  background-position: center;
+}
+
+.heroOverlayPrev {
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 8px;
+}
+
+.heroSplitPrev {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+}
+
+.heroSplitText { flex: 1; }
+.heroSplitImg { flex: 1; min-height: 100px; border-radius: 8px; }
+
+.previewBtn {
+  display: inline-block;
+  padding: 6px 16px;
+  border-radius: 6px;
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  margin-top: 8px;
+}
+
+/* ── Insert Zone ────────────────────────────────────── */
+.insertZone {
+  position: relative;
+  height: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: height 0.15s;
+  cursor: pointer;
+}
+
+.insertZone:hover {
+  height: 32px;
+}
+
+.insertZoneBtn {
+  display: none;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  background: #ec4899;
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.insertZone:hover .insertZoneBtn {
+  display: flex;
+}
+
+.insertZoneLine {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: rgba(236,72,153,0.3);
+  transition: background 0.15s;
+}
+
+.insertZone:hover .insertZoneLine {
+  background: #ec4899;
+}
+
+/* ── Navbar & Footer Canvas Preview ─────────────────── */
+.canvasNavbar {
+  background: var(--editor-surface);
+  border-bottom: 1px solid var(--editor-border);
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--editor-text-muted);
+  border-radius: 8px 8px 0 0;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.canvasNavbar:hover,
+.canvasNavbarSelected {
+  background: rgba(236,72,153,0.06);
+  outline: 2px solid rgba(236,72,153,0.4);
+  outline-offset: -2px;
+}
+
+.canvasNavbarSelected {
+  outline-color: #ec4899;
+}
+
+.canvasNavbarLogo {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--editor-text);
+}
+
+.canvasNavbarLinks {
+  display: flex;
+  gap: 16px;
+}
+
+.canvasNavbarLink {
+  font-size: 12px;
+  color: var(--editor-text-muted);
+}
+
+.canvasFooter {
+  background: var(--editor-surface);
+  border-top: 1px solid var(--editor-border);
+  padding: 20px 24px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--editor-text-muted);
+  border-radius: 0 0 8px 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.canvasFooter:hover,
+.canvasFooterSelected {
+  background: rgba(236,72,153,0.06);
+  outline: 2px solid rgba(236,72,153,0.4);
+  outline-offset: -2px;
+}
+
+.canvasFooterSelected {
+  outline-color: #ec4899;
+}
+
+/* ── Row Wrapper ─────────────────────────────────────── */
+.rowWrapper {
+  position: relative;
+  outline: 2px solid transparent;
+  outline-offset: 0;
+  transition: outline-color 0.15s;
+}
+
+.rowWrapper:hover { outline-color: rgba(99,102,241,0.3); }
+.rowSelected {
+  outline-color: #6366f1 !important;
+  animation: rowSelectionPulse 2s ease-in-out infinite;
+}
+
+.rowGrid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  min-height: 80px;
+}
+
+.rowToolbar {
+  position: absolute;
+  top: -34px;
+  left: 0;
+  display: flex;
+  gap: 2px;
+  background: var(--editor-surface);
+  border: 1px solid var(--editor-border);
+  border-radius: 6px 6px 6px 0;
+  padding: 3px;
+  z-index: 25;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s;
+}
+
+.rowWrapper:hover .rowToolbar,
+.rowSelected .rowToolbar {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.rowDragHandle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 26px;
+  color: var(--editor-text-muted);
+  cursor: grab;
+  font-size: 10px;
+}
+
+.rowDragHandle:active { cursor: grabbing; }
+
+/* ── Column Wrapper ──────────────────────────────────── */
+.columnWrapper {
+  position: relative;
+  min-height: 80px;
+  outline: 1px solid transparent;
+  outline-offset: -1px;
+  transition: outline-color 0.15s;
+  overflow: visible;
+}
+
+.columnWrapper:hover { outline-color: rgba(236,72,153,0.35); }
+.columnSelected { outline-color: #ec4899 !important; }
+
+.emptyColumn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 80px;
+  height: 100%;
+  border: 2px dashed rgba(255,255,255,0.12);
+  cursor: pointer;
+  font-size: 11px;
+  color: rgba(255,255,255,0.3);
+  background: rgba(255,255,255,0.02);
+  transition: all 0.15s;
+}
+
+.emptyColumn:hover {
+  border-color: #ec4899;
+  color: #ec4899;
+  background: rgba(236,72,153,0.04);
+}
+
+.spanBadge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: rgba(99,102,241,0.8);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 0 0 0 4px;
+  pointer-events: none;
+  z-index: 10;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.columnWrapper:hover .spanBadge,
+.columnSelected .spanBadge { opacity: 1; }
+
+.colDeleteBtn {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  background: rgba(239,68,68,0.9);
+  color: #fff;
+  border: none;
+  border-radius: 0 0 4px 0;
+  cursor: pointer;
+  font-size: 9px;
+  z-index: 15;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.columnWrapper:hover .colDeleteBtn,
+.columnSelected .colDeleteBtn { opacity: 1; }
+.colDeleteBtn:hover { background: #dc2626; }
+
+/* ── Column Resize Handle ────────────────────────────── */
+.colResizeHandle {
+  position: absolute;
+  top: 0;
+  right: -3px;
+  bottom: 0;
+  width: 6px;
+  cursor: col-resize;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.colResizeHandle::after {
+  content: '';
+  width: 2px;
+  height: 32px;
+  background: rgba(99,102,241,0.5);
+  border-radius: 1px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.colResizeHandle:hover::after { opacity: 1; background: #6366f1; }
+
+/* ── Row Insert Zone ─────────────────────────────────── */
+.rowInsertZone {
+  position: relative;
+  height: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: height 0.15s;
+}
+
+.rowInsertZone:hover { height: 36px; }
+
+.rowInsertLine {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: rgba(99,102,241,0.3);
+  transition: background 0.15s;
+}
+
+.rowInsertZone:hover .rowInsertLine {
+  background: #6366f1;
+  box-shadow: 0 0 8px rgba(99,102,241,0.6);
+}
+
+.rowInsertBtn {
+  display: none;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 14px;
+  background: #6366f1;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  position: relative;
+  z-index: 1;
+}
+
+.rowInsertZone:hover .rowInsertBtn { display: flex; }
+.rowInsertBtn:hover { background: #4f46e5; }
+
+/* ── Drag Handle ─────────────────────────────────────── */
+.dragHandle {
+  position: absolute;
+  top: 50%;
+  left: -28px;
+  transform: translateY(-50%);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 32px;
+  background: var(--editor-surface);
+  border: 1px solid var(--editor-border);
+  border-radius: 4px;
+  color: var(--editor-text-muted);
+  cursor: grab;
+  font-size: 11px;
+  z-index: 15;
+  transition: all 0.15s;
+}
+
+.dragHandle:active { cursor: grabbing; }
+.dragHandle:hover { border-color: #ec4899; color: #ec4899; }
+
+.blockWrapper:hover .dragHandle,
+.selected .dragHandle { display: flex; }
+
+/* ── Breadcrumbs ─────────────────────────────────────── */
+.breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 16px;
+  background: var(--editor-surface);
+  border-bottom: 1px solid var(--editor-border);
+  font-size: 11px;
+  flex-shrink: 0;
+  min-height: 28px;
+}
+
+.breadcrumbItem {
+  background: transparent;
+  border: none;
+  color: var(--editor-text-muted);
+  cursor: pointer;
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: all 0.12s;
+  white-space: nowrap;
+}
+
+.breadcrumbItem:hover {
+  background: rgba(255,255,255,0.06);
+  color: var(--editor-text);
+}
+
+.breadcrumbActive {
+  color: #ec4899 !important;
+  font-weight: 600;
+}
+
+.breadcrumbSep {
+  color: var(--editor-text-muted);
+  opacity: 0.4;
+  font-size: 9px;
+  flex-shrink: 0;
+}
+
+/* ── Nested Layout & Containers ──────────────────────── */
+.nestedWrapper {
+  position: relative;
+  outline: 1px dashed transparent;
+  outline-offset: -1px;
+  transition: all 0.15s;
+}
+
+.nestedWrapper:hover {
+  outline-color: rgba(236, 72, 153, 0.4);
+}
+
+.nestedSelected {
+  outline: 2px solid #ec4899 !important;
+  animation: selectionPulse 2s ease-in-out infinite;
+}
+
+.nestedToolbar {
+  position: absolute;
+  top: -24px;
+  right: 0;
+  display: flex;
+  background: var(--editor-surface);
+  border: 1px solid var(--editor-border);
+  border-radius: 4px;
+  padding: 2px;
+  z-index: 30;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.nestedToolbarBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  background: transparent;
+  border: none;
+  color: var(--editor-text-muted);
+  cursor: pointer;
+  border-radius: 2px;
+  transition: background 0.1s;
+}
+
+.nestedToolbarBtn:hover {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+/* ── Grid Snapping & Guidelines ──────────────────────── */
+.gridGuides {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.gridGuideLine {
+  background: rgba(99, 102, 241, 0.02);
+  border-left: 1px dashed rgba(99, 102, 241, 0.12);
+  border-right: 1px dashed rgba(99, 102, 241, 0.12);
+  height: 100%;
+}
+
+.resizeBadge {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #ec4899;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 6px;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 100;
+}

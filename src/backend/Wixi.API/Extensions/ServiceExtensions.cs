@@ -46,7 +46,7 @@ public static class ServiceExtensions
                 ValidateIssuer = true,
                 ValidIssuer = jwtOptions?.Issuer,
                 ValidateAudience = true,
-                ValidAudience = jwtOptions?.Audience,
+                ValidAudiences = new[] { jwtOptions?.Audience ?? string.Empty, "Wixi.Storefront" },
                 ValidateLifetime = true,
                 ClockSkew = TimeSpan.Zero
             };
@@ -59,26 +59,22 @@ public static class ServiceExtensions
 
     public static IServiceCollection AddWixiCors(this IServiceCollection services, IConfiguration configuration)
     {
-        var corsOrigins = configuration.GetSection(AppCorsOptions.SectionName).Get<AppCorsOptions>()?.Origins;
-        if (corsOrigins is not { Length: > 0 })
-        {
-            corsOrigins =
-            [
-                "http://localhost:5173",
-                "http://localhost:5174",
-                "http://127.0.0.1:5173",
-                "http://localhost:3000"
-            ];
-        }
+        var corsOpts = configuration.GetSection(AppCorsOptions.SectionName).Get<AppCorsOptions>() ?? new AppCorsOptions();
 
         services.AddCors(options =>
         {
             options.AddPolicy("AllowReactApp", policy =>
             {
-                policy.WithOrigins(corsOrigins)
-                    .AllowAnyHeader()
-                    .AllowAnyMethod()
-                    .AllowCredentials();
+                if (corsOpts.Origins.Length > 0)
+                    policy.WithOrigins(corsOpts.Origins)
+                          .AllowAnyHeader()
+                          .AllowAnyMethod()
+                          .AllowCredentials();
+                else
+                    policy.SetIsOriginAllowed(_ => true)
+                          .AllowAnyHeader()
+                          .AllowAnyMethod()
+                          .AllowCredentials();
             });
         });
 
@@ -135,6 +131,7 @@ public static class ServiceExtensions
             AddFixedWindow("auth_register", rateOpts.RegisterPermitPerMinute);
             AddFixedWindow("auth_logout_all", rateOpts.LogoutAllPermitPerMinute);
             AddFixedWindow("currency_sync", 5);
+            AddFixedWindow("storefront-auth", 10);
         });
 
         return services;

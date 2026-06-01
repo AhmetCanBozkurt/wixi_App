@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Wixi.Modules.Core.Application.Navigation.Dto;
 using Wixi.Modules.Core.Infrastructure.Data;
 using Wixi.Modules.Core.Application.Common.Interfaces;
+using Wixi.Modules.Core.Domain.Entities;
 using System.Globalization;
 
 namespace Wixi.Modules.Core.Application.Navigation.Queries.GetSidebarMenus;
@@ -38,14 +39,50 @@ public class GetSidebarMenusQueryHandler : IRequestHandler<GetSidebarMenusQuery,
             return new List<MenuDto>();
         }
 
-        // Fetch only active menus for the current user with translations
-        var menus = await _context.Menus
+        // 3. Resolve Tenant Context
+        var tenant = await _context.Tenants
+            .FirstOrDefaultAsync(t => t.OwnerUserId == userId && t.IsActive && !t.IsDeleted, cancellationToken);
+
+        var roles = _httpContextAccessor.HttpContext?.User.Claims
+            .Where(c => c.Type == System.Security.Claims.ClaimTypes.Role)
+            .Select(c => c.Value)
+            .ToList() ?? new List<string>();
+
+        var isAdmin = roles.Contains("Admin");
+        var isTenantAdmin = roles.Contains("TenantAdmin");
+
+        // 4. Fetch Eligible Menus from DB
+        
+        // A. Fetch User-Specific Menus (WixiMenu)
+        var userMenus = await _context.Menus
             .Include(m => m.Translations)
             .Where(m => m.IsActive && !m.IsDeleted && m.IsVisible && m.UserId == userId)
-            .OrderBy(m => m.SortOrder)
             .ToListAsync(cancellationToken);
 
-        // 3. Find target language in DB
+        // B. Fetch Module-Template Menus (WixiModuleMenu)
+        var moduleMenus = new List<WixiModuleMenu>();
+        if (isAdmin)
+        {
+            // Admin sees all system templates
+            moduleMenus = await _context.ModuleMenus
+                .Include(m => m.Translations)
+                .Include(m => m.Module)
+                .Where(m => m.IsActive && !m.IsDeleted)
+                .ToListAsync(cancellationToken);
+        }
+        else if (isTenantAdmin && tenant != null)
+        {
+            var enabledModules = tenant.EnabledModules?.Split(',').Select(x => x.Trim().ToLower()).ToList() ?? new List<string>();
+            
+            moduleMenus = await _context.ModuleMenus
+                .Include(m => m.Translations)
+                .Include(m => m.Module)
+                .Where(m => m.IsActive && !m.IsDeleted && m.VisibleToTenant && 
+                    (m.Module != null && enabledModules.Contains(m.Module.Code.ToLower())))
+                .ToListAsync(cancellationToken);
+        }
+
+        // 5. Resolve target language
         var baseLangCode = currentLangCode.Split('-')[0];
         var lang = await _context.Languages
             .FirstOrDefaultAsync(l => l.Code == currentLangCode, cancellationToken)
@@ -54,36 +91,63 @@ public class GetSidebarMenusQueryHandler : IRequestHandler<GetSidebarMenusQuery,
 
         if (lang == null) return new List<MenuDto>();
 
-        // Build hierarchy
-        var allDtos = menus.Select(m => new MenuDto
+        // 6. Map and Combine
+        var allDtos = new List<MenuDto>();
+
+        // Map User Menus
+        allDtos.AddRange(userMenus.Select(m => new MenuDto
         {
             Id = m.Id,
-            Path = m.Path,
+            ParentId = m.ParentId,
+            Path = m.Path.Replace("{tenantSlug}", tenant?.Slug ?? "default"),
             Icon = m.Icon,
             IconColor = m.IconColor,
             SortOrder = m.SortOrder,
             Title = m.Translations.FirstOrDefault(t => t.LanguageId == lang.Id)?.Title ?? "Untitled",
-            Children = new List<MenuDto>() // Will be populated next
-        }).ToList();
+            Children = new List<MenuDto>()
+        }));
 
-        // Separate root menus and children (simple parent-child mapping for now)
-        // Note: Real hierarchy is usually built with a recursive function or better LINQ
+        // Map Module Template Menus
+        allDtos.AddRange(moduleMenus.Select(m => new MenuDto
+        {
+            Id = m.Id,
+            ParentId = m.ParentId,
+            Path = m.Path.Replace("{tenantSlug}", tenant?.Slug ?? "default"),
+            Icon = m.Icon,
+            IconColor = m.IconColor,
+            SortOrder = m.SortOrder,
+            Title = m.Translations.FirstOrDefault(t => t.LanguageId == lang.Id)?.Title ?? "Untitled",
+            Children = new List<MenuDto>()
+        }));
+
+        // 7. Build hierarchy
         var rootMenus = new List<MenuDto>();
         var menuMap = allDtos.ToDictionary(m => m.Id);
 
-        foreach (var m in menus)
+        foreach (var dto in allDtos)
         {
-            var dto = menuMap[m.Id];
-            if (m.ParentId == null)
+            if (dto.ParentId == null)
             {
                 rootMenus.Add(dto);
             }
-            else if (menuMap.ContainsKey(m.ParentId.Value))
+            else if (menuMap.ContainsKey(dto.ParentId.Value))
             {
-                menuMap[m.ParentId.Value].Children.Add(dto);
+                menuMap[dto.ParentId.Value].Children.Add(dto);
             }
         }
 
-        return rootMenus.OrderBy(m => m.SortOrder).ToList();
+        // Sort all levels recursively by SortOrder
+        static void SortChildren(List<MenuDto> items)
+        {
+            items.Sort((a, b) => a.SortOrder.CompareTo(b.SortOrder));
+            foreach (var item in items)
+                SortChildren(item.Children);
+        }
+
+        rootMenus.Sort((a, b) => a.SortOrder.CompareTo(b.SortOrder));
+        foreach (var root in rootMenus)
+            SortChildren(root.Children);
+
+        return rootMenus;
     }
 }

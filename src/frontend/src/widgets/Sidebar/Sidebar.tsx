@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import {
   FaBars, FaTimes, FaChevronDown, FaChevronRight,
   FaStar, FaSearch, FaEllipsisH, FaSignOutAlt
@@ -35,7 +35,9 @@ interface SidebarProps {
 export const Sidebar = ({ isCollapsed, onToggleCollapse }: SidebarProps) => {
   const [menus, setMenus] = useState<MenuItemDto[]>([]);
   const [loading, setLoading] = useState(true);
-  const { logout: storeLogout } = useAuthStore();
+  const { logout: storeLogout, user } = useAuthStore();
+  const location = useLocation();
+  const isTenantMode = location.pathname.startsWith('/tenant/');
 
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>(() => {
     try {
@@ -56,11 +58,17 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse }: SidebarProps) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // Fetch menus from API
+  // Fetch menus from API — tenant mode uses the store-admin endpoint
   const fetchMenus = async () => {
     try {
-      const res = await apiClient.get<{ items: MenuItemDto[] }>('menu/sidebar');
-      setMenus(res.data.items || []);
+      if (isTenantMode) {
+        const res = await apiClient.get<MenuItemDto[] | { items?: MenuItemDto[] }>('store-admin/menus');
+        const data = Array.isArray(res.data) ? res.data : (res.data.items ?? []);
+        setMenus(data);
+      } else {
+        const res = await apiClient.get<{ items: MenuItemDto[] }>('menu/sidebar');
+        setMenus(res.data.items || []);
+      }
     } catch (error) {
       console.error('Menu fetch error:', error);
     } finally {
@@ -76,6 +84,46 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse }: SidebarProps) => {
     window.addEventListener('wixi-refresh-menu', handleRefresh);
     return () => window.removeEventListener('wixi-refresh-menu', handleRefresh);
   }, []);
+
+  // Auto-expand accordion sections that contain the active route (any depth)
+  useEffect(() => {
+    if (menus.length === 0) return;
+
+    const toExpand: Record<string, boolean> = {};
+
+    // Returns true if ANY descendant (leaf or nested folder) is on the active route.
+    // Folders are expanded when a descendant is active, regardless of nesting depth.
+    const checkAndExpand = (items: MenuItemDto[]): boolean => {
+      let hasActiveDescendant = false;
+      for (const item of items) {
+        if (item.children && item.children.length > 0) {
+          const childActive = checkAndExpand(item.children);
+          if (childActive) {
+            toExpand[item.id] = true;
+            hasActiveDescendant = true;
+          }
+        } else {
+          if (
+            location.pathname === item.path ||
+            location.pathname.startsWith(item.path + '/')
+          ) {
+            hasActiveDescendant = true;
+          }
+        }
+      }
+      return hasActiveDescendant;
+    };
+
+    checkAndExpand(menus);
+
+    if (Object.keys(toExpand).length > 0) {
+      setExpandedCategories((prev) => {
+        const merged = { ...prev, ...toExpand };
+        localStorage.setItem(STORAGE_KEYS.EXPANDED, JSON.stringify(merged));
+        return merged;
+      });
+    }
+  }, [menus, location.pathname]);
 
   // Close context menu on click outside
   useEffect(() => {
@@ -209,20 +257,37 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse }: SidebarProps) => {
     const paddingLeft = isCollapsed ? undefined : (level * 15) + 14;
 
     if (!hasChildren) {
+      const opensNewTab = item.path.startsWith('/corp/');
       return (
         <li key={item.id} className={styles.menuItemRow}>
-          <NavLink
-            to={item.path}
-            className={({ isActive }) => isActive ? styles.active : ''}
-            title={isCollapsed ? item.title : undefined}
-            style={{ paddingLeft }}
-          >
-            <span className={styles.menuIcon}>
-              <DynamicIcon name={item.icon || 'FaCircle'} color={item.iconColor} />
-            </span>
-            <span className={styles.menuText}>{item.title}</span>
-          </NavLink>
-          {!isCollapsed && item.path !== '#' && (
+          {opensNewTab ? (
+            <a
+              href={item.path}
+              target="_blank"
+              rel="noreferrer"
+              title={isCollapsed ? item.title : undefined}
+              style={{ paddingLeft }}
+              className={styles.externalLink}
+            >
+              <span className={styles.menuIcon}>
+                <DynamicIcon name={item.icon || 'FaCircle'} color={item.iconColor} />
+              </span>
+              <span className={styles.menuText}>{item.title}</span>
+            </a>
+          ) : (
+            <NavLink
+              to={item.path}
+              className={({ isActive }) => isActive ? styles.active : ''}
+              title={isCollapsed ? item.title : undefined}
+              style={{ paddingLeft }}
+            >
+              <span className={styles.menuIcon}>
+                <DynamicIcon name={item.icon || 'FaCircle'} color={item.iconColor} />
+              </span>
+              <span className={styles.menuText}>{item.title}</span>
+            </NavLink>
+          )}
+          {!isCollapsed && item.path !== '#' && !opensNewTab && (
             <button
               className={`${styles.favStarBtn} ${favorites.includes(item.path) ? styles.isFav : ''}`}
               onClick={() => toggleFavorite(item.path)}
@@ -269,8 +334,17 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse }: SidebarProps) => {
           <img src={logoImg} alt="Wixi Logo" className={styles.logoImage} />
           {!isCollapsed && (
             <div className={styles.titleBox}>
-              <h1>Wixisoftware</h1>
-              <p>Admin Panel</p>
+              {isTenantMode ? (
+                <>
+                  <h1>{user?.tenantName || 'Mağaza'}</h1>
+                  <p>Yönetim Paneli</p>
+                </>
+              ) : (
+                <>
+                  <h1>Wixisoftware</h1>
+                  <p>Admin Panel</p>
+                </>
+              )}
             </div>
           )}
         </div>
@@ -338,10 +412,12 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse }: SidebarProps) => {
                       />
                       {allExpanded ? 'Tümünü Kapat' : 'Tümünü Aç'}
                     </button>
-                    <button className={styles.ctrlDropdownItem} onClick={clearFavorites}>
-                      <FaStar className={`${styles.ctrlDropdownIcon} ${styles.starIconGold}`} />
-                      Favorileri Kaldır
-                    </button>
+                    {!isTenantMode && (
+                      <button className={styles.ctrlDropdownItem} onClick={clearFavorites}>
+                        <FaStar className={`${styles.ctrlDropdownIcon} ${styles.starIconGold}`} />
+                        Favorileri Kaldır
+                      </button>
+                    )}
                   </div>
                 )}
               </div>

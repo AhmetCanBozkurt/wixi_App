@@ -1,0 +1,1414 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wixi Platform — Sistem Mimarisi & Veri Akışı</title>
+  <style>
+    :root {
+      --bg: #07071a;
+      --bg2: #0d0d26;
+      --surface: rgba(255,255,255,0.04);
+      --surface-hover: rgba(255,255,255,0.08);
+      --border: rgba(255,255,255,0.08);
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --c-identity:   #6366f1;
+      --c-ecommerce:  #f59e0b;
+      --c-store:      #10b981;
+      --c-refdata:    #a855f7;
+      --c-tenant:     #0ea5e9;
+      --c-settings:   #ec4899;
+      --radius: 16px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── ANIMATED BACKGROUND ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 10% 20%, rgba(99,102,241,0.12) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 90% 80%, rgba(168,85,247,0.10) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 50% 50%, rgba(14,165,233,0.06) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative; z-index: 1;
+      text-align: center;
+      padding: 64px 24px 48px;
+      border-bottom: 1px solid var(--border);
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(99,102,241,0.15);
+      border: 1px solid rgba(99,102,241,0.3);
+      border-radius: 100px; padding: 6px 16px;
+      font-size: 12px; font-weight: 600; letter-spacing: 1px;
+      color: #a5b4fc; text-transform: uppercase; margin-bottom: 20px;
+    }
+    .hero h1 {
+      font-size: clamp(28px, 5vw, 52px);
+      font-weight: 800; letter-spacing: -1px;
+      background: linear-gradient(135deg, #e2e8f0 0%, #a5b4fc 50%, #c084fc 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text; margin-bottom: 12px;
+    }
+    .hero p {
+      font-size: 16px; color: var(--muted); max-width: 600px; margin: 0 auto 32px;
+      line-height: 1.7;
+    }
+    .hero-stats {
+      display: flex; justify-content: center; gap: 40px; flex-wrap: wrap;
+    }
+    .stat { text-align: center; }
+    .stat-num {
+      font-size: 32px; font-weight: 800;
+      background: linear-gradient(135deg, #e2e8f0, #a5b4fc);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .stat-label { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+    /* ── NAV TABS ── */
+    .tabs-wrapper {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(7,7,26,0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+    .tabs {
+      display: flex; gap: 0; max-width: 1400px; margin: 0 auto;
+      padding: 0 24px; overflow-x: auto;
+    }
+    .tab {
+      padding: 16px 24px; font-size: 14px; font-weight: 500;
+      color: var(--muted); border-bottom: 2px solid transparent;
+      cursor: pointer; white-space: nowrap; transition: all .2s;
+      user-select: none;
+    }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: #a5b4fc; border-bottom-color: #6366f1; }
+
+    /* ── MAIN CONTENT ── */
+    .content { position: relative; z-index: 1; max-width: 1400px; margin: 0 auto; padding: 40px 24px 80px; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── SECTION HEADERS ── */
+    .section-title {
+      font-size: 22px; font-weight: 700; margin-bottom: 8px;
+    }
+    .section-sub { font-size: 14px; color: var(--muted); margin-bottom: 32px; }
+
+    /* ── MODULE GRID ── */
+    .module-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 20px; margin-bottom: 48px;
+    }
+    .module-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: all .25s;
+      cursor: pointer;
+    }
+    .module-card:hover {
+      background: var(--surface-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+    }
+    .module-header {
+      display: flex; align-items: center; gap: 14px;
+      padding: 20px 20px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .module-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; flex-shrink: 0;
+    }
+    .module-name { font-size: 16px; font-weight: 700; }
+    .module-desc { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .module-body { padding: 16px 20px 20px; }
+    .entity-list { display: flex; flex-wrap: wrap; gap: 6px; }
+    .entity-tag {
+      font-size: 11px; font-weight: 600;
+      padding: 4px 10px; border-radius: 6px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: var(--muted);
+    }
+    .module-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 20px;
+      background: rgba(0,0,0,0.2);
+      font-size: 12px; color: var(--muted);
+    }
+    .route-badge {
+      font-family: 'Courier New', monospace;
+      font-size: 11px; padding: 3px 8px; border-radius: 4px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    /* Colors */
+    .c-identity  { border-top: 3px solid var(--c-identity);  }
+    .c-ecommerce { border-top: 3px solid var(--c-ecommerce); }
+    .c-store     { border-top: 3px solid var(--c-store);     }
+    .c-refdata   { border-top: 3px solid var(--c-refdata);   }
+    .c-tenant    { border-top: 3px solid var(--c-tenant);    }
+    .c-settings  { border-top: 3px solid var(--c-settings);  }
+
+    .bg-identity  { background: rgba(99,102,241,0.15);  }
+    .bg-ecommerce { background: rgba(245,158,11,0.15);  }
+    .bg-store     { background: rgba(16,185,129,0.15);  }
+    .bg-refdata   { background: rgba(168,85,247,0.15);  }
+    .bg-tenant    { background: rgba(14,165,233,0.15);  }
+    .bg-settings  { background: rgba(236,72,153,0.15);  }
+
+    .text-identity  { color: #a5b4fc; }
+    .text-ecommerce { color: #fcd34d; }
+    .text-store     { color: #6ee7b7; }
+    .text-refdata   { color: #d8b4fe; }
+    .text-tenant    { color: #7dd3fc; }
+    .text-settings  { color: #f9a8d4; }
+
+    /* ── FLOW DIAGRAM ── */
+    .flow-section { margin-bottom: 48px; }
+    .flow-title { font-size: 14px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; }
+    .flow-row {
+      display: flex; align-items: center; gap: 0;
+      overflow-x: auto; padding-bottom: 8px;
+    }
+    .flow-node {
+      flex-shrink: 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 20px;
+      text-align: center; min-width: 140px;
+    }
+    .flow-node-icon { font-size: 24px; margin-bottom: 6px; }
+    .flow-node-name { font-size: 13px; font-weight: 600; }
+    .flow-node-detail { font-size: 11px; color: var(--muted); margin-top: 3px; }
+    .flow-arrow {
+      flex-shrink: 0; width: 48px; text-align: center;
+      font-size: 20px; color: var(--muted);
+      position: relative;
+    }
+    .flow-arrow::before {
+      content: '';
+      position: absolute; top: 50%; left: 6px; right: 6px;
+      height: 1px; background: linear-gradient(90deg, var(--border), rgba(255,255,255,0.2), var(--border));
+    }
+    .flow-arrow-label {
+      font-size: 9px; color: var(--muted);
+      white-space: nowrap; display: block; margin-top: 4px;
+    }
+
+    /* ── REFERENCE MAP TABLE ── */
+    .ref-table {
+      width: 100%; border-collapse: separate; border-spacing: 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden;
+      margin-bottom: 32px;
+    }
+    .ref-table thead tr {
+      background: rgba(0,0,0,0.3);
+    }
+    .ref-table th {
+      padding: 14px 20px; text-align: left;
+      font-size: 11px; font-weight: 700;
+      color: var(--muted); text-transform: uppercase; letter-spacing: 1px;
+      border-bottom: 1px solid var(--border);
+    }
+    .ref-table td {
+      padding: 14px 20px;
+      font-size: 13px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      vertical-align: top;
+    }
+    .ref-table tbody tr:last-child td { border-bottom: none; }
+    .ref-table tbody tr:hover td { background: rgba(255,255,255,0.03); }
+    .usage-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+    .usage-tag {
+      font-size: 10px; font-weight: 600; padding: 3px 9px; border-radius: 5px;
+    }
+
+    /* ── ENTITY DETAIL TABLE ── */
+    .entity-detail-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+      gap: 20px;
+    }
+    .entity-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .entity-card-header {
+      padding: 14px 20px;
+      display: flex; align-items: center; gap: 10px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(0,0,0,0.2);
+    }
+    .entity-card-name { font-size: 14px; font-weight: 700; }
+    .entity-card-body { padding: 0; }
+    .field-row {
+      display: grid; grid-template-columns: 160px 1fr 90px;
+      gap: 12px; padding: 10px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      font-size: 12px; align-items: center;
+    }
+    .field-row:last-child { border-bottom: none; }
+    .field-name { font-family: 'Courier New', monospace; color: #a5b4fc; font-size: 11px; }
+    .field-desc { color: var(--muted); }
+    .field-source {
+      font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 4px;
+      text-align: center;
+    }
+
+    /* ── API MAP ── */
+    .api-section { margin-bottom: 40px; }
+    .api-section-title {
+      font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+      padding: 10px 0 12px; margin-bottom: 4px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .api-section-title::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+    .api-list { display: flex; flex-direction: column; gap: 2px; }
+    .api-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 14px; border-radius: 8px;
+      background: var(--surface);
+      border: 1px solid transparent;
+      transition: all .15s; font-size: 12px;
+    }
+    .api-row:hover { background: var(--surface-hover); border-color: var(--border); }
+    .method {
+      font-family: 'Courier New', monospace;
+      font-size: 10px; font-weight: 700;
+      padding: 3px 8px; border-radius: 5px; min-width: 52px; text-align: center;
+    }
+    .method-get    { background: rgba(16,185,129,0.15); color: #6ee7b7; }
+    .method-post   { background: rgba(99,102,241,0.15); color: #a5b4fc; }
+    .method-put    { background: rgba(245,158,11,0.15); color: #fcd34d; }
+    .method-delete { background: rgba(239,68,68,0.15);  color: #fca5a5; }
+    .api-path {
+      font-family: 'Courier New', monospace; font-size: 12px; color: var(--text); flex: 1;
+    }
+    .api-desc { font-size: 11px; color: var(--muted); min-width: 200px; text-align: right; }
+
+    /* ── LEGEND ── */
+    .legend {
+      display: flex; flex-wrap: wrap; gap: 16px;
+      margin-bottom: 28px; padding: 16px 20px;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    }
+    .legend-item { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+    .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+    /* ── ARCH DIAGRAM ── */
+    .arch-diagram { position: relative; padding: 40px 0; overflow-x: auto; }
+    .arch-row {
+      display: flex; justify-content: center; gap: 16px;
+      margin-bottom: 0; flex-wrap: wrap;
+    }
+    .arch-layer {
+      margin-bottom: 12px;
+    }
+    .arch-layer-label {
+      text-align: center; font-size: 10px; font-weight: 600;
+      color: var(--muted); text-transform: uppercase; letter-spacing: 1px;
+      margin-bottom: 10px;
+    }
+    .arch-node {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 18px; border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      font-size: 12px; font-weight: 600;
+      margin: 4px;
+    }
+    .arch-connector {
+      text-align: center; font-size: 24px; color: rgba(255,255,255,0.15);
+      margin: 4px 0;
+    }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+  </style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">📐 Sistem Mimarisi v1.0</div>
+  <h1>Wixi Platform</h1>
+  <p>Modüler SaaS altyapısı — her modülün kapsamı, alan kaynakları ve veri akışı bu sayfada belgelenmiştir.</p>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-num">6</div><div class="stat-label">Ana Modül</div></div>
+    <div class="stat"><div class="stat-num">35+</div><div class="stat-label">Entity / Tablo</div></div>
+    <div class="stat"><div class="stat-num">80+</div><div class="stat-label">API Endpoint</div></div>
+    <div class="stat"><div class="stat-num">15</div><div class="stat-label">Tanımlama Kartı</div></div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs-wrapper">
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('modules')">🧩 Modüller</div>
+    <div class="tab" onclick="switchTab('flow')">🔗 Veri Akışı</div>
+    <div class="tab" onclick="switchTab('refmap')">📋 Tanımlama Haritası</div>
+    <div class="tab" onclick="switchTab('fields')">🗂 Alan Kaynakları</div>
+    <div class="tab" onclick="switchTab('api')">⚡ API Haritası</div>
+    <div class="tab" onclick="switchTab('arch')">🏗 Mimari Görünüm</div>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- TAB 1: MODÜLLER -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="tab-panel active" id="tab-modules">
+    <div class="section-title">Sistem Modülleri</div>
+    <div class="section-sub">Her modülün sorumluluğu, içerdiği entity'ler ve yönetim adresi</div>
+
+    <div class="module-grid">
+
+      <!-- IDENTITY -->
+      <div class="module-card c-identity">
+        <div class="module-header">
+          <div class="module-icon bg-identity">🔐</div>
+          <div>
+            <div class="module-name text-identity">Identity & Auth</div>
+            <div class="module-desc">Kimlik doğrulama, kullanıcılar, roller ve yetkiler</div>
+          </div>
+        </div>
+        <div class="module-body">
+          <div class="entity-list">
+            <span class="entity-tag">WixiUser</span>
+            <span class="entity-tag">WixiRole</span>
+            <span class="entity-tag">WixiPermission</span>
+            <span class="entity-tag">WixiUserRole</span>
+            <span class="entity-tag">WixiRefreshToken</span>
+            <span class="entity-tag">WixiOtpCode</span>
+          </div>
+        </div>
+        <div class="module-footer">
+          <span>JWT + Refresh Token + 2FA OTP</span>
+          <span class="route-badge">/admin/users</span>
+        </div>
+      </div>
+
+      <!-- SETTINGS -->
+      <div class="module-card c-settings">
+        <div class="module-header">
+          <div class="module-icon bg-settings">⚙️</div>
+          <div>
+            <div class="module-name text-settings">Settings & Core</div>
+            <div class="module-desc">Para birimleri, diller, mail şablonları, loglar, menüler</div>
+          </div>
+        </div>
+        <div class="module-body">
+          <div class="entity-list">
+            <span class="entity-tag">WixiCurrency</span>
+            <span class="entity-tag">WixiExchangeRate</span>
+            <span class="entity-tag">WixiLanguage</span>
+            <span class="entity-tag">WixiMailTemplate</span>
+            <span class="entity-tag">WixiMenu</span>
+            <span class="entity-tag">WixiMenuTranslation</span>
+            <span class="entity-tag">WixiModule</span>
+            <span class="entity-tag">WixiAuditLog</span>
+            <span class="entity-tag">WixiSystemLog</span>
+          </div>
+        </div>
+        <div class="module-footer">
+          <span>i18n + Kur + MailKit SMTP</span>
+          <span class="route-badge">/admin/currencies</span>
+        </div>
+      </div>
+
+      <!-- REFERENCE DATA -->
+      <div class="module-card c-refdata">
+        <div class="module-header">
+          <div class="module-icon bg-refdata">📚</div>
+          <div>
+            <div class="module-name text-refdata">Referans Veriler</div>
+            <div class="module-desc">Tüm tanımlama kartları — ticari dokümanlarda kullanılır</div>
+          </div>
+        </div>
+        <div class="module-body">
+          <div class="entity-list">
+            <span class="entity-tag">WixiRegion</span>
+            <span class="entity-tag">WixiPort</span>
+            <span class="entity-tag">WixiPaymentTerm</span>
+            <span class="entity-tag">WixiTaxOffice</span>
+            <span class="entity-tag">WixiIncoterm</span>
+            <span class="entity-tag">WixiTransportMode</span>
+            <span class="entity-tag">WixiPackageType</span>
+            <span class="entity-tag">WixiUnitCategory</span>
+            <span class="entity-tag">WixiUnit</span>
+            <span class="entity-tag">WixiUnitConversion</span>
+            <span class="entity-tag">WixiServiceCategory</span>
+            <span class="entity-tag">WixiService</span>
+            <span class="entity-tag">WixiProductDescription</span>
+            <span class="entity-tag">WixiHsCode</span>
+            <span class="entity-tag">WixiSystemPage</span>
+          </div>
+        </div>
+        <div class="module-footer">
+          <span>Açılır liste kaynakları (dropdown)</span>
+          <span class="route-badge">/admin/definitions</span>
+        </div>
+      </div>
+
+      <!-- MULTI-TENANT -->
+      <div class="module-card c-tenant">
+        <div class="module-header">
+          <div class="module-icon bg-tenant">🏢</div>
+          <div>
+            <div class="module-name text-tenant">Multi-Tenant Core</div>
+            <div class="module-desc">Mağaza kiracıları, abonelikler, custom domain</div>
+          </div>
+        </div>
+        <div class="module-body">
+          <div class="entity-list">
+            <span class="entity-tag">WixiTenant</span>
+            <span class="entity-tag">WixiSubscriptionPlan</span>
+            <span class="entity-tag">WixiTenantSubscription</span>
+            <span class="entity-tag">WixiCustomDomain</span>
+            <span class="entity-tag">WixiTenantTheme</span>
+            <span class="entity-tag">WixiThemeTemplate</span>
+          </div>
+        </div>
+        <div class="module-footer">
+          <span>Her tenant → ayrı veritabanı</span>
+          <span class="route-badge">/admin/ecommerce/tenants</span>
+        </div>
+      </div>
+
+      <!-- E-COMMERCE -->
+      <div class="module-card c-ecommerce">
+        <div class="module-header">
+          <div class="module-icon bg-ecommerce">🛒</div>
+          <div>
+            <div class="module-name text-ecommerce">E-Commerce (Per-Tenant)</div>
+            <div class="module-desc">Ürün kataloğu, siparişler, stok, müşteriler — her mağaza izole</div>
+          </div>
+        </div>
+        <div class="module-body">
+          <div class="entity-list">
+            <span class="entity-tag">EcomProduct</span>
+            <span class="entity-tag">EcomProductVariant</span>
+            <span class="entity-tag">EcomCategory</span>
+            <span class="entity-tag">EcomBrand</span>
+            <span class="entity-tag">EcomOrder</span>
+            <span class="entity-tag">EcomOrderItem</span>
+            <span class="entity-tag">EcomInventory</span>
+            <span class="entity-tag">EcomCustomer</span>
+            <span class="entity-tag">EcomDiscount</span>
+            <span class="entity-tag">EcomCart</span>
+            <span class="entity-tag">EcomTestimonial</span>
+            <span class="entity-tag">EcomCari</span>
+          </div>
+        </div>
+        <div class="module-footer">
+          <span>Iyzipay ödeme entegrasyonu</span>
+          <span class="route-badge">/tenant/:slug/*</span>
+        </div>
+      </div>
+
+      <!-- STORE ADMIN -->
+      <div class="module-card c-store">
+        <div class="module-header">
+          <div class="module-icon bg-store">🏪</div>
+          <div>
+            <div class="module-name text-store">Store Admin</div>
+            <div class="module-desc">Mağaza yönetim paneli — her tenant kendi store-admin'ine giriş yapar</div>
+          </div>
+        </div>
+        <div class="module-body">
+          <div class="entity-list">
+            <span class="entity-tag">StoreSettings</span>
+            <span class="entity-tag">StorePages</span>
+            <span class="entity-tag">StoreSlider</span>
+            <span class="entity-tag">StorePromoBanner</span>
+            <span class="entity-tag">StoreFaq</span>
+            <span class="entity-tag">StoreMedia</span>
+            <span class="entity-tag">StoreContactSubmission</span>
+            <span class="entity-tag">ThemeVersion</span>
+          </div>
+        </div>
+        <div class="module-footer">
+          <span>ThemeEditor (drag-drop) dahil</span>
+          <span class="route-badge">/tenant/:slug/settings</span>
+        </div>
+      </div>
+
+    </div><!-- end module-grid -->
+  </div><!-- end tab-modules -->
+
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- TAB 2: VERİ AKIŞI -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="tab-panel" id="tab-flow">
+    <div class="section-title">Veri Akışı</div>
+    <div class="section-sub">Bir sipariş oluştuğunda veya ürün gösterildiğinde hangi modüllerden veri çekilir</div>
+
+    <!-- FLOW 1: Mağaza Kurulumu -->
+    <div class="flow-section">
+      <div class="flow-title">🏗 Mağaza Kurulumu Akışı</div>
+      <div class="flow-row">
+        <div class="flow-node">
+          <div class="flow-node-icon">👤</div>
+          <div class="flow-node-name" style="color:#a5b4fc">Süper Admin</div>
+          <div class="flow-node-detail">Kayıt & Onay</div>
+        </div>
+        <div class="flow-arrow">→<span class="flow-arrow-label">abonelik seç</span></div>
+        <div class="flow-node">
+          <div class="flow-node-icon">📋</div>
+          <div class="flow-node-name" style="color:#7dd3fc">Plan Seçimi</div>
+          <div class="flow-node-detail">WixiSubscriptionPlan</div>
+        </div>
+        <div class="flow-arrow">→<span class="flow-arrow-label">tenant oluştur</span></div>
+        <div class="flow-node">
+          <div class="flow-node-icon">🏢</div>
+          <div class="flow-node-name" style="color:#7dd3fc">Tenant Provisioning</div>
+          <div class="flow-node-detail">WixiTenant + DB Oluştur</div>
+        </div>
+        <div class="flow-arrow">→<span class="flow-arrow-label">tema seç</span></div>
+        <div class="flow-node">
+          <div class="flow-node-icon">🎨</div>
+          <div class="flow-node-name" style="color:#6ee7b7">ThemeEditor</div>
+          <div class="flow-node-detail">WixiTenantTheme</div>
+        </div>
+        <div class="flow-arrow">→<span class="flow-arrow-label">yayında!</span></div>
+        <div class="flow-node">
+          <div class="flow-node-icon">🌐</div>
+          <div class="flow-node-name" style="color:#6ee7b7">Storefront</div>
+          <div class="flow-node-detail">/store/:slug</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FLOW 2: Ürün Kataloğu -->
+    <div class="flow-section">
+      <div class="flow-title">📦 Ürün Kataloğu Akışı</div>
+      <div class="flow-row">
+        <div class="flow-node">
+          <div class="flow-node-icon">📚</div>
+          <div class="flow-node-name" style="color:#d8b4fe">Referans Veriler</div>
+          <div class="flow-node-detail">Birim, HS Kodu, Ürün Açıklaması</div>
+        </div>
+        <div class="flow-arrow">→<span class="flow-arrow-label">dropdown doldur</span></div>
+        <div class="flow-node">
+          <div class="flow-node-icon">➕</div>
+          <div class="flow-node-name" style="color:#fcd34d">Store Admin</div>
+          <div class="flow-node-detail">Ürün Ekle Formu</div>
+        </div>
+        <div class="flow-arrow">→<span class="flow-arrow-label">POST /products</span></div>
+        <div class="flow-node">
+          <div class="flow-node-icon">💾</div>
+          <div class="flow-node-name" style="color:#fcd34d">EcomProduct</div>
+          <div class="flow-node-detail">Tenant DB'ye yaz</div>
+        </div>
+        <div class="flow-arrow">→<span class="flow-arrow-label">GET /storefront</span></div>
+        <div class="flow-node">
+          <div class="flow-node-icon">🛍️</div>
+          <div class="flow-node-name" style="color:#6ee7b7">Storefront</div>
+          <div class="flow-node-detail">Müşteriye göster</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FLOW 3: Sipariş Akışı -->
+    <div class="flow-section">
+      <div class="flow-title">🧾 Sipariş & Ödeme Akışı</div>
+      <div class="flow-row">
+        <div class="flow-node">
+          <div class="flow-node-icon">👤</div>
+          <div class="flow-node-name" style="color:#6ee7b7">Müşteri</div>
+          <div class="flow-node-detail">Sepete ekle</div>
+        </div>
+        <div class="flow-arrow">→<span class="flow-arrow-label">checkout</span></div>
+        <div class="flow-node">
+          <div class="flow-node-icon">💳</div>
+          <div class="flow-node-name" style="color:#fcd34d">Iyzipay</div>
+          <div class="flow-node-detail">3D Secure ödeme</div>
+        </div>
+        <div class="flow-arrow">→<span class="flow-arrow-label">callback</span></div>
+        <div class="flow-node">
+          <div class="flow-node-icon">📄</div>
+          <div class="flow-node-name" style="color:#fcd34d">EcomOrder</div>
+          <div class="flow-node-detail">Sipariş oluştur</div>
+        </div>
+        <div class="flow-arrow">→<span class="flow-arrow-label">notify</span></div>
+        <div class="flow-node">
+          <div class="flow-node-icon">📧</div>
+          <div class="flow-node-name" style="color:#f9a8d4">Mail Queue</div>
+          <div class="flow-node-detail">MailKit + Template</div>
+        </div>
+        <div class="flow-arrow">→<span class="flow-arrow-label">panel</span></div>
+        <div class="flow-node">
+          <div class="flow-node-icon">📊</div>
+          <div class="flow-node-name" style="color:#6ee7b7">Store Admin</div>
+          <div class="flow-node-detail">Sipariş görüntüle</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FLOW 4: Auth -->
+    <div class="flow-section">
+      <div class="flow-title">🔐 Kimlik Doğrulama Akışı</div>
+      <div class="flow-row">
+        <div class="flow-node">
+          <div class="flow-node-icon">📧</div>
+          <div class="flow-node-name" style="color:#a5b4fc">Login</div>
+          <div class="flow-node-detail">Email + Şifre</div>
+        </div>
+        <div class="flow-arrow">→<span class="flow-arrow-label">2FA aktifse</span></div>
+        <div class="flow-node">
+          <div class="flow-node-icon">📱</div>
+          <div class="flow-node-name" style="color:#a5b4fc">OTP Kodu</div>
+          <div class="flow-node-detail">Email'e gönderilir</div>
+        </div>
+        <div class="flow-arrow">→<span class="flow-arrow-label">doğrula</span></div>
+        <div class="flow-node">
+          <div class="flow-node-icon">🎫</div>
+          <div class="flow-node-name" style="color:#a5b4fc">JWT Token</div>
+          <div class="flow-node-detail">Access + Refresh</div>
+        </div>
+        <div class="flow-arrow">→<span class="flow-arrow-label">Authorization header</span></div>
+        <div class="flow-node">
+          <div class="flow-node-icon">🛡️</div>
+          <div class="flow-node-name" style="color:#a5b4fc">AuthGuard</div>
+          <div class="flow-node-detail">React Route koruma</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FLOW 5: Custom Domain -->
+    <div class="flow-section">
+      <div class="flow-title">🌐 Custom Domain Akışı (Planlanan)</div>
+      <div class="flow-row">
+        <div class="flow-node">
+          <div class="flow-node-icon">🔤</div>
+          <div class="flow-node-name" style="color:#7dd3fc">Müşteri Domaini</div>
+          <div class="flow-node-detail">ahmet.com</div>
+        </div>
+        <div class="flow-arrow">→<span class="flow-arrow-label">DNS CNAME</span></div>
+        <div class="flow-node">
+          <div class="flow-node-icon">🔧</div>
+          <div class="flow-node-name" style="color:#7dd3fc">Nginx</div>
+          <div class="flow-node-detail">catch-all + proxy</div>
+        </div>
+        <div class="flow-arrow">→<span class="flow-arrow-label">Host header</span></div>
+        <div class="flow-node">
+          <div class="flow-node-icon">🏢</div>
+          <div class="flow-node-name" style="color:#7dd3fc">TenantMiddleware</div>
+          <div class="flow-node-detail">WixiCustomDomains tablosu</div>
+        </div>
+        <div class="flow-arrow">→<span class="flow-arrow-label">tenant resolve</span></div>
+        <div class="flow-node">
+          <div class="flow-node-icon">🛍️</div>
+          <div class="flow-node-name" style="color:#6ee7b7">Mağaza</div>
+          <div class="flow-node-detail">ahmet.com → /store/ahmet</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end tab-flow -->
+
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- TAB 3: TANIMLAMA HARİTASI -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="tab-panel" id="tab-refmap">
+    <div class="section-title">Tanımlama Haritası</div>
+    <div class="section-sub">Her referans verinin nerede kullanıldığı — hangi formlarda hangi dropdown'ı doldurur</div>
+
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--c-ecommerce)"></div>E-Commerce</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--c-store)"></div>Store Admin</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--c-tenant)"></div>Cari / Müşteri</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--c-identity)"></div>Raporlama</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--c-settings)"></div>Fatura / Belge</div>
+    </div>
+
+    <table class="ref-table">
+      <thead>
+        <tr>
+          <th>Tanımlama</th>
+          <th>Entity</th>
+          <th>Nerede Kullanılır</th>
+          <th>Açıklama</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>🌍 Bölgeler</strong></td>
+          <td><code style="font-size:11px;color:#a5b4fc">WixiRegion</code></td>
+          <td><div class="usage-tags">
+            <span class="usage-tag" style="background:rgba(14,165,233,0.15);color:#7dd3fc">Müşteri Adresi</span>
+            <span class="usage-tag" style="background:rgba(14,165,233,0.15);color:#7dd3fc">Cari Kart</span>
+            <span class="usage-tag" style="background:rgba(245,158,11,0.15);color:#fcd34d">Sipariş Teslimat</span>
+          </div></td>
+          <td style="color:var(--muted)">İl/İlçe/Ülke hiyerarşisi. Müşteri kayıt formunda şehir seçimi için kullanılır.</td>
+        </tr>
+        <tr>
+          <td><strong>⚓ Limanlar</strong></td>
+          <td><code style="font-size:11px;color:#a5b4fc">WixiPort</code></td>
+          <td><div class="usage-tags">
+            <span class="usage-tag" style="background:rgba(245,158,11,0.15);color:#fcd34d">Sevkiyat Belgesi</span>
+            <span class="usage-tag" style="background:rgba(236,72,153,0.15);color:#f9a8d4">Fatura / İrsaliye</span>
+            <span class="usage-tag" style="background:rgba(14,165,233,0.15);color:#7dd3fc">Cari Kart</span>
+          </div></td>
+          <td style="color:var(--muted)">Yükleme / boşaltma limanı. İhracat belgelerinde zorunlu alan.</td>
+        </tr>
+        <tr>
+          <td><strong>💰 Ödeme Koşulları</strong></td>
+          <td><code style="font-size:11px;color:#a5b4fc">WixiPaymentTerm</code></td>
+          <td><div class="usage-tags">
+            <span class="usage-tag" style="background:rgba(245,158,11,0.15);color:#fcd34d">Sipariş</span>
+            <span class="usage-tag" style="background:rgba(236,72,153,0.15);color:#f9a8d4">Fatura</span>
+            <span class="usage-tag" style="background:rgba(14,165,233,0.15);color:#7dd3fc">Cari Mutabakat</span>
+          </div></td>
+          <td style="color:var(--muted)">Örn: 30 gün vadeli, peşin, akreditif. Sipariş formunda ödeme tipi seçimi.</td>
+        </tr>
+        <tr>
+          <td><strong>🏛 Vergi Daireleri</strong></td>
+          <td><code style="font-size:11px;color:#a5b4fc">WixiTaxOffice</code></td>
+          <td><div class="usage-tags">
+            <span class="usage-tag" style="background:rgba(14,165,233,0.15);color:#7dd3fc">Müşteri Kaydı</span>
+            <span class="usage-tag" style="background:rgba(236,72,153,0.15);color:#f9a8d4">Fatura Başlığı</span>
+            <span class="usage-tag" style="background:rgba(14,165,233,0.15);color:#7dd3fc">Cari Kart</span>
+          </div></td>
+          <td style="color:var(--muted)">Kurumsal müşterilerin bağlı olduğu vergi dairesi. e-Fatura'da zorunlu.</td>
+        </tr>
+        <tr>
+          <td><strong>🚢 Incoterms</strong></td>
+          <td><code style="font-size:11px;color:#a5b4fc">WixiIncoterm</code></td>
+          <td><div class="usage-tags">
+            <span class="usage-tag" style="background:rgba(245,158,11,0.15);color:#fcd34d">Sipariş</span>
+            <span class="usage-tag" style="background:rgba(236,72,153,0.15);color:#f9a8d4">İhracat Belgesi</span>
+            <span class="usage-tag" style="background:rgba(99,102,241,0.15);color:#a5b4fc">Raporlama</span>
+          </div></td>
+          <td style="color:var(--muted)">FOB, CIF, EXW vb. Uluslararası ticarette teslimat/sorumluluk noktası belirtir.</td>
+        </tr>
+        <tr>
+          <td><strong>🚛 Taşıma Modları</strong></td>
+          <td><code style="font-size:11px;color:#a5b4fc">WixiTransportMode</code></td>
+          <td><div class="usage-tags">
+            <span class="usage-tag" style="background:rgba(245,158,11,0.15);color:#fcd34d">Sipariş</span>
+            <span class="usage-tag" style="background:rgba(245,158,11,0.15);color:#fcd34d">Sevkiyat</span>
+          </div></td>
+          <td style="color:var(--muted)">Karayolu, denizyolu, hava, demiryolu. Lojistik planlama için.</td>
+        </tr>
+        <tr>
+          <td><strong>📦 Ambalaj Tipleri</strong></td>
+          <td><code style="font-size:11px;color:#a5b4fc">WixiPackageType</code></td>
+          <td><div class="usage-tags">
+            <span class="usage-tag" style="background:rgba(245,158,11,0.15);color:#fcd34d">Ürün Kaydı</span>
+            <span class="usage-tag" style="background:rgba(245,158,11,0.15);color:#fcd34d">Sipariş Kalemi</span>
+            <span class="usage-tag" style="background:rgba(245,158,11,0.15);color:#fcd34d">Stok</span>
+          </div></td>
+          <td style="color:var(--muted)">Koli, palet, big-bag, konteyner. Ürün depolama ve sevkiyatta kullanılır.</td>
+        </tr>
+        <tr>
+          <td><strong>📐 Birim Kategorileri</strong></td>
+          <td><code style="font-size:11px;color:#a5b4fc">WixiUnitCategory</code></td>
+          <td><div class="usage-tags">
+            <span class="usage-tag" style="background:rgba(168,85,247,0.15);color:#d8b4fe">Birim Grubu</span>
+          </div></td>
+          <td style="color:var(--muted)">Ağırlık, hacim, uzunluk, adet. Birimleri gruplamak için üst kategori.</td>
+        </tr>
+        <tr>
+          <td><strong>📏 Birimler</strong></td>
+          <td><code style="font-size:11px;color:#a5b4fc">WixiUnit</code></td>
+          <td><div class="usage-tags">
+            <span class="usage-tag" style="background:rgba(245,158,11,0.15);color:#fcd34d">Ürün</span>
+            <span class="usage-tag" style="background:rgba(245,158,11,0.15);color:#fcd34d">Sipariş Kalemi</span>
+            <span class="usage-tag" style="background:rgba(16,185,129,0.15);color:#6ee7b7">Stok Takibi</span>
+            <span class="usage-tag" style="background:rgba(236,72,153,0.15);color:#f9a8d4">Fatura Kalemi</span>
+          </div></td>
+          <td style="color:var(--muted)">KG, ton, litre, adet, m², m³. Her ürün ve sipariş kaleminde birim seçimi zorunlu.</td>
+        </tr>
+        <tr>
+          <td><strong>🔄 Birim Dönüşümleri</strong></td>
+          <td><code style="font-size:11px;color:#a5b4fc">WixiUnitConversion</code></td>
+          <td><div class="usage-tags">
+            <span class="usage-tag" style="background:rgba(16,185,129,0.15);color:#6ee7b7">Stok Hesaplama</span>
+            <span class="usage-tag" style="background:rgba(245,158,11,0.15);color:#fcd34d">Fiyat Hesaplama</span>
+          </div></td>
+          <td style="color:var(--muted)">1 ton = 1000 KG gibi. Farklı birimlerdeki stok ve fiyat hesaplamalarını otomatikleştirir.</td>
+        </tr>
+        <tr>
+          <td><strong>🏷 Hizmet Kategorileri</strong></td>
+          <td><code style="font-size:11px;color:#a5b4fc">WixiServiceCategory</code></td>
+          <td><div class="usage-tags">
+            <span class="usage-tag" style="background:rgba(168,85,247,0.15);color:#d8b4fe">Hizmet Grubu</span>
+          </div></td>
+          <td style="color:var(--muted)">Nakliye, montaj, danışmanlık vb. Hizmetleri gruplamak için.</td>
+        </tr>
+        <tr>
+          <td><strong>🔧 Hizmetler</strong></td>
+          <td><code style="font-size:11px;color:#a5b4fc">WixiService</code></td>
+          <td><div class="usage-tags">
+            <span class="usage-tag" style="background:rgba(236,72,153,0.15);color:#f9a8d4">Fatura Kalemi</span>
+            <span class="usage-tag" style="background:rgba(245,158,11,0.15);color:#fcd34d">Sipariş Ek Masraf</span>
+          </div></td>
+          <td style="color:var(--muted)">Ürün dışı kalemler için. Faturaya "montaj hizmeti: 500₺" gibi ek kalem ekler.</td>
+        </tr>
+        <tr>
+          <td><strong>📝 Ürün Açıklamaları</strong></td>
+          <td><code style="font-size:11px;color:#a5b4fc">WixiProductDescription</code></td>
+          <td><div class="usage-tags">
+            <span class="usage-tag" style="background:rgba(245,158,11,0.15);color:#fcd34d">Ürün Kaydı</span>
+            <span class="usage-tag" style="background:rgba(245,158,11,0.15);color:#fcd34d">Katalog</span>
+          </div></td>
+          <td style="color:var(--muted)">Önceden hazırlanmış açıklama şablonları. Aynı tip ürünler için hızlı doldurma.</td>
+        </tr>
+        <tr>
+          <td><strong>🔢 HS Kodları</strong></td>
+          <td><code style="font-size:11px;color:#a5b4fc">WixiHsCode</code></td>
+          <td><div class="usage-tags">
+            <span class="usage-tag" style="background:rgba(245,158,11,0.15);color:#fcd34d">Ürün Kaydı</span>
+            <span class="usage-tag" style="background:rgba(236,72,153,0.15);color:#f9a8d4">İhracat Beyanı</span>
+            <span class="usage-tag" style="background:rgba(99,102,241,0.15);color:#a5b4fc">Gümrük Raporları</span>
+          </div></td>
+          <td style="color:var(--muted)">Uluslararası Harmonize Sistem kodu. Gümrük beyannamesi ve ihracat belgelerinde zorunlu.</td>
+        </tr>
+        <tr>
+          <td><strong>🌐 Sistem Sayfaları</strong></td>
+          <td><code style="font-size:11px;color:#a5b4fc">WixiSystemPage</code></td>
+          <td><div class="usage-tags">
+            <span class="usage-tag" style="background:rgba(16,185,129,0.15);color:#6ee7b7">Storefront CMS</span>
+          </div></td>
+          <td style="color:var(--muted)">KVKK, Hakkımızda, İletişim vb. sabit sayfa içerikleri. Her mağaza için özelleştirilebilir.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div><!-- end tab-refmap -->
+
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- TAB 4: ALAN KAYNAKLARI -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="tab-panel" id="tab-fields">
+    <div class="section-title">Alan Kaynakları</div>
+    <div class="section-sub">Her entity'nin alanları hangi modülden/tablodan beslenir</div>
+
+    <div class="entity-detail-grid">
+
+      <!-- EcomProduct -->
+      <div class="entity-card c-ecommerce">
+        <div class="entity-card-header bg-ecommerce">
+          <span style="font-size:18px">📦</span>
+          <div>
+            <div class="entity-card-name text-ecommerce">EcomProduct</div>
+            <div style="font-size:11px;color:var(--muted)">Ürün kataloğu — Tenant DB</div>
+          </div>
+        </div>
+        <div class="entity-card-body">
+          <div class="field-row">
+            <span class="field-name">category_id</span>
+            <span class="field-desc">Kategori seçimi</span>
+            <span class="field-source" style="background:rgba(245,158,11,0.15);color:#fcd34d">E-Comm</span>
+          </div>
+          <div class="field-row">
+            <span class="field-name">brand_id</span>
+            <span class="field-desc">Marka seçimi</span>
+            <span class="field-source" style="background:rgba(245,158,11,0.15);color:#fcd34d">E-Comm</span>
+          </div>
+          <div class="field-row">
+            <span class="field-name">unit_id</span>
+            <span class="field-desc">Ürün birimi (kg, adet…)</span>
+            <span class="field-source" style="background:rgba(168,85,247,0.15);color:#d8b4fe">RefData</span>
+          </div>
+          <div class="field-row">
+            <span class="field-name">hs_code_id</span>
+            <span class="field-desc">Gümrük kodu</span>
+            <span class="field-source" style="background:rgba(168,85,247,0.15);color:#d8b4fe">RefData</span>
+          </div>
+          <div class="field-row">
+            <span class="field-name">currency_id</span>
+            <span class="field-desc">Fiyat para birimi</span>
+            <span class="field-source" style="background:rgba(236,72,153,0.15);color:#f9a8d4">Settings</span>
+          </div>
+          <div class="field-row">
+            <span class="field-name">description_template</span>
+            <span class="field-desc">Hazır açıklama şablonu</span>
+            <span class="field-source" style="background:rgba(168,85,247,0.15);color:#d8b4fe">RefData</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- EcomOrder -->
+      <div class="entity-card c-ecommerce">
+        <div class="entity-card-header bg-ecommerce">
+          <span style="font-size:18px">🧾</span>
+          <div>
+            <div class="entity-card-name text-ecommerce">EcomOrder</div>
+            <div style="font-size:11px;color:var(--muted)">Sipariş başlığı — Tenant DB</div>
+          </div>
+        </div>
+        <div class="entity-card-body">
+          <div class="field-row">
+            <span class="field-name">payment_term_id</span>
+            <span class="field-desc">Ödeme koşulu</span>
+            <span class="field-source" style="background:rgba(168,85,247,0.15);color:#d8b4fe">RefData</span>
+          </div>
+          <div class="field-row">
+            <span class="field-name">incoterm_id</span>
+            <span class="field-desc">Teslim şekli (FOB, CIF…)</span>
+            <span class="field-source" style="background:rgba(168,85,247,0.15);color:#d8b4fe">RefData</span>
+          </div>
+          <div class="field-row">
+            <span class="field-name">transport_mode_id</span>
+            <span class="field-desc">Taşıma türü</span>
+            <span class="field-source" style="background:rgba(168,85,247,0.15);color:#d8b4fe">RefData</span>
+          </div>
+          <div class="field-row">
+            <span class="field-name">loading_port_id</span>
+            <span class="field-desc">Yükleme limanı</span>
+            <span class="field-source" style="background:rgba(168,85,247,0.15);color:#d8b4fe">RefData</span>
+          </div>
+          <div class="field-row">
+            <span class="field-name">discharge_port_id</span>
+            <span class="field-desc">Boşaltma limanı</span>
+            <span class="field-source" style="background:rgba(168,85,247,0.15);color:#d8b4fe">RefData</span>
+          </div>
+          <div class="field-row">
+            <span class="field-name">currency_id</span>
+            <span class="field-desc">Sipariş para birimi</span>
+            <span class="field-source" style="background:rgba(236,72,153,0.15);color:#f9a8d4">Settings</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- EcomOrderItem -->
+      <div class="entity-card c-ecommerce">
+        <div class="entity-card-header bg-ecommerce">
+          <span style="font-size:18px">📋</span>
+          <div>
+            <div class="entity-card-name text-ecommerce">EcomOrderItem</div>
+            <div style="font-size:11px;color:var(--muted)">Sipariş kalemi</div>
+          </div>
+        </div>
+        <div class="entity-card-body">
+          <div class="field-row">
+            <span class="field-name">product_id</span>
+            <span class="field-desc">Ürün referansı</span>
+            <span class="field-source" style="background:rgba(245,158,11,0.15);color:#fcd34d">E-Comm</span>
+          </div>
+          <div class="field-row">
+            <span class="field-name">unit_id</span>
+            <span class="field-desc">Sipariş birimi</span>
+            <span class="field-source" style="background:rgba(168,85,247,0.15);color:#d8b4fe">RefData</span>
+          </div>
+          <div class="field-row">
+            <span class="field-name">package_type_id</span>
+            <span class="field-desc">Ambalaj tipi</span>
+            <span class="field-source" style="background:rgba(168,85,247,0.15);color:#d8b4fe">RefData</span>
+          </div>
+          <div class="field-row">
+            <span class="field-name">quantity</span>
+            <span class="field-desc">Miktar</span>
+            <span class="field-source" style="background:rgba(255,255,255,0.06);color:#94a3b8">Input</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- EcomCustomer / Cari -->
+      <div class="entity-card c-tenant">
+        <div class="entity-card-header bg-tenant">
+          <span style="font-size:18px">👤</span>
+          <div>
+            <div class="entity-card-name text-tenant">EcomCustomer / Cari</div>
+            <div style="font-size:11px;color:var(--muted)">Müşteri / Cari kart</div>
+          </div>
+        </div>
+        <div class="entity-card-body">
+          <div class="field-row">
+            <span class="field-name">region_id</span>
+            <span class="field-desc">İl / Şehir</span>
+            <span class="field-source" style="background:rgba(168,85,247,0.15);color:#d8b4fe">RefData</span>
+          </div>
+          <div class="field-row">
+            <span class="field-name">tax_office_id</span>
+            <span class="field-desc">Vergi dairesi</span>
+            <span class="field-source" style="background:rgba(168,85,247,0.15);color:#d8b4fe">RefData</span>
+          </div>
+          <div class="field-row">
+            <span class="field-name">payment_term_id</span>
+            <span class="field-desc">Varsayılan ödeme koşulu</span>
+            <span class="field-source" style="background:rgba(168,85,247,0.15);color:#d8b4fe">RefData</span>
+          </div>
+          <div class="field-row">
+            <span class="field-name">currency_id</span>
+            <span class="field-desc">Cari para birimi</span>
+            <span class="field-source" style="background:rgba(236,72,153,0.15);color:#f9a8d4">Settings</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- WixiTenant -->
+      <div class="entity-card c-tenant">
+        <div class="entity-card-header bg-tenant">
+          <span style="font-size:18px">🏢</span>
+          <div>
+            <div class="entity-card-name text-tenant">WixiTenant</div>
+            <div style="font-size:11px;color:var(--muted)">Mağaza kiracısı — Master DB</div>
+          </div>
+        </div>
+        <div class="entity-card-body">
+          <div class="field-row">
+            <span class="field-name">slug</span>
+            <span class="field-desc">URL kimliği (/store/slug)</span>
+            <span class="field-source" style="background:rgba(255,255,255,0.06);color:#94a3b8">Input</span>
+          </div>
+          <div class="field-row">
+            <span class="field-name">custom_domain</span>
+            <span class="field-desc">ahmet.com gibi özel domain</span>
+            <span class="field-source" style="background:rgba(255,255,255,0.06);color:#94a3b8">Input</span>
+          </div>
+          <div class="field-row">
+            <span class="field-name">plan_id</span>
+            <span class="field-desc">Abonelik planı</span>
+            <span class="field-source" style="background:rgba(14,165,233,0.15);color:#7dd3fc">Tenant</span>
+          </div>
+          <div class="field-row">
+            <span class="field-name">theme_id</span>
+            <span class="field-desc">Aktif tema</span>
+            <span class="field-source" style="background:rgba(16,185,129,0.15);color:#6ee7b7">Store</span>
+          </div>
+          <div class="field-row">
+            <span class="field-name">smtp_*</span>
+            <span class="field-desc">Tenant SMTP ayarları</span>
+            <span class="field-source" style="background:rgba(255,255,255,0.06);color:#94a3b8">Input</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- WixiUser -->
+      <div class="entity-card c-identity">
+        <div class="entity-card-header bg-identity">
+          <span style="font-size:18px">🔐</span>
+          <div>
+            <div class="entity-card-name text-identity">WixiUser</div>
+            <div style="font-size:11px;color:var(--muted)">Süper admin kullanıcısı</div>
+          </div>
+        </div>
+        <div class="entity-card-body">
+          <div class="field-row">
+            <span class="field-name">role_ids</span>
+            <span class="field-desc">Atanmış roller</span>
+            <span class="field-source" style="background:rgba(99,102,241,0.15);color:#a5b4fc">Identity</span>
+          </div>
+          <div class="field-row">
+            <span class="field-name">menu_ids</span>
+            <span class="field-desc">Özel menü yapısı</span>
+            <span class="field-source" style="background:rgba(236,72,153,0.15);color:#f9a8d4">Settings</span>
+          </div>
+          <div class="field-row">
+            <span class="field-name">language_id</span>
+            <span class="field-desc">Arayüz dili tercihi</span>
+            <span class="field-source" style="background:rgba(236,72,153,0.15);color:#f9a8d4">Settings</span>
+          </div>
+          <div class="field-row">
+            <span class="field-name">2fa_enabled</span>
+            <span class="field-desc">İki faktörlü doğrulama</span>
+            <span class="field-source" style="background:rgba(99,102,241,0.15);color:#a5b4fc">Identity</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div><!-- end tab-fields -->
+
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- TAB 5: API HARİTASI -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="tab-panel" id="tab-api">
+    <div class="section-title">API Endpoint Haritası</div>
+    <div class="section-sub">Tüm endpointler — <code style="color:#a5b4fc">http://localhost:5181/api/v1</code> base URL</div>
+
+    <!-- Identity -->
+    <div class="api-section">
+      <div class="api-section-title text-identity">🔐 Identity / Auth</div>
+      <div class="api-list">
+        <div class="api-row"><span class="method method-post">POST</span><span class="api-path">/auth/login</span><span class="api-desc">Giriş, JWT döner</span></div>
+        <div class="api-row"><span class="method method-post">POST</span><span class="api-path">/auth/login/2fa</span><span class="api-desc">OTP doğrulama</span></div>
+        <div class="api-row"><span class="method method-post">POST</span><span class="api-path">/auth/refresh</span><span class="api-desc">Access token yenile</span></div>
+        <div class="api-row"><span class="method method-post">POST</span><span class="api-path">/auth/logout</span><span class="api-desc">Oturum kapat</span></div>
+        <div class="api-row"><span class="method method-get">GET</span><span class="api-path">/users</span><span class="api-desc">Kullanıcı listesi</span></div>
+        <div class="api-row"><span class="method method-post">POST</span><span class="api-path">/users</span><span class="api-desc">Kullanıcı oluştur</span></div>
+        <div class="api-row"><span class="method method-get">GET</span><span class="api-path">/roles</span><span class="api-desc">Rol listesi</span></div>
+      </div>
+    </div>
+
+    <!-- Settings -->
+    <div class="api-section">
+      <div class="api-section-title text-settings">⚙️ Settings / Core</div>
+      <div class="api-list">
+        <div class="api-row"><span class="method method-get">GET</span><span class="api-path">/currencies</span><span class="api-desc">Para birimleri</span></div>
+        <div class="api-row"><span class="method method-get">GET</span><span class="api-path">/languages</span><span class="api-desc">Dil listesi</span></div>
+        <div class="api-row"><span class="method method-get">GET</span><span class="api-path">/menus/user/{id}</span><span class="api-desc">Kullanıcı menüsü</span></div>
+        <div class="api-row"><span class="method method-get">GET</span><span class="api-path">/audit-logs</span><span class="api-desc">Audit log listesi</span></div>
+        <div class="api-row"><span class="method method-get">GET</span><span class="api-path">/system-logs</span><span class="api-desc">Uygulama logları</span></div>
+        <div class="api-row"><span class="method method-get">GET</span><span class="api-path">/mailing/templates</span><span class="api-desc">Mail şablonları</span></div>
+      </div>
+    </div>
+
+    <!-- Reference Data -->
+    <div class="api-section">
+      <div class="api-section-title text-refdata">📚 Reference Data</div>
+      <div class="api-list">
+        <div class="api-row"><span class="method method-get">GET</span><span class="api-path">/regions</span><span class="api-desc">Bölgeler</span></div>
+        <div class="api-row"><span class="method method-get">GET</span><span class="api-path">/ports</span><span class="api-desc">Limanlar</span></div>
+        <div class="api-row"><span class="method method-get">GET</span><span class="api-path">/payment-terms</span><span class="api-desc">Ödeme koşulları</span></div>
+        <div class="api-row"><span class="method method-get">GET</span><span class="api-path">/tax-offices</span><span class="api-desc">Vergi daireleri</span></div>
+        <div class="api-row"><span class="method method-get">GET</span><span class="api-path">/incoterms</span><span class="api-desc">Incoterms</span></div>
+        <div class="api-row"><span class="method method-get">GET</span><span class="api-path">/transport-modes</span><span class="api-desc">Taşıma modları</span></div>
+        <div class="api-row"><span class="method method-get">GET</span><span class="api-path">/package-types</span><span class="api-desc">Ambalaj tipleri</span></div>
+        <div class="api-row"><span class="method method-get">GET</span><span class="api-path">/unit-categories</span><span class="api-desc">Birim kategorileri</span></div>
+        <div class="api-row"><span class="method method-get">GET</span><span class="api-path">/units</span><span class="api-desc">Birimler</span></div>
+        <div class="api-row"><span class="method method-get">GET</span><span class="api-path">/unit-conversions</span><span class="api-desc">Birim dönüşümleri</span></div>
+        <div class="api-row"><span class="method method-get">GET</span><span class="api-path">/service-categories</span><span class="api-desc">Hizmet kategorileri</span></div>
+        <div class="api-row"><span class="method method-get">GET</span><span class="api-path">/services</span><span class="api-desc">Hizmetler</span></div>
+        <div class="api-row"><span class="method method-get">GET</span><span class="api-path">/product-descriptions</span><span class="api-desc">Ürün açıklamaları</span></div>
+        <div class="api-row"><span class="method method-get">GET</span><span class="api-path">/hs-codes</span><span class="api-desc">HS Kodları</span></div>
+      </div>
+    </div>
+
+    <!-- Tenant / Subscriptions -->
+    <div class="api-section">
+      <div class="api-section-title text-tenant">🏢 Tenants & Subscriptions</div>
+      <div class="api-list">
+        <div class="api-row"><span class="method method-get">GET</span><span class="api-path">/tenants</span><span class="api-desc">Mağaza listesi</span></div>
+        <div class="api-row"><span class="method method-post">POST</span><span class="api-path">/saas/onboarding</span><span class="api-desc">Yeni mağaza kurulumu</span></div>
+        <div class="api-row"><span class="method method-get">GET</span><span class="api-path">/subscriptions/plans</span><span class="api-desc">Abonelik planları</span></div>
+        <div class="api-row"><span class="method method-post">POST</span><span class="api-path">/stripe/webhook</span><span class="api-desc">Stripe ödeme callback</span></div>
+      </div>
+    </div>
+
+    <!-- E-Commerce -->
+    <div class="api-section">
+      <div class="api-section-title text-ecommerce">🛒 E-Commerce (Tenant-scoped)</div>
+      <div class="api-list">
+        <div class="api-row"><span class="method method-get">GET</span><span class="api-path">/store-admin/products</span><span class="api-desc">Ürün listesi</span></div>
+        <div class="api-row"><span class="method method-post">POST</span><span class="api-path">/store-admin/products</span><span class="api-desc">Ürün ekle</span></div>
+        <div class="api-row"><span class="method method-put">PUT</span><span class="api-path">/store-admin/products/{id}</span><span class="api-desc">Ürün güncelle</span></div>
+        <div class="api-row"><span class="method method-delete">DEL</span><span class="api-path">/store-admin/products/{id}</span><span class="api-desc">Ürün sil</span></div>
+        <div class="api-row"><span class="method method-get">GET</span><span class="api-path">/store-admin/orders</span><span class="api-desc">Sipariş listesi</span></div>
+        <div class="api-row"><span class="method method-put">PUT</span><span class="api-path">/store-admin/orders/{id}/status</span><span class="api-desc">Sipariş durumu güncelle</span></div>
+        <div class="api-row"><span class="method method-get">GET</span><span class="api-path">/store-admin/customers</span><span class="api-desc">Müşteri listesi</span></div>
+        <div class="api-row"><span class="method method-get">GET</span><span class="api-path">/store-admin/stock</span><span class="api-desc">Stok durumu</span></div>
+        <div class="api-row"><span class="method method-get">GET</span><span class="api-path">/store-admin/analytics</span><span class="api-desc">Satış analitiği</span></div>
+        <div class="api-row"><span class="method method-get">GET</span><span class="api-path">/store-admin/discounts</span><span class="api-desc">İndirim kodları</span></div>
+      </div>
+    </div>
+
+    <!-- Storefront -->
+    <div class="api-section">
+      <div class="api-section-title text-store">🛍️ Storefront (Public)</div>
+      <div class="api-list">
+        <div class="api-row"><span class="method method-get">GET</span><span class="api-path">/storefront/products</span><span class="api-desc">Ürün vitrin listesi</span></div>
+        <div class="api-row"><span class="method method-get">GET</span><span class="api-path">/storefront/products/{slug}</span><span class="api-desc">Ürün detayı</span></div>
+        <div class="api-row"><span class="method method-get">GET</span><span class="api-path">/storefront/categories</span><span class="api-desc">Kategori ağacı</span></div>
+        <div class="api-row"><span class="method method-post">POST</span><span class="api-path">/storefront/cart</span><span class="api-desc">Sepete ekle</span></div>
+        <div class="api-row"><span class="method method-post">POST</span><span class="api-path">/storefront/checkout</span><span class="api-desc">Sipariş oluştur + ödeme</span></div>
+        <div class="api-row"><span class="method method-get">GET</span><span class="api-path">/storefront/orders/{no}</span><span class="api-desc">Sipariş takip</span></div>
+        <div class="api-row"><span class="method method-post">POST</span><span class="api-path">/storefront/auth/register</span><span class="api-desc">Müşteri kaydı</span></div>
+        <div class="api-row"><span class="method method-post">POST</span><span class="api-path">/storefront/auth/login</span><span class="api-desc">Müşteri girişi</span></div>
+      </div>
+    </div>
+
+  </div><!-- end tab-api -->
+
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- TAB 6: MİMARİ GÖRÜNÜM -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="tab-panel" id="tab-arch">
+    <div class="section-title">Mimari Görünüm</div>
+    <div class="section-sub">Katmanlı mimari — kullanıcıdan veritabanına</div>
+
+    <!-- Layer: Users -->
+    <div class="arch-layer">
+      <div class="arch-layer-label">👤 Kullanıcılar</div>
+      <div class="arch-row">
+        <div class="arch-node bg-identity"><span>🔐</span> Süper Admin</div>
+        <div class="arch-node bg-ecommerce"><span>🏪</span> Store Admin</div>
+        <div class="arch-node bg-store"><span>🛍️</span> Müşteri (Storefront)</div>
+      </div>
+    </div>
+    <div class="arch-connector">⬇</div>
+
+    <!-- Layer: Frontend -->
+    <div class="arch-layer">
+      <div class="arch-layer-label">⚛️ Frontend — React 19 + Vite (localhost:5173)</div>
+      <div class="arch-row">
+        <div class="arch-node bg-identity"><span>🖥️</span> /admin/* — Admin Panel</div>
+        <div class="arch-node bg-ecommerce"><span>🖥️</span> /tenant/:slug/* — Store Admin</div>
+        <div class="arch-node bg-store"><span>🖥️</span> /store/:slug/* — Storefront</div>
+      </div>
+    </div>
+    <div class="arch-connector">⬇</div>
+
+    <!-- Layer: API Gateway -->
+    <div class="arch-layer">
+      <div class="arch-layer-label">🔌 API Gateway — ASP.NET Core .NET 9 (localhost:5181/api/v1)</div>
+      <div class="arch-row">
+        <div class="arch-node" style="border-color:rgba(99,102,241,0.3)"><span>🔐</span> AuthGuard (JWT)</div>
+        <div class="arch-node" style="border-color:rgba(14,165,233,0.3)"><span>🏢</span> TenantMiddleware (X-Tenant-Slug)</div>
+        <div class="arch-node" style="border-color:rgba(245,158,11,0.3)"><span>⚡</span> Rate Limiter</div>
+        <div class="arch-node" style="border-color:rgba(16,185,129,0.3)"><span>📋</span> CORS</div>
+      </div>
+    </div>
+    <div class="arch-connector">⬇</div>
+
+    <!-- Layer: Controllers -->
+    <div class="arch-layer">
+      <div class="arch-layer-label">🎮 Controllers (Wixi.API)</div>
+      <div class="arch-row">
+        <div class="arch-node bg-identity" style="font-size:11px"><span>🔐</span> Identity/</div>
+        <div class="arch-node bg-settings" style="font-size:11px"><span>⚙️</span> Core/</div>
+        <div class="arch-node bg-refdata" style="font-size:11px"><span>📚</span> ReferenceData/</div>
+        <div class="arch-node bg-tenant" style="font-size:11px"><span>🏢</span> Subscriptions/</div>
+        <div class="arch-node bg-ecommerce" style="font-size:11px"><span>🛒</span> StoreAdmin/</div>
+        <div class="arch-node bg-store" style="font-size:11px"><span>🛍️</span> Storefront/</div>
+      </div>
+    </div>
+    <div class="arch-connector">⬇</div>
+
+    <!-- Layer: CQRS -->
+    <div class="arch-layer">
+      <div class="arch-layer-label">📐 CQRS — MediatR Commands & Queries</div>
+      <div class="arch-row">
+        <div class="arch-node" style="border-color:rgba(168,85,247,0.3)"><span>📤</span> Commands (Create/Update/Delete)</div>
+        <div class="arch-node" style="border-color:rgba(168,85,247,0.3)"><span>📥</span> Queries (Get/List/Filter)</div>
+        <div class="arch-node" style="border-color:rgba(168,85,247,0.3)"><span>📢</span> Domain Events (Cross-module)</div>
+      </div>
+    </div>
+    <div class="arch-connector">⬇</div>
+
+    <!-- Layer: Domain -->
+    <div class="arch-layer">
+      <div class="arch-layer-label">🏛 Domain Entities (Wixi* prefix)</div>
+      <div class="arch-row">
+        <div class="arch-node bg-identity" style="font-size:11px">WixiUser, WixiRole</div>
+        <div class="arch-node bg-settings" style="font-size:11px">WixiCurrency, WixiLanguage</div>
+        <div class="arch-node bg-refdata" style="font-size:11px">WixiPort, WixiUnit…</div>
+        <div class="arch-node bg-tenant" style="font-size:11px">WixiTenant, WixiPlan</div>
+        <div class="arch-node bg-ecommerce" style="font-size:11px">EcomProduct, EcomOrder</div>
+      </div>
+    </div>
+    <div class="arch-connector">⬇</div>
+
+    <!-- Layer: Databases -->
+    <div class="arch-layer">
+      <div class="arch-layer-label">🗄 Veritabanları — SQL Server</div>
+      <div class="arch-row">
+        <div class="arch-node bg-identity" style="border-color:rgba(99,102,241,0.4)">
+          <span>🗃️</span>
+          <div>
+            <div style="font-weight:700;font-size:12px">Wixi_App (Master DB)</div>
+            <div style="font-size:10px;color:var(--muted)">Kullanıcılar, Roller, Menüler, Tanımlamalar, Tenant kayıtları</div>
+          </div>
+        </div>
+        <div class="arch-node bg-ecommerce" style="border-color:rgba(245,158,11,0.4)">
+          <span>🗃️</span>
+          <div>
+            <div style="font-weight:700;font-size:12px">Wixi_App_{tenantSlug} (Per-Tenant DB)</div>
+            <div style="font-size:10px;color:var(--muted)">Ürünler, Siparişler, Stok, Müşteriler — her mağaza izole</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Background services -->
+    <div style="margin-top:32px">
+      <div class="arch-layer-label" style="margin-bottom:12px">⚙️ Arka Plan Servisleri</div>
+      <div class="arch-row">
+        <div class="arch-node bg-settings"><span>📧</span> MailingBackgroundWorker (MailKit)</div>
+        <div class="arch-node bg-tenant"><span>🔒</span> Certbot / Let's Encrypt (Custom Domain)</div>
+        <div class="arch-node bg-identity"><span>📊</span> Serilog → Log DB</div>
+      </div>
+    </div>
+
+    <!-- Tech Stack -->
+    <div style="margin-top:40px; padding:28px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);">
+      <div class="arch-layer-label" style="margin-bottom:16px">🔧 Teknoloji Yığını</div>
+      <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(200px,1fr)); gap:12px;">
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <div style="font-size:11px;color:var(--muted);text-transform:uppercase;font-weight:700">Backend</div>
+          <div style="font-size:13px">.NET 9 / ASP.NET Core</div>
+          <div style="font-size:13px">MediatR (CQRS)</div>
+          <div style="font-size:13px">Entity Framework Core</div>
+          <div style="font-size:13px">FluentValidation</div>
+          <div style="font-size:13px">Serilog</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <div style="font-size:11px;color:var(--muted);text-transform:uppercase;font-weight:700">Frontend</div>
+          <div style="font-size:13px">React 19 + TypeScript</div>
+          <div style="font-size:13px">Vite + React Router v7</div>
+          <div style="font-size:13px">Zustand (State)</div>
+          <div style="font-size:13px">Axios + JWT Interceptor</div>
+          <div style="font-size:13px">Vanilla CSS (Glassmorphism)</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <div style="font-size:11px;color:var(--muted);text-transform:uppercase;font-weight:700">Altyapı</div>
+          <div style="font-size:13px">SQL Server</div>
+          <div style="font-size:13px">Nginx (Reverse Proxy)</div>
+          <div style="font-size:13px">Docker / Docker Compose</div>
+          <div style="font-size:13px">Let's Encrypt (SSL)</div>
+          <div style="font-size:13px">GitHub Actions (CI/CD)</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <div style="font-size:11px;color:var(--muted);text-transform:uppercase;font-weight:700">Ödeme & Mail</div>
+          <div style="font-size:13px">Iyzipay (Türkiye ödeme)</div>
+          <div style="font-size:13px">Stripe (SaaS abonelik)</div>
+          <div style="font-size:13px">MailKit + SMTP</div>
+          <div style="font-size:13px">Scriban (Mail şablonları)</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end tab-arch -->
+
+</div><!-- end content -->
+
+<script>
+  function switchTab(name) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelector(`#tab-${name}`).classList.add('active');
+    event.target.classList.add('active');
+  }
+</script>
+
+</body>
+</html>

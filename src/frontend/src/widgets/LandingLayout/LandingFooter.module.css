@@ -1,0 +1,111 @@
+.footer {
+  padding: 60px 0 40px;
+  border-top: 1px solid var(--lp-border);
+  margin-top: 60px;
+}
+.inner {}
+.grid {
+  display: grid;
+  grid-template-columns: 1.4fr repeat(4, 1fr);
+  gap: 40px;
+  margin-bottom: 48px;
+}
+@media (max-width: 900px) {
+  .grid { grid-template-columns: 1fr 1fr; gap: 32px; }
+}
+
+.brandCol {}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 800;
+  font-size: 18px;
+  letter-spacing: -.02em;
+  text-decoration: none;
+  color: var(--lp-text);
+  margin-bottom: 14px;
+}
+.brandMark {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+  color: #fff;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+.brandName { color: var(--lp-text); }
+.dim { color: var(--lp-text-muted); font-weight: 600; }
+.brandCol p {
+  color: var(--lp-text-muted);
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0 0 18px;
+  max-width: 280px;
+}
+
+.social {
+  display: flex;
+  gap: 10px;
+}
+.socialLink {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid var(--lp-border);
+  display: grid;
+  place-items: center;
+  color: var(--lp-text-muted);
+  transition: background .25s, color .25s, border-color .25s, transform .25s cubic-bezier(.22,1,.36,1);
+}
+.socialLink:hover {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: #fff;
+  border-color: transparent;
+  transform: translateY(-3px);
+}
+
+.col h4 {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--lp-text);
+  margin: 0 0 16px;
+  font-weight: 600;
+}
+.col ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.col a {
+  font-size: 14px;
+  color: var(--lp-text-muted);
+  transition: color .2s;
+  text-decoration: none;
+}
+.col a:hover { color: var(--lp-text); }
+
+.bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 24px;
+  border-top: 1px solid var(--lp-border);
+  font-size: 13px;
+  color: var(--lp-text-dim);
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.legal {
+  display: flex;
+  gap: 20px;
+}

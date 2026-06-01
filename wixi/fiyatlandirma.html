@@ -1,0 +1,678 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Fiyatlandırma — Wixi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+<style>
+.page-hero{padding: 80px 0 50px;text-align:center}
+.page-hero h1{font-size: clamp(46px, 5.5vw, 76px);line-height:1;letter-spacing:-.035em;font-weight:800;margin:24px 0 22px}
+.page-hero p{font-size:18.5px;color:var(--text-muted);max-width:640px;margin:0 auto 36px;line-height:1.55}
+
+/* Billing toggle (large, attractive) */
+.bill-toggle{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:5px;border-radius:999px;
+  background:rgba(255,255,255,.04);border:1px solid var(--border);
+  backdrop-filter: blur(10px);
+  position:relative;
+}
+.bill-toggle button{
+  padding: 10px 22px; border-radius:999px;
+  font-size:14.5px;font-weight:600;color:var(--text-muted);
+  display:inline-flex;align-items:center;gap:8px;
+  transition: color .25s;
+  position:relative;z-index:1;
+}
+.bill-toggle button.active{color:#fff}
+.bill-toggle__pill{
+  position:absolute;top:5px;bottom:5px;
+  background: var(--grad);
+  border-radius: 999px;
+  transition: left .35s var(--easing), width .35s var(--easing);
+  box-shadow: 0 6px 18px -6px rgba(99,102,241,.5);
+}
+.bill-toggle .save{
+  font-size:11px;padding:2px 7px;border-radius:5px;
+  background: rgba(124,228,164,.18);color:var(--success);font-weight:700;
+  border:1px solid rgba(124,228,164,.3);
+}
+
+/* Plan cards */
+.plans{padding: 30px 0 80px}
+.plans__grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+@media (max-width: 900px){.plans__grid{grid-template-columns:1fr;max-width:480px;margin:0 auto}}
+
+.plan{
+  padding:36px 32px;position:relative;
+  display:flex;flex-direction:column;
+  transition: transform .3s var(--easing), border-color .25s;
+}
+.plan:hover{transform:translateY(-6px)}
+.plan__name{font-size:14px;font-weight:700;color:var(--text-muted);letter-spacing:.06em;text-transform:uppercase}
+.plan__ic{
+  width:40px;height:40px;border-radius:11px;
+  background:rgba(255,255,255,.04);border:1px solid var(--border);
+  display:grid;place-items:center;color:var(--text-muted);
+  margin-bottom:18px;
+}
+.plan__price{
+  display:flex;align-items:baseline;gap:6px;margin:18px 0 4px;
+  font-weight:800;line-height:1;
+  position:relative;
+}
+.plan__price .currency{font-size:24px;color:var(--text);font-weight:600;align-self:flex-start;margin-top:8px}
+.plan__price .amt{
+  font-size:62px;letter-spacing:-.045em;line-height:1;
+  transition: opacity .3s;
+}
+.plan__price .per{font-size:15px;color:var(--text-muted);font-weight:500}
+.plan__old{
+  font-size:14px;color:var(--text-dim);text-decoration: line-through;font-weight:600;
+  margin-top:2px;display:none;
+}
+.plan__old.show{display:block;animation: pop .4s var(--easing)}
+@keyframes pop{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+
+.plan__desc{color:var(--text-muted);font-size:14.5px;line-height:1.55;margin:8px 0 26px}
+.plan ul{list-style:none;padding:0;margin:0 0 28px;display:flex;flex-direction:column;gap:12px;flex:1}
+.plan li{display:flex;align-items:flex-start;gap:10px;font-size:14.5px;color:#dde0ef}
+.plan li svg{flex-shrink:0;margin-top:2px;color:#a5b4fc}
+.plan li.muted{color:var(--text-dim)}
+.plan li.muted svg{color:var(--text-dim);opacity:.6}
+.plan .btn{width:100%}
+
+.plan__ic.indigo{color:#a5b4fc;background:rgba(99,102,241,.12);border-color:rgba(99,102,241,.3)}
+.plan__ic.violet{color:#c4b5fd;background:rgba(139,92,246,.15);border-color:rgba(139,92,246,.35)}
+.plan__ic.purple{color:#ddd6fe;background:rgba(196,181,253,.15);border-color:rgba(196,181,253,.35)}
+
+/* Popular plan styling */
+.plan--pop{
+  background: linear-gradient(180deg, rgba(99,102,241,.1), rgba(139,92,246,.05));
+  border-color: rgba(139,92,246,.45);
+  transform: translateY(-12px);
+}
+.plan--pop:hover{transform:translateY(-16px)}
+.plan--pop::before{
+  content:"";position:absolute;inset:-1px;border-radius:inherit;padding:1px;
+  background: linear-gradient(180deg, rgba(139,92,246,.7), transparent 70%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;pointer-events:none;
+}
+.plan__badge{
+  position:absolute;top:-13px;left:50%;transform:translateX(-50%);
+  padding:6px 14px;border-radius:999px;
+  background: var(--grad);font-size:11.5px;font-weight:700;letter-spacing:.04em;
+  text-transform:uppercase;color:#fff;white-space:nowrap;
+  box-shadow: 0 8px 20px -6px rgba(99,102,241,.6);
+  display:inline-flex;align-items:center;gap:6px;
+}
+.plan__badge::before{content:"★"}
+
+/* Compare table */
+.compare{padding: 100px 0}
+.compare__table{
+  border:1px solid var(--border);border-radius: 20px;
+  background: var(--surface);
+  backdrop-filter: blur(20px);
+  overflow:hidden;
+}
+.compare__row{
+  display:grid;grid-template-columns: 1.6fr 1fr 1fr 1fr;
+  align-items:center;
+  border-bottom:1px solid var(--border);
+}
+.compare__row:last-child{border-bottom:0}
+.compare__row.header{
+  position:sticky;top:64px;z-index:5;
+  background: color-mix(in srgb, var(--bg-2) 95%, transparent);
+  backdrop-filter: blur(14px);
+  border-bottom:1px solid var(--border-strong);
+}
+.compare__row.cat{
+  background: rgba(255,255,255,.025);
+  border-bottom-color: transparent;
+}
+.compare__row.cat .c{
+  font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
+  color:#a5b4fc; padding: 18px 24px 12px;
+}
+.compare__row .c{
+  padding: 16px 24px;font-size:14px;
+}
+.compare__row .c:first-child{color:var(--text);font-weight:500}
+.compare__row .c:not(:first-child){text-align:center;color:var(--text-muted);font-size:13.5px}
+.compare__row.header .c{
+  padding: 22px 24px;
+  font-weight:700;color:var(--text);
+}
+.compare__row.header .c:not(:first-child){
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+}
+.compare__row.header .c .pn{font-size:14.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--text-muted)}
+.compare__row.header .c .px{font-size:22px;font-weight:800;letter-spacing:-.02em}
+.compare__row.header .c.pop{position:relative}
+.compare__row.header .c.pop::after{
+  content:"En Popüler"; position:absolute; top:-9px; left:50%; transform: translateX(-50%);
+  font-size:9.5px;font-weight:800;padding:3px 8px;border-radius:5px;
+  background:var(--grad);color:#fff;letter-spacing:.05em;text-transform:uppercase;
+}
+.compare__row .check{display:inline-flex;align-items:center;justify-content:center;color:var(--success)}
+.compare__row .cross{color:var(--text-dim);opacity:.6}
+.compare__row .col-hl{
+  background: linear-gradient(180deg, rgba(99,102,241,.05), rgba(139,92,246,.025));
+}
+@media (max-width: 760px){
+  .compare__row{grid-template-columns: 1fr 60px 60px 60px}
+  .compare__row .c{padding:12px 10px;font-size:12.5px}
+  .compare__row.header .c .px{font-size:14px}
+  .compare__row.header .c .pn{font-size:11px}
+}
+
+/* Modules a la carte band */
+.alacarte{padding: 80px 0}
+.alacarte__grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+@media (max-width:880px){.alacarte__grid{grid-template-columns:1fr 1fr}}
+.ala{
+  padding:20px;
+  display:flex;flex-direction:column;gap:8px;
+  transition: transform .25s var(--easing), border-color .25s;
+}
+.ala:hover{transform:translateY(-3px);border-color:var(--border-strong)}
+.ala .ala__ic{
+  width:38px;height:38px;border-radius:10px;
+  background: var(--grad-soft);border:1px solid rgba(139,92,246,.3);
+  display:grid;place-items:center;color:#c4b5fd;margin-bottom:6px;
+}
+.ala h4{margin:0;font-size:15px;font-weight:700}
+.ala p{margin:0;font-size:12.5px;color:var(--text-muted);line-height:1.5}
+.ala .price{
+  margin-top:auto;padding-top:10px;
+  display:flex;align-items:baseline;gap:4px;
+  font-family:'JetBrains Mono',monospace;
+}
+.ala .price b{font-size:18px;font-weight:800;color:var(--text);letter-spacing:-.02em}
+.ala .price span{font-size:11px;color:var(--text-dim)}
+
+/* Mini FAQ */
+.mini-faq{padding: 80px 0}
+.mini-faq__grid{display:grid;grid-template-columns: 1fr 1fr;gap:16px;max-width:900px;margin:0 auto}
+@media (max-width:760px){.mini-faq__grid{grid-template-columns:1fr}}
+.mf{padding: 24px;transition: border-color .2s, background .2s}
+.mf:hover{border-color:rgba(139,92,246,.3);background:rgba(255,255,255,.04)}
+.mf h4{margin:0 0 8px;font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px}
+.mf h4 .q{
+  width:22px;height:22px;border-radius:50%;background:var(--grad-soft);
+  display:grid;place-items:center;color:#c4b5fd;font-size:11px;font-weight:800;flex-shrink:0;
+}
+.mf p{margin:0;font-size:13.5px;color:var(--text-muted);line-height:1.55}
+.mf__cta{
+  text-align:center;padding:36px;
+  background: linear-gradient(180deg, rgba(99,102,241,.08), rgba(139,92,246,.04));
+  border:1px solid rgba(139,92,246,.3);
+  border-radius:18px;margin-top:20px;
+}
+.mf__cta h4{font-size:18px;margin:0 0 8px;justify-content:center}
+.mf__cta p{margin-bottom:18px;font-size:14px}
+.mf__cta .btn{display:inline-flex}
+
+/* CTA banner */
+.cta-banner{padding: 60px 0 100px}
+.cta-banner__inner{
+  position:relative;overflow:hidden;padding: 64px 48px;border-radius: 28px;
+  background:
+    radial-gradient(60% 80% at 80% 100%, rgba(139,92,246,.4), transparent 60%),
+    radial-gradient(50% 70% at 0% 0%, rgba(99,102,241,.3), transparent 60%),
+    linear-gradient(180deg, rgba(20,24,42,1), rgba(14,18,32,1));
+  border:1px solid rgba(139,92,246,.25);text-align:center;
+  box-shadow: 0 40px 100px -40px rgba(99,102,241,.5);
+}
+.cta-banner__inner::before{
+  content:"";position:absolute;inset:0;
+  background-image: radial-gradient(rgba(255,255,255,.04) 1px, transparent 1px);
+  background-size: 24px 24px;
+  mask-image: radial-gradient(60% 60% at 50% 50%, #000, transparent 80%);pointer-events:none;
+}
+.cta-banner h2{font-size: clamp(30px, 4vw, 44px);margin:0 0 14px;line-height:1.05;letter-spacing:-.03em;font-weight:800}
+.cta-banner p{color:var(--text-muted);font-size:17px;margin:0 auto 28px;max-width: 520px}
+.cta-banner__btns{display:inline-flex;gap:12px;position:relative;z-index:1;flex-wrap:wrap;justify-content:center}
+
+/* Light mode adaptations */
+[data-theme="light"] .bill-toggle{background: rgba(255,255,255,.7)}
+[data-theme="light"] .plan__ic{background: rgba(255,255,255,.7); border-color: var(--border); color: var(--text-muted)}
+[data-theme="light"] .plan__ic.indigo{background: rgba(99,102,241,.10); color:#4f46e5; border-color: rgba(99,102,241,.25)}
+[data-theme="light"] .plan__ic.violet{background: rgba(139,92,246,.12); color:#7c3aed; border-color: rgba(139,92,246,.3)}
+[data-theme="light"] .plan__ic.purple{background: rgba(196,181,253,.18); color:#7c3aed; border-color: rgba(196,181,253,.4)}
+[data-theme="light"] .mf:hover{background: rgba(255,255,255,.85); border-color:rgba(139,92,246,.3)}
+[data-theme="light"] .compare__table{background: rgba(255,255,255,.65)}
+[data-theme="light"] .compare__row{border-bottom-color: rgba(15,23,42,.06)}
+[data-theme="light"] .compare__row.cat{background: rgba(99,102,241,.05)}
+[data-theme="light"] .compare__row .col-hl{background: linear-gradient(180deg, rgba(99,102,241,.04), rgba(139,92,246,.02))}
+[data-theme="light"] .plan li{color: var(--text)}
+[data-theme="light"] .plan li.muted{color: var(--text-dim)}
+</style>
+</head>
+<body class="page-enter">
+
+<div class="scroll-progress"><div class="scroll-progress__bar"></div></div>
+
+<header class="nav">
+  <div class="container nav__row">
+    <a href="index.html" class="brand"><span class="brand__mark">W</span><span class="brand__name">WIXI<span class="dim">APP</span></span></a>
+    <nav class="nav__links">
+      <a href="ozellikler.html">Özellikler</a>
+      <a href="moduller.html">Modüller</a>
+      <a href="studyo.html">Stüdyo</a>
+      <a href="fiyatlandirma.html">Fiyatlandırma</a>
+      <a href="nasil-calisir.html">Nasıl Çalışır?</a>
+      <a href="sss.html">SSS</a>
+    </nav>
+    <div class="nav__cta">
+      <a href="#" class="btn btn--ghost btn--sm">Giriş Yap</a>
+      <a href="#" class="btn btn--primary btn--sm" data-magnet="0.2">Hemen Başla</a>
+      <button class="nav__burger" aria-label="Menü" aria-expanded="false"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+<div class="nav__drawer" id="navDrawer">
+  <a href="ozellikler.html">Özellikler <span>→</span></a>
+  <a href="moduller.html">Modüller <span>→</span></a>
+  <a href="studyo.html">Stüdyo <span>→</span></a>
+  <a href="fiyatlandirma.html">Fiyatlandırma <span>→</span></a>
+  <a href="nasil-calisir.html">Nasıl Çalışır? <span>→</span></a>
+  <a href="sss.html">SSS <span>→</span></a>
+  <div class="row">
+    <a href="#" class="btn btn--ghost">Giriş Yap</a>
+    <a href="#" class="btn btn--primary">Hemen Başla</a>
+  </div>
+</div>
+
+<section class="page-hero">
+  <div class="container">
+    <span class="eyebrow fade-up"><span class="dot"></span>Fiyatlandırma</span>
+    <h1 class="fade-up" data-delay="1">Şeffaf, basit, <span class="grad-text">esnek</span></h1>
+    <p class="fade-up" data-delay="2">Küçük başlayın, büyüdükçe yükseltin. Gizli ücret yok, istediğiniz an iptal.</p>
+
+    <div class="bill-toggle fade-up" data-delay="3" id="billToggle">
+      <span class="bill-toggle__pill" id="billPill"></span>
+      <button class="active" data-mode="m">Aylık</button>
+      <button data-mode="y">Yıllık <span class="save">−%20</span></button>
+    </div>
+  </div>
+</section>
+
+<!-- PLAN CARDS -->
+<section class="plans">
+  <div class="container">
+    <div class="plans__grid">
+
+      <article class="plan glass fade-up">
+        <div class="plan__ic indigo">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 7v10l8 5 8-5V7z"/><path d="M12 22V12"/></svg>
+        </div>
+        <div class="plan__name">Standart</div>
+        <div class="plan__price">
+          <span class="currency">₺</span><span class="amt" data-m="499" data-y="399">499</span><span class="per">/ay</span>
+        </div>
+        <div class="plan__old" data-old="₺499/ay">₺499/ay</div>
+        <p class="plan__desc">Yeni başlayan girişimciler ve küçük işletmeler için temel modül.</p>
+        <ul>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> 1 modül (E-Ticaret veya CRM)</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> 500 ürün / kayıt</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> 3 kullanıcı</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> E-posta destek</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Hazır tema kütüphanesi</li>
+          <li class="muted"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Özel domain</li>
+          <li class="muted"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> API erişimi</li>
+        </ul>
+        <a href="#" class="btn btn--ghost">14 gün ücretsiz başla</a>
+      </article>
+
+      <article class="plan glass plan--pop fade-up" data-delay="1">
+        <span class="plan__badge">En Popüler</span>
+        <div class="plan__ic violet">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15 9 22 9 17 14 19 21 12 17 5 21 7 14 2 9 9 9 12 2"/></svg>
+        </div>
+        <div class="plan__name">Premium</div>
+        <div class="plan__price">
+          <span class="currency">₺</span><span class="amt" data-m="1.299" data-y="1.039">1.299</span><span class="per">/ay</span>
+        </div>
+        <div class="plan__old" data-old="₺1.299/ay">₺1.299/ay</div>
+        <p class="plan__desc">Büyüyen işletmeler için tüm modüller dahil, gelişmiş özelliklerle.</p>
+        <ul>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Tüm modüller dahil</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Sınırsız ürün / kayıt</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> 15 kullanıcı</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Öncelikli canlı destek</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Tema editörü + özel domain</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Gelişmiş raporlama + AI</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> API erişimi (50K/ay)</li>
+        </ul>
+        <a href="#" class="btn btn--primary" data-magnet="0.2">Premium'a Geç →</a>
+      </article>
+
+      <article class="plan glass fade-up" data-delay="2">
+        <div class="plan__ic purple">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        </div>
+        <div class="plan__name">Kurumsal</div>
+        <div class="plan__price">
+          <span class="amt" style="font-size:46px">Özel</span>
+        </div>
+        <p class="plan__desc">Büyük ekipler ve özel ihtiyaçlar için özelleştirilmiş çözüm.</p>
+        <ul>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Premium'daki her şey</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Sınırsız kullanıcı</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Adanmış hesap yöneticisi</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> SLA garantili 7/24 destek</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> On-premise / özel kurulum</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Sınırsız API + özel entegrasyon</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Özel modül geliştirme</li>
+        </ul>
+        <a href="#" class="btn btn--ghost">Bizimle Konuşun</a>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- COMPARE TABLE -->
+<section class="compare">
+  <div class="container">
+    <div class="section-head fade-up">
+      <span class="eyebrow"><span class="dot"></span>Detaylı Karşılaştırma</span>
+      <h2 class="section-title">Plan başına <span class="grad-text">her özellik</span></h2>
+      <p>Hangi plan size uygun? Aşağıdaki tablo tüm farkları gösterir.</p>
+    </div>
+
+    <div class="compare__table fade-up">
+      <div class="compare__row header">
+        <div class="c">Özellik</div>
+        <div class="c"><span class="pn">Standart</span><span class="px">₺499</span></div>
+        <div class="c pop col-hl"><span class="pn">Premium</span><span class="px">₺1.299</span></div>
+        <div class="c"><span class="pn">Kurumsal</span><span class="px">Özel</span></div>
+      </div>
+
+      <!-- Modules -->
+      <div class="compare__row cat"><div class="c" style="grid-column: 1 / -1">Modüller</div></div>
+      <div class="compare__row">
+        <div class="c">E-Ticaret Modülü</div>
+        <div class="c"><span class="check">✓</span></div>
+        <div class="c col-hl"><span class="check">✓</span></div>
+        <div class="c"><span class="check">✓</span></div>
+      </div>
+      <div class="compare__row">
+        <div class="c">CRM Modülü</div>
+        <div class="c">Tek modül seçimi</div>
+        <div class="c col-hl"><span class="check">✓</span></div>
+        <div class="c"><span class="check">✓</span></div>
+      </div>
+      <div class="compare__row">
+        <div class="c">İnsan Kaynakları</div>
+        <div class="c"><span class="cross">—</span></div>
+        <div class="c col-hl"><span class="check">✓</span></div>
+        <div class="c"><span class="check">✓</span></div>
+      </div>
+      <div class="compare__row">
+        <div class="c">Muhasebe (Q2 2026)</div>
+        <div class="c"><span class="cross">—</span></div>
+        <div class="c col-hl"><span class="check">✓</span></div>
+        <div class="c"><span class="check">✓</span></div>
+      </div>
+
+      <!-- Limits -->
+      <div class="compare__row cat"><div class="c" style="grid-column: 1 / -1">Limitler</div></div>
+      <div class="compare__row">
+        <div class="c">Ürün / kayıt sayısı</div>
+        <div class="c">500</div>
+        <div class="c col-hl">Sınırsız</div>
+        <div class="c">Sınırsız</div>
+      </div>
+      <div class="compare__row">
+        <div class="c">Kullanıcı sayısı</div>
+        <div class="c">3</div>
+        <div class="c col-hl">15</div>
+        <div class="c">Sınırsız</div>
+      </div>
+      <div class="compare__row">
+        <div class="c">Depolama</div>
+        <div class="c">5 GB</div>
+        <div class="c col-hl">50 GB</div>
+        <div class="c">Sınırsız</div>
+      </div>
+      <div class="compare__row">
+        <div class="c">API çağrısı (aylık)</div>
+        <div class="c"><span class="cross">—</span></div>
+        <div class="c col-hl">50.000</div>
+        <div class="c">Sınırsız</div>
+      </div>
+
+      <!-- Customization -->
+      <div class="compare__row cat"><div class="c" style="grid-column: 1 / -1">Özelleştirme</div></div>
+      <div class="compare__row">
+        <div class="c">Tema editörü</div>
+        <div class="c">Hazır temalar</div>
+        <div class="c col-hl">Tam erişim</div>
+        <div class="c">Tam erişim + özel</div>
+      </div>
+      <div class="compare__row">
+        <div class="c">Özel domain (.com)</div>
+        <div class="c"><span class="cross">—</span></div>
+        <div class="c col-hl"><span class="check">✓</span></div>
+        <div class="c"><span class="check">✓</span></div>
+      </div>
+      <div class="compare__row">
+        <div class="c">Çok dilli mağaza</div>
+        <div class="c">2 dil</div>
+        <div class="c col-hl">12 dil</div>
+        <div class="c">Sınırsız</div>
+      </div>
+      <div class="compare__row">
+        <div class="c">White-label</div>
+        <div class="c"><span class="cross">—</span></div>
+        <div class="c col-hl"><span class="cross">—</span></div>
+        <div class="c"><span class="check">✓</span></div>
+      </div>
+
+      <!-- Support -->
+      <div class="compare__row cat"><div class="c" style="grid-column: 1 / -1">Destek & Güvenlik</div></div>
+      <div class="compare__row">
+        <div class="c">Destek kanalları</div>
+        <div class="c">E-posta</div>
+        <div class="c col-hl">Canlı + e-posta</div>
+        <div class="c">7/24 telefon + adanmış</div>
+      </div>
+      <div class="compare__row">
+        <div class="c">İlk yanıt süresi</div>
+        <div class="c">24 saat</div>
+        <div class="c col-hl">2 saat</div>
+        <div class="c">15 dakika SLA</div>
+      </div>
+      <div class="compare__row">
+        <div class="c">Otomatik yedek</div>
+        <div class="c">Haftalık</div>
+        <div class="c col-hl">Günlük</div>
+        <div class="c">Saatlik + on-demand</div>
+      </div>
+      <div class="compare__row">
+        <div class="c">Onboarding desteği</div>
+        <div class="c">Self-service</div>
+        <div class="c col-hl">1 saat 1:1</div>
+        <div class="c">Adanmış kurulum ekibi</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- A LA CARTE -->
+<section class="alacarte">
+  <div class="container">
+    <div class="section-head fade-up">
+      <span class="eyebrow"><span class="dot"></span>Modül Bazlı</span>
+      <h2 class="section-title">İhtiyacınız kadar, <span class="grad-text">o kadar ödeme</span></h2>
+      <p>Standart pakete eklemek istediğiniz modülleri ayrı seçebilirsiniz.</p>
+    </div>
+
+    <div class="alacarte__grid">
+      <article class="ala glass fade-up">
+        <div class="ala__ic">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/></svg>
+        </div>
+        <h4>E-Ticaret</h4>
+        <p>Ürün, sipariş, stok, kargo entegrasyonları.</p>
+        <div class="price"><b>₺499</b><span>/ay</span></div>
+      </article>
+      <article class="ala glass fade-up" data-delay="1">
+        <div class="ala__ic">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="4"/><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/></svg>
+        </div>
+        <h4>CRM</h4>
+        <p>Müşteri yönetimi, kanban, kampanyalar.</p>
+        <div class="price"><b>₺399</b><span>/ay</span></div>
+      </article>
+      <article class="ala glass fade-up" data-delay="2">
+        <div class="ala__ic">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        </div>
+        <h4>İnsan Kaynakları</h4>
+        <p>Personel, izin, bordro, performans.</p>
+        <div class="price"><b>₺299</b><span>/ay</span></div>
+      </article>
+      <article class="ala glass fade-up" data-delay="3">
+        <div class="ala__ic">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="14" rx="2"/></svg>
+        </div>
+        <h4>Muhasebe <span style="font-size:10px;color:var(--text-dim)">(Q2)</span></h4>
+        <p>Fatura, gelir-gider, KDV beyannamesi.</p>
+        <div class="price"><b>₺349</b><span>/ay</span></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- MINI FAQ -->
+<section class="mini-faq">
+  <div class="container">
+    <div class="section-head fade-up">
+      <span class="eyebrow"><span class="dot"></span>Sık Sorulanlar</span>
+      <h2 class="section-title">Fiyatlandırma <span class="grad-text">hakkında</span></h2>
+    </div>
+
+    <div class="mini-faq__grid">
+      <div class="mf glass fade-up">
+        <h4><span class="q">?</span>Plan değiştirebilir miyim?</h4>
+        <p>İstediğiniz an. Yükseltmelerde fark oransal yansıtılır, düşürmelerde sonraki fatura döngüsünde geçerli olur.</p>
+      </div>
+      <div class="mf glass fade-up" data-delay="1">
+        <h4><span class="q">?</span>Yıllık ödemenin avantajı nedir?</h4>
+        <p>Yıllık ödemede %20 indirim ek olarak 1 ay ücretsiz onboarding kredisi kazanırsınız.</p>
+      </div>
+      <div class="mf glass fade-up">
+        <h4><span class="q">?</span>Faturayı nasıl alırım?</h4>
+        <p>E-faturanız her ay otomatik düzenlenir ve e-postanıza gönderilir. Kurumsal müşteriler için 30 günlük vade seçeneği mevcuttur.</p>
+      </div>
+      <div class="mf glass fade-up" data-delay="1">
+        <h4><span class="q">?</span>İade politikanız var mı?</h4>
+        <p>İlk 30 gün içinde memnun kalmazsanız, hiçbir soru sormadan tüm ödemenizi iade ederiz.</p>
+      </div>
+    </div>
+
+    <div class="mf__cta fade-up">
+      <h4>Hâlâ kararsız mısınız?</h4>
+      <p>Satış ekibimiz size en uygun planı önerebilir. Demo görüşmesi 15 dakika sürer.</p>
+      <a href="#" class="btn btn--primary" data-magnet="0.2">Demo Randevusu Al</a>
+    </div>
+  </div>
+</section>
+
+<section class="cta-banner">
+  <div class="container">
+    <div class="cta-banner__inner fade-up">
+      <h2>14 gün <span class="grad-text">ücretsiz</span>, sonra siz karar verin</h2>
+      <p>Kredi kartı gerekmez. Beğenmediğiniz takdirde tek tıkla iptal.</p>
+      <div class="cta-banner__btns">
+        <a href="#" class="btn btn--primary btn--lg" data-magnet="0.2">Ücretsiz Deneyin →</a>
+        <a href="sss.html" class="btn btn--ghost btn--lg">Sıkça Sorulanlar</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer__grid">
+      <div class="footer__brand">
+        <a href="index.html" class="brand"><span class="brand__mark">W</span><span class="brand__name">WIXI<span class="dim">APP</span></span></a>
+        <p>KOBİ'ler için modüler SaaS platformu.</p>
+        <div class="footer__social">
+          <a href="#" aria-label="Twitter"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+          <a href="#" aria-label="LinkedIn"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.063 2.063 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0z"/></svg></a>
+          <a href="#" aria-label="Instagram"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
+          <a href="#" aria-label="YouTube"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12z"/></svg></a>
+        </div>
+      </div>
+      <div class="footer__col"><h4>Ürün</h4><ul><li><a href="ozellikler.html">Özellikler</a></li><li><a href="moduller.html">Modüller</a></li><li><a href="studyo.html">Stüdyo</a></li><li><a href="fiyatlandirma.html">Fiyatlandırma</a></li><li><a href="nasil-calisir.html">Nasıl Çalışır?</a></li><li><a href="yol-haritasi.html">Yol Haritası</a></li></ul></div>
+      <div class="footer__col"><h4>Kaynaklar</h4><ul><li><a href="sss.html">SSS</a></li><li><a href="#">Yardım Merkezi</a></li><li><a href="#">API</a></li><li><a href="#">Blog</a></li></ul></div>
+      <div class="footer__col"><h4>Şirket</h4><ul><li><a href="hakkimizda.html">Hakkımızda</a></li><li><a href="iletisim.html">İletişim</a></li><li><a href="#">Kariyer</a></li><li><a href="#">Basın</a></li></ul></div>
+      <div class="footer__col"><h4>Yasal</h4><ul><li><a href="kullanim-sartlari.html">Kullanım Şartları</a></li><li><a href="gizlilik.html">Gizlilik</a></li><li><a href="kvkk.html">KVKK</a></li><li><a href="cerezler.html">Çerezler</a></li></ul></div>
+    </div>
+    <div class="footer__bottom">
+      <div>© 2026 Wixi Teknoloji A.Ş. Tüm hakları saklıdır.</div>
+      <div class="legal"><span>🇹🇷 Türkçe</span><span>İstanbul, Türkiye</span></div>
+    </div>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+<script>
+/* Billing toggle with sliding pill */
+(function(){
+  const toggle = document.getElementById('billToggle');
+  if(!toggle) return;
+  const buttons = toggle.querySelectorAll('button');
+  const pill = document.getElementById('billPill');
+
+  function positionPill(activeBtn){
+    const r = activeBtn.getBoundingClientRect();
+    const pr = toggle.getBoundingClientRect();
+    pill.style.left = (r.left - pr.left) + 'px';
+    pill.style.width = r.width + 'px';
+  }
+  positionPill(toggle.querySelector('button.active'));
+  window.addEventListener('resize', ()=> positionPill(toggle.querySelector('button.active')));
+
+  buttons.forEach(b=>{
+    b.addEventListener('click', ()=>{
+      buttons.forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      positionPill(b);
+      const mode = b.dataset.mode;
+      document.querySelectorAll('.plan').forEach(plan=>{
+        const amt = plan.querySelector('.amt');
+        if(amt && amt.dataset[mode]){
+          // Fade swap
+          amt.style.opacity = '0.4';
+          setTimeout(()=>{
+            amt.textContent = amt.dataset[mode];
+            amt.style.opacity = '1';
+          }, 180);
+        }
+        const old = plan.querySelector('.plan__old');
+        if(old){
+          if(mode === 'y' && amt && amt.dataset.m){
+            old.textContent = '₺'+amt.dataset.m+'/ay';
+            old.classList.add('show');
+          } else {
+            old.classList.remove('show');
+          }
+        }
+      });
+    });
+  });
+})();
+</script>
+</body>
+</html>

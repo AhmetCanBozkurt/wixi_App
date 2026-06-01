@@ -1,0 +1,28 @@
+.switcher {
+  display: flex;
+  gap: 2px;
+  border: 1px solid var(--sf-color-border, #e5e7eb);
+  border-radius: var(--sf-radius-sm, 4px);
+  overflow: hidden;
+}
+
+.btn {
+  padding: 4px 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--sf-color-text-muted, #6b7280);
+  transition: background 0.2s, color 0.2s;
+}
+
+.btn:hover {
+  background: var(--sf-color-surface, #f9fafb);
+  color: var(--sf-color-text, #111827);
+}
+
+.active {
+  background: var(--sf-color-primary, #6366f1);
+  color: white !important;
+}

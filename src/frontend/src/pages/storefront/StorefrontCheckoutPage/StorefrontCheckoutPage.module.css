@@ -1,0 +1,161 @@
+.page {
+  background: var(--sf-color-bg, #ffffff);
+  padding: 40px 0 80px;
+}
+
+.container {
+  max-width: var(--sf-container-max, 1200px);
+  margin: 0 auto;
+  padding: 0 var(--sf-section-px, 24px);
+}
+
+.title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 32px;
+  color: var(--sf-color-text, #111827);
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 40px;
+  align-items: start;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sectionTitle {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--sf-color-text, #111827);
+  margin-bottom: 8px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--sf-color-text, #111827);
+}
+
+.input {
+  padding: 10px 14px;
+  border: 1px solid var(--sf-color-border, #e5e7eb);
+  border-radius: var(--sf-radius-md, 8px);
+  font-size: 0.95rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.input:focus { border-color: var(--sf-color-primary, #6366f1); }
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.submitBtn {
+  padding: 14px;
+  background: var(--sf-color-primary, #6366f1);
+  color: white;
+  border: none;
+  border-radius: var(--sf-radius-btn, 8px);
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background 0.2s;
+}
+
+.submitBtn:hover:not(:disabled) { background: var(--sf-color-primary-hover, #4f46e5); }
+.submitBtn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.summary {
+  background: var(--sf-color-surface, #f9fafb);
+  border: 1px solid var(--sf-color-border, #e5e7eb);
+  border-radius: var(--sf-radius-card, 12px);
+  padding: 24px;
+}
+
+.summaryItem {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  font-size: 0.9rem;
+  border-bottom: 1px solid var(--sf-color-border, #e5e7eb);
+}
+
+.itemName { color: var(--sf-color-text, #111827); flex: 1; padding-right: 8px; }
+
+.totalRow {
+  display: flex;
+  justify-content: space-between;
+  padding: 16px 0 0;
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--sf-color-text, #111827);
+}
+
+.totalAmount { color: var(--sf-color-primary, #6366f1); }
+
+.iyzipayContainer {
+  min-height: 400px;
+  margin: 24px 0;
+  /* Iyzipay iframe'i buraya inject olur */
+}
+
+.backBtn {
+  background: none;
+  border: 1px solid #ddd;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #666;
+  margin-top: 16px;
+}
+
+.stepIndicator {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 24px;
+  font-size: 14px;
+  color: #888;
+}
+
+.stepActive {
+  color: #6366f1;
+  font-weight: 600;
+}
+
+.fieldRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 768px) {
+  .layout { grid-template-columns: 1fr; }
+  .row { grid-template-columns: 1fr; }
+  .fieldRow { grid-template-columns: 1fr; }
+}

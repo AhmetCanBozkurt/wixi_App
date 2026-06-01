@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Giriş Yap — Wixi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../styles.css" />
+<link rel="stylesheet" href="app.css" />
+</head>
+<body class="page-enter">
+
+<div class="orbs" aria-hidden="true">
+  <div class="orb orb--1"></div>
+  <div class="orb orb--2"></div>
+  <div class="orb orb--3"></div>
+</div>
+
+<header class="auth-top">
+  <a href="../index.html" class="brand">
+    <span class="brand__mark">W</span>
+    <span class="brand__name">WIXI<span class="dim">APP</span></span>
+  </a>
+  <button class="theme-toggle" id="themeToggle" aria-label="Tema değiştir">
+    <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+  </button>
+</header>
+
+<main class="auth-main">
+  <div class="auth-card glass scale-in">
+    <div class="auth-head">
+      <div class="mark">W</div>
+      <h1>Tekrar hoş geldiniz</h1>
+      <p>Wixi hesabınızla devam edin</p>
+    </div>
+
+    <div class="social-btns">
+      <button class="social-btn" type="button">
+        <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#EA4335" d="M5.27 9.76A7.08 7.08 0 0 1 12 5c1.9 0 3.6.7 4.9 1.9l3.1-3C18.05 2.1 15.27 1 12 1 7.3 1 3.25 3.7 1.3 7.7l4 3.1c.93-2.8 3.55-4.9 6.7-4.9z"/><path fill="#34A853" d="M16.04 18.04c-1.1.7-2.5 1.1-4.04 1.1-3.1 0-5.74-2.1-6.7-4.9l-4 3.1C3.25 21.3 7.3 24 12 24c3.15 0 5.92-1 7.9-2.8l-3.86-3.16z"/><path fill="#4A90E2" d="M19.9 21.2c2.06-1.92 3.4-4.78 3.4-8.2 0-.62-.05-1.22-.15-1.8H12v3.4h6.45c-.28 1.4-1.13 2.6-2.4 3.44l3.85 3.16z"/><path fill="#FBBC05" d="M5.3 14.24a7.1 7.1 0 0 1 0-4.48l-4-3.1A12 12 0 0 0 0 12c0 1.94.46 3.78 1.3 5.4l4-3.16z"/></svg>
+        Google ile devam et
+      </button>
+      <button class="social-btn" type="button">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
+        Apple ile devam et
+      </button>
+    </div>
+
+    <div class="div-with-text">veya e-posta ile</div>
+
+    <form id="loginForm" novalidate>
+      <div class="field with-ic">
+        <label for="email">E-posta</label>
+        <span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4h16v16H4z"/><path d="M22 6 12 13 2 6"/></svg></span>
+        <input id="email" type="email" placeholder="ad@isletme.com" required autocomplete="email" />
+      </div>
+      <div class="field with-ic" style="margin-top:14px">
+        <label for="password">Şifre</label>
+        <span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+        <input id="password" type="password" placeholder="••••••••" required autocomplete="current-password" />
+        <button type="button" class="reveal" id="revealBtn" aria-label="Şifreyi göster">
+          <svg id="iconEye" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px;flex-wrap:wrap;gap:8px">
+        <label class="cb">
+          <input type="checkbox" id="remember" />
+          <span class="box"></span>
+          <span>Beni hatırla</span>
+        </label>
+        <a href="sifremi-unuttum.html" style="font-size:13px;color:#a5b4fc;font-weight:600">Şifremi unuttum?</a>
+      </div>
+
+      <button type="submit" class="btn btn--primary btn--lg" style="margin-top:18px" data-magnet="0.15">Giriş Yap →</button>
+    </form>
+
+    <div class="auth-foot-link">Hesabınız yok mu? <a href="kayit.html">14 gün ücretsiz deneyin</a></div>
+  </div>
+
+  <div class="auth-foot">
+    <a href="../sss.html">SSS</a>
+    <a href="#">Kullanım Şartları</a>
+    <a href="#">Gizlilik</a>
+    <span>© 2026 Wixi</span>
+  </div>
+</main>
+
+<script>
+/* Theme */
+(function(){
+  const root = document.documentElement;
+  const stored = localStorage.getItem('wixi-theme');
+  root.setAttribute('data-theme', stored || 'dark');
+  document.getElementById('themeToggle').addEventListener('click', ()=>{
+    const next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    root.setAttribute('data-theme', next);
+    localStorage.setItem('wixi-theme', next);
+  });
+})();
+
+/* Reveal password */
+const pw = document.getElementById('password');
+const revealBtn = document.getElementById('revealBtn');
+revealBtn.addEventListener('click', ()=>{
+  pw.type = pw.type === 'password' ? 'text' : 'password';
+});
+
+/* Trigger scale-in */
+document.querySelector('.scale-in').classList.add('in');
+
+/* Submit demo — go to onboarding */
+document.getElementById('loginForm').addEventListener('submit', (e)=>{
+  e.preventDefault();
+  const btn = e.target.querySelector('button[type="submit"]');
+  btn.disabled = true;
+  btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="animation: spin-slow 1s linear infinite"><circle cx="12" cy="12" r="9" stroke-opacity=".25"/><path d="M21 12a9 9 0 0 1-9 9"/></svg> Giriş yapılıyor...';
+  setTimeout(()=>{ location.href = 'onboarding.html' }, 1100);
+});
+</script>
+</body>
+</html>

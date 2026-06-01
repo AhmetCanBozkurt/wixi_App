@@ -1,0 +1,109 @@
+.statCards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.card {
+  background: var(--surface-glass);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cardLabel {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.cardValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.chartSection,
+.topSection {
+  background: var(--surface-glass);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.sectionTitle {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 16px;
+}
+
+/* CSS bar chart */
+.barChart {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 160px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.barCol {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  min-width: 18px;
+  height: 100%;
+  justify-content: flex-end;
+  gap: 4px;
+}
+
+.bar {
+  width: 100%;
+  background: var(--color-primary, #6c63ff);
+  border-radius: 3px 3px 0 0;
+  min-height: 2px;
+  transition: height 0.3s;
+}
+
+.barLabel {
+  font-size: 0.6rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  transform: rotate(-45deg);
+  transform-origin: top center;
+}
+
+/* top products table */
+.topTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.topTable th {
+  text-align: left;
+  padding: 8px 12px;
+  color: var(--text-muted);
+  font-weight: 600;
+  border-bottom: 1px solid var(--border-glass);
+}
+
+.topTable td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-glass);
+  color: var(--text-main);
+}
+
+.topTable tbody tr:last-child td {
+  border-bottom: none;
+}

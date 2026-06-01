@@ -65,6 +65,19 @@
 
   /* ---- Content area ---- */
   --content-bg: #f8fafc;
+
+  /* ---- Theme Editor ---- */
+  --editor-bg: #e8edf4;
+  --editor-surface: #f4f7fb;
+  --editor-surface-2: #ffffff;
+  --editor-border: #d1d9e6;
+  --editor-text: #0f172a;
+  --editor-text-muted: #64748b;
+  --editor-input-bg: #ffffff;
+  --editor-input-border: #d1d9e6;
+  --editor-tab-inactive: #64748b;
+  --editor-row-bg: #f0f4fa;
+  --editor-canvas-bg: #dde3ee;
 }
 
 /* ============================
@@ -131,6 +144,19 @@
 
   /* ---- Content area ---- */
   --content-bg: #020617;
+
+  /* ---- Theme Editor ---- */
+  --editor-bg: #0d0d1a;
+  --editor-surface: #12121f;
+  --editor-surface-2: #1a1a2e;
+  --editor-border: #1e1e30;
+  --editor-text: #e2e8f0;
+  --editor-text-muted: #64748b;
+  --editor-input-bg: #1a1a2e;
+  --editor-input-border: #2a2a3a;
+  --editor-tab-inactive: #64748b;
+  --editor-row-bg: #14141f;
+  --editor-canvas-bg: #0a0a16;
 }
 
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Modal, Input, Button } from '../../../shared/ui';
 import type { MailTemplate } from '../types';
 import styles from './TemplateTestModal.module.css';
@@ -43,22 +43,28 @@ export const TemplateTestModal: React.FC<TemplateTestModalProps> = ({
       ...extractPlaceholders(template.subject || ''),
       ...extractPlaceholders(template.body || ''),
     ]));
-  }, [template?.id]);
+  }, [template?.subject, template?.body]);
 
-  useEffect(() => {
-    if (!isOpen) return;
-    setEmail('');
-    const defaults: Record<string, string> = {
-      fullName: 'Test Kullanıcısı',
-      code: '123456',
-      resetLink: 'https://wixi.test/reset-password',
-    };
-    const init: Record<string, string> = {};
-    keys.forEach(k => {
-      init[k] = defaults[k] ?? '';
-    });
-    setVars(init);
-  }, [isOpen, template?.id, keys.join('|')]);
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
+  const [prevTemplateId, setPrevTemplateId] = useState(template?.id);
+
+  if (isOpen !== prevIsOpen || template?.id !== prevTemplateId) {
+    setPrevIsOpen(isOpen);
+    setPrevTemplateId(template?.id);
+    if (isOpen) {
+      setEmail('');
+      const defaults: Record<string, string> = {
+        fullName: 'Test Kullanıcısı',
+        code: '123456',
+        resetLink: 'https://wixi.test/reset-password',
+      };
+      const init: Record<string, string> = {};
+      keys.forEach(k => {
+        init[k] = defaults[k] ?? '';
+      });
+      setVars(init);
+    }
+  }
 
   const footer = (
     <div className={styles.footer}>
