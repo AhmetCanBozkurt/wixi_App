@@ -720,32 +720,101 @@
 
   <div class="tree">
 <span class="tree-folder">src/backend/</span>
-├── <span class="tree-folder">Wixi.API/</span>                           <span class="tree-note">← Giriş noktası. Program.cs, DI, Middleware</span>
+├── <span class="tree-folder">Wixi.API/</span>                                <span class="tree-note">← Giriş noktası. Program.cs, DI wiring, Middleware</span>
 │   ├── <span class="tree-folder">Controllers/</span>
-│   │   ├── <span class="tree-folder">Identity/</span>                   <span class="tree-note">← AuthController, UserManagementController</span>
-│   │   ├── <span class="tree-folder">Core/</span>                       <span class="tree-note">← Currency, Language, Menu, Mailing, Audit</span>
-│   │   ├── <span class="tree-folder">Subscriptions/</span>              <span class="tree-note">← Plans, Stripe, SaasOnboarding, Tenants</span>
-│   │   ├── <span class="tree-folder">Admin/</span>                      <span class="tree-note">← Dashboard, Products, Categories, Theme</span>
-│   │   ├── <span class="tree-folder">StoreAdmin/</span>                 <span class="tree-note">← Mağaza yönetim paneli</span>
-│   │   ├── <span class="tree-folder">Storefront/</span>                 <span class="tree-note">← Müşteri mağazası</span>
-│   │   └── <span class="tree-folder">Utility/</span>                    <span class="tree-note">← Files, Schema, SeedData</span>
-│   └── <span class="tree-file">Program.cs</span>                        <span class="tree-note">← builder.Services.AddXxxModule() burada çağrılır</span>
+│   │   ├── <span class="tree-folder">Identity/</span>                        <span class="tree-note">← AuthController, UserManagementController</span>
+│   │   ├── <span class="tree-folder">Core/</span>                            <span class="tree-note">← Currency, Language, Menu, ModuleMenu, Mailing, Audit, SystemLog</span>
+│   │   ├── <span class="tree-folder">ReferenceData/</span>                   <span class="tree-note">← Ports, Regions, TaxOffices, Units, Incoterms, HsCodes, PackageTypes...</span>
+│   │   ├── <span class="tree-folder">Subscriptions/</span>                   <span class="tree-note">← Plans, StripeWebhook, SaasOnboarding, SaasSubscription, Tenants</span>
+│   │   ├── <span class="tree-folder">Admin/</span>                           <span class="tree-note">← AdminDashboard, AdminProducts, AdminBrands, AdminTheme, AdminSubscriptions</span>
+│   │   ├── <span class="tree-folder">StoreAdmin/</span>                      <span class="tree-note">← StoreAdminAuth, StoreSettings, StorePages, ThemeVersions, Payments, Upload</span>
+│   │   ├── <span class="tree-folder">Storefront/</span>                      <span class="tree-note">← StorefrontAuth, Products, Cart, Orders, Payment, Brands, Categories...</span>
+│   │   ├── <span class="tree-folder">Finance/</span>                         <span class="tree-note">← FinanceBudgets, FinanceCategories, FinanceTransactions</span>
+│   │   ├── <span class="tree-folder">PersonalFinance/</span>                 <span class="tree-note">← PersonalBudgets, PersonalCategories, PersonalTransactions</span>
+│   │   ├── <span class="tree-folder">WebBuilder/</span>                      <span class="tree-note">← CorpPages, CorpSettings, Blog, Forms, PublicCorp</span>
+│   │   ├── <span class="tree-folder">Content/</span>                         <span class="tree-note">← LandingAdmin, LandingContent</span>
+│   │   └── <span class="tree-folder">Utility/</span>                         <span class="tree-note">← Files, Schema, SeedData</span>
+│   ├── <span class="tree-folder">Extensions/</span>                          <span class="tree-note">← ServiceExtensions.cs, MiddlewareExtensions.cs</span>
+│   ├── <span class="tree-folder">Diagnostics/</span>                         <span class="tree-note">← DbCheck.cs (health check)</span>
+│   ├── <span class="tree-folder">wwwroot/uploads/</span>                     <span class="tree-note">← Yüklenen dosyalar (tenantSlug/guid.ext)</span>
+│   └── <span class="tree-file">Program.cs</span>                           <span class="tree-note">← builder.Services.AddXxxModule() çağrıları burada</span>
 │
-├── <span class="tree-folder">Wixi.Shared/</span>                        <span class="tree-note">← JwtOptions, MailOptions, IAuditable interface</span>
+├── <span class="tree-folder">Wixi.Shared/</span>                             <span class="tree-note">← JwtOptions, MailOptions, IAuditable, paylaşılan DTO'lar</span>
+│   ├── <span class="tree-folder">Configuration/</span>                       <span class="tree-note">← JwtOptions, MailOptions, AppSettings kayıtları</span>
+│   ├── <span class="tree-folder">Domain/Entities/</span>                     <span class="tree-note">← Temel entity interface'leri</span>
+│   └── <span class="tree-folder">Infrastructure/Services/</span>             <span class="tree-note">← Paylaşılan servis implementasyonları</span>
 │
-└── <span class="tree-folder">Wixi.Modules.&lt;Name&gt;/</span>               <span class="tree-note">← Her modül bu yapıyı takip eder ↓</span>
+├── <span class="tree-folder">Wixi.Modules.Core/</span>                       <span class="tree-note">← Platform çekirdeği — Master DB</span>
+│   ├── <span class="tree-folder">Application/</span>
+│   │   ├── <span class="tree-folder">Auth/</span>                            <span class="tree-note">← Login, Register, Logout, RefreshToken, 2FA, ForgotPassword</span>
+│   │   ├── <span class="tree-folder">UserManagement/</span>                  <span class="tree-note">← Kullanıcı CRUD, rol atama</span>
+│   │   ├── <span class="tree-folder">Navigation/</span>                      <span class="tree-note">← Menü yapısı, WIXI_MENUS</span>
+│   │   ├── <span class="tree-folder">Modules/</span>                         <span class="tree-note">← Modül ve ModuleMenu yönetimi</span>
+│   │   ├── <span class="tree-folder">Mailing/</span>                         <span class="tree-note">← Mail şablonları, kuyruk, gönderim</span>
+│   │   ├── <span class="tree-folder">Languages/</span>                       <span class="tree-note">← Dil tanımları</span>
+│   │   ├── <span class="tree-folder">Currencies/</span>                      <span class="tree-note">← Para birimi</span>
+│   │   ├── <span class="tree-folder">ReferenceData/</span>                   <span class="tree-note">← Port, Region, TaxOffice, Unit, Incoterm...</span>
+│   │   ├── <span class="tree-folder">Subscriptions/</span>                   <span class="tree-note">← Plan, Tenant abonelik, Stripe</span>
+│   │   ├── <span class="tree-folder">PaymentSettings/</span>                 <span class="tree-note">← Ödeme sağlayıcı ayarları</span>
+│   │   ├── <span class="tree-folder">Landing/</span>                         <span class="tree-note">← Landing page içerik yönetimi</span>
+│   │   ├── <span class="tree-folder">Logs/</span>                            <span class="tree-note">← Audit log, system log queries</span>
+│   │   └── <span class="tree-folder">Common/Interfaces/</span>               <span class="tree-note">← IMailQueue, IMailService, ICurrentUserService...</span>
+│   ├── <span class="tree-folder">Domain/Entities/</span>                     <span class="tree-note">← WixiUser, WixiTenant, WixiModule, WixiMenu, WixiLanguage...</span>
+│   └── <span class="tree-folder">Infrastructure/</span>
+│       ├── <span class="tree-folder">Data/</span>                            <span class="tree-note">← WixiCoreDbContext, WixiCoreDbContextFactory</span>
+│       ├── <span class="tree-folder">Migrations/</span>                      <span class="tree-note">← Core migration'ları</span>
+│       └── <span class="tree-folder">Services/</span>                        <span class="tree-note">← MailService, FileStorageService, OtpHasher...</span>
+│
+├── <span class="tree-folder">Wixi.Modules.ECommerce/</span>                  <span class="tree-note">← Per-tenant DB — şu an Program.cs'de kapalı</span>
+│   ├── <span class="tree-folder">Application/</span>
+│   │   ├── <span class="tree-folder">Products/</span>  <span class="tree-folder">Categories/</span>  <span class="tree-folder">Brands/</span>  <span class="tree-folder">Orders/</span>  <span class="tree-folder">Customers/</span>
+│   │   ├── <span class="tree-folder">Cart/</span>  <span class="tree-folder">Stock/</span>  <span class="tree-folder">Variants/</span>  <span class="tree-folder">Warehouses/</span>  <span class="tree-folder">Discounts/</span>
+│   │   ├── <span class="tree-folder">StoreSettings/</span>  <span class="tree-folder">StorePages/</span>  <span class="tree-folder">ThemeVersions/</span>
+│   │   ├── <span class="tree-folder">PromoBanners/</span>  <span class="tree-folder">Sliders/</span>  <span class="tree-folder">Testimonials/</span>  <span class="tree-folder">FaqItems/</span>
+│   │   └── <span class="tree-folder">Cari/</span>  <span class="tree-folder">Analytics/</span>  <span class="tree-folder">Loyalty/</span>  <span class="tree-folder">Newsletter/</span>
+│   ├── <span class="tree-folder">Domain/Entities/</span>  <span class="tree-folder">Domain/Enums/</span>
+│   ├── <span class="tree-folder">Infrastructure/Data/</span>  <span class="tree-folder">Infrastructure/Services/</span>  <span class="tree-folder">Infrastructure/Tenant/</span>
+│   └── <span class="tree-folder">Migrations/Tenant/</span>                   <span class="tree-note">← Per-tenant migration'ları ayrı klasörde</span>
+│
+├── <span class="tree-folder">Wixi.Modules.WebBuilder/</span>                 <span class="tree-note">← Drag-drop sayfa yapılandırıcı</span>
+│   ├── <span class="tree-folder">Application/</span>
+│   │   ├── <span class="tree-folder">CorpPages/</span>  <span class="tree-folder">CorpSettings/</span>  <span class="tree-folder">Blog/</span>  <span class="tree-folder">Forms/</span>
+│   ├── <span class="tree-folder">Domain/Entities/</span>  <span class="tree-folder">Domain/Enums/</span>
+│   └── <span class="tree-folder">Infrastructure/Data/</span>  <span class="tree-folder">Infrastructure/Services/</span>
+│
+├── <span class="tree-folder">Wixi.Modules.Finance/</span>                    <span class="tree-note">← Tenant finans modülü</span>
+│   ├── <span class="tree-folder">Application/</span>
+│   │   ├── <span class="tree-folder">Transactions/</span>  <span class="tree-folder">Budgets/</span>  <span class="tree-folder">Categories/</span>
+│   ├── <span class="tree-folder">Domain/Entities/</span>  <span class="tree-folder">Domain/Enums/</span>
+│   └── <span class="tree-folder">Infrastructure/Data/</span>
+│
+└── <span class="tree-folder">Wixi.Modules.PersonalFinance/</span>            <span class="tree-note">← Kişisel finans modülü</span>
     ├── <span class="tree-folder">Application/</span>
-    │   └── <span class="tree-folder">&lt;Feature&gt;/</span>
-    │       ├── <span class="tree-folder">Commands/&lt;Action&gt;/</span>   <span class="tree-note">← *Command.cs + *CommandHandler.cs</span>
-    │       ├── <span class="tree-folder">Queries/&lt;Action&gt;/</span>    <span class="tree-note">← *Query.cs + *QueryHandler.cs</span>
-    │       └── <span class="tree-folder">Dto/</span>
-    ├── <span class="tree-folder">Domain/Entities/</span>                 <span class="tree-note">← WixiXxx prefix ZORUNLU</span>
-    ├── <span class="tree-folder">Infrastructure/</span>
-    │   ├── <span class="tree-folder">Data/Migrations/</span>            <span class="tree-note">← Sadece bu modülün migration'ları</span>
-    │   ├── <span class="tree-file">&lt;Name&gt;DbContext.cs</span>
-    │   └── <span class="tree-folder">Services/</span>
-    │       └── <span class="tree-file">&lt;Name&gt;TenantProvisioner.cs</span>   <span class="tree-note">← Tenant DB modüllerde zorunlu</span>
-    └── <span class="tree-file">&lt;Name&gt;ModuleExtensions.cs</span>        <span class="tree-note">← AddXxxModule() DI kaydı</span>
+    │   ├── <span class="tree-folder">Transactions/</span>  <span class="tree-folder">Budgets/</span>  <span class="tree-folder">Categories/</span>
+    ├── <span class="tree-folder">Domain/Entities/</span>  <span class="tree-folder">Domain/Enums/</span>
+    └── <span class="tree-folder">Infrastructure/Data/</span>
+  </div>
+
+  <div style="margin-top:20px;" class="card">
+    <h3 style="margin-bottom:14px;">Modül İç Yapısı (Zorunlu Şablon)</h3>
+    <div class="tree">
+<span class="tree-folder">Wixi.Modules.&lt;Name&gt;/</span>
+├── <span class="tree-folder">Application/</span>
+│   ├── <span class="tree-folder">Common/Interfaces/</span>               <span class="tree-note">← Modüle özel interface'ler (opsiyonel)</span>
+│   └── <span class="tree-folder">&lt;Feature&gt;/</span>                       <span class="tree-note">örn: Products, Orders, Customers</span>
+│       ├── <span class="tree-folder">Commands/&lt;Action&gt;/</span>           <span class="tree-note">← CreateProduct/ → CreateProductCommand.cs + Handler</span>
+│       ├── <span class="tree-folder">Queries/&lt;Action&gt;/</span>            <span class="tree-note">← GetProducts/ → GetProductsQuery.cs + Handler</span>
+│       └── <span class="tree-folder">Dto/</span>                         <span class="tree-note">← ProductDto.cs</span>
+├── <span class="tree-folder">Domain/</span>
+│   ├── <span class="tree-folder">Entities/</span>                        <span class="tree-note">← WixiProduct, WixiOrder... (Wixi prefix ZORUNLU)</span>
+│   └── <span class="tree-folder">Enums/</span>                           <span class="tree-note">← OrderStatus, PaymentStatus vb.</span>
+├── <span class="tree-folder">Infrastructure/</span>
+│   ├── <span class="tree-folder">Data/</span>                            <span class="tree-note">← &lt;Name&gt;DbContext.cs, &lt;Name&gt;DbContextFactory.cs</span>
+│   ├── <span class="tree-folder">Services/</span>                        <span class="tree-note">← Interface implementasyonları</span>
+│   └── <span class="tree-folder">Tenant/</span>                          <span class="tree-note">← &lt;Name&gt;TenantProvisioner.cs (Tenant DB modüllerde)</span>
+├── <span class="tree-folder">Migrations/</span>                          <span class="tree-note">← (veya Infrastructure/Data/Migrations/) modüle özgü</span>
+└── <span class="tree-file">&lt;Name&gt;ModuleExtensions.cs</span>            <span class="tree-note">← AddXxxModule() — DI + MediatR kaydı</span>
+    </div>
   </div>
 
   <div style="margin-top:24px;" class="card-grid card-grid-2">
