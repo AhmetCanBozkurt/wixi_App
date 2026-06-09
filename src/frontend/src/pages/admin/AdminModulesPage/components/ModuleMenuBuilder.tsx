@@ -1,89 +1,109 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { Tree, DndProvider, getBackendOptions, MultiBackend } from '@minoru/react-dnd-treeview';
 import type { NodeModel } from '@minoru/react-dnd-treeview';
-import {
-  FaPlus, FaTrash, FaSave, FaSync,
-  FaGlobe, FaSearch, FaTimes
-} from "react-icons/fa";
+import { FaPlus, FaTrash, FaSave, FaSearch, FaTimes, FaGlobe, FaChevronRight } from "react-icons/fa";
 import * as FaIconsList from 'react-icons/fa';
 import { toast } from "react-hot-toast";
-import Swal from "sweetalert2";
 import { moduleService } from "../../../../shared/api/services/moduleService";
 import type { ModuleMenuDto } from "../../../../shared/api/services/moduleService";
 import { apiClient } from "../../../../shared/api/axiosConfig";
 import { DynamicIcon, Select, Button, Input, Switch, Modal } from "../../../../shared/ui";
 import styles from "./ModuleMenuBuilder.module.css";
 
-interface Language {
-  id: string;
-  name: string;
-  code: string;
-}
+const SYSTEM_PAGES = [
+  { name: '[ KLASÖR / GRUP BAŞLIĞI ]',          path: 'folder' },
+  { name: 'Dashboard',                           path: '/tenant/{tenantSlug}' },
+  { name: 'Siparişler',                          path: '/tenant/{tenantSlug}/orders' },
+  { name: 'Müşteriler',                          path: '/tenant/{tenantSlug}/customers' },
+  { name: 'Ürünler',                             path: '/tenant/{tenantSlug}/products' },
+  { name: 'Kategoriler',                         path: '/tenant/{tenantSlug}/categories' },
+  { name: 'Markalar',                            path: '/tenant/{tenantSlug}/brands' },
+  { name: 'Yorumlar (Testimonials)',             path: '/tenant/{tenantSlug}/testimonials' },
+  { name: 'Promosyon Bannerları',                path: '/tenant/{tenantSlug}/promo-banners' },
+  { name: 'Slaytlar',                            path: '/tenant/{tenantSlug}/sliders' },
+  { name: 'SSS (FAQ)',                           path: '/tenant/{tenantSlug}/faq' },
+  { name: 'İletişim Formları',                   path: '/tenant/{tenantSlug}/contact-submissions' },
+  { name: 'Tema Editörü',                        path: '/corp/theme-editor/{tenantSlug}' },
+  { name: 'Ayarlar',                             path: '/tenant/{tenantSlug}/settings' },
+  { name: 'Fatura & Abonelik',                   path: '/tenant/{tenantSlug}/billing' },
+  { name: 'CRM - Rehber',                        path: '/tenant/{tenantSlug}/crm/contacts' },
+  { name: 'CRM - Fırsatlar',                     path: '/tenant/{tenantSlug}/crm/deals' },
+];
 
-interface SystemPage {
-  id: string;
+const PATH_OPTIONS = [
+  { label: '— Yol seçin —', value: '' },
+  ...SYSTEM_PAGES.map(p => ({ label: p.name, value: p.path })),
+];
+
+const POPULAR_ICONS = Object.keys(FaIconsList).filter(key => key.startsWith('Fa')).slice(0, 200);
+
+interface Language { id: string; name: string; code: string; }
+
+type FormState = {
   path: string;
-  name: string;
-  group?: string;
-}
+  icon: string;
+  iconColor: string;
+  sortOrder: number;
+  visibleToTenant: boolean;
+  parentId: string | null;
+  translations: { languageId: string; title: string }[];
+};
 
-const POPULAR_ICONS = Object.keys(FaIconsList).filter(key => key.startsWith('Fa')).slice(0, 100);
+const defaultForm = (langs: Language[]): FormState => ({
+  path: '',
+  icon: 'FaCircle',
+  iconColor: '#3b82f6',
+  sortOrder: 0,
+  visibleToTenant: true,
+  parentId: null,
+  translations: langs.map(l => ({ languageId: l.id, title: '' })),
+});
 
 interface ModuleMenuBuilderProps {
   moduleId: string;
 }
 
 export const ModuleMenuBuilder: React.FC<ModuleMenuBuilderProps> = ({ moduleId }) => {
-  const [treeData, setTreeData] = useState<NodeModel<any>[]>([]);
+  const [treeData, setTreeData] = useState<NodeModel<ModuleMenuDto>[]>([]);
   const [languages, setLanguages] = useState<Language[]>([]);
-  const [systemPages, setSystemPages] = useState<SystemPage[]>([]);
-  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isIconPickerOpen, setIsIconPickerOpen] = useState(false);
   const [iconSearch, setIconSearch] = useState('');
-
-  const [formData, setFormData] = useState<Partial<ModuleMenuDto>>({
-    moduleId: moduleId,
-    parentId: null,
-    path: "",
-    icon: "FaLink",
-    iconColor: "#3b82f6",
-    sortOrder: 0,
-    visibleToTenant: true,
-    translations: [],
-  });
+  const [form, setForm] = useState<FormState>(defaultForm([]));
 
   const fetchData = useCallback(async () => {
     if (!moduleId) return;
     try {
-      const [menuData, langData, pagesData] = await Promise.all([
+      const [menuData, langRes] = await Promise.all([
         moduleService.getModuleMenus(moduleId),
-        apiClient.get<any>("/Language"),
-        apiClient.get<{ items: SystemPage[] }>("/ref/system-pages"),
+        apiClient.get<any>('/Language'),
       ]);
 
-      const langs = langData.data?.items || langData.data || [];
+      const langData = langRes.data;
+      const langs: Language[] = Array.isArray(langData)
+        ? langData
+        : (langData?.items ?? []);
       setLanguages(langs);
-      setSystemPages(pagesData.data?.items || []);
 
-      const mapped: NodeModel<any>[] = [];
-      const flatten = (items: ModuleMenuDto[], parentId: string = "0") => {
-        items.forEach(item => {
-          mapped.push({
+      const flat: NodeModel<ModuleMenuDto>[] = [];
+      const walk = (items: ModuleMenuDto[], parentId: string = '0') => {
+        for (const item of items) {
+          flat.push({
             id: item.id,
             parent: parentId,
-            text: item.translations[0]?.title || "İsimsiz",
+            text: item.translations[0]?.title || item.path,
             droppable: true,
-            data: { ...item }
+            data: item,
           });
-          if (item.children?.length > 0) flatten(item.children, item.id);
-        });
+          if (item.children?.length) walk(item.children, item.id);
+        }
       };
-      flatten(menuData);
-      setTreeData(mapped);
+      walk(menuData);
+      setTreeData(flat);
     } catch {
-      toast.error("Veriler yüklenemedi.");
+      toast.error('Veriler yüklenemedi.');
     } finally {
       setLoading(false);
     }
@@ -91,69 +111,77 @@ export const ModuleMenuBuilder: React.FC<ModuleMenuBuilderProps> = ({ moduleId }
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  const handleSelectNode = (node: NodeModel<any>) => {
-    setSelectedNodeId(node.id as string);
-    setFormData({
-      ...node.data,
-      parentId: node.parent === "0" ? null : node.parent as string,
+  const handleSelectNode = (node: NodeModel<ModuleMenuDto>) => {
+    setSelectedId(node.id as string);
+    const d = node.data!;
+    setForm({
+      path:            d.path,
+      icon:            d.icon ?? 'FaCircle',
+      iconColor:       d.iconColor ?? '#3b82f6',
+      sortOrder:       d.sortOrder,
+      visibleToTenant: d.visibleToTenant,
+      parentId:        node.parent === '0' ? null : node.parent as string,
+      translations:    languages.map(l => ({
+        languageId: l.id,
+        title: d.translations.find(t => t.languageId === l.id)?.title ?? '',
+      })),
     });
   };
 
   const handleAddNew = () => {
-    setSelectedNodeId(null);
-    setFormData({
-      moduleId,
-      parentId: null,
-      path: "",
-      icon: "FaLink",
-      iconColor: "#3b82f6",
-      sortOrder: treeData.length + 1,
-      visibleToTenant: true,
-      translations: languages.map(l => ({ languageId: l.id, title: "" })),
-    });
+    setSelectedId(null);
+    setForm(defaultForm(languages));
   };
 
   const handleSave = async () => {
     if (isSaving) return;
     setIsSaving(true);
     try {
-      if (selectedNodeId) {
-        await moduleService.updateModuleMenu(selectedNodeId, { ...formData, moduleId });
-        toast.success("Menü güncellendi.");
+      if (selectedId) {
+        await moduleService.updateModuleMenu(selectedId, {
+          id:              selectedId,
+          path:            form.path,
+          icon:            form.icon,
+          iconColor:       form.iconColor,
+          sortOrder:       form.sortOrder,
+          visibleToTenant: form.visibleToTenant,
+          parentId:        form.parentId ?? null,
+          translations:    form.translations,
+        });
+        toast.success('Menü güncellendi.');
       } else {
-        await moduleService.createModuleMenu({ ...formData, moduleId });
-        toast.success("Menü şablona eklendi.");
-        setSelectedNodeId(null);
+        await moduleService.createModuleMenu({
+          moduleId,
+          path:            form.path,
+          icon:            form.icon,
+          iconColor:       form.iconColor,
+          sortOrder:       form.sortOrder,
+          visibleToTenant: form.visibleToTenant,
+          parentId:        form.parentId ?? null,
+          translations:    form.translations,
+        });
+        toast.success('Menü eklendi.');
+        setSelectedId(null);
       }
       await fetchData();
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Kayıt sırasında hata oluştu.");
+      toast.error(error.response?.data?.message || 'Kayıt hatası.');
     } finally {
       setIsSaving(false);
     }
   };
 
   const handleDelete = async () => {
-    if (!selectedNodeId) return;
-    const result = await Swal.fire({
-      title: 'Silmek istediğinize emin misiniz?',
-      text: "Bu menü kırılımı silinecek!",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#ef4444',
-      cancelButtonText: 'Vazgeç',
-      confirmButtonText: 'Evet, Sil'
-    });
-    if (!result.isConfirmed) return;
-
+    if (!selectedId) return;
+    if (!window.confirm('Bu menü öğesi silinecek. Emin misiniz?')) return;
     setIsSaving(true);
     try {
-      await moduleService.deleteModuleMenu(selectedNodeId);
-      toast.success("Menü silindi.");
-      setSelectedNodeId(null);
+      await moduleService.deleteModuleMenu(selectedId);
+      toast.success('Menü silindi.');
+      setSelectedId(null);
       await fetchData();
     } catch {
-      toast.error("Silme işlemi başarısız.");
+      toast.error('Silme işlemi başarısız.');
     } finally {
       setIsSaving(false);
     }
@@ -164,20 +192,26 @@ export const ModuleMenuBuilder: React.FC<ModuleMenuBuilderProps> = ({ moduleId }
     setIsSaving(true);
     try {
       const payload = treeData.map((node, index) => ({
-        id: node.id as string,
-        parentId: node.parent === "0" ? null : node.parent as string,
+        id:        node.id as string,
+        parentId:  node.parent === '0' ? null : node.parent as string,
         sortOrder: index + 1,
       }));
       await moduleService.syncModuleMenus(payload);
-      toast.success("Hiyerarşi kaydedildi.");
+      toast.success('Hiyerarşi & sıralama kaydedildi.');
     } catch {
-      toast.error("Senkronizasyon başarısız.");
+      toast.error('Senkronizasyon başarısız.');
     } finally {
       setIsSaving(false);
     }
   };
 
-  const handleDrop = (newTree: NodeModel<any>[]) => setTreeData(newTree);
+  // Parent dropdown options: root + mevcut tüm node'lar
+  const parentOptions = useMemo(() => [
+    { label: '— Kök (üst öğe yok) —', value: '' },
+    ...treeData
+      .filter(n => n.id !== selectedId)
+      .map(n => ({ label: n.text, value: n.id as string })),
+  ], [treeData, selectedId]);
 
   const filteredIcons = useMemo(() => {
     if (!iconSearch) return POPULAR_ICONS;
@@ -186,29 +220,36 @@ export const ModuleMenuBuilder: React.FC<ModuleMenuBuilderProps> = ({ moduleId }
     ).slice(0, 100);
   }, [iconSearch]);
 
-  const renderNode = (node: NodeModel<any>, { depth, isOpen, onToggle }: any) => {
-    const isSelected = selectedNodeId === node.id;
-    const isFolder = node.data?.path === 'folder';
-
+  const renderNode = (node: NodeModel<ModuleMenuDto>, { depth, isOpen, onToggle }: any) => {
+    const isSelected = selectedId === node.id;
+    const d = node.data;
     return (
       <div
         className={`${styles.treeItemContainer} ${isSelected ? styles.selected : ''}`}
-        style={{ marginLeft: (depth * 12) + 5 }}
+        style={{ marginLeft: depth * 12 + 5 }}
         onClick={() => handleSelectNode(node)}
       >
         <div
           className={`${styles.carat} ${isOpen ? styles.open : ''}`}
-          onClick={(e) => { e.stopPropagation(); onToggle(); }}
+          onClick={e => { e.stopPropagation(); onToggle(); }}
           style={{ visibility: treeData.some(n => n.parent === node.id) ? 'visible' : 'hidden' }}
         >
-          <DynamicIcon name="FaChevronRight" />
+          <FaChevronRight size={10} />
         </div>
-        <div className={styles.treeIcon} style={{ color: isSelected ? '#fff' : node.data?.iconColor }}>
-          <DynamicIcon name={node.data?.icon || (isFolder ? 'FaFolder' : 'FaLink')} />
+        <div className={styles.treeIcon} style={{ color: isSelected ? '#fff' : (d?.iconColor ?? undefined) }}>
+          <DynamicIcon name={d?.icon || 'FaCircle'} />
         </div>
         <div className={styles.treeText}>
           <span className={styles.treeTitle}>{node.text}</span>
+          {d?.path === 'folder' && (
+            <span style={{ fontSize: '0.65rem', color: isSelected ? 'rgba(255,255,255,0.7)' : 'var(--text-muted)' }}>klasör</span>
+          )}
         </div>
+        {d?.visibleToTenant === false && (
+          <span style={{ fontSize: '0.65rem', background: '#374151', color: '#9ca3af', padding: '1px 6px', borderRadius: '4px', marginLeft: 'auto', flexShrink: 0 }}>
+            Admin
+          </span>
+        )}
       </div>
     );
   };
@@ -220,140 +261,167 @@ export const ModuleMenuBuilder: React.FC<ModuleMenuBuilderProps> = ({ moduleId }
       <div className={styles.builderContent}>
         <div className={styles.builderLayout}>
 
-          {/* ── Sol: Ağaç ─────────────────────────────────── */}
+          {/* ── Sol: Ağaç ─────────────────────────── */}
           <aside className={styles.treePanel}>
             <div className={styles.panelHeader}>
               <h3>Menü Ağacı</h3>
-              <div style={{ display: 'flex', gap: '6px' }}>
-                <Button variant="ghost" size="sm" onClick={handleSyncHierarchy} disabled={isSaving} title="Sıra & hiyerarşiyi kaydet">
-                  <FaSync />
-                </Button>
-                <Button variant="secondary" size="sm" onClick={handleAddNew}>
-                  <FaPlus /> Ekle
-                </Button>
-              </div>
+              <Button variant="secondary" size="sm" onClick={handleAddNew}>
+                <FaPlus /> Ekle
+              </Button>
             </div>
-            <Tree
-              tree={treeData}
-              rootId="0"
-              initialOpen={true}
-              onDrop={handleDrop}
-              render={renderNode}
-              classes={{ root: styles.treeRoot }}
-            />
-          </aside>
-
-          {/* ── Sağ: Form ─────────────────────────────────── */}
-          <main className={styles.editorPanel}>
-            {(selectedNodeId !== null || formData.moduleId) ? (
-              <div className={styles.formContainer}>
-                <div className={styles.formHeader}>
-                  <h4>{selectedNodeId ? "Menü Düzenle" : "Yeni Menü Ekle"}</h4>
-                </div>
-
-                <div className={styles.formGrid}>
-                  <div className={styles.formGroup}>
-                    <Select
-                      label="Yol (Path)"
-                      value={formData.path}
-                      onChange={val => setFormData({ ...formData, path: val as string })}
-                      options={systemPages.map(p => ({ label: p.group ? `[${p.group}] ${p.name}` : p.name, value: p.path }))}
-                    />
-                  </div>
-
-                  <div className={styles.formGroup}>
-                    <Input
-                      label="Sıralama"
-                      type="number"
-                      value={String(formData.sortOrder ?? 0)}
-                      onChange={e => setFormData({ ...formData, sortOrder: parseInt(e.target.value) || 0 })}
-                    />
-                  </div>
-
-                  <div className={styles.formGroup}>
-                    <label className={styles.formLabel}>İkon ve Renk</label>
-                    <div className={styles.iconRow}>
-                      <div className={styles.iconDisplay} style={{ color: formData.iconColor ?? undefined }}>
-                        <DynamicIcon name={formData.icon || 'FaLink'} />
-                      </div>
-                      <button
-                        type="button"
-                        className={styles.selectIconBtn}
-                        onClick={() => setIsIconPickerOpen(true)}
-                      >
-                        İkon Değiştir
-                      </button>
-                      <input
-                        type="color"
-                        className={styles.colorPicker}
-                        value={formData.iconColor || "#3b82f6"}
-                        onChange={e => setFormData({ ...formData, iconColor: e.target.value })}
-                      />
-                    </div>
-                  </div>
-
-                  <div className={styles.formGroup} style={{ justifyContent: 'flex-end' }}>
-                    <Switch
-                      label="Kiracıya Açık"
-                      description={formData.visibleToTenant ? "Müşteri sidebar'ında görünür" : "Sadece sistem admin"}
-                      checked={!!formData.visibleToTenant}
-                      onChange={e => setFormData({ ...formData, visibleToTenant: e.target.checked })}
-                    />
-                  </div>
-
-                  <div className={`${styles.formGroup} ${styles.fullWidth} ${styles.translationBox}`}>
-                    <label className={styles.formLabel}><FaGlobe /> Dil Çevirileri</label>
-                    <div className={styles.translationsList}>
-                      {languages.map(lang => {
-                        const trans = formData.translations?.find(t => t.languageId === lang.id);
-                        return (
-                          <div key={lang.id} className={styles.translationRow}>
-                            <div className={styles.flagBadge}>{lang.code.toUpperCase().slice(0, 2)}</div>
-                            <input
-                              className={styles.textInput}
-                              value={trans?.title || ""}
-                              placeholder={`${lang.name} başlık...`}
-                              onChange={e => {
-                                const newTrans = [...(formData.translations || [])];
-                                const idx = newTrans.findIndex(t => t.languageId === lang.id);
-                                if (idx > -1) newTrans[idx] = { ...newTrans[idx], title: e.target.value };
-                                else newTrans.push({ languageId: lang.id, title: e.target.value });
-                                setFormData({ ...formData, translations: newTrans });
-                              }}
-                            />
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-
-                <div className={styles.formActions}>
-                  {selectedNodeId && (
-                    <Button variant="danger" size="sm" onClick={handleDelete} disabled={isSaving}>
-                      <FaTrash /> Sil
-                    </Button>
-                  )}
-                  <Button variant="ghost" size="sm" onClick={handleAddNew}>
-                    <FaPlus /> Yeni
-                  </Button>
-                  <Button onClick={handleSave} disabled={isSaving}>
-                    <FaSave /> {isSaving ? "Kaydediliyor..." : (selectedNodeId ? "Güncelle" : "Kaydet")}
-                  </Button>
-                </div>
+            {treeData.length === 0 ? (
+              <div style={{ padding: '24px', color: 'var(--text-muted)', fontStyle: 'italic', fontSize: '0.85rem' }}>
+                Henüz menü yok. "Ekle" ile başlayın.
               </div>
             ) : (
-              <div className={styles.emptyState}>
-                <p>Bir menü öğesi seçin veya yeni bir tane ekleyin.</p>
-              </div>
+              <Tree
+                tree={treeData}
+                rootId="0"
+                sort={false}
+                initialOpen
+                onDrop={newTree => setTreeData(newTree as NodeModel<ModuleMenuDto>[])}
+                render={renderNode}
+                classes={{ root: styles.treeRoot }}
+              />
             )}
+          </aside>
+
+          {/* ── Sağ: Form ─────────────────────────── */}
+          <main className={styles.editorPanel}>
+            <div className={styles.formHeader}>
+              <h4>{selectedId ? 'Menü Düzenle' : 'Yeni Menü Ekle'}</h4>
+            </div>
+
+            <div className={styles.formGrid}>
+              {/* Path */}
+              <div className={styles.formGroup}>
+                <Select
+                  label="Hedef Yol (Path)"
+                  value={form.path}
+                  onChange={val => setForm(f => ({ ...f, path: val as string }))}
+                  options={PATH_OPTIONS}
+                />
+                {form.path && (
+                  <small style={{ color: 'var(--text-muted)', fontSize: '0.72rem' }}>
+                    <code>{form.path}</code>
+                  </small>
+                )}
+              </div>
+
+              {/* Parent */}
+              <div className={styles.formGroup}>
+                <Select
+                  label="Üst Öğe (Parent)"
+                  value={form.parentId ?? ''}
+                  onChange={val => setForm(f => ({ ...f, parentId: (val as string) || null }))}
+                  options={parentOptions}
+                />
+              </div>
+
+              {/* Sort Order */}
+              <div className={styles.formGroup}>
+                <Input
+                  label="Sıra No"
+                  type="number"
+                  value={String(form.sortOrder ?? 0)}
+                  onChange={e => setForm(f => ({ ...f, sortOrder: parseInt(e.target.value) || 0 }))}
+                />
+              </div>
+
+              {/* Visible to tenant */}
+              <div className={styles.formGroup} style={{ justifyContent: 'flex-end' }}>
+                <Switch
+                  label="Müşteriye Görünür"
+                  description={form.visibleToTenant ? 'Mağaza panelinde gösterilir' : 'Sadece master admin görür'}
+                  checked={form.visibleToTenant}
+                  onChange={e => setForm(f => ({ ...f, visibleToTenant: e.target.checked }))}
+                />
+              </div>
+
+              {/* Icon & Color */}
+              <div className={`${styles.formGroup} ${styles.fullWidth}`}>
+                <label className={styles.formLabel}>İkon ve Renk</label>
+                <div className={styles.iconRow}>
+                  <div className={styles.iconDisplay} style={{ color: form.iconColor }}>
+                    <DynamicIcon name={form.icon || 'FaCircle'} />
+                  </div>
+                  <button
+                    type="button"
+                    className={styles.selectIconBtn}
+                    onClick={() => setIsIconPickerOpen(true)}
+                  >
+                    İkon Değiştir
+                  </button>
+                  <input
+                    type="color"
+                    className={styles.colorPicker}
+                    value={form.iconColor}
+                    onChange={e => setForm(f => ({ ...f, iconColor: e.target.value }))}
+                  />
+                  <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', alignSelf: 'center' }}>
+                    {form.icon}
+                  </span>
+                </div>
+              </div>
+
+              {/* Translations */}
+              <div className={`${styles.formGroup} ${styles.fullWidth} ${styles.translationBox}`}>
+                <label className={styles.formLabel}><FaGlobe style={{ marginRight: 6 }} />Dil Başlıkları</label>
+                <div className={styles.translationsList}>
+                  {languages.map(lang => {
+                    const trans = form.translations.find(t => t.languageId === lang.id);
+                    return (
+                      <div key={lang.id} className={styles.translationRow}>
+                        <div className={styles.flagBadge}>{lang.code.toUpperCase().slice(0, 2)}</div>
+                        <input
+                          className={styles.textInput}
+                          value={trans?.title ?? ''}
+                          placeholder={`${lang.name} başlığı...`}
+                          onChange={e => {
+                            const updated = [...form.translations];
+                            const idx = updated.findIndex(t => t.languageId === lang.id);
+                            if (idx > -1) updated[idx] = { ...updated[idx], title: e.target.value };
+                            else updated.push({ languageId: lang.id, title: e.target.value });
+                            setForm(f => ({ ...f, translations: updated }));
+                          }}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            <div className={styles.formActions}>
+              {selectedId && (
+                <Button variant="danger" size="sm" onClick={handleDelete} disabled={isSaving}>
+                  <FaTrash /> Sil
+                </Button>
+              )}
+              <Button variant="ghost" size="sm" onClick={handleAddNew} disabled={isSaving}>
+                <FaPlus /> Yeni
+              </Button>
+              <Button onClick={handleSave} isLoading={isSaving}>
+                <FaSave /> {selectedId ? 'Güncelle' : 'Kaydet'}
+              </Button>
+            </div>
           </main>
         </div>
 
-        {/* ── Icon Picker Modal ─────────────────────────── */}
+        {/* ── Alt Bar: Hiyerarşi Kaydet ─────────────── */}
+        <div className={styles.syncBar}>
+          <span className={styles.syncBarHint}>
+            Sürükle-bırak ile sıraladıktan sonra hiyerarşiyi kaydedin.
+          </span>
+          <Button onClick={handleSyncHierarchy} isLoading={isSaving} variant="primary">
+            <FaSave /> Sıralama & Hiyerarşiyi Kaydet
+          </Button>
+        </div>
+
+        {/* ── Icon Picker Modal ──────────────────────── */}
         <Modal
           isOpen={isIconPickerOpen}
-          onClose={() => setIsIconPickerOpen(false)}
+          onClose={() => { setIsIconPickerOpen(false); setIconSearch(''); }}
           title="İkon Seç"
           size="lg"
         >
@@ -380,7 +448,11 @@ export const ModuleMenuBuilder: React.FC<ModuleMenuBuilderProps> = ({ moduleId }
               <div
                 key={icon}
                 className={styles.iconOption}
-                onClick={() => { setFormData({ ...formData, icon }); setIsIconPickerOpen(false); setIconSearch(''); }}
+                onClick={() => {
+                  setForm(f => ({ ...f, icon }));
+                  setIsIconPickerOpen(false);
+                  setIconSearch('');
+                }}
               >
                 <DynamicIcon name={icon} className={styles.optIcon} />
                 <span className={styles.optName}>{icon.replace('Fa', '')}</span>

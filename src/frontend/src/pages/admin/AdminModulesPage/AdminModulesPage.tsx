@@ -270,7 +270,11 @@ const AdminModulesPage: React.FC = () => {
               {editingModule ? 'Değişiklikleri Kaydet' : 'Modülü Oluştur'}
             </Button>
           </div>
-        ) : null}
+        ) : (
+          <div className={styles.formActions}>
+            <Button variant="ghost" onClick={() => setIsModalOpen(false)}>Kapat</Button>
+          </div>
+        )}
       >
         <div className={styles.modalContent}>
           {editingModule && (
