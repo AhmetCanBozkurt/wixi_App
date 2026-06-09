@@ -10,34 +10,11 @@ import { apiClient } from "../../../../shared/api/axiosConfig";
 import { DynamicIcon, Select, Button, Input, Switch, Modal } from "../../../../shared/ui";
 import styles from "./ModuleMenuBuilder.module.css";
 
-const SYSTEM_PAGES = [
-  { name: '[ KLASÖR / GRUP BAŞLIĞI ]',          path: 'folder' },
-  { name: 'Dashboard',                           path: '/tenant/{tenantSlug}' },
-  { name: 'Siparişler',                          path: '/tenant/{tenantSlug}/orders' },
-  { name: 'Müşteriler',                          path: '/tenant/{tenantSlug}/customers' },
-  { name: 'Ürünler',                             path: '/tenant/{tenantSlug}/products' },
-  { name: 'Kategoriler',                         path: '/tenant/{tenantSlug}/categories' },
-  { name: 'Markalar',                            path: '/tenant/{tenantSlug}/brands' },
-  { name: 'Yorumlar (Testimonials)',             path: '/tenant/{tenantSlug}/testimonials' },
-  { name: 'Promosyon Bannerları',                path: '/tenant/{tenantSlug}/promo-banners' },
-  { name: 'Slaytlar',                            path: '/tenant/{tenantSlug}/sliders' },
-  { name: 'SSS (FAQ)',                           path: '/tenant/{tenantSlug}/faq' },
-  { name: 'İletişim Formları',                   path: '/tenant/{tenantSlug}/contact-submissions' },
-  { name: 'Tema Editörü',                        path: '/corp/theme-editor/{tenantSlug}' },
-  { name: 'Ayarlar',                             path: '/tenant/{tenantSlug}/settings' },
-  { name: 'Fatura & Abonelik',                   path: '/tenant/{tenantSlug}/billing' },
-  { name: 'CRM - Rehber',                        path: '/tenant/{tenantSlug}/crm/contacts' },
-  { name: 'CRM - Fırsatlar',                     path: '/tenant/{tenantSlug}/crm/deals' },
-];
-
-const PATH_OPTIONS = [
-  { label: '— Yol seçin —', value: '' },
-  ...SYSTEM_PAGES.map(p => ({ label: p.name, value: p.path })),
-];
-
 const POPULAR_ICONS = Object.keys(FaIconsList).filter(key => key.startsWith('Fa')).slice(0, 200);
 
 interface Language { id: string; name: string; code: string; }
+
+interface SystemPage { id: string; path: string; name: string; group?: string; }
 
 type FormState = {
   path: string;
@@ -66,6 +43,7 @@ interface ModuleMenuBuilderProps {
 export const ModuleMenuBuilder: React.FC<ModuleMenuBuilderProps> = ({ moduleId }) => {
   const [treeData, setTreeData] = useState<NodeModel<ModuleMenuDto>[]>([]);
   const [languages, setLanguages] = useState<Language[]>([]);
+  const [systemPages, setSystemPages] = useState<SystemPage[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -76,9 +54,10 @@ export const ModuleMenuBuilder: React.FC<ModuleMenuBuilderProps> = ({ moduleId }
   const fetchData = useCallback(async () => {
     if (!moduleId) return;
     try {
-      const [menuData, langRes] = await Promise.all([
+      const [menuData, langRes, pagesRes] = await Promise.all([
         moduleService.getModuleMenus(moduleId),
         apiClient.get<any>('/Language'),
+        apiClient.get<{ items: SystemPage[] }>('/ref/system-pages'),
       ]);
 
       const langData = langRes.data;
@@ -86,6 +65,7 @@ export const ModuleMenuBuilder: React.FC<ModuleMenuBuilderProps> = ({ moduleId }
         ? langData
         : (langData?.items ?? []);
       setLanguages(langs);
+      setSystemPages(pagesRes.data?.items ?? []);
 
       const flat: NodeModel<ModuleMenuDto>[] = [];
       const walk = (items: ModuleMenuDto[], parentId: string = '0') => {
@@ -205,6 +185,11 @@ export const ModuleMenuBuilder: React.FC<ModuleMenuBuilderProps> = ({ moduleId }
     }
   };
 
+  const pathOptions = useMemo(() => [
+    { label: '— Yol seçin —', value: '' },
+    ...systemPages.map(p => ({ label: p.group ? `[${p.group}] ${p.name}` : p.name, value: p.path })),
+  ], [systemPages]);
+
   // Parent dropdown options: root + mevcut tüm node'lar
   const parentOptions = useMemo(() => [
     { label: '— Kök (üst öğe yok) —', value: '' },
@@ -299,7 +284,7 @@ export const ModuleMenuBuilder: React.FC<ModuleMenuBuilderProps> = ({ moduleId }
                   label="Hedef Yol (Path)"
                   value={form.path}
                   onChange={val => setForm(f => ({ ...f, path: val as string }))}
-                  options={PATH_OPTIONS}
+                  options={pathOptions}
                 />
                 {form.path && (
                   <small style={{ color: 'var(--text-muted)', fontSize: '0.72rem' }}>

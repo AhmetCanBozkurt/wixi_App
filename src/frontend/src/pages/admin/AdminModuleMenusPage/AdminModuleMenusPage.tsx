@@ -15,26 +15,7 @@ import { DynamicIcon, Select, Switch } from "../../../shared/ui";
 import styles from "./AdminModuleMenusPage.module.css";
 
 interface Language { id: string; code: string; name: string; }
-
-const SYSTEM_PAGES = [
-  { name: '[ GRUP / BAŞLIK / KLASÖR ]',        path: 'folder' },
-  { name: 'Dashboard',                          path: '/tenant/{tenantSlug}' },
-  { name: 'Siparişler',                         path: '/tenant/{tenantSlug}/orders' },
-  { name: 'Müşteriler',                         path: '/tenant/{tenantSlug}/customers' },
-  { name: 'Ürünler',                            path: '/tenant/{tenantSlug}/products' },
-  { name: 'Kategoriler',                        path: '/tenant/{tenantSlug}/categories' },
-  { name: 'Markalar',                           path: '/tenant/{tenantSlug}/brands' },
-  { name: 'Yorumlar (Testimonials)',            path: '/tenant/{tenantSlug}/testimonials' },
-  { name: 'Promosyon Bannerları',               path: '/tenant/{tenantSlug}/promo-banners' },
-  { name: 'Slaytlar',                           path: '/tenant/{tenantSlug}/sliders' },
-  { name: 'SSS (FAQ)',                          path: '/tenant/{tenantSlug}/faq' },
-  { name: 'İletişim Formları',                  path: '/tenant/{tenantSlug}/contact-submissions' },
-  { name: 'Tema Editörü',                       path: '/corp/theme-editor/{tenantSlug}' },
-  { name: 'Ayarlar',                            path: '/tenant/{tenantSlug}/settings' },
-  { name: 'Fatura & Abonelik',                  path: '/tenant/{tenantSlug}/billing' },
-  { name: 'CRM - Rehber',                       path: '/tenant/{tenantSlug}/crm/contacts' },
-  { name: 'CRM - Fırsatlar',                    path: '/tenant/{tenantSlug}/crm/deals' },
-];
+interface SystemPage { id: string; path: string; name: string; group?: string; }
 
 const POPULAR_ICONS = Object.keys(FaIconsList).filter(k => k.startsWith('Fa')).slice(0, 200);
 
@@ -64,6 +45,7 @@ const AdminModuleMenusPage = () => {
 
   const [treeData, setTreeData] = useState<NodeModel<ModuleMenuDto>[]>([]);
   const [languages, setLanguages] = useState<Language[]>([]);
+  const [systemPages, setSystemPages] = useState<SystemPage[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -74,9 +56,10 @@ const AdminModuleMenusPage = () => {
   const fetchData = useCallback(async () => {
     if (!moduleId) return;
     try {
-      const [menus, langRes] = await Promise.all([
+      const [menus, langRes, pagesRes] = await Promise.all([
         moduleService.getModuleMenus(moduleId),
         apiClient.get<{ items?: Language[] } | Language[]>('/Language'),
+        apiClient.get<{ items: SystemPage[] }>('/ref/system-pages'),
       ]);
 
       const langData = langRes.data;
@@ -84,6 +67,7 @@ const AdminModuleMenusPage = () => {
         ? langData
         : ((langData as { items?: Language[] }).items ?? []);
       setLanguages(langs);
+      setSystemPages(pagesRes.data?.items ?? []);
 
       const flat: NodeModel<ModuleMenuDto>[] = [];
       const walk = (items: ModuleMenuDto[], parentId: string = '0') => {
@@ -206,6 +190,11 @@ const AdminModuleMenusPage = () => {
     }
   };
 
+  const pathOptions = useMemo(() => [
+    { label: '— Yol seçin —', value: '' },
+    ...systemPages.map(p => ({ label: p.group ? `[${p.group}] ${p.name}` : p.name, value: p.path })),
+  ], [systemPages]);
+
   const filteredIcons = useMemo(() => {
     if (!iconSearch) return POPULAR_ICONS;
     return Object.keys(FaIconsList).filter(k => k.toLowerCase().includes(iconSearch.toLowerCase())).slice(0, 100);
@@ -290,7 +279,7 @@ const AdminModuleMenusPage = () => {
                   label="Hedef Yol (Path)"
                   value={form.path}
                   onChange={val => setForm(f => ({ ...f, path: val as string }))}
-                  options={SYSTEM_PAGES.map(p => ({ label: p.name, value: p.path }))}
+                  options={pathOptions}
                 />
                 <small style={{ color: 'var(--text-muted)', fontSize: '0.72rem' }}>
                   <code>{'{tenantSlug}'}</code> çalışma anında otomatik değiştirilir.
