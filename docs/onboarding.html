@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wixi Platform — Geliştirici Onboarding Rehberi</title>
+  <style>
+    :root {
+      --bg:       #0d0f17;
+      --bg2:      #131620;
+      --bg3:      #1a1e2e;
+      --border:   rgba(255,255,255,0.08);
+      --primary:  #6366f1;
+      --primary2: #818cf8;
+      --green:    #10b981;
+      --yellow:   #f59e0b;
+      --red:      #ef4444;
+      --cyan:     #22d3ee;
+      --pink:     #ec4899;
+      --text:     #e2e8f0;
+      --muted:    #64748b;
+      --radius:   12px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      font-size: 15px;
+    }
+
+    /* ─── HERO ─────────────────────────────────── */
+    .hero {
+      background: linear-gradient(135deg, #0d0f17 0%, #1a1040 50%, #0d0f17 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 80px 40px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 800px 400px at 50% 0%, rgba(99,102,241,0.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(99,102,241,0.15);
+      border: 1px solid rgba(99,102,241,0.4);
+      padding: 6px 16px;
+      border-radius: 99px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--primary2);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 28px;
+    }
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 800;
+      line-height: 1.15;
+      background: linear-gradient(135deg, #fff 0%, #818cf8 60%, #22d3ee 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 20px;
+    }
+    .hero p {
+      font-size: 1.1rem;
+      color: var(--muted);
+      max-width: 600px;
+      margin: 0 auto 40px;
+    }
+    .hero-stats {
+      display: flex;
+      justify-content: center;
+      gap: 48px;
+      flex-wrap: wrap;
+    }
+    .stat { text-align: center; }
+    .stat-num {
+      font-size: 2rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--primary2), var(--cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .stat-label { font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+
+    /* ─── NAV ──────────────────────────────────── */
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(13,15,23,0.9);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 40px;
+      display: flex;
+      gap: 4px;
+      overflow-x: auto;
+    }
+    .nav a {
+      color: var(--muted);
+      text-decoration: none;
+      padding: 16px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+    }
+    .nav a:hover { color: var(--text); border-color: var(--primary); }
+
+    /* ─── LAYOUT ───────────────────────────────── */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 40px 80px;
+    }
+
+    /* ─── SECTION ──────────────────────────────── */
+    .section { padding: 72px 0 0; }
+    .section-header { margin-bottom: 40px; }
+    .section-tag {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--primary2);
+      margin-bottom: 10px;
+    }
+    .section-title {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 12px;
+    }
+    .section-desc {
+      color: var(--muted);
+      max-width: 640px;
+      font-size: 1rem;
+    }
+
+    /* ─── CARDS ────────────────────────────────── */
+    .card-grid { display: grid; gap: 20px; }
+    .card-grid-2 { grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); }
+    .card-grid-3 { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+
+    .card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .card:hover { border-color: rgba(99,102,241,0.4); transform: translateY(-2px); }
+
+    .card-icon {
+      width: 48px; height: 48px;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem;
+      margin-bottom: 18px;
+    }
+    .card h3 { font-size: 1rem; font-weight: 700; color: #fff; margin-bottom: 8px; }
+    .card p  { font-size: 0.88rem; color: var(--muted); line-height: 1.6; }
+
+    /* ─── CODE BLOCK ───────────────────────────── */
+    pre, code {
+      font-family: 'Cascadia Code', 'Fira Code', 'JetBrains Mono', Consolas, monospace;
+    }
+    pre {
+      background: #0a0c14;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      overflow-x: auto;
+      font-size: 0.82rem;
+      line-height: 1.7;
+      margin: 16px 0;
+    }
+    code { font-size: 0.85em; }
+    .inline-code {
+      background: rgba(99,102,241,0.1);
+      border: 1px solid rgba(99,102,241,0.2);
+      padding: 2px 8px;
+      border-radius: 6px;
+      color: var(--primary2);
+      font-size: 0.85em;
+    }
+
+    /* ─── SYNTAX COLORS ────────────────────────── */
+    .kw  { color: #c792ea; }
+    .cl  { color: #82aaff; }
+    .st  { color: #c3e88d; }
+    .cm  { color: #546e7a; font-style: italic; }
+    .nm  { color: #f78c6c; }
+    .at  { color: var(--cyan); }
+    .pn  { color: #89ddff; }
+
+    /* ─── TREE ─────────────────────────────────── */
+    .tree {
+      background: #0a0c14;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px 28px;
+      font-family: 'Cascadia Code', Consolas, monospace;
+      font-size: 0.82rem;
+      line-height: 2;
+    }
+    .tree-folder { color: var(--yellow); font-weight: 700; }
+    .tree-file   { color: var(--text); }
+    .tree-note   { color: var(--muted); font-style: italic; }
+    .tree-new    { color: var(--green); font-weight: 700; }
+    .tree-indent { padding-left: 24px; border-left: 1px solid rgba(255,255,255,0.06); margin-left: 6px; }
+
+    /* ─── FLOW ─────────────────────────────────── */
+    .flow {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      flex-wrap: wrap;
+      margin: 24px 0;
+    }
+    .flow-step {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text);
+      white-space: nowrap;
+    }
+    .flow-arrow {
+      color: var(--primary);
+      font-size: 1.2rem;
+      padding: 0 10px;
+      font-weight: 900;
+    }
+
+    /* ─── STEPS ────────────────────────────────── */
+    .steps { display: flex; flex-direction: column; gap: 20px; }
+    .step {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+    }
+    .step-num {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, var(--primary), var(--primary2));
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: #fff;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .step-body h4 { font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 6px; }
+    .step-body p  { font-size: 0.87rem; color: var(--muted); }
+
+    /* ─── TABLE ────────────────────────────────── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 0.87rem;
+    }
+    th {
+      background: var(--bg3);
+      color: var(--primary2);
+      font-weight: 700;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      color: var(--text);
+      vertical-align: top;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255,255,255,0.02); }
+    .td-code { font-family: 'Cascadia Code', monospace; color: var(--primary2); font-size: 0.82rem; }
+    .td-muted { color: var(--muted); }
+
+    /* ─── BADGE ────────────────────────────────── */
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 99px;
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+    .badge-green  { background: rgba(16,185,129,0.15); color: var(--green); border: 1px solid rgba(16,185,129,0.3); }
+    .badge-yellow { background: rgba(245,158,11,0.15); color: var(--yellow); border: 1px solid rgba(245,158,11,0.3); }
+    .badge-red    { background: rgba(239,68,68,0.15);  color: var(--red);    border: 1px solid rgba(239,68,68,0.3); }
+    .badge-blue   { background: rgba(99,102,241,0.15); color: var(--primary2); border: 1px solid rgba(99,102,241,0.3); }
+    .badge-cyan   { background: rgba(34,211,238,0.15); color: var(--cyan);   border: 1px solid rgba(34,211,238,0.3); }
+
+    /* ─── ALERT ────────────────────────────────── */
+    .alert {
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      margin: 20px 0;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      font-size: 0.88rem;
+    }
+    .alert-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+    .alert-warn  { background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.25); }
+    .alert-info  { background: rgba(99,102,241,0.08); border: 1px solid rgba(99,102,241,0.25); }
+    .alert-danger{ background: rgba(239,68,68,0.08);  border: 1px solid rgba(239,68,68,0.25); }
+    .alert-good  { background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.25); }
+    .alert-warn  .alert-icon { color: var(--yellow); }
+    .alert-info  .alert-icon { color: var(--primary2); }
+    .alert-danger .alert-icon{ color: var(--red); }
+    .alert-good  .alert-icon { color: var(--green); }
+
+    /* ─── DIVIDER ──────────────────────────────── */
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+      margin: 64px 0 0;
+    }
+
+    /* ─── LAYER CHART ──────────────────────────── */
+    .layer-chart { display: flex; flex-direction: column; gap: 6px; margin: 24px 0; }
+    .layer {
+      border-radius: 10px;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.88rem;
+      font-weight: 600;
+    }
+    .layer-label { display: flex; align-items: center; gap: 12px; }
+    .layer-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .layer-desc { font-size: 0.78rem; color: var(--muted); font-weight: 400; }
+
+    /* ─── SCROLLBAR ────────────────────────────── */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 99px; }
+
+    @media (max-width: 768px) {
+      .hero { padding: 48px 20px; }
+      .container { padding: 0 20px 60px; }
+      .nav { padding: 0 20px; }
+      .hero-stats { gap: 28px; }
+      .card-grid-2, .card-grid-3 { grid-template-columns: 1fr; }
+      .flow { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════ HERO ════════════════════════════ -->
+<div class="hero">
+  <div class="hero-badge">🚀 Developer Onboarding v1.0</div>
+  <h1>Wixi Platform<br>Geliştirici Rehberi</h1>
+  <p>Sisteme hoş geldin. Bu döküman projenin mimarisini, klasör yapısını ve yeni bir modül yazarken izlemen gereken adımları anlatıyor.</p>
+  <div class="hero-stats">
+    <div class="stat">
+      <div class="stat-num">.NET 9</div>
+      <div class="stat-label">Backend</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">React 19</div>
+      <div class="stat-label">Frontend</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">Multi-Tenant</div>
+      <div class="stat-label">SaaS Mimarisi</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">CQRS</div>
+      <div class="stat-label">Mimari Desen</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">ClickUp</div>
+      <div class="stat-label">Görev Yönetimi</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ NAV ═════════════════════════════ -->
+<nav class="nav">
+  <a href="#vision">Vizyon</a>
+  <a href="#architecture">Mimari</a>
+  <a href="#backend">Backend Yapısı</a>
+  <a href="#frontend">Frontend Yapısı</a>
+  <a href="#new-module">Yeni Modül</a>
+  <a href="#auth">Auth Akışı</a>
+  <a href="#database">Veritabanı</a>
+  <a href="#ci-cd">CI/CD</a>
+  <a href="#rules">Kurallar</a>
+</nav>
+
+<div class="container">
+
+<!-- ═══════════════════════════ VİZYON ══════════════════════════ -->
+<section id="vision" class="section">
+  <div class="section-header">
+    <div class="section-tag">01 — Vizyon</div>
+    <h2 class="section-title">Wixi nedir, ne yapmaya çalışıyor?</h2>
+    <p class="section-desc">Türk KOBİ'lerine hitap eden, modüler SaaS platformu. Her müşteri ihtiyacına göre modül seçiyor, kendi veritabanına sahip oluyor.</p>
+  </div>
+
+  <div class="card-grid card-grid-3">
+    <div class="card">
+      <div class="card-icon" style="background:rgba(99,102,241,0.15);">🏢</div>
+      <h3>Multi-Tenant SaaS</h3>
+      <p>Her müşteri (tenant) kendi izole veritabanına sahip. Veriler hiçbir zaman karışmaz. Tenant'a özel DB provisioning otomatik yapılır.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon" style="background:rgba(16,185,129,0.15);">🧩</div>
+      <h3>Modüler Yapı</h3>
+      <p>E-Ticaret, Finans, Web Builder, CRM, HR gibi modüller bağımsız .NET projeleri. Müşteri sadece aldığı modülleri kullanır.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon" style="background:rgba(245,158,11,0.15);">🏪</div>
+      <h3>Storefront</h3>
+      <p>Her E-Ticaret tenant'ı kendi müşterilerine açık bir storefront (online mağaza) alır. Tema editörü ile görsel özelleştirme yapabilirler.</p>
+    </div>
+  </div>
+
+  <div style="margin-top:32px;">
+    <div class="card">
+      <h3 style="margin-bottom:16px; font-size:1rem; color:var(--primary2);">Platform Kullanıcı Rolleri</h3>
+      <table>
+        <thead>
+          <tr><th>Rol</th><th>Kimdir?</th><th>Erişim</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><span class="badge badge-red">SuperAdmin</span></td><td>Wixi ekibi</td><td class="td-muted">/admin/* — Tüm tenant'ları, modülleri ve sistemi yönetir</td></tr>
+          <tr><td><span class="badge badge-blue">Admin</span></td><td>Wixi destek ekibi</td><td class="td-muted">/admin/* — Kısıtlı admin işlemleri</td></tr>
+          <tr><td><span class="badge badge-green">TenantOwner</span></td><td>Müşteri (mağaza sahibi)</td><td class="td-muted">/store-admin/* — Kendi mağazasını yönetir</td></tr>
+          <tr><td><span class="badge badge-cyan">Customer</span></td><td>Son kullanıcı</td><td class="td-muted">/storefront/* — Alışveriş yapar</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════════════ MİMARİ ══════════════════════════ -->
+<section id="architecture" class="section">
+  <div class="section-header">
+    <div class="section-tag">02 — Mimari</div>
+    <h2 class="section-title">Genel Mimari</h2>
+    <p class="section-desc">Modüler monolit yaklaşımı. Tek bir solution, birden fazla bağımsız .NET projesi. İleride microservice'e geçiş kapısı açık.</p>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-bottom:20px; color:#fff;">Request Akışı</h3>
+    <div class="flow">
+      <div class="flow-step">React Frontend</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">axiosConfig<br><span style="color:var(--muted);font-weight:400;font-size:0.75rem;">JWT + X-Tenant-Slug</span></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">Wixi.API<br><span style="color:var(--muted);font-weight:400;font-size:0.75rem;">Controller</span></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">MediatR<br><span style="color:var(--muted);font-weight:400;font-size:0.75rem;">Command/Query</span></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">Handler<br><span style="color:var(--muted);font-weight:400;font-size:0.75rem;">İş Mantığı</span></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">EF Core<br><span style="color:var(--muted);font-weight:400;font-size:0.75rem;">SQL Server</span></div>
+    </div>
+  </div>
+
+  <div style="margin-top:20px;" class="card-grid card-grid-2">
+    <div class="card">
+      <h3 style="margin-bottom:16px; color:#fff;">Backend Stack</h3>
+      <table>
+        <tbody>
+          <tr><td class="td-code">.NET 9</td><td class="td-muted">Runtime</td></tr>
+          <tr><td class="td-code">ASP.NET Core</td><td class="td-muted">Web API framework</td></tr>
+          <tr><td class="td-code">MediatR</td><td class="td-muted">CQRS dispatcher</td></tr>
+          <tr><td class="td-code">EF Core</td><td class="td-muted">ORM</td></tr>
+          <tr><td class="td-code">SQL Server</td><td class="td-muted">Veritabanı</td></tr>
+          <tr><td class="td-code">Serilog</td><td class="td-muted">Loglama</td></tr>
+          <tr><td class="td-code">MailKit</td><td class="td-muted">E-posta</td></tr>
+          <tr><td class="td-code">Scriban</td><td class="td-muted">Mail şablonları</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <h3 style="margin-bottom:16px; color:#fff;">Frontend Stack</h3>
+      <table>
+        <tbody>
+          <tr><td class="td-code">React 19</td><td class="td-muted">UI kütüphanesi</td></tr>
+          <tr><td class="td-code">Vite</td><td class="td-muted">Build tool</td></tr>
+          <tr><td class="td-code">TypeScript</td><td class="td-muted">Tip güvenliği</td></tr>
+          <tr><td class="td-code">React Router v7</td><td class="td-muted">Routing</td></tr>
+          <tr><td class="td-code">Zustand</td><td class="td-muted">State yönetimi</td></tr>
+          <tr><td class="td-code">Axios</td><td class="td-muted">HTTP client</td></tr>
+          <tr><td class="td-code">Vanilla CSS</td><td class="td-muted">Glassmorphism tasarım</td></tr>
+          <tr><td class="td-code">react-hot-toast</td><td class="td-muted">Bildirimler</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════════════ BACKEND ═════════════════════════ -->
+<section id="backend" class="section">
+  <div class="section-header">
+    <div class="section-tag">03 — Backend</div>
+    <h2 class="section-title">Backend Klasör Yapısı</h2>
+    <p class="section-desc">Her modül bağımsız bir .NET projesi. Clean Architecture + CQRS her modülde zorunlu.</p>
+  </div>
+
+  <div class="tree">
+<span class="tree-folder">src/backend/</span>
+├── <span class="tree-folder">Wixi.API/</span>                    <span class="tree-note">← Giriş noktası. Controller'lar, Program.cs, DI</span>
+│   └── <span class="tree-folder">Controllers/</span>
+│       ├── <span class="tree-folder">Identity/</span>            <span class="tree-note">← Auth, UserManagement</span>
+│       ├── <span class="tree-folder">Core/</span>                <span class="tree-note">← Currency, Language, Menu, Mailing, Audit</span>
+│       ├── <span class="tree-folder">Subscriptions/</span>       <span class="tree-note">← Plans, Stripe, SaasOnboarding, Tenants</span>
+│       ├── <span class="tree-folder">Admin/</span>               <span class="tree-note">← Dashboard, Products, Categories, Theme</span>
+│       ├── <span class="tree-folder">StoreAdmin/</span>          <span class="tree-note">← Mağaza yönetim paneli controller'ları</span>
+│       ├── <span class="tree-folder">Storefront/</span>          <span class="tree-note">← Müşteri mağazası controller'ları</span>
+│       └── <span class="tree-folder">Utility/</span>             <span class="tree-note">← Files, Schema, SeedData</span>
+│
+├── <span class="tree-folder">Wixi.Shared/</span>                 <span class="tree-note">← JwtOptions, MailOptions, IAuditable</span>
+│
+├── <span class="tree-folder">Wixi.Modules.Core/</span>           <span class="tree-note">← Auth, Users, Roles, Menus, Languages</span>
+│   ├── <span class="tree-folder">Application/</span>
+│   │   └── <span class="tree-folder">&lt;Feature&gt;/</span>
+│   │       ├── <span class="tree-folder">Commands/&lt;Action&gt;/</span>   <span class="tree-note">← *Command.cs + *CommandHandler.cs</span>
+│   │       ├── <span class="tree-folder">Queries/&lt;Action&gt;/</span>    <span class="tree-note">← *Query.cs + *QueryHandler.cs</span>
+│   │       └── <span class="tree-folder">Dto/</span>
+│   ├── <span class="tree-folder">Domain/Entities/</span>          <span class="tree-note">← Tüm entity'ler WixiXxx prefix'li</span>
+│   └── <span class="tree-folder">Infrastructure/Data/</span>
+│       ├── <span class="tree-folder">Migrations/</span>
+│       └── <span class="tree-file">WixiCoreDbContext.cs</span>
+│
+├── <span class="tree-folder">Wixi.Modules.ECommerce/</span>      <span class="tree-note">← Per-tenant DB. Şu an Program.cs'de kapalı</span>
+├── <span class="tree-folder">Wixi.Modules.Finance/</span>        <span class="tree-note">← Tenant finance modülü</span>
+├── <span class="tree-folder">Wixi.Modules.PersonalFinance/</span> <span class="tree-note">← Kişisel finans modülü</span>
+└── <span class="tree-folder">Wixi.Modules.WebBuilder/</span>     <span class="tree-note">← Drag-drop sayfa yapılandırıcı</span>
+  </div>
+
+  <div class="alert alert-info">
+    <div class="alert-icon">ℹ️</div>
+    <div>
+      <strong>Hedef Modül Yapısı</strong> — Yeni kod eklerken şu adlandırmayı kullan:
+      <code class="inline-code">Wixi.Modules.Identity</code> (Auth/Users),
+      <code class="inline-code">Wixi.Modules.Settings</code> (Currency/Language),
+      <code class="inline-code">Wixi.Modules.Subscriptions</code> (Stripe/Plan),
+      <code class="inline-code">Wixi.Modules.ReferenceData</code> (Port/Region/vb.)
+    </div>
+  </div>
+
+  <div style="margin-top:32px;">
+    <h3 style="color:#fff; margin-bottom:16px;">Zorunlu Modül İç Yapısı</h3>
+    <div class="tree">
+<span class="tree-folder">Wixi.Modules.&lt;Name&gt;/</span>
+├── <span class="tree-folder">Application/</span>
+│   └── <span class="tree-folder">&lt;Feature&gt;/</span>           <span class="tree-note">örn: Products, Orders, Categories</span>
+│       ├── <span class="tree-folder">Commands/</span>
+│       │   └── <span class="tree-folder">&lt;Action&gt;/</span>       <span class="tree-note">örn: CreateProduct/</span>
+│       │       ├── <span class="tree-file">CreateProductCommand.cs</span>
+│       │       └── <span class="tree-file">CreateProductCommandHandler.cs</span>
+│       ├── <span class="tree-folder">Queries/</span>
+│       │   └── <span class="tree-folder">&lt;Action&gt;/</span>       <span class="tree-note">örn: GetProducts/</span>
+│       │       ├── <span class="tree-file">GetProductsQuery.cs</span>
+│       │       └── <span class="tree-file">GetProductsQueryHandler.cs</span>
+│       └── <span class="tree-folder">Dto/</span>
+│           └── <span class="tree-file">ProductDto.cs</span>
+├── <span class="tree-folder">Domain/</span>
+│   └── <span class="tree-folder">Entities/</span>               <span class="tree-note">← WixiProduct, WixiOrder ... (Wixi prefix zorunlu!)</span>
+├── <span class="tree-folder">Infrastructure/</span>
+│   ├── <span class="tree-folder">Data/</span>
+│   │   ├── <span class="tree-folder">Migrations/</span>         <span class="tree-note">← Sadece bu modülün migration'ları</span>
+│   │   └── <span class="tree-file">&lt;Name&gt;DbContext.cs</span>
+│   └── <span class="tree-folder">Services/</span>
+│       └── <span class="tree-file">&lt;Name&gt;TenantProvisioner.cs</span>  <span class="tree-note">← Multi-tenant modüllerde zorunlu</span>
+└── <span class="tree-file">&lt;Name&gt;ModuleExtensions.cs</span>     <span class="tree-note">← DI kaydı buraya</span>
+    </div>
+  </div>
+
+  <div style="margin-top:32px;">
+    <h3 style="color:#fff; margin-bottom:16px;">CQRS Pattern — Örnek Kod</h3>
+    <div class="card-grid card-grid-2">
+      <div>
+        <div style="font-size:0.78rem;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;font-weight:700;">Command (Yazma)</div>
+        <pre><span class="kw">public record</span> <span class="cl">CreateProductCommand</span>(<span class="at">string</span> Name, <span class="at">decimal</span> Price)
+    : IRequest&lt;<span class="cl">Guid</span>&gt;;
+
+<span class="kw">public class</span> <span class="cl">CreateProductCommandHandler</span>
+    : IRequestHandler&lt;<span class="cl">CreateProductCommand</span>, <span class="cl">Guid</span>&gt;
+{
+    <span class="kw">private readonly</span> <span class="cl">ECommerceDbContext</span> _db;
+
+    <span class="kw">public</span> <span class="cl">CreateProductCommandHandler</span>(<span class="cl">ECommerceDbContext</span> db)
+        => _db = db;
+
+    <span class="kw">public async</span> <span class="cl">Task</span>&lt;<span class="cl">Guid</span>&gt; <span class="at">Handle</span>(
+        <span class="cl">CreateProductCommand</span> request,
+        <span class="cl">CancellationToken</span> ct)
+    {
+        <span class="kw">var</span> product = <span class="kw">new</span> <span class="cl">WixiProduct</span>
+        {
+            Id    = <span class="cl">Guid</span>.<span class="at">NewGuid</span>(),
+            Name  = request.Name,
+            Price = request.Price,
+        };
+        _db.Products.<span class="at">Add</span>(product);
+        <span class="kw">await</span> _db.<span class="at">SaveChangesAsync</span>(ct);
+        <span class="kw">return</span> product.Id;
+    }
+}</pre>
+      </div>
+      <div>
+        <div style="font-size:0.78rem;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;font-weight:700;">Query (Okuma)</div>
+        <pre><span class="kw">public record</span> <span class="cl">GetProductsQuery</span>()
+    : IRequest&lt;<span class="cl">List</span>&lt;<span class="cl">ProductDto</span>&gt;&gt;;
+
+<span class="kw">public class</span> <span class="cl">GetProductsQueryHandler</span>
+    : IRequestHandler&lt;<span class="cl">GetProductsQuery</span>, <span class="cl">List</span>&lt;<span class="cl">ProductDto</span>&gt;&gt;
+{
+    <span class="kw">private readonly</span> <span class="cl">ECommerceDbContext</span> _db;
+
+    <span class="kw">public</span> <span class="cl">GetProductsQueryHandler</span>(<span class="cl">ECommerceDbContext</span> db)
+        => _db = db;
+
+    <span class="kw">public async</span> <span class="cl">Task</span>&lt;<span class="cl">List</span>&lt;<span class="cl">ProductDto</span>&gt;&gt; <span class="at">Handle</span>(
+        <span class="cl">GetProductsQuery</span> request,
+        <span class="cl">CancellationToken</span> ct)
+    {
+        <span class="kw">return await</span> _db.Products
+            .<span class="at">Select</span>(p => <span class="kw">new</span> <span class="cl">ProductDto</span>(p.Id, p.Name, p.Price))
+            .<span class="at">ToListAsync</span>(ct);
+    }
+}</pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════════════ FRONTEND ════════════════════════ -->
+<section id="frontend" class="section">
+  <div class="section-header">
+    <div class="section-tag">04 — Frontend</div>
+    <h2 class="section-title">Frontend Klasör Yapısı</h2>
+    <p class="section-desc">Feature-Sliced Design (FSD) katmanlı mimarisi. Her katmanın net bir sorumluluğu var, üst katman alt katmanı import eder.</p>
+  </div>
+
+  <div class="layer-chart">
+    <div class="layer" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);">
+      <div class="layer-label">
+        <div class="layer-dot" style="background:#ef4444;"></div>
+        <strong>app/</strong>
+      </div>
+      <span class="layer-desc">Router, AuthGuard, global provider'lar — iş mantığı YOK</span>
+    </div>
+    <div class="layer" style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);">
+      <div class="layer-label">
+        <div class="layer-dot" style="background:#f59e0b;"></div>
+        <strong>pages/</strong>
+      </div>
+      <span class="layer-desc">Route bileşenleri — admin/, store-admin/, ecommerce/, storefront/, auth/ alt klasörlerine ayrılmış</span>
+    </div>
+    <div class="layer" style="background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.2);">
+      <div class="layer-label">
+        <div class="layer-dot" style="background:#6366f1;"></div>
+        <strong>widgets/</strong>
+      </div>
+      <span class="layer-desc">Birden fazla entity/feature kullanan layout bileşenleri — Sidebar, Header</span>
+    </div>
+    <div class="layer" style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);">
+      <div class="layer-label">
+        <div class="layer-dot" style="background:#10b981;"></div>
+        <strong>features/</strong>
+      </div>
+      <span class="layer-desc">Form handler, iş akışı, POST/PUT/DELETE çağrıları — ThemeBuilder, Auth, TenantSelector</span>
+    </div>
+    <div class="layer" style="background:rgba(34,211,238,0.08);border:1px solid rgba(34,211,238,0.2);">
+      <div class="layer-label">
+        <div class="layer-dot" style="background:#22d3ee;"></div>
+        <strong>entities/</strong>
+      </div>
+      <span class="layer-desc">TS interface, Zustand store, sadece GET çağrıları — User modeli</span>
+    </div>
+    <div class="layer" style="background:rgba(148,163,184,0.08);border:1px solid rgba(148,163,184,0.2);">
+      <div class="layer-label">
+        <div class="layer-dot" style="background:#94a3b8;"></div>
+        <strong>shared/</strong>
+      </div>
+      <span class="layer-desc">Domain-agnostik UI bileşenleri, axiosConfig, yardımcı fonksiyonlar</span>
+    </div>
+  </div>
+
+  <div style="margin-top:32px;">
+    <h3 style="color:#fff; margin-bottom:16px;">Tam Klasör Yapısı</h3>
+    <div class="tree">
+<span class="tree-folder">src/frontend/src/</span>
+├── <span class="tree-folder">app/</span>
+│   ├── <span class="tree-file">App.tsx</span>                  <span class="tree-note">← Ana router, AuthGuard</span>
+│   └── <span class="tree-file">providers.tsx</span>
+├── <span class="tree-folder">entities/</span>
+│   └── <span class="tree-folder">User/model/</span>
+│       └── <span class="tree-file">store.ts</span>             <span class="tree-note">← useAuthStore (Zustand)</span>
+├── <span class="tree-folder">features/</span>
+│   ├── <span class="tree-folder">Auth/</span>
+│   ├── <span class="tree-folder">ThemeBuilder/</span>           <span class="tree-note">← Hedef: buraya taşınacak</span>
+│   └── <span class="tree-folder">TenantSelector/</span>
+├── <span class="tree-folder">pages/</span>
+│   ├── <span class="tree-folder">admin/</span>                   <span class="tree-note">← /admin/* rotaları</span>
+│   │   ├── <span class="tree-folder">DashboardPage/</span>
+│   │   ├── <span class="tree-folder">UserManagementPage/</span>
+│   │   └── <span class="tree-folder">...</span>
+│   ├── <span class="tree-folder">store-admin/</span>             <span class="tree-note">← /store-admin/* rotaları</span>
+│   ├── <span class="tree-folder">ecommerce/</span>               <span class="tree-note">← /ecommerce/* rotaları (platform admin)</span>
+│   ├── <span class="tree-folder">storefront/</span>              <span class="tree-note">← Müşteri mağaza rotaları</span>
+│   └── <span class="tree-folder">auth/</span>                    <span class="tree-note">← Login, ForgotPassword, Reset</span>
+├── <span class="tree-folder">shared/</span>
+│   ├── <span class="tree-folder">api/</span>
+│   │   ├── <span class="tree-file">axiosConfig.ts</span>        <span class="tree-note">← Base client, JWT + X-Tenant-Slug interceptor</span>
+│   │   └── <span class="tree-folder">services/</span>             <span class="tree-note">← moduleService, productService, vb.</span>
+│   └── <span class="tree-folder">ui/</span>                      <span class="tree-note">← Input, Select, Button, Modal, Switch...</span>
+└── <span class="tree-folder">widgets/</span>
+    ├── <span class="tree-folder">Sidebar/</span>
+    └── <span class="tree-folder">Header/</span>
+    </div>
+  </div>
+
+  <div style="margin-top:32px;">
+    <h3 style="color:#fff; margin-bottom:16px;">Zorunlu Shared UI Bileşenleri</h3>
+    <div class="alert alert-danger">
+      <div class="alert-icon">🚫</div>
+      <div>Ham <code class="inline-code">&lt;input&gt;</code>, <code class="inline-code">&lt;select&gt;</code>, <code class="inline-code">&lt;button&gt;</code> kullanımı kesinlikle yasak. Her zaman shared bileşenleri kullan.</div>
+    </div>
+    <table>
+      <thead><tr><th>İhtiyaç</th><th>Bileşen</th><th>Import</th></tr></thead>
+      <tbody>
+        <tr><td>Metin / sayı girişi</td><td class="td-code">&lt;Input&gt;</td><td class="td-code">shared/ui/Input/Input</td></tr>
+        <tr><td>Dropdown seçim</td><td class="td-code">&lt;Select&gt;</td><td class="td-code">shared/ui/Select/Select</td></tr>
+        <tr><td>Butonlar</td><td class="td-code">&lt;Button variant="primary/ghost/danger"&gt;</td><td class="td-code">shared/ui/Button/Button</td></tr>
+        <tr><td>Modal pencere</td><td class="td-code">&lt;Modal isOpen title size footer&gt;</td><td class="td-code">shared/ui/Modal/Modal</td></tr>
+        <tr><td>Toggle</td><td class="td-code">&lt;Switch label&gt;</td><td class="td-code">shared/ui/Switch/Switch</td></tr>
+        <tr><td>Görsel yükleme</td><td class="td-code">&lt;ImageUploadField&gt;</td><td class="td-code">shared/ui/ImageUploadField/...</td></tr>
+        <tr><td>Çoklu seçim</td><td class="td-code">&lt;MultiSelect&gt;</td><td class="td-code">shared/ui/MultiSelect/...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════════════ YENİ MODÜL ══════════════════════ -->
+<section id="new-module" class="section">
+  <div class="section-header">
+    <div class="section-tag">05 — Yeni Modül</div>
+    <h2 class="section-title">Sıfırdan Yeni Modül Yazma</h2>
+    <p class="section-desc">Örnek: <code class="inline-code">crm</code> modülü ekleyeceğiz. Backend'den frontend'e adım adım.</p>
+  </div>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <h4>Backend — .NET Projesi Oluştur</h4>
+        <p>Solution klasöründe yeni proje oluştur ve solution'a ekle.</p>
+        <pre>dotnet new classlib -n Wixi.Modules.CRM -f net9.0
+dotnet sln Wixi.Platform.sln add src/backend/Wixi.Modules.CRM/Wixi.Modules.CRM.csproj</pre>
+        <p style="margin-top:8px;">Gerekli paketleri ekle:</p>
+        <pre>dotnet add package Microsoft.EntityFrameworkCore.SqlServer
+dotnet add package MediatR
+dotnet add package MediatR.Extensions.Microsoft.DependencyInjection</pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <h4>Entity Oluştur — Domain/Entities/</h4>
+        <p>Entity adları mutlaka <strong>Wixi prefix</strong> ile başlar. <code class="inline-code">IAuditable</code> implement et.</p>
+        <pre><span class="cm">// Domain/Entities/WixiContact.cs</span>
+<span class="kw">public class</span> <span class="cl">WixiContact</span> : <span class="cl">IAuditable</span>
+{
+    <span class="kw">public</span> <span class="cl">Guid</span> Id { <span class="kw">get</span>; <span class="kw">set</span>; }
+    <span class="kw">public</span> <span class="at">string</span> FullName { <span class="kw">get</span>; <span class="kw">set</span>; } = <span class="st">""</span>;
+    <span class="kw">public</span> <span class="at">string</span>? Email { <span class="kw">get</span>; <span class="kw">set</span>; }
+    <span class="kw">public</span> <span class="at">string</span>? Phone { <span class="kw">get</span>; <span class="kw">set</span>; }
+
+    <span class="cm">// IAuditable alanları</span>
+    <span class="kw">public</span> <span class="cl">DateTime</span> CreatedAt { <span class="kw">get</span>; <span class="kw">set</span>; }
+    <span class="kw">public bool</span> IsActive { <span class="kw">get</span>; <span class="kw">set</span>; } = <span class="kw">true</span>;
+    <span class="kw">public bool</span> IsDeleted { <span class="kw">get</span>; <span class="kw">set</span>; } = <span class="kw">false</span>;
+}</pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <h4>DbContext + Migration</h4>
+        <pre><span class="cm">// Infrastructure/Data/CRMDbContext.cs</span>
+<span class="kw">public class</span> <span class="cl">CRMDbContext</span>(<span class="cl">DbContextOptions</span>&lt;<span class="cl">CRMDbContext</span>&gt; options)
+    : DbContext(options)
+{
+    <span class="kw">public</span> <span class="cl">DbSet</span>&lt;<span class="cl">WixiContact</span>&gt; Contacts => Set&lt;<span class="cl">WixiContact</span>&gt;();
+}
+
+<span class="cm">// Migration komutu (SADECE dosya oluştur, database update ÇALIŞTIRILMAZ)</span></pre>
+        <pre>dotnet ef migrations add InitCRM \
+  --project src/backend/Wixi.Modules.CRM \
+  --startup-project src/backend/Wixi.API \
+  --output-dir Infrastructure/Data/Migrations</pre>
+        <div class="alert alert-danger" style="margin-top:12px;">
+          <div class="alert-icon">🚫</div>
+          <div><strong>dotnet ef database update LOCAL'DEN ÇALIŞTIRILMAZ.</strong> Migration'lar Docker/CI tarafından otomatik uygulanır.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-body">
+        <h4>CQRS Handler'ları Yaz</h4>
+        <p>Her işlem için ayrı Command veya Query + Handler çifti oluştur. Birden fazla işlemi tek handler'a koyma.</p>
+        <pre><span class="cm">// Application/Contacts/Commands/CreateContact/CreateContactCommand.cs</span>
+<span class="kw">public record</span> <span class="cl">CreateContactCommand</span>(<span class="at">string</span> FullName, <span class="at">string</span>? Email)
+    : IRequest&lt;<span class="cl">Guid</span>&gt;;
+
+<span class="cm">// Application/Contacts/Commands/CreateContact/CreateContactCommandHandler.cs</span>
+<span class="kw">public class</span> <span class="cl">CreateContactCommandHandler</span>(CRMDbContext db)
+    : IRequestHandler&lt;<span class="cl">CreateContactCommand</span>, <span class="cl">Guid</span>&gt;
+{
+    <span class="kw">public async</span> <span class="cl">Task</span>&lt;<span class="cl">Guid</span>&gt; <span class="at">Handle</span>(CreateContactCommand req, CancellationToken ct)
+    {
+        <span class="kw">var</span> contact = <span class="kw">new</span> WixiContact { Id = Guid.NewGuid(), FullName = req.FullName, Email = req.Email };
+        db.Contacts.Add(contact);
+        <span class="kw">await</span> db.SaveChangesAsync(ct);
+        <span class="kw">return</span> contact.Id;
+    }
+}</pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-body">
+        <h4>Module Extensions — DI Kaydı</h4>
+        <pre><span class="cm">// CRMModuleExtensions.cs</span>
+<span class="kw">public static class</span> <span class="cl">CRMModuleExtensions</span>
+{
+    <span class="kw">public static</span> <span class="cl">IServiceCollection</span> <span class="at">AddCRMModule</span>(
+        <span class="kw">this</span> <span class="cl">IServiceCollection</span> services, <span class="at">string</span> connectionString)
+    {
+        services.<span class="at">AddDbContext</span>&lt;<span class="cl">CRMDbContext</span>&gt;(o =>
+            o.<span class="at">UseSqlServer</span>(connectionString));
+
+        services.<span class="at">AddMediatR</span>(cfg =>
+            cfg.<span class="at">RegisterServicesFromAssembly</span>(<span class="kw">typeof</span>(<span class="cl">CRMModuleExtensions</span>).Assembly));
+
+        <span class="kw">return</span> services;
+    }
+}</pre>
+        <p style="margin-top:8px;">Sonra <code class="inline-code">Program.cs</code>'e ekle:</p>
+        <pre>builder.Services.<span class="at">AddCRMModule</span>(builder.Configuration.<span class="at">GetConnectionString</span>(<span class="st">"DefaultConnection"</span>)!);</pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">6</div>
+      <div class="step-body">
+        <h4>Controller — Wixi.API/Controllers/Core/</h4>
+        <pre><span class="cm">// Wixi.API/Controllers/Core/CRMContactsController.cs</span>
+[<span class="cl">ApiController</span>]
+[<span class="cl">Route</span>(<span class="st">"api/v1/crm/contacts"</span>)]
+[<span class="cl">Authorize</span>(Roles = <span class="st">"SuperAdmin,Admin"</span>)]
+<span class="kw">public class</span> <span class="cl">CRMContactsController</span>(<span class="cl">IMediator</span> mediator) : ControllerBase
+{
+    [<span class="cl">HttpGet</span>]
+    <span class="kw">public async</span> Task&lt;IActionResult&gt; GetAll()
+        => Ok(<span class="kw">await</span> mediator.Send(<span class="kw">new</span> <span class="cl">GetContactsQuery</span>()));
+
+    [<span class="cl">HttpPost</span>]
+    <span class="kw">public async</span> Task&lt;IActionResult&gt; Create([<span class="cl">FromBody</span>] <span class="cl">CreateContactCommand</span> cmd)
+        => Ok(<span class="kw">await</span> mediator.Send(cmd));
+}</pre>
+        <div class="alert alert-warn" style="margin-top:12px;">
+          <div class="alert-icon">⚠️</div>
+          <div>Controller namespace'i <code class="inline-code">Wixi.API.Controllers.Core</code> olmalı. God controller yasak — her entity için ayrı controller.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">7</div>
+      <div class="step-body">
+        <h4>Frontend — Service Dosyası</h4>
+        <pre><span class="cm">// shared/api/services/crmService.ts</span>
+<span class="kw">import</span> { apiClient } <span class="kw">from</span> <span class="st">'../axiosConfig'</span>;
+
+<span class="kw">export interface</span> <span class="cl">ContactDto</span> {
+  id: <span class="at">string</span>;
+  fullName: <span class="at">string</span>;
+  email?: <span class="at">string</span>;
+  phone?: <span class="at">string</span>;
+}
+
+<span class="kw">export const</span> crmService = {
+  getContacts: () =>
+    apiClient.get&lt;<span class="cl">ContactDto</span>[]&gt;(<span class="st">'/crm/contacts'</span>).<span class="at">then</span>(r => r.data),
+
+  createContact: (data: <span class="cl">Partial</span>&lt;<span class="cl">ContactDto</span>&gt;) =>
+    apiClient.post(<span class="st">'/crm/contacts'</span>, data).<span class="at">then</span>(r => r.data),
+};</pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">8</div>
+      <div class="step-body">
+        <h4>Frontend — Sayfa Bileşeni</h4>
+        <pre><span class="cm">// pages/admin/CRMContactsPage/CRMContactsPage.tsx</span>
+<span class="kw">import</span> { useEffect, useState } <span class="kw">from</span> <span class="st">'react'</span>;
+<span class="kw">import</span> { crmService, <span class="kw">type</span> ContactDto } <span class="kw">from</span> <span class="st">'../../../shared/api/services/crmService'</span>;
+<span class="kw">import</span> { Button, Modal, Input } <span class="kw">from</span> <span class="st">'../../../shared/ui'</span>;
+
+<span class="kw">const</span> <span class="cl">CRMContactsPage</span> = () => {
+  <span class="kw">const</span> [contacts, setContacts] = useState&lt;<span class="cl">ContactDto</span>[]&gt;([]);
+
+  useEffect(() => {
+    crmService.getContacts().<span class="at">then</span>(setContacts);
+  }, []);
+
+  <span class="kw">return</span> (
+    &lt;<span class="kw">div</span>&gt;
+      <span class="cm">{/* AdvancedDataTable veya özel liste */}</span>
+    &lt;/<span class="kw">div</span>&gt;
+  );
+};
+
+<span class="kw">export default</span> CRMContactsPage;</pre>
+        <p style="margin-top:8px;">Son olarak <code class="inline-code">pages/admin/CRMContactsPage/index.ts</code> ekle:</p>
+        <pre><span class="kw">export</span> { <span class="kw">default</span> } <span class="kw">from</span> <span class="st">'./CRMContactsPage'</span>;</pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">9</div>
+      <div class="step-body">
+        <h4>Router'a Ekle — App.tsx</h4>
+        <pre><span class="cm">// src/app/App.tsx — admin route'ları içine</span>
+&lt;<span class="cl">Route</span> path=<span class="st">"crm/contacts"</span> element={&lt;<span class="cl">CRMContactsPage</span> /&gt;} /&gt;</pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">10</div>
+      <div class="step-body">
+        <h4>Admin Menüsüne Ekle (SQL)</h4>
+        <p>Menüler SQL ile <code class="inline-code">Wixi_App_TEST</code> veritabanına eklenir. <strong>Sadece TEST DB'ye</strong> — prod CI/CD pipeline tarafından yönetilir.</p>
+        <pre><span class="cm">-- TEST DB'ye bağlan: 78.188.86.124,1533 / Wixi_App_TEST</span>
+DECLARE @trId UNIQUEIDENTIFIER = <span class="st">'24071C53-2B52-42B9-9FAE-FA60B65B37AA'</span>;
+DECLARE @enId UNIQUEIDENTIFIER = <span class="st">'5AA1D063-B1CE-46BC-9772-363A650E484E'</span>;
+DECLARE @adminId UNIQUEIDENTIFIER = <span class="st">'A649A4BE-E7D6-4C70-53CD-08DEB53255B1'</span>;
+
+DECLARE @mId UNIQUEIDENTIFIER = NEWID();
+INSERT INTO WIXI_MENUS (Id, UserId, ParentId, Path, Icon, IconColor, SortOrder, IsVisible, CreatedAt, IsActive, IsDeleted)
+VALUES (@mId, @adminId, NULL, <span class="st">'/admin/crm/contacts'</span>, <span class="st">'FaAddressBook'</span>, <span class="st">'#10b981'</span>, 70, 1, GETUTCDATE(), 1, 0);
+
+INSERT INTO WIXI_MENU_TRANSLATIONS (Id, MenuId, LanguageId, Title, CreatedAt, IsActive, IsDeleted)
+VALUES (NEWID(), @mId, @trId, <span class="st">'CRM Rehber'</span>, GETUTCDATE(), 1, 0),
+       (NEWID(), @mId, @enId, <span class="st">'CRM Contacts'</span>, GETUTCDATE(), 1, 0);</pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════════════ AUTH ════════════════════════════ -->
+<section id="auth" class="section">
+  <div class="section-header">
+    <div class="section-tag">06 — Auth</div>
+    <h2 class="section-title">Kimlik Doğrulama Akışı</h2>
+    <p class="section-desc">JWT + HttpOnly refresh token cookie. Opsiyonel 2FA (OTP via email).</p>
+  </div>
+
+  <div class="card">
+    <div class="flow" style="flex-wrap:wrap;">
+      <div class="flow-step">POST /auth/login<br><span style="color:var(--muted);font-size:0.75rem;">email + password</span></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">2FA Aktif?<br><span style="color:var(--muted);font-size:0.75rem;">OTP e-posta gönderilir</span></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">JWT Access Token<br><span style="color:var(--muted);font-size:0.75rem;">localStorage</span></div>
+      <div class="flow-arrow">+</div>
+      <div class="flow-step">Refresh Token<br><span style="color:var(--muted);font-size:0.75rem;">HttpOnly Cookie</span></div>
+    </div>
+    <div style="margin-top:20px; padding-top:20px; border-top:1px solid var(--border);">
+      <p style="font-size:0.87rem; color:var(--muted);">API isteği 401 döndüğünde axios interceptor otomatik refresh dener. Refresh da başarısız olursa <code class="inline-code">/login</code>'e yönlendirir.</p>
+    </div>
+  </div>
+
+  <div style="margin-top:20px;" class="card-grid card-grid-2">
+    <div class="card">
+      <h3 style="margin-bottom:12px;">Frontend — Auth Store</h3>
+      <pre><span class="cm">// entities/User/model/store.ts</span>
+<span class="kw">const</span> useAuthStore = create&lt;<span class="cl">AuthState</span>&gt;()(...)
+
+<span class="cm">// Kullanım</span>
+<span class="kw">const</span> { user, isAuthenticated } = <span class="at">useAuthStore</span>();</pre>
+    </div>
+    <div class="card">
+      <h3 style="margin-bottom:12px;">Backend — Controller Koruma</h3>
+      <pre>[<span class="cl">Authorize</span>]                    <span class="cm">// Giriş yapılmış olmalı</span>
+[<span class="cl">Authorize</span>(Roles = <span class="st">"SuperAdmin"</span>)]  <span class="cm">// Rol kontrolü</span>
+[<span class="cl">AllowAnonymous</span>]               <span class="cm">// Auth yok (login endpoint)</span></pre>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════════════ DATABASE ════════════════════════ -->
+<section id="database" class="section">
+  <div class="section-header">
+    <div class="section-tag">07 — Veritabanı</div>
+    <h2 class="section-title">Multi-Tenant Veritabanı Stratejisi</h2>
+    <p class="section-desc">Master DB tüm platformu yönetir. Her tenant kendi izole DB'sini alır.</p>
+  </div>
+
+  <div class="card-grid card-grid-2">
+    <div class="card" style="border-color:rgba(99,102,241,0.3);">
+      <div style="font-size:0.78rem;font-weight:800;color:var(--primary2);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">Master DB — Wixi_App / Wixi_App_TEST</div>
+      <p style="font-size:0.87rem;color:var(--muted);margin-bottom:12px;">Platform genelinde paylaşılan veriler burada tutulur.</p>
+      <ul style="font-size:0.85rem;color:var(--muted);padding-left:20px;line-height:2;">
+        <li>WixiUsers, WixiRoles, WixiPermissions</li>
+        <li>WixiTenants, WixiTenantSubscriptions</li>
+        <li>WixiModules, WixiModuleMenus</li>
+        <li>WixiMenus, WixiLanguages</li>
+        <li>WixiMailTemplates, WixiAuditLogs</li>
+      </ul>
+    </div>
+    <div class="card" style="border-color:rgba(16,185,129,0.3);">
+      <div style="font-size:0.78rem;font-weight:800;color:var(--green);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">Tenant DB — Her müşteri için ayrı</div>
+      <p style="font-size:0.87rem;color:var(--muted);margin-bottom:12px;">Tenant kayıt olduğunda provisioner otomatik oluşturur.</p>
+      <ul style="font-size:0.85rem;color:var(--muted);padding-left:20px;line-height:2;">
+        <li>Products, Categories, Brands, Orders</li>
+        <li>Customers, Addresses</li>
+        <li>Pages, ThemeVersions</li>
+        <li>Contacts, Deals (CRM)</li>
+        <li>FinanceTransactions, Budgets</li>
+      </ul>
+    </div>
+  </div>
+
+  <div style="margin-top:28px;" class="card">
+    <h3 style="margin-bottom:16px;">Bağlantı Bilgileri</h3>
+    <table>
+      <thead><tr><th>Ortam</th><th>Server</th><th>DB</th><th>Kullanım</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="badge badge-yellow">TEST</span></td>
+          <td class="td-code">78.188.86.124,1533</td>
+          <td class="td-code">Wixi_App_TEST</td>
+          <td class="td-muted">Manuel SQL, geliştirme</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-red">PROD</span></td>
+          <td class="td-code">78.188.86.124,1533</td>
+          <td class="td-code">Wixi_App</td>
+          <td class="td-muted">Sadece CI/CD pipeline — EL İLE BAĞLANILMAZ</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="alert alert-danger" style="margin-top:12px;">
+      <div class="alert-icon">🚫</div>
+      <div>El ile çalıştırılan tüm SQL scriptleri (menü ekleme, seed vb.) sadece <strong>Wixi_App_TEST</strong>'e uygulanır. Prod DB yalnızca deploy pipeline tarafından güncellenir.</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════════════ CI/CD ════════════════════════════ -->
+<section id="ci-cd" class="section">
+  <div class="section-header">
+    <div class="section-tag">08 — CI/CD</div>
+    <h2 class="section-title">Branch Stratejisi & Deploy</h2>
+    <p class="section-desc">GitHub Actions ile otomatik build/test/deploy. Hiçbir şey lokalde deploy edilmez.</p>
+  </div>
+
+  <div class="card-grid card-grid-3">
+    <div class="card" style="border-color:rgba(16,185,129,0.3);">
+      <div class="card-icon" style="background:rgba(16,185,129,0.15);">🌿</div>
+      <h3>feature/* branch'leri</h3>
+      <p>Her yeni özellik için oluşturulur. PR açılınca otomatik build + lint çalışır. Merge hedefi: <code class="inline-code">develop</code></p>
+    </div>
+    <div class="card" style="border-color:rgba(245,158,11,0.3);">
+      <div class="card-icon" style="background:rgba(245,158,11,0.15);">🔧</div>
+      <h3>develop branch</h3>
+      <p>Test ortamına (Wixi_App_TEST) otomatik deploy olur. Günlük geliştirme buraya merge edilir.</p>
+    </div>
+    <div class="card" style="border-color:rgba(239,68,68,0.3);">
+      <div class="card-icon" style="background:rgba(239,68,68,0.15);">🚀</div>
+      <h3>main branch</h3>
+      <p>Prod'a (Wixi_App) deploy olur. Sadece PR ile merge edilir. Direct push kapalıdır.</p>
+    </div>
+  </div>
+
+  <div style="margin-top:28px;" class="card">
+    <h3 style="margin-bottom:16px;">Sık Kullanılan Komutlar</h3>
+    <div class="card-grid card-grid-2">
+      <div>
+        <div style="font-size:0.78rem;color:var(--green);margin-bottom:8px;font-weight:700;">FRONTEND</div>
+        <pre>npm run dev          <span class="cm"># Vite dev server :5173</span>
+npm run build        <span class="cm"># Production build</span>
+npm run typecheck    <span class="cm"># TypeScript kontrolü</span>
+npm run lint         <span class="cm"># ESLint</span></pre>
+      </div>
+      <div>
+        <div style="font-size:0.78rem;color:var(--primary2);margin-bottom:8px;font-weight:700;">BACKEND</div>
+        <pre>dotnet run --project src/backend/Wixi.API/Wixi.API.csproj
+<span class="cm"># API: http://localhost:5181</span>
+
+dotnet build src/backend/Wixi.Platform.sln
+
+<span class="cm"># Migration oluştur (apply etme!)</span>
+dotnet ef migrations add &lt;Name&gt; \
+  --project src/backend/Wixi.Modules.Core \
+  --startup-project src/backend/Wixi.API \
+  --output-dir Infrastructure/Data/Migrations</pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════════════ KURALLAR ════════════════════════ -->
+<section id="rules" class="section">
+  <div class="section-header">
+    <div class="section-tag">09 — Kurallar</div>
+    <h2 class="section-title">Kesinlikle Yapılmaz Listesi</h2>
+    <p class="section-desc">Bu kurallar projenin güvenli ve sürdürülebilir kalması için var.</p>
+  </div>
+
+  <div class="card-grid card-grid-2">
+    <div>
+      <div class="alert alert-danger">
+        <div class="alert-icon">🚫</div>
+        <div><strong>dotnet ef database update</strong> — Lokalden çalıştırılmaz. Migration'lar Docker/CI tarafından uygulanır.</div>
+      </div>
+      <div class="alert alert-danger">
+        <div class="alert-icon">🚫</div>
+        <div><strong>Ham &lt;input&gt; / &lt;button&gt;</strong> — Shared UI bileşenleri kullanılır. Input, Select, Button, Modal zorunlu.</div>
+      </div>
+      <div class="alert alert-danger">
+        <div class="alert-icon">🚫</div>
+        <div><strong>Prod DB'ye direkt SQL</strong> — Sadece Wixi_App_TEST'e el ile SQL çalıştırılır.</div>
+      </div>
+      <div class="alert alert-danger">
+        <div class="alert-icon">🚫</div>
+        <div><strong>God Controller</strong> — Tek controller birden fazla entity yönetemez. Her entity için ayrı controller.</div>
+      </div>
+    </div>
+    <div>
+      <div class="alert alert-danger">
+        <div class="alert-icon">🚫</div>
+        <div><strong>Alt katman üst katmanı import edemez</strong> — entities, features'ı import edemez. FSD katman sırasına uy.</div>
+      </div>
+      <div class="alert alert-danger">
+        <div class="alert-icon">🚫</div>
+        <div><strong>Wixi prefix olmadan entity</strong> — Tüm domain entity'leri WixiXxx şeklinde olmalı.</div>
+      </div>
+      <div class="alert alert-danger">
+        <div class="alert-icon">🚫</div>
+        <div><strong>Agent isolation: worktree</strong> — Worktree oluşturulması yasaktır, .claude/worktrees/ dizinini kirletiyor.</div>
+      </div>
+      <div class="alert alert-danger">
+        <div class="alert-icon">🚫</div>
+        <div><strong>Pages/ köküne direkt sayfa</strong> — Yeni sayfalar mutlaka admin/, store-admin/, ecommerce/, storefront/ veya auth/ alt klasörüne girer.</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:32px;" class="card">
+    <h3 style="margin-bottom:16px; color:var(--green);">✅ Bunlar Zorunlu</h3>
+    <div class="card-grid card-grid-3">
+      <div>
+        <div class="badge badge-green" style="margin-bottom:8px;">Backend</div>
+        <ul style="font-size:0.85rem;color:var(--muted);padding-left:18px;line-height:2.2;">
+          <li>Her modül kendi <code class="inline-code">*ModuleExtensions.cs</code> ile DI kaydı</li>
+          <li>Her işlem için ayrı Command/Query + Handler çifti</li>
+          <li>Entity isimleri Wixi prefix</li>
+          <li>Migration'lar modülün kendi Migrations/ klasörüne</li>
+          <li>Modüller arası iletişim MediatR event ile</li>
+        </ul>
+      </div>
+      <div>
+        <div class="badge badge-blue" style="margin-bottom:8px;">Frontend</div>
+        <ul style="font-size:0.85rem;color:var(--muted);padding-left:18px;line-height:2.2;">
+          <li>Shared UI bileşenlerini kullan</li>
+          <li>Sayfa klasörü: index.ts + Page.tsx + .module.css</li>
+          <li>Service dosyası <code class="inline-code">shared/api/services/</code>'a</li>
+          <li>FSD katman hiyerarşisine uy</li>
+          <li>CSS Modules kullan, Tailwind yok</li>
+        </ul>
+      </div>
+      <div>
+        <div class="badge badge-cyan" style="margin-bottom:8px;">Genel</div>
+        <ul style="font-size:0.85rem;color:var(--muted);padding-left:18px;line-height:2.2;">
+          <li>Görevler ClickUp'ta takip edilir</li>
+          <li>feature/* → develop → main PR akışı</li>
+          <li>Her yeni modül için PRD belgesi ekle</li>
+          <li>TR + EN menü çevirisi zorunlu</li>
+          <li>SortOrder her menüde benzersiz olmalı</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ FOOTER ══════════════════════════ -->
+<div class="divider"></div>
+<div style="padding:48px 0; text-align:center;">
+  <div style="font-size:0.85rem; color:var(--muted); margin-bottom:12px;">
+    Sorular için ClickUp'ta görev aç veya Ahmet Can Bozkurt'a ulaş.
+  </div>
+  <div style="font-size:0.78rem; color:rgba(100,116,139,0.5);">
+    Wixi Platform — Developer Onboarding Guide
+  </div>
+</div>
+
+</div><!-- /container -->
+
+</body>
+</html>
