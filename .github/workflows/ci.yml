@@ -11,7 +11,7 @@ jobs:
     name: Backend Build (.NET 9)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Setup .NET 9
         uses: actions/setup-dotnet@v4
@@ -39,7 +39,7 @@ jobs:
       run:
         working-directory: src/frontend
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Setup Node.js 20
         uses: actions/setup-node@v4
