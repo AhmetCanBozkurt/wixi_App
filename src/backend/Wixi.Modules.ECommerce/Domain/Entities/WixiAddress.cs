@@ -20,6 +20,11 @@ public class WixiAddress : IAuditable
     public string? ZipCode { get; set; }
     public bool IsDefault { get; set; } = false;
 
+    // ── Kurumsal fatura alanları (M02) ─────────────────────────
+    public string? CompanyName { get; set; }
+    public string? TaxNumber { get; set; }
+    public string? TaxOfficeName { get; set; }   // REF_TAX_OFFICES'tan string kopya (D-03)
+
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public string? CreatedByUser { get; set; }
     public DateTime? UpdatedAt { get; set; }

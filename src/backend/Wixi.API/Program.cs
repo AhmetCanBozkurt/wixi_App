@@ -8,6 +8,7 @@ using Wixi.API.Extensions;
 using Wixi.Modules.ECommerce;
 using Wixi.Modules.WebBuilder;
 using Wixi.Modules.PersonalFinance;
+using Wixi.Modules.ProjectManagement;
 using Serilog;
 using Serilog.Events;
 
@@ -38,6 +39,7 @@ builder.Services.AddWixiAuth(builder.Configuration);
 builder.Services.AddControllers()
     .AddApplicationPart(typeof(Wixi.Modules.ECommerce.ECommerceModuleExtensions).Assembly)
     .AddApplicationPart(typeof(Wixi.Modules.WebBuilder.WebBuilderModuleExtensions).Assembly)
+    .AddApplicationPart(typeof(Wixi.Modules.ProjectManagement.ProjectManagementModuleExtensions).Assembly)
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
@@ -108,6 +110,9 @@ builder.Services.AddWebBuilderModule(builder.Configuration);
 
 // ── PersonalFinance Modülü ───────────────────────────────────────
 builder.Services.AddPersonalFinanceModule(builder.Configuration);
+
+// ── ProjectManagement (Tenant) Modülü ────────────────────────────
+builder.Services.AddProjectManagementModule(builder.Configuration);
 
 // ── Finance (Tenant) Modülü ─────────────────────────────────────
 // builder.Services.AddFinanceModule(builder.Configuration);

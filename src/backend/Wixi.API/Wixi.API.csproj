@@ -31,6 +31,7 @@
     <ProjectReference Include="..\Wixi.Modules.WebBuilder\Wixi.Modules.WebBuilder.csproj" />
     <ProjectReference Include="..\Wixi.Modules.PersonalFinance\Wixi.Modules.PersonalFinance.csproj" />
     <ProjectReference Include="..\Wixi.Modules.Finance\Wixi.Modules.Finance.csproj" />
+    <ProjectReference Include="..\Wixi.Modules.ProjectManagement\Wixi.Modules.ProjectManagement.csproj" />
 
   </ItemGroup>
 

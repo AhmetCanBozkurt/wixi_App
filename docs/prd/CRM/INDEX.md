@@ -29,6 +29,7 @@
 | [M11](modules/M11-pazarlama-kampanya.md) | Pazarlama & Kampanya | ❌ | 4 | 🟠 Yüksek | 🔨 |
 | [M12](modules/M12-finans-fatura.md) | Finans & Fatura | ❌ | 4 | 🔴 Kritik | 🔨 |
 | [M13](modules/M13-raporlama-bi.md) | Raporlama & BI | 🟡 | 4 | 🟠 Yüksek | 🔨 |
+| [M14](modules/M14-proje-gorev.md) | Proje & Görev Yönetimi | 🟡 | 5 | 🟠 Yüksek | 🔨 |
 
 **Durum:** ✅ Hazır · 🟡 Kısmi · ❌ Eksik &nbsp;|&nbsp; **Detay:** ⏳ Bekliyor · 🔨 Tasarlanıyor · ✔️ Tamam
 
@@ -42,6 +43,7 @@ Faz 1  (CRM çekirdeği)   M02 Müşteri/CRM · M03 Sadakat
 Faz 2  (ilişki yönetimi) M04 Cari/B2B · M05 Destek
 Faz 3  (operasyon)       M08 Kargo · M09 İade · M10 Tedarikçi · M07 Sayım
 Faz 4  (büyüme & finans)  M11 Pazarlama · M12 Finans · M13 Raporlama
+Faz 5  (operasyon+)      M14 Proje & Görev Yönetimi
 ```
 
 ## Bağımlılık Grafiği (özet)
@@ -54,6 +56,8 @@ M04 Cari ──────> M06 Sipariş(B2B), M12 Finans, M05 Destek
 M06 Sipariş ───> M08 Kargo, M09 İade, M12 Finans, M03 Sadakat(puan)
 M07 Stok ──────> M09 İade(restok), M10 Tedarikçi(mal kabul)
 M02+M06 ───────> M13 Raporlama (RFM, cohort, churn)
+M02/M04 ───────> M14 Proje (müşteri/cari bağı)
+M14 Proje ─────> M12 Finans (milestone→fatura), M13 (zaman raporu)
 ```
 
 ---

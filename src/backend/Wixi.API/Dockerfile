@@ -10,6 +10,7 @@ COPY Wixi.Modules.ECommerce/Wixi.Modules.ECommerce.csproj Wixi.Modules.ECommerce
 COPY Wixi.Modules.WebBuilder/Wixi.Modules.WebBuilder.csproj Wixi.Modules.WebBuilder/
 COPY Wixi.Modules.PersonalFinance/Wixi.Modules.PersonalFinance.csproj Wixi.Modules.PersonalFinance/
 COPY Wixi.Modules.Finance/Wixi.Modules.Finance.csproj Wixi.Modules.Finance/
+COPY Wixi.Modules.ProjectManagement/Wixi.Modules.ProjectManagement.csproj Wixi.Modules.ProjectManagement/
 COPY Wixi.Shared/Wixi.Shared.csproj                   Wixi.Shared/
 
 RUN dotnet restore Wixi.Platform.sln

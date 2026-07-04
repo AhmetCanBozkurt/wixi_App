@@ -194,12 +194,12 @@ Storefront tarafı (`/public/storefront/auth/profile`): KVKK opt-in alanları pr
 
 ## Detay Tasarım (TODO)
 - [x] Veri modeli + RFM motoru + CQRS + endpoint + frontend tasarımı
-- [ ] `WixiCustomer` genişletme migration (RFM/KVKK/profil alanları)
-- [ ] `WixiAddress` fatura alanları migration
-- [ ] `WixiCustomerNote` + `WixiRfmSnapshot` + `WixiCustomerCommLog` entity + DbSet
-- [ ] `RfmSnapshotWorker` (BackgroundService) + segment kural tablosu
-- [ ] CQRS (Application/Crm/): not, consent, blacklist, 360, segment, recompute-rfm
-- [ ] Endpoint'ler (store-admin/customers genişletme + yeniler)
-- [ ] `StoreCustomerDetailPage` (360°) + `StoreCustomersPage` segment filtresi
-- [ ] Storefront profil KVKK toggle
-- [ ] Menü: store-admin müşteri detay rotası
+- [x] `WixiCustomer` genişletme migration (RFM/KVKK/profil alanları) — `M02CrmCustomerCore` *(2026-07-04)*
+- [x] `WixiAddress` fatura alanları migration *(2026-07-04)*
+- [x] `WixiCustomerNote` entity + DbSet *(2026-07-04)* — `WixiRfmSnapshot` + `WixiCustomerCommLog` ikinci turda
+- [ ] `RfmSnapshotWorker` (BackgroundService) + segment kural tablosu → ClickUp 86ey5p4r2 devamı
+- [x] CQRS (Application/Crm/): not, consent, blacklist, 360 *(2026-07-04)* — segment/recompute-rfm ikinci turda
+- [x] Endpoint'ler (store-admin/customers genişletme + notes/consent/blacklist) *(2026-07-04)*
+- [x] `StoreCustomerDetailPage` (360°) + `StoreCustomersPage` segment filtresi *(2026-07-04)*
+- [ ] Storefront profil KVKK toggle (müşteri self-servis)
+- [x] Rota: `/tenant/{slug}/customers/:customerId` *(2026-07-04)*

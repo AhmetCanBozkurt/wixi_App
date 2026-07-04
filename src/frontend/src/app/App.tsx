@@ -53,6 +53,7 @@ import { StoreAdminLoginPage } from '../pages/auth/StoreAdminLoginPage/StoreAdmi
 import { StoreDashboardPage } from '../pages/store-admin/StoreAdminPage/pages/StoreDashboardPage';
 import { StoreOrdersPage } from '../pages/store-admin/StoreAdminPage/pages/StoreOrdersPage';
 import { StoreCustomersPage } from '../pages/store-admin/StoreAdminPage/pages/StoreCustomersPage';
+import { StoreCustomerDetailPage } from '../pages/store-admin/StoreAdminPage/pages/StoreCustomerDetailPage';
 import { StoreSettingsPage } from '../pages/store-admin/StoreAdminPage/pages/StoreSettingsPage';
 import { StoreBillingPage } from '../pages/store-admin/StoreAdminPage/pages/StoreBillingPage';
 import { ThemeEditor } from '../features/ThemeBuilder/ThemeEditor';
@@ -67,6 +68,7 @@ import { StoreSlidersPage } from '../pages/store-admin/StoreAdminPage/pages/Stor
 import { StoreFaqPage } from '../pages/store-admin/StoreAdminPage/pages/StoreFaqPage';
 import { StoreContactSubmissionsPage } from '../pages/store-admin/StoreAdminPage/pages/StoreContactSubmissionsPage';
 import { StoreCariPage } from '../pages/store-admin/StoreCariPage/StoreCariPage';
+import { StoreProjectsPage } from '../pages/store-admin/StoreProjectsPage';
 import StoreDiscountsPage from '../pages/store-admin/StoreDiscountsPage/StoreDiscountsPage';
 import StoreAnalyticsPage from '../pages/store-admin/StoreAnalyticsPage/StoreAnalyticsPage';
 import StoreMediaPage from '../pages/store-admin/StoreMediaPage/StoreMediaPage';
@@ -203,6 +205,7 @@ const App = () => {
               <Route path="brands" element={<StoreBrandsPage />} />
               <Route path="orders" element={<StoreOrdersPage />} />
               <Route path="customers" element={<StoreCustomersPage />} />
+              <Route path="customers/:customerId" element={<StoreCustomerDetailPage />} />
               <Route path="settings" element={<StoreSettingsPage />} />
               <Route path="billing" element={<StoreBillingPage />} />
               <Route path="testimonials" element={<StoreTestimonialsPage />} />
@@ -213,6 +216,7 @@ const App = () => {
               <Route path="stock" element={<StoreStockPage />} />
               <Route path="stock/report" element={<StoreWarehouseReportPage />} />
               <Route path="cari" element={<StoreCariPage />} />
+              <Route path="projects" element={<StoreProjectsPage />} />
               <Route path="discounts" element={<StoreDiscountsPage />} />
               <Route path="analytics" element={<StoreAnalyticsPage />} />
               <Route path="media" element={<StoreMediaPage />} />

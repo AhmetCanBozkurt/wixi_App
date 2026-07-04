@@ -64,6 +64,9 @@ public class ECommerceDbContext : DbContext
     // Müşteri Şifre Sıfırlama
     public DbSet<WixiCustomerResetToken> CustomerResetTokens => Set<WixiCustomerResetToken>();
 
+    // CRM (M02)
+    public DbSet<WixiCustomerNote> CustomerNotes => Set<WixiCustomerNote>();
+
     // Ödeme Logları
     public DbSet<WixiPaymentLog> PaymentLogs => Set<WixiPaymentLog>();
 
@@ -183,6 +186,27 @@ public class ECommerceDbContext : DbContext
             entity.Property(e => e.Email).HasMaxLength(320).IsRequired();
             entity.Property(e => e.PasswordHash).IsRequired();
             entity.Property(e => e.PhoneNumber).HasMaxLength(50);
+            // CRM (M02)
+            entity.Property(e => e.Gender).HasConversion<int>();
+            entity.Property(e => e.ProfileImagePath).HasMaxLength(500);
+            entity.Property(e => e.RfmSegment).HasMaxLength(50);
+            entity.Property(e => e.LtvAmount).HasPrecision(18, 2);
+            entity.Property(e => e.BlacklistReason).HasMaxLength(500);
+            entity.HasIndex(e => e.RfmSegment);
+        });
+
+        // ── WixiCustomerNote (CRM M02) ────────────────────────────
+        modelBuilder.Entity<WixiCustomerNote>(entity =>
+        {
+            entity.ToTable("WIXI_EC_CUSTOMER_NOTES");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Content).HasMaxLength(2000).IsRequired();
+            entity.Property(e => e.NoteType).HasConversion<int>();
+            entity.HasIndex(e => e.CustomerId);
+            entity.HasOne(e => e.Customer)
+                .WithMany(c => c.Notes)
+                .HasForeignKey(e => e.CustomerId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         // ── WixiOrder ─────────────────────────────────────────────
@@ -506,6 +530,9 @@ public class ECommerceDbContext : DbContext
             entity.Property(e => e.City).HasMaxLength(100).IsRequired();
             entity.Property(e => e.District).HasMaxLength(100).IsRequired();
             entity.Property(e => e.ZipCode).HasMaxLength(20);
+            entity.Property(e => e.CompanyName).HasMaxLength(300);
+            entity.Property(e => e.TaxNumber).HasMaxLength(20);
+            entity.Property(e => e.TaxOfficeName).HasMaxLength(200);
             entity.Property(e => e.AddressType).HasConversion<int>();
             entity.HasIndex(e => e.CustomerId);
             entity.HasOne(e => e.Customer)

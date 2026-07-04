@@ -88,6 +88,10 @@ namespace Wixi.Modules.ECommerce.Migrations.Tenant
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<string>("CompanyName")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -125,6 +129,14 @@ namespace Wixi.Modules.ECommerce.Migrations.Tenant
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("TaxNumber")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("TaxOfficeName")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -588,6 +600,13 @@ namespace Wixi.Modules.ECommerce.Migrations.Tenant
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTime?>("BirthDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("BlacklistReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -599,12 +618,21 @@ namespace Wixi.Modules.ECommerce.Migrations.Tenant
                         .HasMaxLength(320)
                         .HasColumnType("nvarchar(320)");
 
+                    b.Property<bool>("EmailOptIn")
+                        .HasColumnType("bit");
+
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
+                    b.Property<int>("Gender")
+                        .HasColumnType("int");
+
                     b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsBlacklisted")
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsDeleted")
@@ -613,10 +641,26 @@ namespace Wixi.Modules.ECommerce.Migrations.Tenant
                     b.Property<bool>("IsEmailVerified")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsGuest")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsPhoneVerified")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("KvkkConsentDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime?>("LastOrderDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("LtvAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
@@ -625,6 +669,23 @@ namespace Wixi.Modules.ECommerce.Migrations.Tenant
                     b.Property<string>("PhoneNumber")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("ProfileImagePath")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<bool>("PushOptIn")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("RfmSegment")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<bool>("SmsOptIn")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("TotalOrders")
+                        .HasColumnType("int");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -637,7 +698,54 @@ namespace Wixi.Modules.ECommerce.Migrations.Tenant
                     b.HasIndex("Email")
                         .IsUnique();
 
+                    b.HasIndex("RfmSegment");
+
                     b.ToTable("WIXI_EC_CUSTOMERS", (string)null);
+                });
+
+            modelBuilder.Entity("Wixi.Modules.ECommerce.Domain.Entities.WixiCustomerNote", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedByUser")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsPrivate")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("NoteType")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedByUser")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
+
+                    b.ToTable("WIXI_EC_CUSTOMER_NOTES", (string)null);
                 });
 
             modelBuilder.Entity("Wixi.Modules.ECommerce.Domain.Entities.WixiCustomerResetToken", b =>
@@ -1838,6 +1946,17 @@ namespace Wixi.Modules.ECommerce.Migrations.Tenant
                     b.Navigation("Parent");
                 });
 
+            modelBuilder.Entity("Wixi.Modules.ECommerce.Domain.Entities.WixiCustomerNote", b =>
+                {
+                    b.HasOne("Wixi.Modules.ECommerce.Domain.Entities.WixiCustomer", "Customer")
+                        .WithMany("Notes")
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Customer");
+                });
+
             modelBuilder.Entity("Wixi.Modules.ECommerce.Domain.Entities.WixiCustomerResetToken", b =>
                 {
                     b.HasOne("Wixi.Modules.ECommerce.Domain.Entities.WixiCustomer", "Customer")
@@ -2022,6 +2141,8 @@ namespace Wixi.Modules.ECommerce.Migrations.Tenant
             modelBuilder.Entity("Wixi.Modules.ECommerce.Domain.Entities.WixiCustomer", b =>
                 {
                     b.Navigation("Addresses");
+
+                    b.Navigation("Notes");
                 });
 
             modelBuilder.Entity("Wixi.Modules.ECommerce.Domain.Entities.WixiOrder", b =>

@@ -3,6 +3,8 @@
 > **Tarih:** 2026-05-16  
 > **Kapsam:** Kanban, Gantt, Zaman Takibi, Ekip Yönetimi  
 > **Durum:** Frontend UI hazır (Mock), Backend bağlantısı yok.
+>
+> ⚠️ **Bu doküman özet niteliğindedir.** Modül bazlı detay analiz (entity + CQRS + endpoint + açık sorular) CRM modül setine taşındı: **[M14 — Proje & Görev Yönetimi](CRM/modules/M14-proje-gorev.md)** (2026-07-04).
 
 ---
 
